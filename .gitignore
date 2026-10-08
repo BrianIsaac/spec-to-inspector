@@ -8,3 +8,15 @@ __pycache__/
 CLAUDE.md
 AGENTS.md
 *.log
+
+# Data, weights and run outputs live outside git; `spec-to-inspector data fetch` restores the data.
+/data/
+/models/
+/runs/
+
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
