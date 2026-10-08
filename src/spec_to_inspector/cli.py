@@ -1,9 +1,30 @@
 """The one entry point: `spec-to-inspector <verb>`."""
 
-from typing import NoReturn
+import signal
+from collections.abc import Generator
+from contextlib import contextmanager
+from types import FrameType
+from typing import Annotated, NoReturn
 
 import typer
 from rich.console import Console
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    TimeRemainingColumn,
+    TransferSpeedColumn,
+)
+from rich.table import Table
+
+from spec_to_inspector.datasets.visa import (
+    MANIFEST_NAME,
+    FetchResult,
+    VisaFetchError,
+    VisaVerificationError,
+    fetch_visa,
+)
+from spec_to_inspector.settings import Settings
 
 app = typer.Typer(
     name="spec-to-inspector",
@@ -14,6 +35,7 @@ app = typer.Typer(
 data_app = typer.Typer(help="Fetch and verify the VisA PCB data.", no_args_is_help=True)
 app.add_typer(data_app, name="data")
 
+out = Console()
 err = Console(stderr=True)
 
 
@@ -31,10 +53,104 @@ def _not_built(verb: str, unit: str) -> NoReturn:
     raise typer.Exit(code=1)
 
 
+@contextmanager
+def _terminate_cleanly() -> Generator[None]:
+    """Turn SIGTERM into SystemExit for the duration, so cleanup code runs on a kill.
+
+    Yields:
+        Nothing; the previous handler is restored on exit.
+    """
+
+    def _exit(signum: int, frame: FrameType | None) -> NoReturn:
+        raise SystemExit(128 + signum)
+
+    previous = signal.signal(signal.SIGTERM, _exit)
+    try:
+        yield
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+
+
+def _counts_table(result: FetchResult) -> Table:
+    """Lay out the verified counts per category.
+
+    Args:
+        result: The fetch's result.
+
+    Returns:
+        A table with one row per category.
+    """
+    table = Table(title=f"VisA, verified against the published counts ({result.path})")
+    for column in ("Category", "Normal", "Anomalous", "Train", "Test normal", "Multi-defect"):
+        table.add_column(column, justify="left" if column == "Category" else "right")
+    table.add_column("Defect types (images)")
+    for name, counts in result.manifest.categories.items():
+        table.add_row(
+            name,
+            str(counts.normal),
+            str(counts.anomalous),
+            str(counts.train_normal),
+            str(counts.test_normal),
+            str(counts.multi_defect),
+            ", ".join(f"{kind} {n}" for kind, n in counts.defect_types.items()),
+        )
+    return table
+
+
 @data_app.command("fetch")
-def data_fetch() -> None:
-    """Stream VisA, keep the four PCB categories, and verify the published counts."""
-    _not_built("data fetch", "U1")
+def data_fetch(
+    force: Annotated[
+        bool,
+        typer.Option(
+            "--force",
+            help="Stream afresh even if a manifest is present; replaces everything under "
+            "the dataset directory, Anomalib's split copy included.",
+        ),
+    ] = False,
+) -> None:
+    """Stream VisA through tar, keep the four PCB categories, and verify the published counts.
+
+    The tarball is never stored. With a manifest already present, nothing is
+    downloaded: the kept files are recounted and rehashed instead.
+    """
+    settings = Settings()
+    dest = settings.visa_dir
+    streaming = force or not (dest / MANIFEST_NAME).is_file()
+    if streaming:
+        err.print(f"Streaming {settings.visa_url} through tar into {dest}")
+    else:
+        err.print(f"Re-verifying {dest} against its manifest")
+    progress = Progress(
+        BarColumn(),
+        DownloadColumn(),
+        TransferSpeedColumn(),
+        TimeRemainingColumn(),
+        console=err,
+        disable=not streaming,
+    )
+    task = progress.add_task("VisA", total=None)
+    try:
+        with _terminate_cleanly(), progress:
+            result = fetch_visa(
+                dest,
+                url=settings.visa_url,
+                force=force,
+                on_progress=lambda done, total: progress.update(task, completed=done, total=total),
+            )
+    except (VisaFetchError, VisaVerificationError) as error:
+        err.print(str(error), markup=False, highlight=False)
+        raise typer.Exit(code=1) from error
+
+    out.print(_counts_table(result))
+    source, tree = result.manifest.source, result.manifest.tree
+    verb = "Streamed" if result.downloaded else "Re-verified"
+    out.print(
+        f"{verb}: {tree.files} files, {tree.bytes / 1024**2:.0f} MiB kept from "
+        f"{source.bytes:,} bytes (sha256 {source.sha256}).",
+        markup=False,
+        highlight=False,
+    )
+    out.print(f"Manifest: {dest / MANIFEST_NAME}", markup=False, highlight=False)
 
 
 @app.command()
