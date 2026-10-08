@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.venv/
+__pycache__/
+.claude/
+CLAUDE.md
+AGENTS.md
+*.log
