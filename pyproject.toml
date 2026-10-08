@@ -65,6 +65,10 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "PLR0913"]
 
+[tool.ruff.lint.pylint]
+# Keyword-only parameter lists are counted too; the public functions take theirs by name.
+max-args = 10
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
@@ -78,6 +82,7 @@ venv = ".venv"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = ["--import-mode=importlib", "-m", "not gpu and not data", "--strict-markers"]
 markers = [
     "gpu: needs the CUDA GPU (run with -m gpu)",
