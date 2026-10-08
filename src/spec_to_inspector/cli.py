@@ -7,6 +7,7 @@ from types import FrameType
 from typing import Annotated, NoReturn
 
 import typer
+from rich import box
 from rich.console import Console
 from rich.progress import (
     BarColumn,
@@ -103,12 +104,13 @@ class _ProgressReport:
                 f"Received {done / 1e6:,.0f} of {total / 1e6:,.0f} MB ({self._next_tenth * 10}%)",
                 markup=False,
                 highlight=False,
+                soft_wrap=True,
             )
             self._next_tenth += 1
 
 
 def _counts_table(result: FetchResult) -> Table:
-    """Lay out the verified counts per category.
+    """Lay out the verified counts per category, narrow enough for an 80-column log.
 
     Args:
         result: The fetch's result.
@@ -116,21 +118,54 @@ def _counts_table(result: FetchResult) -> Table:
     Returns:
         A table with one row per category.
     """
-    table = Table(title=f"VisA, verified against the published counts ({result.path})")
-    for column in ("Category", "Normal", "Anomalous", "Train", "Test normal", "Multi-defect"):
-        table.add_column(column, justify="left" if column == "Category" else "right")
-    table.add_column("Defect types (images)")
+    table = Table(
+        title=f"VisA, verified against the published counts ({result.path})",
+        box=box.SIMPLE_HEAD,
+    )
+    table.add_column("Category")
+    for column in (
+        "Normal",
+        "Anomalous",
+        "Masks",
+        "Train",
+        "Test\nnormal",
+        "Test\nanomalous",
+        "Multi-\ndefect",
+    ):
+        table.add_column(column, justify="right")
     for name, counts in result.manifest.categories.items():
         table.add_row(
             name,
-            str(counts.normal),
-            str(counts.anomalous),
-            str(counts.train_normal),
-            str(counts.test_normal),
-            str(counts.multi_defect),
-            ", ".join(f"{kind} {n}" for kind, n in counts.defect_types.items()),
+            *(
+                str(n)
+                for n in (
+                    counts.normal,
+                    counts.anomalous,
+                    counts.masks,
+                    counts.train_normal,
+                    counts.test_normal,
+                    counts.test_anomalous,
+                    counts.multi_defect,
+                )
+            ),
         )
     return table
+
+
+def _defect_lines(result: FetchResult) -> list[str]:
+    """List each category's defect types with their image counts, most common first.
+
+    Args:
+        result: The fetch's result.
+
+    Returns:
+        One line per category.
+    """
+    return [
+        f"{name} defect types: "
+        + ", ".join(f"{kind} {n}" for kind, n in counts.defect_types.items())
+        for name, counts in result.manifest.categories.items()
+    ]
 
 
 @data_app.command("fetch")
@@ -153,9 +188,9 @@ def data_fetch(
     dest = settings.visa_dir
     streaming = force or not (dest / MANIFEST_NAME).is_file()
     if streaming:
-        err.print(f"Streaming {settings.visa_url} through tar into {dest}")
+        err.print(f"Streaming {settings.visa_url} through tar into {dest}", soft_wrap=True)
     else:
-        err.print(f"Re-verifying {dest} against its manifest")
+        err.print(f"Re-verifying {dest} against its manifest", soft_wrap=True)
     progress = Progress(
         BarColumn(),
         DownloadColumn(),
@@ -174,10 +209,12 @@ def data_fetch(
                 on_progress=report,
             )
     except (VisaFetchError, VisaVerificationError) as error:
-        err.print(str(error), markup=False, highlight=False)
+        err.print(str(error), markup=False, highlight=False, soft_wrap=True)
         raise typer.Exit(code=1) from error
 
     out.print(_counts_table(result))
+    for line in _defect_lines(result):
+        out.print(line, markup=False, highlight=False, soft_wrap=True)
     source, tree = result.manifest.source, result.manifest.tree
     verb = "Streamed" if result.downloaded else "Re-verified"
     out.print(
@@ -185,8 +222,9 @@ def data_fetch(
         f"{source.bytes:,} bytes (sha256 {source.sha256}).",
         markup=False,
         highlight=False,
+        soft_wrap=True,
     )
-    out.print(f"Manifest: {dest / MANIFEST_NAME}", markup=False, highlight=False)
+    out.print(f"Manifest: {dest / MANIFEST_NAME}", markup=False, highlight=False, soft_wrap=True)
 
 
 @app.command()
