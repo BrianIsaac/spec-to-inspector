@@ -12,6 +12,7 @@ from rich.progress import (
     BarColumn,
     DownloadColumn,
     Progress,
+    TaskID,
     TimeRemainingColumn,
     TransferSpeedColumn,
 )
@@ -71,6 +72,41 @@ def _terminate_cleanly() -> Generator[None]:
         signal.signal(signal.SIGTERM, previous)
 
 
+class _ProgressReport:
+    """Progress of a stream: a live bar on a terminal, a plain line per tenth elsewhere."""
+
+    def __init__(self, progress: Progress, task: TaskID, console: Console) -> None:
+        """Bind the report to its bar and console.
+
+        Args:
+            progress: The live bar, shown only on a terminal.
+            task: The bar's task.
+            console: Where plain lines go when there is no terminal.
+        """
+        self._progress = progress
+        self._task = task
+        self._console = console
+        self._next_tenth = 1
+
+    def __call__(self, done: int, total: int | None) -> None:
+        """Record the bytes received so far.
+
+        Args:
+            done: Bytes received.
+            total: The stream's size, if known.
+        """
+        self._progress.update(self._task, completed=done, total=total)
+        if self._console.is_terminal or not total:
+            return
+        while self._next_tenth <= 10 and done * 10 >= total * self._next_tenth:
+            self._console.print(
+                f"Received {done / 1e6:,.0f} of {total / 1e6:,.0f} MB ({self._next_tenth * 10}%)",
+                markup=False,
+                highlight=False,
+            )
+            self._next_tenth += 1
+
+
 def _counts_table(result: FetchResult) -> Table:
     """Lay out the verified counts per category.
 
@@ -128,14 +164,14 @@ def data_fetch(
         console=err,
         disable=not streaming,
     )
-    task = progress.add_task("VisA", total=None)
+    report = _ProgressReport(progress, progress.add_task("VisA", total=None), err)
     try:
         with _terminate_cleanly(), progress:
             result = fetch_visa(
                 dest,
                 url=settings.visa_url,
                 force=force,
-                on_progress=lambda done, total: progress.update(task, completed=done, total=total),
+                on_progress=report,
             )
     except (VisaFetchError, VisaVerificationError) as error:
         err.print(str(error), markup=False, highlight=False)

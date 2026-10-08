@@ -102,3 +102,13 @@ def test_data_fetch_fails_on_a_changed_tree_and_names_the_way_out(data_dir: Path
     assert result.exit_code == 1
     assert "tree digest differs" in result.output
     assert "--force" in result.output
+
+
+def test_data_fetch_reports_progress_in_tenths_without_a_terminal(data_dir: Path) -> None:
+    """Without a terminal the bar is hidden, so plain lines mark each tenth of the stream."""
+    result = runner.invoke(app, ["data", "fetch"])
+
+    assert result.exit_code == 0, result.output
+    tenths = [line for line in result.output.splitlines() if line.startswith("Received ")]
+    assert len(tenths) == 10
+    assert tenths[-1].endswith("(100%)")
