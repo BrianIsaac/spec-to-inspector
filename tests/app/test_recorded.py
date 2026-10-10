@@ -13,7 +13,10 @@ from fastapi.testclient import TestClient
 
 from spec_to_inspector.app.runs import Board, Status, count_statuses, list_runs, open_run
 from spec_to_inspector.app.server import build_console
+from spec_to_inspector.app.sink import InMemorySink
 from spec_to_inspector.app.training import read_train_record
+from spec_to_inspector.corrections.store import CorrectionStore
+from spec_to_inspector.judge.inspect import load_decision
 from spec_to_inspector.settings import Settings
 
 pytestmark = pytest.mark.recorded
@@ -36,11 +39,21 @@ def settings() -> Settings:
 def client(settings: Settings, tmp_path_factory: pytest.TempPathFactory) -> TestClient:
     """The console as `serve` builds it over the recorded runs, with the tracked clause table.
 
+    Its overrides are kept in memory. The recorded runs and the settings'
+    corrections store are shared with every other piece of work on this
+    machine, and `serve`'s own sink writes a row the judge would then recall
+    and flags the board's decision: these tests must leave both as they
+    found them. The store's join is proven on copies in `test_store_sink.py`
+    and `test_web.py`.
+
     Returns:
         Its client.
     """
     console = build_console(
-        settings, state_dir=tmp_path_factory.mktemp("recorded"), spec=CLAUSE_TABLE
+        settings,
+        state_dir=tmp_path_factory.mktemp("recorded"),
+        spec=CLAUSE_TABLE,
+        sink=InMemorySink(),
     )
     return TestClient(console, follow_redirects=False)
 
@@ -169,6 +182,10 @@ def test_a_run_of_another_part_is_corrected_with_its_own_clauses(
     assert "has no defect class" in refused.text
     assert recorded.status_code == 303
     assert "4.4 Bent header pin" in client.get(base).text
+    # Nothing shared was written: no row for the judge to recall, no flag on the decision.
+    assert CorrectionStore(settings.corrections_path).for_image("pcb1", reject.image_id) == []
+    directory = settings.runs_dir / "pcb1" / "test" / reject.image_id
+    assert not load_decision(directory).corrected.overridden
 
 
 def test_a_part_filed_under_the_wrong_name_is_not_found(client: TestClient) -> None:
