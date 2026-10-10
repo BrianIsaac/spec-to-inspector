@@ -93,7 +93,7 @@ def test_the_other_image_setting_stands_beside_the_shipped_one(record: BenchReco
 
     assert "## The other image setting" in page
     assert (
-        "| Figure | Image minimum 1024 (this page) | Image minimum the model's own minimum |"
+        "| Figure | Image tokens: 1024 (this page) | Image tokens: the model's own minimum |"
         in page
     )
     assert "| Strict, single-defect images | 66.7% (2 of 3) | 66.7% (2 of 3) |" in page

@@ -301,7 +301,8 @@ def _beside_lines(record: BenchRecord, beside: BenchRecord) -> list[str]:
     ]
     shipped, other = column(record), column(beside)
     return [
-        "The same command against the same server started with another image setting, as",
+        "The same command against the same server started with another minimum of tokens an",
+        "image, the least the server gives a small crop (`--image-min-tokens`), as",
         f"`eval/PROTOCOL.md` declared in advance. The other run was made on "
         f"{beside.measured_on}{' and is partial' if beside.partial else ''}. The headline is",
         "this page's setting whichever is higher.",
@@ -309,8 +310,8 @@ def _beside_lines(record: BenchRecord, beside: BenchRecord) -> list[str]:
         *_table(
             [
                 "Figure",
-                f"Image minimum {record.judge.image_min_tokens} (this page)",
-                f"Image minimum {beside.judge.image_min_tokens}",
+                f"Image tokens: {record.judge.image_min_tokens} (this page)",
+                f"Image tokens: {beside.judge.image_min_tokens}",
             ],
             (
                 [name, mine, theirs]

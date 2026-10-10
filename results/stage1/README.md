@@ -214,6 +214,25 @@ This run was compared with the run of the same command before it (2026-10-10T20:
 - Images that differ in anything but the sentence: none.
 - Every counted figure of the protocol is equal in the two runs.
 
+## The other image setting
+
+The same command against the same server started with another minimum of tokens an
+image, the least the server gives a small crop (`--image-min-tokens`), as
+`eval/PROTOCOL.md` declared in advance. The other run was made on 2026-10-11. The headline is
+this page's setting whichever is higher.
+
+| Figure | Image tokens: 1024 (this page) | Image tokens: the model's own minimum |
+| --- | --- | --- |
+| Strict, single-defect images | 38.5% (52 of 135) | 35.6% (48 of 135) |
+| Its 95% interval | 30.7% to 46.9% | 28.0% to 43.9% |
+| Lenient, multi-defect images | 58.5% (38 of 65) | 61.5% (40 of 65) |
+| Per region | 40.5% (60 of 148) | 40.5% (60 of 148) |
+| Good boards rejected | 8.0% (16 of 201) | 8.0% (16 of 201) |
+| Anomalous boards referred | 7.0% (14 of 200) | 7.0% (14 of 200) |
+| The VLM's answer to one area, cold | 3.33 s (p95 3.84 s, n 218) | 1.60 s (p95 2.85 s, n 219) |
+| A flagged image, end to end | 3.49 s (p95 4.03 s, n 216) | 1.77 s (p95 3.20 s, n 216) |
+| VLM server, peak GPU memory | 8,780 MiB | 8,780 MiB |
+
 ## What these figures are not
 
 - Not held out. VisA's PCB test split is the only labelled data; the anomaly model's
