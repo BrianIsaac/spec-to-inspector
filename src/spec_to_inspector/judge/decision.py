@@ -104,6 +104,11 @@ class RegionDecision(BaseModel):
         rule: The disposition rule's own answer, with the figures compared;
             None when the rule was not reached or its figures do not apply.
         call: What asking the judge cost and returned; None if it was not asked.
+        corrections: The engineers' corrections that stood in the prompt of
+            the answer above, each as the judge read it; empty when none did.
+        first_answer: The model's answer before it was shown corrections
+            recalled on that answer; None unless the region was asked twice.
+        first_call: What that first asking cost and returned; None with it.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -120,6 +125,26 @@ class RegionDecision(BaseModel):
     clause: schema.Clause | None = None
     rule: Disposition | None = None
     call: JudgeCall | None = None
+    corrections: tuple[str, ...] = ()
+    first_answer: JudgeAnswer | None = None
+    first_call: JudgeCall | None = None
+
+
+class Corrected(BaseModel):
+    """The "corrected" flag of a board: where the engineers' corrections touch its decision.
+
+    Attributes:
+        in_prompt: Whether an engineer's correction of an earlier board stood
+            in the prompt of a region of this board; the lines themselves are
+            each region's `corrections`.
+        overridden: Whether an engineer has overridden the judge on this
+            board itself; the override is in the corrections store.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    in_prompt: bool = False
+    overridden: bool = False
 
 
 class Decision(BaseModel):
@@ -146,6 +171,8 @@ class Decision(BaseModel):
         judge_url: The VLM server asked.
         judge_model: The model's name on that server.
         created_at: When the decision was made, in UTC, ISO 8601.
+        corrected: Whether a correction was in the judge's prompt, and whether
+            this board was itself overridden by an engineer.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -168,6 +195,7 @@ class Decision(BaseModel):
     judge_url: str
     judge_model: str
     created_at: str
+    corrected: Corrected = Corrected()
 
     @property
     def regions_not_judged(self) -> int:

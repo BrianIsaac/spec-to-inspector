@@ -12,6 +12,14 @@ model's own sidecar:
         decision.json                 the `Decision`
         overlays/region-001.png ...   each judged region's crop under its heatmap
 
+The engineers' corrections reach the prompt through callables, so this module
+knows nothing of where they are kept. `recall` gives the corrections of the
+part before the judge is asked: one question, and the same lines for every
+board of a batch. `recall_on_answer` is the other strategy: the judge is asked
+with whatever `recall` gave, and if corrections are on record for the answer
+it gives, it is asked once more with those in the slot and the second answer
+stands; the first is kept on the region's decision.
+
 This module reads the anomaly model's files itself and does not import
 Anomalib, so judging an existing run starts in a second or two.
 """
@@ -33,6 +41,7 @@ from spec_to_inspector.judge.answer import AnswerError, JudgeAnswer, answer_sche
 from spec_to_inspector.judge.client import ChatClient, Completion, Message, VlmError
 from spec_to_inspector.judge.decision import (
     Cause,
+    Corrected,
     Decision,
     JudgeCall,
     RegionDecision,
@@ -56,6 +65,12 @@ DEFAULT_MAX_REGIONS: Final = 3
 
 Recall = Callable[[str], Sequence[str]]
 """Recalls the engineers' corrections for a part, each rendered in words; at most three."""
+
+AnswerRecall = Callable[[str, JudgeAnswer], Sequence[str]]
+"""Recalls the corrections made where the judge gave this answer on this part before."""
+
+Overridden = Callable[[str, str], bool]
+"""Says whether an engineer has overridden the judge on an image of a part."""
 
 
 class InspectError(RuntimeError):
@@ -234,6 +249,7 @@ def _judge_region(
     client: ChatClient,
     *,
     corrections: Sequence[str],
+    recall_on_answer: AnswerRecall | None,
     cache_prompt: bool | None,
     write: bool,
 ) -> RegionDecision:
@@ -245,6 +261,9 @@ def _judge_region(
         specification: The parsed specification.
         client: The VLM server's client.
         corrections: The corrections recalled for the part.
+        recall_on_answer: Recalls the corrections on record for the answer
+            the judge gives; when it recalls any, the judge is asked once
+            more with those and the second answer stands.
         cache_prompt: llama.cpp's per-request prompt-cache switch.
         write: Whether to keep the overlay as a file beside the crops.
 
@@ -296,25 +315,38 @@ def _judge_region(
         (scene.directory / OVERLAYS_DIR).mkdir(exist_ok=True)
         (scene.directory / overlay_name).write_bytes(overlay_png)
 
-    messages = build_messages(
-        specification,
-        result.category,
-        measurement,
-        crop_png=crop_png,
-        overlay_png=overlay_png,
-        from_peak=region.from_peak,
-        corrections=corrections,
-    )
-    asked = ask_judge(
-        client,
-        messages,
-        answer_schema(specification, result.category),
-        cache_prompt=cache_prompt,
-    )
+    def ask(lines: Sequence[str]) -> Asked:
+        messages = build_messages(
+            specification,
+            result.category,
+            measurement,
+            crop_png=crop_png,
+            overlay_png=overlay_png,
+            from_peak=region.from_peak,
+            corrections=lines,
+        )
+        return ask_judge(
+            client,
+            messages,
+            answer_schema(specification, result.category),
+            cache_prompt=cache_prompt,
+        )
+
+    in_prompt = tuple(corrections)
+    asked = ask(in_prompt)
+    first: Asked | None = None
+    if recall_on_answer is not None and asked.answer is not None:
+        recalled = tuple(recall_on_answer(result.category, asked.answer))
+        if recalled and recalled != in_prompt:
+            first, in_prompt = asked, recalled
+            asked = ask(in_prompt)
     shown: dict[str, object] = {
         "crop": region.crop,
         "overlay": overlay_name if write else None,
         "call": asked.call,
+        "corrections": in_prompt,
+        "first_answer": None if first is None else first.answer,
+        "first_call": None if first is None else first.call,
     }
     if asked.answer is None:
         return _refused(
@@ -339,6 +371,7 @@ def _judge_regions(
     *,
     max_regions: int,
     recall: Recall | None,
+    recall_on_answer: AnswerRecall | None,
     cache_prompt: bool | None,
     write: bool,
 ) -> tuple[Verdict, list[RegionDecision]]:
@@ -351,6 +384,7 @@ def _judge_regions(
         client: The VLM server's client.
         max_regions: The most regions to put to the judge.
         recall: Recalls the corrections for the part, if a store exists.
+        recall_on_answer: Recalls the corrections on record for an answer.
         cache_prompt: llama.cpp's per-request prompt-cache switch.
         write: Whether to keep each overlay as a file.
 
@@ -377,6 +411,7 @@ def _judge_regions(
             specification,
             client,
             corrections=corrections,
+            recall_on_answer=recall_on_answer,
             cache_prompt=cache_prompt,
             write=write,
         )
@@ -398,6 +433,16 @@ def _write_atomically(path: Path, text: str) -> None:
     partial.replace(path)
 
 
+def write_decision(directory: Path, decision: Decision) -> None:
+    """Write an image's decision beside its result, replacing any earlier one.
+
+    Args:
+        directory: The image's directory in the run.
+        decision: The decision.
+    """
+    _write_atomically(directory / DECISION_NAME, decision.model_dump_json(indent=2) + "\n")
+
+
 def judge_image(
     directory: Path,
     specification: Specification,
@@ -405,6 +450,8 @@ def judge_image(
     *,
     max_regions: int = DEFAULT_MAX_REGIONS,
     recall: Recall | None = None,
+    recall_on_answer: AnswerRecall | None = None,
+    overridden: Overridden | None = None,
     cache_prompt: bool | None = None,
     write: bool = True,
 ) -> Decision:
@@ -423,6 +470,12 @@ def judge_image(
         recall: Recalls the engineers' corrections for a part, each in words;
             the corrections store fills this, and without it the prompt's
             slot says there are none.
+        recall_on_answer: Recalls the corrections on record for the answer
+            the judge gives to a region; when it recalls any, the region is
+            put to the judge once more with those, and the second answer
+            stands.
+        overridden: Says whether an engineer has overridden the judge on an
+            image of a part; it sets the decision's flag.
         cache_prompt: llama.cpp's per-request prompt-cache switch; None
             leaves the server's default.
         write: Whether to write `decision.json` and the overlays; a timing
@@ -455,6 +508,7 @@ def judge_image(
             client,
             max_regions=max_regions,
             recall=recall,
+            recall_on_answer=recall_on_answer,
             cache_prompt=cache_prompt,
             write=write,
         )
@@ -494,9 +548,13 @@ def judge_image(
         judge_url=client.url,
         judge_model=client.model,
         created_at=datetime.now(UTC).isoformat(timespec="seconds"),
+        corrected=Corrected(
+            in_prompt=any(region.corrections for region in regions),
+            overridden=overridden is not None and overridden(result.category, result.image_id),
+        ),
     )
     if write:
-        _write_atomically(directory / DECISION_NAME, decision.model_dump_json(indent=2) + "\n")
+        write_decision(directory, decision)
     return decision
 
 
@@ -541,6 +599,8 @@ def judge_run(
     image_ids: Sequence[str] | None = None,
     max_regions: int = DEFAULT_MAX_REGIONS,
     recall: Recall | None = None,
+    recall_on_answer: AnswerRecall | None = None,
+    overridden: Overridden | None = None,
     cache_prompt: bool | None = None,
     on_decision: Callable[[Decision], None] | None = None,
 ) -> list[Decision]:
@@ -554,6 +614,8 @@ def judge_run(
             run, in the run's order, if None.
         max_regions: The most regions per image to put to the judge.
         recall: Recalls the engineers' corrections for a part.
+        recall_on_answer: Recalls the corrections on record for an answer.
+        overridden: Says whether an engineer has overridden an image.
         cache_prompt: llama.cpp's per-request prompt-cache switch.
         on_decision: Called with each decision as it is made.
 
@@ -580,6 +642,8 @@ def judge_run(
             client,
             max_regions=max_regions,
             recall=recall,
+            recall_on_answer=recall_on_answer,
+            overridden=overridden,
             cache_prompt=cache_prompt,
         )
         decisions.append(decision)

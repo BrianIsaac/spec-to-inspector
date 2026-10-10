@@ -21,11 +21,11 @@ runner = CliRunner()
 
 
 def test_help_lists_every_verb() -> None:
-    """The top-level help names the six verbs of the pipeline."""
+    """The top-level help names the seven verbs of the pipeline."""
     result = runner.invoke(app, ["--help"])
 
     assert result.exit_code == 0
-    for verb in ("data", "parse", "train", "inspect", "bench", "serve"):
+    for verb in ("data", "parse", "train", "inspect", "correct", "bench", "serve"):
         assert verb in result.output
 
 

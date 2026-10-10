@@ -1,0 +1,1562 @@
+{
+ "notes": {
+  "what": "a scratch probe of four wordings of one correction in the judge's prompt, run by the unit's author on 11 October 2026 (+08) against the same server as the live check; indicative, not a figure for the deck",
+  "asked": "every request with the server's prompt cache off, region 1 only, one correction in the slot: the override of the pair's misjudged image",
+  "before": "the empty slot",
+  "A_note": "the line as shipped: both classes and clauses, then the engineer's note",
+  "B_scoped": "the same line, then a sentence saying it applies only where the flagged area shows the same thing, and that a real instance of the judged class is still that class",
+  "C_plain": "the line without the engineer's note",
+  "D_picture": "the line as shipped, followed by the corrected board's own crop as a picture and a sentence asking for the two boards to be compared",
+  "values": "each answer is the class named, the heading cited and the judge's own line; truth is VisA's defect type under region 1"
+ },
+ "rows": [
+  {
+   "pair": "bad-011",
+   "image": "bad-020",
+   "role": "sibling",
+   "expected": "damage",
+   "before": [
+    "damage",
+    "5.5",
+    "A damaged component or board with a charred area on the board surface"
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "A component is cracked open with pieces lying beside it, indicating physical breakage."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "A component is cracked open with pieces lying beside it"
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "A damaged component or board with a torn or crushed receptacle shell"
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "A component is broken and pieces of it lie beside it."
+   ],
+   "D_seconds": 4.6672013939823955,
+   "D_prompt_tokens": 5856,
+   "category": "pcb4",
+   "truth": [
+    "damage"
+   ]
+  },
+  {
+   "pair": "bad-011",
+   "image": "bad-000",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "burnt",
+    "5.7",
+    "A blackened area on the board surface under the flagged heatmap, indicating a burn mark."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The component's body is cracked open with pieces lying beside it."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The component's body is cracked open and pieces of it lie beside it."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The black component has a melted and discolored area on its body, indicating damage."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "The component's body is cracked open and pieces of it lie beside it."
+   ],
+   "D_seconds": 4.366905936039984,
+   "D_prompt_tokens": 5875,
+   "category": "pcb4",
+   "truth": [
+    "burnt"
+   ]
+  },
+  {
+   "pair": "bad-011",
+   "image": "bad-001",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "burnt",
+    "5.7",
+    "A burn mark on the board near the header pin."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "A component is cracked open with pieces lying beside it, indicating physical breakage."
+   ],
+   "B_scoped": [
+    "burnt",
+    "5.7",
+    "A component is charred and blackened by heat, with a burnt appearance."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "A burnt area on the board surface"
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "A component is broken and pieces lie beside it"
+   ],
+   "D_seconds": 4.274106506956741,
+   "D_prompt_tokens": 5877,
+   "category": "pcb4",
+   "truth": [
+    "burnt"
+   ]
+  },
+  {
+   "pair": "bad-011",
+   "image": "bad-003",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "burnt",
+    "5.7",
+    "A blackened, charred area on the board surface in zone A, which is a burn mark."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "A component is cracked open with pieces lying beside it."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "A component is cracked open with pieces lying beside it."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "A component is damaged with a blackened, charred area on its body."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "A component is cracked open with pieces lying beside it, indicating physical breakage."
+   ],
+   "D_seconds": 4.446257379138842,
+   "D_prompt_tokens": 5927,
+   "category": "pcb4",
+   "truth": [
+    "burnt"
+   ]
+  },
+  {
+   "pair": "bad-011",
+   "image": "bad-009",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "damage",
+    "5.5",
+    "A component is damaged with charred material on its body."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The component is cracked and broken into pieces, with fragments lying beside it."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The component's body is cracked open with pieces lying beside it."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The component in the flagged area is damaged, with visible chipping and deformation."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "A component is cracked open with pieces lying beside it, indicating physical breakage."
+   ],
+   "D_seconds": 4.2569785341620445,
+   "D_prompt_tokens": 5814,
+   "category": "pcb4",
+   "truth": [
+    "damage"
+   ]
+  },
+  {
+   "pair": "bad-011",
+   "image": "bad-018",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "damage",
+    "5.5",
+    "The integrated circuit is damaged with charred material on its surface."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The integrated circuit component is cracked and broken, with pieces lying beside it."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The component's body is cracked open with pieces lying beside it."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The integrated circuit is damaged, with visible chipping and melting on its body."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "The component's body is cracked open and pieces of it lie beside it."
+   ],
+   "D_seconds": 4.379429546184838,
+   "D_prompt_tokens": 5875,
+   "category": "pcb4",
+   "truth": [
+    "damage"
+   ]
+  },
+  {
+   "pair": "bad-033",
+   "image": "bad-026",
+   "role": "sibling",
+   "expected": "extra",
+   "before": [
+    "burnt",
+    "5.7",
+    "A burn mark on the board surface"
+   ],
+   "A_note": [
+    "extra",
+    "5.3",
+    "A black, irregularly shaped object lies across the board's pads in zone A, which is not a component and is not part of the design."
+   ],
+   "B_scoped": [
+    "extra",
+    "5.3",
+    "A black, irregularly shaped object lies across the board's pads in zone A, which is not a component and is not part of the design."
+   ],
+   "C_plain": [
+    "burnt",
+    "5.7",
+    "A burnt area on the board surface"
+   ],
+   "D_picture": [
+    "extra",
+    "5.3",
+    "A black, loose part lies across pads where the board has no component of its own."
+   ],
+   "D_seconds": 4.950280875898898,
+   "D_prompt_tokens": 5914,
+   "category": "pcb4",
+   "truth": [
+    "extra"
+   ]
+  },
+  {
+   "pair": "bad-033",
+   "image": "bad-000",
+   "role": "control",
+   "expected": "extra",
+   "before": [
+    "burnt",
+    "5.7",
+    "A blackened area on the board surface under the flagged heatmap, indicating a burn mark."
+   ],
+   "A_note": [
+    "extra",
+    "5.3",
+    "A black part lies across pads where the board has no component of its own"
+   ],
+   "B_scoped": [
+    "extra",
+    "5.3",
+    "A black part lies across pads where the board has no component of its own"
+   ],
+   "C_plain": [
+    "extra",
+    "5.3",
+    "A lump of solder on the board near the component"
+   ],
+   "D_picture": [
+    "extra",
+    "5.3",
+    "A black object is lying across the board's pads where no component is designed to be."
+   ],
+   "D_seconds": 4.423407351132482,
+   "D_prompt_tokens": 5873,
+   "category": "pcb4",
+   "truth": [
+    "burnt"
+   ]
+  },
+  {
+   "pair": "bad-033",
+   "image": "bad-001",
+   "role": "control",
+   "expected": "extra",
+   "before": [
+    "burnt",
+    "5.7",
+    "A burn mark on the board near the header pin."
+   ],
+   "A_note": [
+    "extra",
+    "5.3",
+    "A black, irregularly shaped object lies across the pads where the board has no component of its own."
+   ],
+   "B_scoped": [
+    "extra",
+    "5.3",
+    "A black, irregularly shaped object is present on the board where no component is designed to be."
+   ],
+   "C_plain": [
+    "extra",
+    "5.3",
+    "A lump of solder or adhesive on the board, not a component."
+   ],
+   "D_picture": [
+    "extra",
+    "5.3",
+    "A black lump on the board covering a pad where no component is designed"
+   ],
+   "D_seconds": 4.394781244918704,
+   "D_prompt_tokens": 5875,
+   "category": "pcb4",
+   "truth": [
+    "burnt"
+   ]
+  },
+  {
+   "pair": "bad-033",
+   "image": "bad-003",
+   "role": "control",
+   "expected": "extra",
+   "before": [
+    "burnt",
+    "5.7",
+    "A blackened, charred area on the board surface in zone A, which is a burn mark."
+   ],
+   "A_note": [
+    "extra",
+    "5.3",
+    "A black object is lying across the pads where the board has no component of its own."
+   ],
+   "B_scoped": [
+    "extra",
+    "5.3",
+    "A black, loose part lies across pads where the board has no component of its own."
+   ],
+   "C_plain": [
+    "extra",
+    "5.3",
+    "A lump of solder or adhesive on the board, not a component."
+   ],
+   "D_picture": [
+    "extra",
+    "5.3",
+    "A black object is lying across the pads where the board has no component of its own."
+   ],
+   "D_seconds": 4.500058279838413,
+   "D_prompt_tokens": 5925,
+   "category": "pcb4",
+   "truth": [
+    "burnt"
+   ]
+  },
+  {
+   "pair": "bad-033",
+   "image": "bad-028",
+   "role": "control",
+   "expected": "extra",
+   "before": [
+    "extra",
+    "5.3",
+    "A black, irregularly shaped object is present on the board, covering a component and lying on the board surface."
+   ],
+   "A_note": [
+    "extra",
+    "5.3",
+    "A black object is lying across the pads where the board has no component of its own."
+   ],
+   "B_scoped": [
+    "extra",
+    "5.3",
+    "A black, irregularly shaped object lies across the pads where the board has no component of its own."
+   ],
+   "C_plain": [
+    "extra",
+    "5.3",
+    "A black, irregularly shaped object is present on the board, covering part of a resistor and touching the board's surface."
+   ],
+   "D_picture": [
+    "extra",
+    "5.3",
+    "A black object is lying across the pads where the board has no component of its own."
+   ],
+   "D_seconds": 4.4257011448498815,
+   "D_prompt_tokens": 5877,
+   "category": "pcb4",
+   "truth": [
+    "extra"
+   ]
+  },
+  {
+   "pair": "bad-033",
+   "image": "bad-035",
+   "role": "control",
+   "expected": "extra",
+   "before": [
+    "extra",
+    "5.3",
+    "A yellow plastic fragment is present on the board, not belonging to any component."
+   ],
+   "A_note": [
+    "extra",
+    "5.3",
+    "A yellow component is present on the board where the design does not call for any component."
+   ],
+   "B_scoped": [
+    "extra",
+    "5.3",
+    "A yellow component is present on the board where the design does not call for any component."
+   ],
+   "C_plain": [
+    "extra",
+    "5.3",
+    "A yellow plastic fragment is present on the board, not belonging to any component."
+   ],
+   "D_picture": [
+    "extra",
+    "5.3",
+    "A yellow plastic fragment lies on the board where no component is designed to be."
+   ],
+   "D_seconds": 4.420256737153977,
+   "D_prompt_tokens": 5906,
+   "category": "pcb4",
+   "truth": [
+    "extra"
+   ]
+  },
+  {
+   "pair": "bad-048",
+   "image": "bad-050",
+   "role": "sibling",
+   "expected": "missing",
+   "before": [
+    "dirt",
+    "5.1",
+    "A foreign material spot on the board surface in zone A."
+   ],
+   "A_note": [
+    "missing",
+    "5.2",
+    "A component is missing from its solder pads in zone A."
+   ],
+   "B_scoped": [
+    "missing",
+    "5.2",
+    "A component is missing from its solder pad."
+   ],
+   "C_plain": [
+    "missing",
+    "5.2",
+    "A component is missing from its pad"
+   ],
+   "D_picture": [
+    "missing",
+    "5.2",
+    "A component is missing from its solder pad."
+   ],
+   "D_seconds": 4.783368916017935,
+   "D_prompt_tokens": 5879,
+   "category": "pcb4",
+   "truth": [
+    "missing"
+   ]
+  },
+  {
+   "pair": "bad-048",
+   "image": "bad-002",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has foreign material on its surface."
+   ],
+   "A_note": [
+    "missing",
+    "5.2",
+    "A component is missing where it should be, leaving bare solder pads."
+   ],
+   "B_scoped": [
+    "missing",
+    "5.2",
+    "The component is absent, leaving two bare solder pads where it should be."
+   ],
+   "C_plain": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has foreign material on its surface."
+   ],
+   "D_picture": [
+    "missing",
+    "5.2",
+    "A component is missing from the flagged area, leaving two bare solder pads."
+   ],
+   "D_seconds": 4.441059198928997,
+   "D_prompt_tokens": 5924,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "bad-048",
+   "image": "bad-004",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "dirt",
+    "5.1",
+    "The receptacle has foreign material on its surface."
+   ],
+   "A_note": [
+    "dirt",
+    "5.1",
+    "The receptacle component is covered in dark specks, which are flux residue, not foreign material."
+   ],
+   "B_scoped": [
+    "dirt",
+    "5.1",
+    "The receptacle component is covered in dark specks, which are flux residue, not foreign material."
+   ],
+   "C_plain": [
+    "dirt",
+    "5.1",
+    "The receptacle component has foreign material on its surface."
+   ],
+   "D_picture": [
+    "dirt",
+    "5.1",
+    "The receptacle component is covered in residue, not a component or part of the board."
+   ],
+   "D_seconds": 4.506345843197778,
+   "D_prompt_tokens": 5928,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "bad-048",
+   "image": "bad-056",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has brownish discoloration and speckled residue on its surface."
+   ],
+   "A_note": [
+    "dirt",
+    "5.1",
+    "The receptacle component is covered in dark specks, which are flux residue, not foreign material."
+   ],
+   "B_scoped": [
+    "dirt",
+    "5.1",
+    "The receptacle component is covered in dark specks, which are flux residue, not foreign material."
+   ],
+   "C_plain": [
+    "dirt",
+    "5.1",
+    "The receptacle has foreign material on its surface."
+   ],
+   "D_picture": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has brownish residue on its surface, which is not part of the component."
+   ],
+   "D_seconds": 4.530952980974689,
+   "D_prompt_tokens": 5928,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "bad-048",
+   "image": "bad-049",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "missing",
+    "5.2",
+    "A lump of solder on the board surface near the IN+ and IN- pads."
+   ],
+   "A_note": [
+    "missing",
+    "5.2",
+    "The component is absent, leaving two bare solder pads where a component should be."
+   ],
+   "B_scoped": [
+    "missing",
+    "5.2",
+    "The component is absent, leaving two bare solder pads where it should be."
+   ],
+   "C_plain": [
+    "missing",
+    "5.2",
+    "A component is missing from its pad in the flagged area."
+   ],
+   "D_picture": [
+    "missing",
+    "5.2",
+    "The component is absent from its solder pads."
+   ],
+   "D_seconds": 4.474242549855262,
+   "D_prompt_tokens": 5972,
+   "category": "pcb4",
+   "truth": [
+    "missing"
+   ]
+  },
+  {
+   "pair": "bad-048",
+   "image": "bad-052",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "missing",
+    "5.2",
+    "A lump of solder on the board surface"
+   ],
+   "A_note": [
+    "missing",
+    "5.2",
+    "A component is missing from its pads in the flagged area."
+   ],
+   "B_scoped": [
+    "missing",
+    "5.2",
+    "A component is missing from its pads in the flagged area."
+   ],
+   "C_plain": [
+    "missing",
+    "5.2",
+    "A component is missing from its pad in zone A"
+   ],
+   "D_picture": [
+    "missing",
+    "5.2",
+    "A component is missing from its solder pads in the flagged area."
+   ],
+   "D_seconds": 4.668767320923507,
+   "D_prompt_tokens": 5974,
+   "category": "pcb4",
+   "truth": [
+    "missing"
+   ]
+  },
+  {
+   "pair": "bad-012",
+   "image": "bad-015",
+   "role": "sibling",
+   "expected": "damage",
+   "before": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has foreign material on its surface."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The metal shell of the receptacle is dented and bent, showing mechanical damage."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The metal shell of the receptacle is dented and bent out of shape, showing mechanical damage."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The receptacle is damaged with a torn or crushed shell."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "The metal shell of the receptacle is dented and bent, showing mechanical damage."
+   ],
+   "D_seconds": 5.291231443872675,
+   "D_prompt_tokens": 5894,
+   "category": "pcb4",
+   "truth": [
+    "damage"
+   ]
+  },
+  {
+   "pair": "bad-012",
+   "image": "bad-002",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has foreign material on its surface."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The USB connector's metal shell is dented and bent out of shape."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The USB connector's metal shell is dented and bent out of shape."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The USB receptacle shows signs of chipping and discoloration, indicating physical damage."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "The USB connector's metal shell is dented and bent out of shape."
+   ],
+   "D_seconds": 4.826690032146871,
+   "D_prompt_tokens": 5942,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "bad-012",
+   "image": "bad-004",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "dirt",
+    "5.1",
+    "The receptacle has foreign material on its surface."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The metal shell of the receptacle is dented and bent, showing mechanical damage."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The metal shell of the receptacle is dented and bent out of shape, showing mechanical damage."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The receptacle component has a discolored, corroded surface covering its body."
+   ],
+   "D_picture": [
+    "dirt",
+    "5.1",
+    "The metal shell of the receptacle is covered in a discolored, granular residue."
+   ],
+   "D_seconds": 5.360732845962048,
+   "D_prompt_tokens": 5946,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "bad-012",
+   "image": "bad-056",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has brownish discoloration and speckled residue on its surface."
+   ],
+   "A_note": [
+    "dirt",
+    "5.1",
+    "The metal shell of the receptacle is covered in brownish discoloration and residue."
+   ],
+   "B_scoped": [
+    "dirt",
+    "5.1",
+    "The metal shell of the receptacle is covered in brownish discoloration and residue."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The receptacle has a corroded, discolored surface covering its body."
+   ],
+   "D_picture": [
+    "dirt",
+    "5.1",
+    "The metal shell of the receptacle is covered in brownish discoloration and residue."
+   ],
+   "D_seconds": 4.955148597015068,
+   "D_prompt_tokens": 5946,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "bad-012",
+   "image": "bad-009",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "damage",
+    "5.5",
+    "A component is damaged with charred material on its body."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The connector's metal shell is dented and bent out of shape."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The connector's metal shell is dented and bent out of shape."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The component in the flagged area is damaged, with visible chipping and deformation."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "The receptacle is damaged with a torn or crushed shell."
+   ],
+   "D_seconds": 4.55481537617743,
+   "D_prompt_tokens": 5833,
+   "category": "pcb4",
+   "truth": [
+    "damage"
+   ]
+  },
+  {
+   "pair": "bad-012",
+   "image": "bad-018",
+   "role": "control",
+   "expected": "damage",
+   "before": [
+    "damage",
+    "5.5",
+    "The integrated circuit is damaged with charred material on its surface."
+   ],
+   "A_note": [
+    "damage",
+    "5.5",
+    "The component is damaged, with its body cracked and charred."
+   ],
+   "B_scoped": [
+    "damage",
+    "5.5",
+    "The component is damaged, with its body cracked and charred."
+   ],
+   "C_plain": [
+    "damage",
+    "5.5",
+    "The integrated circuit is damaged, with visible chipping and burnt material on its body."
+   ],
+   "D_picture": [
+    "damage",
+    "5.5",
+    "The integrated circuit is cracked and damaged."
+   ],
+   "D_seconds": 4.577131503028795,
+   "D_prompt_tokens": 5894,
+   "category": "pcb4",
+   "truth": [
+    "damage"
+   ]
+  },
+  {
+   "pair": "good-0990",
+   "image": "good-0026",
+   "role": "sibling",
+   "expected": null,
+   "before": [
+    "dirt",
+    "5.1",
+    "A foreign material spot on the board surface"
+   ],
+   "A_note": [
+    null,
+    null,
+    "The component is present, whole, in place and clean."
+   ],
+   "B_scoped": [
+    null,
+    null,
+    "The component is present, whole, in place and clean."
+   ],
+   "C_plain": [
+    "burnt",
+    "5.7",
+    "A burn mark on the component"
+   ],
+   "D_picture": [
+    null,
+    null,
+    "The component is present, whole, in place and clean."
+   ],
+   "D_seconds": 4.898336905986071,
+   "D_prompt_tokens": 5799,
+   "category": "pcb4",
+   "truth": []
+  },
+  {
+   "pair": "good-0990",
+   "image": "bad-002",
+   "role": "control",
+   "expected": null,
+   "before": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has foreign material on its surface."
+   ],
+   "A_note": [
+    "burnt",
+    "5.7",
+    "The USB receptacle has a discolored, possibly burnt area on its surface."
+   ],
+   "B_scoped": [
+    "dirt",
+    "5.1",
+    "The USB receptacle shows corrosion and tarnish, which is foreign material."
+   ],
+   "C_plain": [
+    "burnt",
+    "5.7",
+    "The USB connector has a discolored, possibly burnt area on its surface."
+   ],
+   "D_picture": [
+    "dirt",
+    "5.1",
+    "The USB receptacle shows corrosion and tarnish, which is foreign material."
+   ],
+   "D_seconds": 4.729145984863862,
+   "D_prompt_tokens": 5889,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "good-0990",
+   "image": "bad-004",
+   "role": "control",
+   "expected": null,
+   "before": [
+    "dirt",
+    "5.1",
+    "The receptacle has foreign material on its surface."
+   ],
+   "A_note": [
+    "dirt",
+    "5.1",
+    "The receptacle has corrosion spots on its surface."
+   ],
+   "B_scoped": [
+    "dirt",
+    "5.1",
+    "The receptacle has corrosion spots or tarnish on its surface."
+   ],
+   "C_plain": [
+    "dirt",
+    "5.1",
+    "The receptacle has foreign material on its surface."
+   ],
+   "D_picture": [
+    "dirt",
+    "5.1",
+    "The receptacle has corrosion spots on its surface."
+   ],
+   "D_seconds": 4.527481095865369,
+   "D_prompt_tokens": 5893,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "good-0990",
+   "image": "bad-056",
+   "role": "control",
+   "expected": null,
+   "before": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has brownish discoloration and speckled residue on its surface."
+   ],
+   "A_note": [
+    "dirt",
+    "5.1",
+    "The receptacle has brownish discoloration and speckled residue on its surface."
+   ],
+   "B_scoped": [
+    "dirt",
+    "5.1",
+    "The receptacle has brownish discoloration and speckled residue on its surface."
+   ],
+   "C_plain": [
+    "dirt",
+    "5.1",
+    "The receptacle has foreign material on its surface."
+   ],
+   "D_picture": [
+    "dirt",
+    "5.1",
+    "The USB receptacle has brownish discoloration and speckled residue on its surface."
+   ],
+   "D_seconds": 4.738495314028114,
+   "D_prompt_tokens": 5893,
+   "category": "pcb4",
+   "truth": [
+    "dirt"
+   ]
+  },
+  {
+   "pair": "good-0990",
+   "image": "good-0423",
+   "role": "control",
+   "expected": null,
+   "before": [
+    "dirt",
+    "5.1",
+    "Foreign material on the board surface"
+   ],
+   "A_note": [
+    "dirt",
+    "5.1",
+    "The flagged area shows a dark, irregularly shaped spot on the board surface near a component, which appears to be foreign material."
+   ],
+   "B_scoped": [
+    "dirt",
+    "5.1",
+    "The flagged area shows a dark spot on the board surface, which is foreign material."
+   ],
+   "C_plain": [
+    "dirt",
+    "5.1",
+    "Foreign material on the board surface"
+   ],
+   "D_picture": [
+    "burnt",
+    "5.7",
+    "The receptacle has a burn mark on its surface."
+   ],
+   "D_seconds": 4.252315449062735,
+   "D_prompt_tokens": 5782,
+   "category": "pcb4",
+   "truth": []
+  },
+  {
+   "pair": "good-0990",
+   "image": "good-0688",
+   "role": "control",
+   "expected": null,
+   "before": [
+    "scratch",
+    "5.6",
+    "A scratch on the board surface in zone B"
+   ],
+   "A_note": [
+    "scratch",
+    "5.6",
+    "The receptacle component has a scratch."
+   ],
+   "B_scoped": [
+    "scratch",
+    "5.6",
+    "The receptacle component has a scratch."
+   ],
+   "C_plain": [
+    "scratch",
+    "5.6",
+    "A scratch on the board surface in zone B"
+   ],
+   "D_picture": [
+    "scratch",
+    "5.6",
+    "The receptacle component has a scratch."
+   ],
+   "D_seconds": 4.162555909017101,
+   "D_prompt_tokens": 5783,
+   "category": "pcb4",
+   "truth": []
+  },
+  {
+   "pair": "bad-005",
+   "image": "bad-003",
+   "role": "sibling",
+   "expected": "bent",
+   "before": [
+    "melt",
+    "4.1",
+    "A stray solder blob on the board surface near the header pins"
+   ],
+   "A_note": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "B_scoped": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "C_plain": [
+    "bent",
+    "4.4",
+    "A header pin is bent and touching another pin."
+   ],
+   "D_picture": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "D_seconds": 5.325507887871936,
+   "D_prompt_tokens": 5871,
+   "category": "pcb1",
+   "truth": [
+    "bent"
+   ]
+  },
+  {
+   "pair": "bad-005",
+   "image": "bad-017",
+   "role": "control",
+   "expected": "bent",
+   "before": [
+    "melt",
+    "4.1",
+    "A bridge of solder joining two pads"
+   ],
+   "A_note": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "B_scoped": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "C_plain": [
+    "melt",
+    "4.1",
+    "A solder bridge connecting two adjacent pads"
+   ],
+   "D_picture": [
+    "melt",
+    "4.1",
+    "A bridge of solder joining two header pins"
+   ],
+   "D_seconds": 4.300028476165608,
+   "D_prompt_tokens": 5722,
+   "category": "pcb1",
+   "truth": [
+    "melt"
+   ]
+  },
+  {
+   "pair": "bad-005",
+   "image": "bad-019",
+   "role": "control",
+   "expected": "bent",
+   "before": [
+    "melt",
+    "4.1",
+    "A lump of solder has flowed onto the board surface near the 'Trig' pad."
+   ],
+   "A_note": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "B_scoped": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "C_plain": [
+    "melt",
+    "4.1",
+    "A lump of solder bridging between two header pins"
+   ],
+   "D_picture": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "D_seconds": 4.581404619850218,
+   "D_prompt_tokens": 5850,
+   "category": "pcb1",
+   "truth": [
+    "melt"
+   ]
+  },
+  {
+   "pair": "bad-005",
+   "image": "bad-021",
+   "role": "control",
+   "expected": "bent",
+   "before": [
+    "melt",
+    "4.1",
+    "Solder has flowed between the header pins, forming a bridge."
+   ],
+   "A_note": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "B_scoped": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "C_plain": [
+    "melt",
+    "4.1",
+    "A solder bridge between two header pins"
+   ],
+   "D_picture": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "D_seconds": 4.572505523916334,
+   "D_prompt_tokens": 5844,
+   "category": "pcb1",
+   "truth": [
+    "melt"
+   ]
+  },
+  {
+   "pair": "bad-005",
+   "image": "bad-026",
+   "role": "control",
+   "expected": "bent",
+   "before": [
+    "melt",
+    "4.1",
+    "Solder bridging between the Trig and Echo pads"
+   ],
+   "A_note": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "B_scoped": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "C_plain": [
+    "melt",
+    "4.1",
+    "The solder on the Trig pad is bridging to the Echo pad."
+   ],
+   "D_picture": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "D_seconds": 4.371795005863532,
+   "D_prompt_tokens": 5722,
+   "category": "pcb1",
+   "truth": [
+    "melt"
+   ]
+  },
+  {
+   "pair": "bad-005",
+   "image": "bad-001",
+   "role": "control",
+   "expected": "bent",
+   "before": [
+    "bent",
+    "4.4",
+    "The header pins are bent, with one pin touching another."
+   ],
+   "A_note": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "B_scoped": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "C_plain": [
+    "bent",
+    "4.4",
+    "The header pins are bent, with one pin visibly angled and touching another pin."
+   ],
+   "D_picture": [
+    "bent",
+    "4.4",
+    "A header pin is bent out of line and leans across its neighbours."
+   ],
+   "D_seconds": 4.730477083008736,
+   "D_prompt_tokens": 5945,
+   "category": "pcb1",
+   "truth": [
+    "bent"
+   ]
+  },
+  {
+   "pair": "bad-054",
+   "image": "bad-055",
+   "role": "sibling",
+   "expected": "missing",
+   "before": [
+    "scratch",
+    "4.2",
+    "The transducer is present but has a scratch on its surface."
+   ],
+   "A_note": [
+    "missing",
+    "4.3",
+    "The transducer's mesh cover is missing, exposing the bare metal disc."
+   ],
+   "B_scoped": [
+    "missing",
+    "4.3",
+    "The transducer is missing its mesh cover, exposing the bare metal disc."
+   ],
+   "C_plain": [
+    "missing",
+    "4.3",
+    "The transducer is missing its mesh cover."
+   ],
+   "D_picture": [
+    "missing",
+    "4.3",
+    "The transducer's mesh cover is missing, exposing the bare metal disc."
+   ],
+   "D_seconds": 5.169313139049336,
+   "D_prompt_tokens": 5861,
+   "category": "pcb1",
+   "truth": [
+    "missing"
+   ]
+  },
+  {
+   "pair": "bad-054",
+   "image": "bad-063",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "melt",
+    "4.1",
+    "Solder has flowed onto the board surface where the design puts none."
+   ],
+   "A_note": [
+    "missing",
+    "4.3",
+    "The transducer has lost its mesh cover, exposing the bare metal disc."
+   ],
+   "B_scoped": [
+    "missing",
+    "4.3",
+    "The transducer is missing its mesh cover, exposing the bare metal disc."
+   ],
+   "C_plain": [
+    "missing",
+    "4.3",
+    "A component is missing from its pad"
+   ],
+   "D_picture": [
+    "missing",
+    "4.3",
+    "The transducer is missing its mesh cover, exposing the bare metal disc."
+   ],
+   "D_seconds": 4.3385236479807645,
+   "D_prompt_tokens": 5710,
+   "category": "pcb1",
+   "truth": [
+    "melt"
+   ]
+  },
+  {
+   "pair": "bad-054",
+   "image": "bad-017",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "melt",
+    "4.1",
+    "A bridge of solder joining two pads"
+   ],
+   "A_note": [
+    "melt",
+    "4.1",
+    "A bridge of solder joining two pads"
+   ],
+   "B_scoped": [
+    "melt",
+    "4.1",
+    "Solder bridging between two pads"
+   ],
+   "C_plain": [
+    "melt",
+    "4.1",
+    "A bridge of solder joining two pads"
+   ],
+   "D_picture": [
+    "melt",
+    "4.1",
+    "Solder bridging between two adjacent pads"
+   ],
+   "D_seconds": 4.246150407008827,
+   "D_prompt_tokens": 5710,
+   "category": "pcb1",
+   "truth": [
+    "melt"
+   ]
+  },
+  {
+   "pair": "bad-054",
+   "image": "bad-050",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "missing",
+    "4.3",
+    "The transducer without its mesh cover is missing."
+   ],
+   "A_note": [
+    "missing",
+    "4.3",
+    "The transducer's mesh cover is missing, exposing the bare metal disc."
+   ],
+   "B_scoped": [
+    "missing",
+    "4.3",
+    "The transducer is missing its mesh cover, exposing the bare metal disc."
+   ],
+   "C_plain": [
+    "missing",
+    "4.3",
+    "The transducer without its mesh cover is missing."
+   ],
+   "D_picture": [
+    "missing",
+    "4.3",
+    "The transducer is missing its mesh cover, exposing the bare metal disc."
+   ],
+   "D_seconds": 4.6131472191773355,
+   "D_prompt_tokens": 5859,
+   "category": "pcb1",
+   "truth": [
+    "missing"
+   ]
+  },
+  {
+   "pair": "bad-054",
+   "image": "bad-001",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "bent",
+    "4.4",
+    "The header pins are bent, with one pin touching another."
+   ],
+   "A_note": [
+    "missing",
+    "4.3",
+    "The transducer has lost its mesh cover, exposing the bare metal disc."
+   ],
+   "B_scoped": [
+    "bent",
+    "4.4",
+    "The header pins are bent and touching each other."
+   ],
+   "C_plain": [
+    "bent",
+    "4.4",
+    "The header pins are bent and touching each other."
+   ],
+   "D_picture": [
+    "missing",
+    "4.3",
+    "The transducer on the left is missing its mesh cover, exposing the bare metal disc."
+   ],
+   "D_seconds": 4.667737716110423,
+   "D_prompt_tokens": 5933,
+   "category": "pcb1",
+   "truth": [
+    "bent"
+   ]
+  },
+  {
+   "pair": "bad-054",
+   "image": "bad-021",
+   "role": "control",
+   "expected": "missing",
+   "before": [
+    "melt",
+    "4.1",
+    "Solder has flowed between the header pins, forming a bridge."
+   ],
+   "A_note": [
+    "melt",
+    "4.1",
+    "A strand of solder has flowed between two header pins, forming a bridge."
+   ],
+   "B_scoped": [
+    "melt",
+    "4.1",
+    "Solder that has flowed or splashed to where the design puts none"
+   ],
+   "C_plain": [
+    "melt",
+    "4.1",
+    "A bridge of solder joining two header pins"
+   ],
+   "D_picture": [
+    "melt",
+    "4.1",
+    "Stray solder on the header pins"
+   ],
+   "D_seconds": 4.378803438972682,
+   "D_prompt_tokens": 5832,
+   "category": "pcb1",
+   "truth": [
+    "melt"
+   ]
+  }
+ ]
+}

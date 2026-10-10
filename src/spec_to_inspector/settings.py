@@ -1,12 +1,16 @@
 """Settings, read from the environment with the SPEC_TO_INSPECTOR_ prefix or from `.env`."""
 
 from pathlib import Path
+from typing import Final, Literal
 from urllib.parse import urlsplit
 
 from pydantic import Field, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from spec_to_inspector.datasets.visa import VISA_URL
+
+CORRECTIONS_STORE_NAME: Final = "corrections.sqlite3"
+"""The corrections store's file under the runs directory, unless `corrections_db` moves it."""
 
 
 class Settings(BaseSettings):
@@ -31,6 +35,12 @@ class Settings(BaseSettings):
         vlm_model: The model's name as that server knows it.
         vlm_timeout_seconds: How long one answer may take before the region
             is referred to an engineer.
+        corrections_db: The corrections store's SQLite file; unset, it is
+            `corrections.sqlite3` under the runs directory.
+        corrections_recall: When the store's corrections are put before the
+            judge: `part` shows the part's most recent three in every prompt;
+            `answer` asks first with none and asks again, with the
+            corrections made where the judge gave that same answer before.
     """
 
     model_config = SettingsConfigDict(
@@ -46,6 +56,8 @@ class Settings(BaseSettings):
     vlm_url: str = "http://127.0.0.1:8131/v1"
     vlm_model: str = "qwen3-vl-8b-instruct"
     vlm_timeout_seconds: float = Field(default=120.0, gt=0)
+    corrections_db: Path | None = None
+    corrections_recall: Literal["part", "answer"] = "part"
 
     @field_validator("visa_url", "vlm_url")
     @classmethod
@@ -72,3 +84,10 @@ class Settings(BaseSettings):
     def visa_dir(self) -> Path:
         """The directory that holds the kept VisA categories and their manifest."""
         return self.data_dir / "visa"
+
+    @property
+    def corrections_path(self) -> Path:
+        """The corrections store's file: the one configured, or the one under the runs directory."""
+        if self.corrections_db is not None:
+            return self.corrections_db
+        return self.runs_dir / CORRECTIONS_STORE_NAME
