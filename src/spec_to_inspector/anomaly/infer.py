@@ -82,7 +82,8 @@ class InferenceItem(BaseModel):
             name: letters, digits, dots, dashes and underscores.
         path: The image file.
         label: The ground truth, where it is known.
-        mask_path: The ground-truth mask (0 and 255), where there is one.
+        mask_path: The ground-truth mask, where there is one: 8-bit, 0 for background
+            and non-zero on a defect.
         visa_image: The image's path in VisA's CSVs, where it is VisA's.
     """
 
@@ -339,14 +340,15 @@ def visa_test_items(visa_dir: Path, category: str) -> list[InferenceItem]:
 
     Returns:
         The test images in the CSV's order, with ids "good-<stem>" and
-        "bad-<stem>", their labels, their binarised masks and their VisA paths.
+        "bad-<stem>", their labels, their VisA paths, and VisA's own masks,
+        whose values are defect types.
     """
     return [
         InferenceItem(
             image_id=f"{image.label}-{image.path.stem}",
             path=image.path,
             label=image.label,
-            mask_path=image.mask,
+            mask_path=image.visa_mask,
             visa_image=image.visa_image,
         )
         for image in split_images(visa_dir, category, "test")
@@ -405,8 +407,11 @@ def write_image_result(
     for located in found:
         region = located
         if truth is not None:
-            touches = bool(np.any(truth & (labels == region.index)))
-            region = region.model_copy(update={"on_ground_truth": touches})
+            under = np.unique(truth[labels == region.index])
+            values = [int(value) for value in under if value]
+            region = region.model_copy(
+                update={"on_ground_truth": bool(values), "ground_truth_values": values}
+            )
         if options.max_crops is not None and region.index > options.max_crops:
             regions.append(region)
             continue
@@ -452,15 +457,15 @@ def write_image_result(
     return result
 
 
-def _ground_truth(path: Path, shape: tuple[int, int]) -> NDArray[np.bool_]:
-    """Read a ground-truth mask as booleans, checking it fits its image."""
+def _ground_truth(path: Path, shape: tuple[int, int]) -> NDArray[np.uint8]:
+    """Read a ground-truth mask with its values, checking it fits its image."""
     mask = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
     # OpenCV's stubs promise an array, but an undecodable file yields None.
     if mask is None or mask.shape != shape:  # pyright: ignore[reportUnnecessaryComparison]
         found = "unreadable" if mask is None else f"{mask.shape[1]} x {mask.shape[0]}"  # pyright: ignore[reportUnnecessaryComparison]
         msg = f"the ground-truth mask {path} is {found}, not the image's {shape[1]} x {shape[0]}"
         raise ValueError(msg)
-    return mask > 0
+    return cast("NDArray[np.uint8]", mask)
 
 
 def _write_png(path: Path, image: NDArray[np.uint8] | NDArray[np.uint16]) -> None:

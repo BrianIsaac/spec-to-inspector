@@ -30,7 +30,7 @@ from spec_to_inspector.anomaly.infer import (
 )
 from spec_to_inspector.anomaly.records import Box, ImageResult, Thresholds
 from spec_to_inspector.anomaly.regions import upsample
-from spec_to_inspector.anomaly.split import SPLIT_ROOT, write_split
+from spec_to_inspector.anomaly.split import write_split
 from tests.anomaly.fakes import write_visa
 
 WIDTH, HEIGHT = 400, 300
@@ -411,7 +411,7 @@ def test_the_test_splits_items_come_from_the_csv(tmp_path: Path) -> None:
     assert items[0].mask_path is None
     assert items[2].path == visa / "pcb1/Data/Images/Anomaly/000.JPG"
     assert items[2].visa_image == "pcb1/Data/Images/Anomaly/000.JPG"
-    assert items[2].mask_path == visa / SPLIT_ROOT / "pcb1/ground_truth/bad/000.png"
+    assert items[2].mask_path == visa / "pcb1/Data/Masks/Anomaly/000.png"
     assert run_dir(tmp_path / "runs", "pcb1") == tmp_path / "runs" / "pcb1" / "test"
     assert run_dir(tmp_path / "runs", "pcb1", "line-3") == tmp_path / "runs" / "pcb1" / "line-3"
 
@@ -487,10 +487,12 @@ def test_regions_above_the_threshold_are_not_from_the_peak(tmp_path: Path) -> No
     assert [region.from_peak for region in result.regions] == [False]
 
 
-def test_each_region_says_whether_it_touches_the_ground_truth(tmp_path: Path) -> None:
-    """With a ground-truth mask, a region records whether any of its pixels are on a defect."""
+def test_each_region_says_what_ground_truth_lies_under_it(tmp_path: Path) -> None:
+    """With a ground-truth mask, a region records whether it is on a defect and which values."""
     truth = np.zeros((HEIGHT, WIDTH), dtype=np.uint8)
-    truth[120:160, 100:200] = 255
+    truth[120:160, 100:150] = 3
+    truth[120:160, 150:200] = 5
+    truth[0:10, 0:10] = 7
     mask_path = tmp_path / "truth.png"
     assert cv2.imwrite(str(mask_path), truth)
     anomaly_map = _map(
@@ -501,8 +503,10 @@ def test_each_region_says_whether_it_touches_the_ground_truth(tmp_path: Path) ->
     without, _ = _write(tmp_path / "none", anomaly_map)
 
     assert [region.on_ground_truth for region in result.regions] == [False, True]
+    assert [region.ground_truth_values for region in result.regions] == [[], [3, 5]]
     assert result.ground_truth_mask == str(mask_path)
     assert [region.on_ground_truth for region in without.regions] == [None, None]
+    assert [region.ground_truth_values for region in without.regions] == [None, None]
 
 
 def test_a_ground_truth_mask_of_another_size_is_refused(tmp_path: Path) -> None:

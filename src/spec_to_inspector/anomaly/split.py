@@ -83,6 +83,8 @@ class SplitImage(BaseModel):
         split: "train" or "test".
         label: "good" for a normal image, "bad" for an anomalous one.
         mask: The binarised ground-truth mask in the split, for an anomalous image.
+        visa_mask: The fetched mask it was binarised from, whose values are
+            defect types, for an anomalous image.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -92,6 +94,7 @@ class SplitImage(BaseModel):
     split: Literal["train", "test"]
     label: Literal["good", "bad"]
     mask: Path | None
+    visa_mask: Path | None
 
 
 @dataclass(frozen=True)
@@ -328,14 +331,15 @@ def split_images(
         if entry.is_mask or folder != split:
             continue
         # A bad image's mask is planned straight after it, from the same row.
-        mask = base / entries[position + 1].target if label == "bad" else None
+        planned = entries[position + 1] if label == "bad" else None
         images.append(
             SplitImage(
                 visa_image=entry.name,
                 path=visa_dir / entry.name,
                 split=split,
                 label=cast("Literal['good', 'bad']", label),
-                mask=mask,
+                mask=None if planned is None else base / planned.target,
+                visa_mask=None if planned is None else visa_dir / planned.name,
             )
         )
     return images

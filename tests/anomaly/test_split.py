@@ -11,7 +11,7 @@ from anomalib.data import Visa
 from anomalib.data.datasets.image.visa import VisaDataset
 from anomalib.data.utils import Split
 
-from spec_to_inspector.anomaly.split import SPLIT_ROOT, SplitError, write_split
+from spec_to_inspector.anomaly.split import SPLIT_ROOT, SplitError, split_images, write_split
 from spec_to_inspector.datasets.visa import SPLIT_CSV, SPLIT_DIR, tree_digest, verify
 from tests.anomaly.fakes import categories, write_visa
 from tests.datasets.visa_fakes import EXPECTED
@@ -255,3 +255,24 @@ def test_a_missing_split_csv_is_named(visa: Path) -> None:
 
     with pytest.raises(SplitError, match="data fetch"):
         write_split(visa, categories())
+
+
+def test_a_splits_images_carry_their_visa_paths_and_both_masks(visa: Path) -> None:
+    """The test split lists each image with its label, its CSV path and its masks."""
+    write_split(visa, ["pcb4"])
+
+    images = split_images(visa, "pcb4", "test")
+
+    assert [(i.label, i.path.name) for i in images] == [
+        ("good", "0002.JPG"),
+        ("bad", "000.JPG"),
+        ("bad", "001.JPG"),
+        ("bad", "002.JPG"),
+    ]
+    assert images[0].mask is None
+    assert images[0].visa_mask is None
+    assert images[1].visa_image == "pcb4/Data/Images/Anomaly/000.JPG"
+    assert images[1].path == visa / "pcb4/Data/Images/Anomaly/000.JPG"
+    assert images[1].mask == visa / SPLIT_ROOT / "pcb4/ground_truth/bad/000.png"
+    assert images[1].visa_mask == visa / "pcb4/Data/Masks/Anomaly/000.png"
+    assert [i.path.name for i in split_images(visa, "pcb4", "train")] == ["0000.JPG", "0001.JPG"]

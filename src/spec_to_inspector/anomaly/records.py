@@ -48,6 +48,9 @@ class Region(BaseModel):
             anomaly map's peak. Its size is the patch's, not a defect's.
         on_ground_truth: Whether any of its pixels lie on the ground-truth mask;
             None where the image has no mask.
+        ground_truth_values: The distinct non-zero ground-truth mask values under
+            the region, ascending; in VisA's masks each is a defect type
+            (`anomaly.ground_truth.defect_types`). None where the image has no mask.
         crop: The crop's file, relative to the sidecar; None if no crop was written.
         crop_box: The rectangle of the source image the crop holds; None with `crop`.
     """
@@ -63,6 +66,7 @@ class Region(BaseModel):
     mean_score: float
     from_peak: bool = False
     on_ground_truth: bool | None = None
+    ground_truth_values: list[int] | None = None
     crop: str | None = None
     crop_box: Box | None = None
 
@@ -291,7 +295,9 @@ class ImageResult(BaseModel):
         width: The source image's width.
         height: The source image's height.
         label: The ground truth, "good" or "bad", where it is known.
-        ground_truth_mask: The ground-truth mask's path (0 and 255), where there is one.
+        ground_truth_mask: The ground-truth mask's path, where there is one: 0 for
+            background, non-zero on a defect. For VisA it is the fetched mask,
+            whose values are defect types.
         score: The raw PatchCore image score.
         image_threshold: The raw score above which an image is anomalous.
         score_normalised: The score as Anomalib normalises it: 0.5 at the threshold.

@@ -150,6 +150,7 @@ def test_the_planted_defect_is_found_where_it_was_planted(trained: Trained) -> N
         assert Path(result.ground_truth_mask).is_file()
         top = result.regions[0]
         assert top.on_ground_truth is True
+        assert top.ground_truth_values == [1]
         x, y = top.peak_xy
         assert columns.start - 8 <= x < columns.stop + 8
         assert rows.start - 8 <= y < rows.stop + 8
