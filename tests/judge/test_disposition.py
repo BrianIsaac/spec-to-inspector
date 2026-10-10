@@ -481,3 +481,16 @@ def test_the_border_note_is_only_for_measured_sizes() -> None:
     decision = dispose(clause, _region(touches_border=True), "scratch")
 
     assert _BORDER_NOTE not in decision.reason
+
+
+def test_a_limit_of_minus_zero_is_zero() -> None:
+    """Floating point has a negative zero; a limit never prints as "-0"."""
+    clause = _clause(limit=-0.0)
+
+    decision = dispose(clause, _region(0.72), "scratch")
+
+    assert str(clause.limit) == "0.0"
+    assert (
+        decision.reason == "longest extent 0.72 mm exceeds the 0 mm limit of clause 4.2.1 in zone A"
+    )
+    assert str(decision.limit) == "0.0"

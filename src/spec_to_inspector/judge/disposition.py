@@ -81,6 +81,19 @@ class Clause(BaseModel):
     comparison: Comparison
     disposition: Literal[Outcome.ACCEPT, Outcome.REJECT]
 
+    @field_validator("limit")
+    @classmethod
+    def _no_negative_zero(cls, value: float | None) -> float | None:
+        """Turn floating point's negative zero into zero, so it never prints as "-0".
+
+        Args:
+            value: The limit as given.
+
+        Returns:
+            The same limit, with a negative zero made positive.
+        """
+        return value if value is None else value + 0.0
+
     @field_validator("defect_class")
     @classmethod
     def _one_spelling(cls, value: str) -> str:
