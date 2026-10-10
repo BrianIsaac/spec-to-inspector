@@ -6,9 +6,21 @@ from typing import Final
 from pydantic import BaseModel, ConfigDict
 
 REFERENCE_SOURCE: Final = (
-    "Rolih et al., 'Divide and Conquer: High-Resolution Industrial Anomaly Detection via "
-    "Memory Efficient Tiled Ensemble', Table 7, PatchCore, single model at 256 px (SM256), "
-    "March 2024; cited as the published reference, not as a current fact"
+    "Rolih, Ameln, Vaidya and Akcay, 'Divide and Conquer: High-Resolution Industrial Anomaly "
+    "Detection via Memory Efficient Tiled Ensemble', arXiv 2403.04932: the table 'VisA results "
+    "of all 6 setups for Patchcore' (Table 7 in v1 of 7 March 2024, Table 9 in v2 of 8 April "
+    "2024), column 'Single model 256' (SM256), detection AUROC; cited as the published "
+    "reference, not as a current fact"
+)
+REFERENCE_BACKBONE: Final = "resnet18"
+"""The paper's backbone: "The backbone used in all setups is ResNet18"."""
+
+REFERENCE_NOTE: Final = (
+    "The paper's figures are the mean of 3 runs with a ResNet18 backbone, batch size 8, centre "
+    "crop disabled. The product's PatchCore uses Anomalib's default wide_resnet50_2, so the "
+    "comparison is to the published setting at the same resolution, not like for like in "
+    "backbone. The paper's second figure per cell is AUPRO; it publishes no pixel AUROC. Its "
+    "SM256 cells for PCB3 and PCB4 are identical (99.0/86.6) in both versions of the PDF."
 )
 PUBLISHED_IMAGE_AUROC: Final[Mapping[str, float]] = {
     "pcb1": 94.9,

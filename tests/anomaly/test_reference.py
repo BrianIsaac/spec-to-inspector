@@ -5,6 +5,9 @@ import pytest
 from spec_to_inspector.anomaly.reference import (
     GATE_POINTS,
     PUBLISHED_IMAGE_AUROC,
+    REFERENCE_BACKBONE,
+    REFERENCE_NOTE,
+    REFERENCE_SOURCE,
     compare,
 )
 
@@ -13,6 +16,15 @@ def test_the_published_figures_are_the_plans() -> None:
     """The reference is the Anomalib team's own PatchCore at 256 px, per category."""
     assert PUBLISHED_IMAGE_AUROC == {"pcb1": 94.9, "pcb2": 92.4, "pcb3": 99.0, "pcb4": 99.0}
     assert GATE_POINTS == 3.0
+
+
+def test_the_reference_says_what_it_was_measured_with() -> None:
+    """The paper's backbone is not the product's, and the record does not hide it."""
+    assert REFERENCE_BACKBONE == "resnet18"
+    assert "ResNet18" in REFERENCE_NOTE
+    assert "wide_resnet50_2" in REFERENCE_NOTE
+    assert "2403.04932" in REFERENCE_SOURCE
+    assert "Table 7 in v1" in REFERENCE_SOURCE
 
 
 @pytest.mark.parametrize(

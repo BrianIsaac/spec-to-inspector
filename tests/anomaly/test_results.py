@@ -126,6 +126,8 @@ def test_the_results_carry_each_categorys_record_and_its_comparison(tmp_path: Pa
     assert results.written_by == ["train"]
     assert results.gate_points == 3.0
     assert "Rolih" in results.reference_source
+    assert results.reference_backbone == "resnet18"
+    assert "like for like" in results.reference_note
     assert results.thresholds_tuned_on_test is True
 
 

@@ -7,7 +7,12 @@ from rich import box
 from rich.table import Table
 
 from spec_to_inspector.anomaly.pipeline import CategoryOutcome
-from spec_to_inspector.anomaly.reference import GATE_POINTS, REFERENCE_SOURCE, compare
+from spec_to_inspector.anomaly.reference import (
+    GATE_POINTS,
+    REFERENCE_NOTE,
+    REFERENCE_SOURCE,
+    compare,
+)
 from spec_to_inspector.anomaly.throughput import BENCH_NAME
 from spec_to_inspector.anomaly.train import CHECKPOINT_NAME, TRAIN_RECORD_NAME, model_dir
 
@@ -75,7 +80,7 @@ def outcome_lines(
     Returns:
         The lines to print under the table.
     """
-    lines = [f"Published: {REFERENCE_SOURCE}."]
+    lines = [f"Published: {REFERENCE_SOURCE}.", REFERENCE_NOTE]
     for outcome in outcomes:
         comparison = compare(outcome.category, outcome.record.metrics.image_auroc)
         if comparison is not None and not comparison.within_gate:

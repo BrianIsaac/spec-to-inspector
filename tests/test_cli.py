@@ -243,6 +243,7 @@ def test_train_reports_the_auroc_against_the_reference_and_the_gate(
     assert "99.0" in result.output
     assert "-0.43" in result.output
     assert "within" in result.output
+    assert "ResNet18" in result.output
     assert "models/patchcore/pcb4" in result.output
     assert "runs/pcb4/test" in result.output
 

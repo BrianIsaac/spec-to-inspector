@@ -23,6 +23,8 @@ from spec_to_inspector.anomaly.records import (
 )
 from spec_to_inspector.anomaly.reference import (
     GATE_POINTS,
+    REFERENCE_BACKBONE,
+    REFERENCE_NOTE,
     REFERENCE_SOURCE,
     Comparison,
     compare,
@@ -113,6 +115,8 @@ class AnomalyResults(BaseModel):
         created_at: When the file was collected, in UTC, ISO 8601.
         written_by: The command line that collected it.
         reference_source: Where the published figures come from.
+        reference_backbone: The backbone the published figures were measured with.
+        reference_note: How the published setting differs from the one measured here.
         gate_points: How many points under its reference a category may be.
         outside_gate: The categories more than that under, if any.
         thresholds_tuned_on_test: Whether any category's thresholds were chosen
@@ -128,6 +132,8 @@ class AnomalyResults(BaseModel):
     created_at: str
     written_by: list[str]
     reference_source: str = REFERENCE_SOURCE
+    reference_backbone: str = REFERENCE_BACKBONE
+    reference_note: str = REFERENCE_NOTE
     gate_points: float = GATE_POINTS
     outside_gate: list[str]
     thresholds_tuned_on_test: bool
