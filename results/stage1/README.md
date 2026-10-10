@@ -1,6 +1,6 @@
 # Stage I: what the laptop prototype measured
 
-Written by `spec-to-inspector bench` on 2026-10-11 (2026-10-10T20:13:03+00:00).
+Written by `spec-to-inspector bench` on 2026-10-11 (2026-10-10T20:35:07+00:00).
 Not edited by hand: a figure that is wrong here is wrong in `bench.json`, and the
 remedy is to run the command again.
 
@@ -23,9 +23,9 @@ Wilson score interval. Nothing here is a held-out figure: see the last section.
 
 | Figure | Value |
 | --- | --- |
-| A flagged image, end to end, median | 3.53 s (p95 4.03 s, n 216) |
-| The VLM's answer to one flagged area, cold, median | 3.36 s (p95 3.82 s, n 218) |
-| From specification to a working inspector, one part | 12.3 min (parse 8.1 s measured here; fit as recorded at training: pcb1 729 s, pcb4 726 s) |
+| A flagged image, end to end, median | 3.49 s (p95 4.03 s, n 216) |
+| The VLM's answer to one flagged area, cold, median | 3.33 s (p95 3.84 s, n 218) |
+| From specification to a working inspector, one part | 12.3 min (parse 7.9 s measured here; fit as recorded at training: pcb1 729 s, pcb4 726 s) |
 | From specification to a working inspector, all parts in turn | 24.4 min |
 | Peak GPU memory, VLM server while judging | 8,780 MiB |
 | Peak GPU memory, the card while judging | 10,109 MiB |
@@ -37,7 +37,7 @@ folded into it.
 ## How it was run
 
 - The labelled set: `eval/clause_labels.csv` (SHA-256 `0477eb9706a7772b`), 200 anomalous test images: 135 single-defect, 65 multi-defect. Labels are VisA's defect annotation mapped to clauses by the written table `eval/clause_mapping.md`.
-- The specification: `specs/pcb-spec.pdf`, parsed in 8.1 s into 16 clauses under 11 numbered headings, equal to the tracked `specs/pcb-spec.clauses.json`.
+- The specification: `specs/pcb-spec.pdf`, parsed in 7.9 s into 16 clauses under 11 numbered headings, equal to the tracked `specs/pcb-spec.clauses.json`.
 - The judge: `qwen3-vl-8b-instruct` at `http://127.0.0.1:8131/v1` (model_alias qwen3-vl-8b-instruct, model_file Qwen3VL-8B-Instruct-Q4_K_M.gguf, model_ftype Q4_K - Medium, build_info b1-d812350, total_slots 1, n_ctx 16384); image minimum 1024 tokens; GPU NVIDIA GeForce RTX 5070 Ti Laptop GPU; up to 3 areas an image, stopping at the first reject.
 - Every question asked cold (`cache_prompt` false), so the answers repeat.
 - The corrections store empty: 0 of 401 decisions had a correction in a prompt (`decision.corrected.in_prompt`).
@@ -165,23 +165,23 @@ Citations on labelled images whose named class is not the class of the heading c
 
 | Stage | Time |
 | --- | --- |
-| Parse the specification (once per specification; includes loading the parser's models) | 8.1 s |
+| Parse the specification (once per specification; includes loading the parser's models) | 7.9 s |
 | Anomaly model, pcb1, per image (batch 16; scoring and writing maps, masks and crops) | 86 ms |
-| Anomaly model, pcb4, per image (batch 16; scoring and writing maps, masks and crops) | 96 ms |
-| Measure and draw a flagged image's areas, the rule, the decision | 0.06 s (p95 0.21 s, n 216) |
-| The VLM's answer to one area, cold | 3.36 s (p95 3.82 s, n 218) |
-| The VLM's answers to one flagged image | 3.36 s (p95 3.82 s, n 216) |
-| A flagged image, end to end | 3.53 s (p95 4.03 s, n 216) |
+| Anomaly model, pcb4, per image (batch 16; scoring and writing maps, masks and crops) | 84 ms |
+| Measure and draw a flagged image's areas, the rule, the decision | 0.05 s (p95 0.19 s, n 216) |
+| The VLM's answer to one area, cold | 3.33 s (p95 3.84 s, n 218) |
+| The VLM's answers to one flagged image | 3.33 s (p95 3.87 s, n 216) |
+| A flagged image, end to end | 3.49 s (p95 4.03 s, n 216) |
 
-216 flagged images, 218 areas asked (1.01 an image); the judge's stage took 809 s in all. An image that is not flagged costs the anomaly model's time only. Prompt tokens, median: 4,683; answer tokens, median: 39; output rate, median: 62.4 tokens a second.
+216 flagged images, 218 areas asked (1.01 an image); the judge's stage took 801 s in all. An image that is not flagged costs the anomaly model's time only. Prompt tokens, median: 4,683; answer tokens, median: 39; output rate, median: 63.2 tokens a second.
 
 ## 8. Minutes from specification to a working inspector
 
 | Part | Parse, measured in this run | Fit, as recorded at training | Together |
 | --- | --- | --- | --- |
-| pcb1 | 8.1 s | 729 s | 12.3 min |
-| pcb4 | 8.1 s | 726 s | 12.2 min |
-| all parts, one after another | 8.1 s | 1455 s | 24.4 min |
+| pcb1 | 7.9 s | 729 s | 12.3 min |
+| pcb4 | 7.9 s | 726 s | 12.2 min |
+| all parts, one after another | 7.9 s | 1455 s | 24.4 min |
 
 Training is not repeated by the bench: the fit time is the one in each model's own
 training record. A rebuilt model has the same thresholds to the last digit.
@@ -190,9 +190,9 @@ training record. A rebuilt model has the same thresholds to the last digit.
 
 | Stage | The stage's own process | The card | The card before | Readings |
 | --- | --- | --- | --- | --- |
-| Anomaly model scoring, pcb1 | 2,028 MiB (the bench's process) | 10,813 MiB | 10,813 MiB | 1 at 0.5 s |
-| Anomaly model scoring, pcb4 | 1,848 MiB (the bench's process) | 11,197 MiB | not read | 26 at 0.5 s |
-| Judging | 8,780 MiB (the VLM server) | 10,109 MiB | 10,091 MiB | 1501 at 0.5 s |
+| Anomaly model scoring, pcb1 | 2,028 MiB (the bench's process) | 11,395 MiB | 10,831 MiB | 32 at 0.5 s |
+| Anomaly model scoring, pcb4 | 1,848 MiB (the bench's process) | 11,215 MiB | 11,215 MiB | 31 at 0.5 s |
+| Judging | 8,780 MiB (the VLM server) | 10,109 MiB | 10,109 MiB | 1472 at 0.5 s |
 
 Read from `nvidia-smi` for the process concerned. While the anomaly model scores, the
 VLM server is resident too, so the card's figure in those rows is both together. Training pcb1 peaked at 8,003 MiB allocated, as recorded then. Training pcb4 peaked at 8,003 MiB allocated, as recorded then.
@@ -207,8 +207,12 @@ uv run spec-to-inspector bench
 scripts/serve_vlm.sh stop
 ```
 
-This file holds one run. Run the command again and the next record says how many
-of its answers differ from this one.
+This run was compared with the run of the same command before it (2026-10-10T20:13:03+00:00), image by image:
+
+- 401 images in both runs: 0 flagged in one and not the other, 0 with another anomaly score, 0 with another board outcome.
+- 213 images answered on region 1 in both runs: 0 with another heading cited, 0 with another class named, 0 with another sentence.
+- Images that differ in anything but the sentence: none.
+- Every counted figure of the protocol is equal in the two runs.
 
 ## What these figures are not
 

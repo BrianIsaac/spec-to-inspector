@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "unit": "U7",
-  "measured_at": "2026-10-10T20:13:03+00:00",
+  "measured_at": "2026-10-10T20:35:07+00:00",
   "measured_on": "2026-10-11",
   "command": [
     "spec-to-inspector",
@@ -39,7 +39,7 @@
     "pages": 6,
     "clauses": 16,
     "headings": 11,
-    "parse_seconds": 8.099429042078555,
+    "parse_seconds": 7.890320277074352,
     "equals_tracked_clause_table": true
   },
   "judge": {
@@ -71,17 +71,17 @@
       "image_threshold": 31.319473266601562,
       "thresholds_tuned_on_test": true,
       "batch_size": 16,
-      "load_seconds": 2.078656079946086,
-      "inference_seconds": 17.25226779584773,
-      "seconds_per_image": 0.08626133897923864,
+      "load_seconds": 2.5744896549731493,
+      "inference_seconds": 17.10370402201079,
+      "seconds_per_image": 0.08551852011005394,
       "model_trained_at": "2026-10-10T16:13:34+00:00",
       "fit_seconds": 729.139757330995,
       "train_peak_allocated_mib": 8003.28369140625,
       "memory": {
         "process_peak_mib": 2028,
-        "card_peak_mib": 10813,
-        "card_before_mib": 10813,
-        "samples": 1,
+        "card_peak_mib": 11395,
+        "card_before_mib": 10831,
+        "samples": 32,
         "interval_seconds": 0.5
       }
     },
@@ -96,17 +96,17 @@
       "image_threshold": 30.048791885375977,
       "thresholds_tuned_on_test": true,
       "batch_size": 16,
-      "load_seconds": 1.8849744340404868,
-      "inference_seconds": 19.379650068003684,
-      "seconds_per_image": 0.09641616949255565,
+      "load_seconds": 1.8330984828062356,
+      "inference_seconds": 16.78436624794267,
+      "seconds_per_image": 0.08350430969125706,
       "model_trained_at": "2026-10-10T16:00:38+00:00",
       "fit_seconds": 725.8853450100869,
       "train_peak_allocated_mib": 8003.28369140625,
       "memory": {
         "process_peak_mib": 1848,
-        "card_peak_mib": 11197,
-        "card_before_mib": null,
-        "samples": 26,
+        "card_peak_mib": 11215,
+        "card_before_mib": 11215,
+        "samples": 31,
         "interval_seconds": 0.5
       }
     }
@@ -689,47 +689,47 @@
     "stale_region_truth": []
   },
   "times": {
-    "parse_seconds": 8.099429042078555,
+    "parse_seconds": 7.890320277074352,
     "anomaly_seconds_per_image": {
-      "pcb1": 0.08626133897923864,
-      "pcb4": 0.09641616949255565
+      "pcb1": 0.08551852011005394,
+      "pcb4": 0.08350430969125706
     },
     "flagged_images": 216,
     "areas_asked": 218,
     "areas_per_flagged_image": 1.0092592592592593,
     "measure_and_draw_seconds": {
       "n": 216,
-      "p50": 0.05734603595919907,
-      "p95": 0.21359344676602632,
-      "mean": 0.08278761749022158,
-      "minimum": 0.02755818795412779,
-      "maximum": 0.4989220427814871
+      "p50": 0.046043990878388286,
+      "p95": 0.1859689541743137,
+      "mean": 0.06980865649314148,
+      "minimum": 0.027040933957323432,
+      "maximum": 0.3716656209435314
     },
     "vlm_seconds_per_area": {
       "n": 218,
-      "p50": 3.362919684150256,
-      "p95": 3.815341056301258,
-      "mean": 3.629512868368776,
-      "minimum": 2.978863053023815,
-      "maximum": 14.11332585918717
+      "p50": 3.3305035145021975,
+      "p95": 3.8356383249745694,
+      "mean": 3.6037123468747243,
+      "minimum": 2.964565244037658,
+      "maximum": 13.770361069822684
     },
     "vlm_seconds_per_flagged_image": {
       "n": 216,
-      "p50": 3.362919684150256,
-      "p95": 3.818254802492447,
-      "mean": 3.66311946900182,
-      "minimum": 2.978863053023815,
-      "maximum": 14.11332585918717
+      "p50": 3.333894969080575,
+      "p95": 3.8685297666233964,
+      "mean": 3.637080053790231,
+      "minimum": 2.964565244037658,
+      "maximum": 13.770361069822684
     },
     "flagged_image_seconds": {
       "n": 216,
-      "p50": 3.52924195881946,
-      "p95": 4.026500097307404,
-      "mean": 3.837151814519483,
-      "minimum": 3.102814279921586,
-      "maximum": 14.250905219413369
+      "p50": 3.4948835734131287,
+      "p95": 4.025912475971506,
+      "mean": 3.7914187752804986,
+      "minimum": 3.0811166202358438,
+      "maximum": 13.885416225576542
     },
-    "judge_stage_seconds": 809.314290744951,
+    "judge_stage_seconds": 800.7367701618932,
     "prompt_tokens": {
       "n": 218,
       "p50": 4683.0,
@@ -748,37 +748,50 @@
     },
     "output_tokens_per_second": {
       "n": 218,
-      "p50": 62.39871366863389,
-      "p95": 65.26131909567219,
-      "mean": 62.40352876577402,
-      "minimum": 57.358243198951165,
-      "maximum": 67.24572709442421
+      "p50": 63.151364305748295,
+      "p95": 66.25515499081801,
+      "mean": 63.12713567881622,
+      "minimum": 58.02283276878686,
+      "maximum": 69.30130867697095
     }
   },
   "judge_memory": {
     "process_peak_mib": 8780,
     "card_peak_mib": 10109,
-    "card_before_mib": 10091,
-    "samples": 1501,
+    "card_before_mib": 10109,
+    "samples": 1472,
     "interval_seconds": 0.5
   },
   "inspector": {
-    "parse_seconds": 8.099429042078555,
+    "parse_seconds": 7.890320277074352,
     "fit_seconds": {
       "pcb1": 729.139757330995,
       "pcb4": 725.8853450100869
     },
     "minutes_by_part": {
-      "pcb1": 12.28731977288456,
-      "pcb4": 12.233079567536091
+      "pcb1": 12.283834626801157,
+      "pcb4": 12.229594421452687
     },
-    "minutes_all_parts": 24.385408856386007
+    "minutes_all_parts": 24.381923710302605
   },
   "leak": {
     "decisions": 401,
     "with_corrections_in_prompt": 0
   },
-  "repeat": null,
+  "repeat": {
+    "previous_measured_at": "2026-10-10T20:13:03+00:00",
+    "images_compared": 401,
+    "flag_differs": 0,
+    "score_differs": 0,
+    "areas_compared": 213,
+    "heading_differs": 0,
+    "class_differs": 0,
+    "sentence_differs": 0,
+    "outcome_differs": 0,
+    "differing_images": [],
+    "figures_equal": true,
+    "previous_scores": null
+  },
   "notes": {
     "protocol": "every figure is defined in eval/PROTOCOL.md, written before the run; its digest at the time of the run is under `protocol`",
     "proportions": "count of n; rate, low and high are fractions of 1; low and high are the 95% Wilson score interval, z = 1.959964, no continuity correction",
@@ -808,7 +821,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00033706286922097206
+      "judge_seconds": 0.00022223987616598606
     },
     {
       "part": "pcb1",
@@ -827,7 +840,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00018131895922124386
+      "judge_seconds": 0.00008478201925754547
     },
     {
       "part": "pcb1",
@@ -846,7 +859,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00012587197124958038
+      "judge_seconds": 0.00006400514394044876
     },
     {
       "part": "pcb1",
@@ -865,7 +878,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00015490292571485043
+      "judge_seconds": 0.000056993914768099785
     },
     {
       "part": "pcb1",
@@ -884,7 +897,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0001316550187766552
+      "judge_seconds": 0.00005504698492586613
     },
     {
       "part": "pcb1",
@@ -903,7 +916,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007537589408457279
+      "judge_seconds": 0.000057987868785858154
     },
     {
       "part": "pcb1",
@@ -926,15 +939,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.6620213438291103,
+          "seconds": 3.829911742126569,
           "attempts": 1,
           "prompt_tokens": 4670,
           "completion_tokens": 37,
-          "tokens_per_second": 63.95633913914767
+          "tokens_per_second": 66.24039744238465
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7064710739068687
+      "judge_seconds": 3.872932818951085
     },
     {
       "part": "pcb1",
@@ -953,7 +966,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0001642419956624508
+      "judge_seconds": 0.00011933292262256145
     },
     {
       "part": "pcb1",
@@ -972,7 +985,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00012263888493180275
+      "judge_seconds": 0.00007293582893908024
     },
     {
       "part": "pcb1",
@@ -991,7 +1004,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00009851786307990551
+      "judge_seconds": 0.00006280886009335518
     },
     {
       "part": "pcb1",
@@ -1010,7 +1023,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00009493506513535976
+      "judge_seconds": 0.00005881907418370247
     },
     {
       "part": "pcb1",
@@ -1029,7 +1042,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00009393901564180851
+      "judge_seconds": 0.0000552560668438673
     },
     {
       "part": "pcb1",
@@ -1048,7 +1061,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00008537480607628822
+      "judge_seconds": 0.00005528004840016365
     },
     {
       "part": "pcb1",
@@ -1067,7 +1080,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0000806648749858141
+      "judge_seconds": 0.000052590854465961456
     },
     {
       "part": "pcb1",
@@ -1086,7 +1099,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007658498361706734
+      "judge_seconds": 0.000051884911954402924
     },
     {
       "part": "pcb1",
@@ -1105,7 +1118,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007451395504176617
+      "judge_seconds": 0.000052718911319971085
     },
     {
       "part": "pcb1",
@@ -1124,7 +1137,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007091183215379715
+      "judge_seconds": 0.00006285100243985653
     },
     {
       "part": "pcb1",
@@ -1143,7 +1156,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007046200335025787
+      "judge_seconds": 0.00005577201955020428
     },
     {
       "part": "pcb1",
@@ -1162,7 +1175,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007538893260061741
+      "judge_seconds": 0.00005216081626713276
     },
     {
       "part": "pcb1",
@@ -1181,7 +1194,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007157493382692337
+      "judge_seconds": 0.00004873494617640972
     },
     {
       "part": "pcb1",
@@ -1200,7 +1213,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007074885070323944
+      "judge_seconds": 0.000051451846957206726
     },
     {
       "part": "pcb1",
@@ -1219,7 +1232,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007076095789670944
+      "judge_seconds": 0.00004870793782174587
     },
     {
       "part": "pcb1",
@@ -1238,7 +1251,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007174909114837646
+      "judge_seconds": 0.00004957197234034538
     },
     {
       "part": "pcb1",
@@ -1257,7 +1270,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006675999611616135
+      "judge_seconds": 0.00004789000377058983
     },
     {
       "part": "pcb1",
@@ -1276,7 +1289,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006270920857787132
+      "judge_seconds": 0.00005407910794019699
     },
     {
       "part": "pcb1",
@@ -1295,7 +1308,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006629596464335918
+      "judge_seconds": 0.00005254009738564491
     },
     {
       "part": "pcb1",
@@ -1314,7 +1327,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006721098907291889
+      "judge_seconds": 0.00005500810220837593
     },
     {
       "part": "pcb1",
@@ -1333,7 +1346,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007151300087571144
+      "judge_seconds": 0.00005222600884735584
     },
     {
       "part": "pcb1",
@@ -1356,15 +1369,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.223614142043516,
+          "seconds": 3.148236791836098,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 42,
-          "tokens_per_second": 62.294030864413244
+          "tokens_per_second": 64.23070415650986
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2626485689543188
+      "judge_seconds": 3.175929722841829
     },
     {
       "part": "pcb1",
@@ -1387,15 +1400,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1328496001660824,
+          "seconds": 3.098371563013643,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 40,
-          "tokens_per_second": 64.27158866183257
+          "tokens_per_second": 65.10188444916294
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1683231808710843
+      "judge_seconds": 3.1269051930867136
     },
     {
       "part": "pcb1",
@@ -1414,7 +1427,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0001231650821864605
+      "judge_seconds": 0.00011677504517138004
     },
     {
       "part": "pcb1",
@@ -1437,15 +1450,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.250419612042606,
+          "seconds": 3.208483286900446,
           "attempts": 1,
           "prompt_tokens": 4660,
           "completion_tokens": 37,
-          "tokens_per_second": 66.05080407680241
+          "tokens_per_second": 65.97031335898845
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.329189458163455
+      "judge_seconds": 3.287143809022382
     },
     {
       "part": "pcb1",
@@ -1468,15 +1481,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2272073288913816,
+          "seconds": 3.178803925169632,
           "attempts": 1,
           "prompt_tokens": 4589,
           "completion_tokens": 43,
-          "tokens_per_second": 63.363229714337436
+          "tokens_per_second": 63.78374273890429
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2563814790919423
+      "judge_seconds": 3.2076418029610068
     },
     {
       "part": "pcb1",
@@ -1495,7 +1508,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002193748950958252
+      "judge_seconds": 0.00011915899813175201
     },
     {
       "part": "pcb1",
@@ -1514,7 +1527,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00014733802527189255
+      "judge_seconds": 0.00007281010039150715
     },
     {
       "part": "pcb1",
@@ -1533,7 +1546,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00036516087129712105
+      "judge_seconds": 0.00006329291500151157
     },
     {
       "part": "pcb1",
@@ -1552,7 +1565,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00015122094191610813
+      "judge_seconds": 0.000055595068261027336
     },
     {
       "part": "pcb1",
@@ -1575,15 +1588,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.311111736111343,
+          "seconds": 3.2120392569340765,
           "attempts": 1,
           "prompt_tokens": 4686,
           "completion_tokens": 37,
-          "tokens_per_second": 65.4221912072575
+          "tokens_per_second": 64.81814908174289
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.383069677045569
+      "judge_seconds": 3.251373836072162
     },
     {
       "part": "pcb1",
@@ -1606,15 +1619,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.127894598059356,
+          "seconds": 3.0601790212094784,
           "attempts": 1,
           "prompt_tokens": 4579,
           "completion_tokens": 37,
-          "tokens_per_second": 65.65616958259089
+          "tokens_per_second": 67.1591672263264
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1652018930763006
+      "judge_seconds": 3.0878362611401826
     },
     {
       "part": "pcb1",
@@ -1633,7 +1646,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00016584107652306557
+      "judge_seconds": 0.00011573894880712032
     },
     {
       "part": "pcb1",
@@ -1652,7 +1665,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00010270182974636555
+      "judge_seconds": 0.00006969110108911991
     },
     {
       "part": "pcb1",
@@ -1671,7 +1684,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00008249515667557716
+      "judge_seconds": 0.000059827929362654686
     },
     {
       "part": "pcb1",
@@ -1694,15 +1707,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2479855369310826,
+          "seconds": 3.2210660609416664,
           "attempts": 1,
           "prompt_tokens": 4606,
           "completion_tokens": 44,
-          "tokens_per_second": 62.47321279393284
+          "tokens_per_second": 62.66997408669443
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2807834139093757
+      "judge_seconds": 3.2486989619210362
     },
     {
       "part": "pcb1",
@@ -1721,7 +1734,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00011478899978101254
+      "judge_seconds": 0.00011905981227755547
     },
     {
       "part": "pcb1",
@@ -1740,7 +1753,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007534190081059933
+      "judge_seconds": 0.00007264222949743271
     },
     {
       "part": "pcb1",
@@ -1763,15 +1776,15 @@
           "outcome": "accept",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.111854429123923,
+          "seconds": 3.0597309640143067,
           "attempts": 1,
           "prompt_tokens": 4593,
           "completion_tokens": 36,
-          "tokens_per_second": 63.24756361349595
+          "tokens_per_second": 65.36948701761987
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1410474539734423
+      "judge_seconds": 3.08782499586232
     },
     {
       "part": "pcb1",
@@ -1790,7 +1803,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00011431286111474037
+      "judge_seconds": 0.00011736992746591568
     },
     {
       "part": "pcb1",
@@ -1809,7 +1822,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007291114889085293
+      "judge_seconds": 0.00006928318180143833
     },
     {
       "part": "pcb1",
@@ -1828,7 +1841,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006135506555438042
+      "judge_seconds": 0.00005965610034763813
     },
     {
       "part": "pcb1",
@@ -1851,15 +1864,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.1006035569589585,
+          "seconds": 3.0643261750228703,
           "attempts": 1,
           "prompt_tokens": 4579,
           "completion_tokens": 37,
-          "tokens_per_second": 66.00297013365602
+          "tokens_per_second": 67.3301176967863
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1284926428925246
+      "judge_seconds": 3.0915756220929325
     },
     {
       "part": "pcb1",
@@ -1878,7 +1891,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00012619001790881157
+      "judge_seconds": 0.00014452310279011726
     },
     {
       "part": "pcb1",
@@ -1901,15 +1914,15 @@
           "outcome": "needs review",
           "review_cause": "no clause applies",
           "asked": true,
-          "seconds": 3.0365472219418734,
+          "seconds": 3.0098133620340377,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 35,
-          "tokens_per_second": 67.21958066843942
+          "tokens_per_second": 68.85448414828015
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.0652429370675236
+      "judge_seconds": 3.0380290928296745
     },
     {
       "part": "pcb1",
@@ -1928,7 +1941,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00011626002378761768
+      "judge_seconds": 0.00011572916992008686
     },
     {
       "part": "pcb1",
@@ -1947,7 +1960,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007267016917467117
+      "judge_seconds": 0.00006797094829380512
     },
     {
       "part": "pcb1",
@@ -1966,7 +1979,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006328010931611061
+      "judge_seconds": 0.00006461283192038536
     },
     {
       "part": "pcb1",
@@ -1989,15 +2002,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.248808000003919,
+          "seconds": 3.245741839054972,
           "attempts": 1,
           "prompt_tokens": 4601,
           "completion_tokens": 45,
-          "tokens_per_second": 62.294622416719875
+          "tokens_per_second": 62.89407066148838
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2768275479320437
+      "judge_seconds": 3.2737725698389113
     },
     {
       "part": "pcb1",
@@ -2016,7 +2029,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00014328211545944214
+      "judge_seconds": 0.00011927587911486626
     },
     {
       "part": "pcb1",
@@ -2035,7 +2048,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00008380808867514133
+      "judge_seconds": 0.00007272209040820599
     },
     {
       "part": "pcb1",
@@ -2054,7 +2067,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007241591811180115
+      "judge_seconds": 0.00006145122461020947
     },
     {
       "part": "pcb1",
@@ -2077,15 +2090,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.0748621011152864,
+          "seconds": 3.075778641970828,
           "attempts": 1,
           "prompt_tokens": 4578,
           "completion_tokens": 37,
-          "tokens_per_second": 63.82005580709324
+          "tokens_per_second": 65.82339582899081
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1093680560588837
+      "judge_seconds": 3.1028195759281516
     },
     {
       "part": "pcb1",
@@ -2104,7 +2117,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00012244307436048985
+      "judge_seconds": 0.00011437712237238884
     },
     {
       "part": "pcb1",
@@ -2123,7 +2136,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007144385017454624
+      "judge_seconds": 0.00007170788012444973
     },
     {
       "part": "pcb1",
@@ -2142,7 +2155,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006018392741680145
+      "judge_seconds": 0.00006020907312631607
     },
     {
       "part": "pcb1",
@@ -2161,7 +2174,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000053369905799627304
+      "judge_seconds": 0.00005601393058896065
     },
     {
       "part": "pcb1",
@@ -2180,7 +2193,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00005258386954665184
+      "judge_seconds": 0.00005361996591091156
     },
     {
       "part": "pcb1",
@@ -2199,7 +2212,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00005169212818145752
+      "judge_seconds": 0.00005008606240153313
     },
     {
       "part": "pcb1",
@@ -2218,7 +2231,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00004981202073395252
+      "judge_seconds": 0.000053802039474248886
     },
     {
       "part": "pcb1",
@@ -2237,7 +2250,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000049629947170615196
+      "judge_seconds": 0.000049130991101264954
     },
     {
       "part": "pcb1",
@@ -2256,7 +2269,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00005252310074865818
+      "judge_seconds": 0.000047797104343771935
     },
     {
       "part": "pcb1",
@@ -2279,15 +2292,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2399136619642377,
+          "seconds": 3.205259273061529,
           "attempts": 1,
           "prompt_tokens": 4660,
           "completion_tokens": 37,
-          "tokens_per_second": 65.10699249099352
+          "tokens_per_second": 66.33878109860707
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.277710579102859
+      "judge_seconds": 3.239012647885829
     },
     {
       "part": "pcb1",
@@ -2306,7 +2319,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00012826197780668736
+      "judge_seconds": 0.00011577201075851917
     },
     {
       "part": "pcb1",
@@ -2329,15 +2342,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1196899260394275,
+          "seconds": 3.0787569999229163,
           "attempts": 1,
           "prompt_tokens": 4606,
           "completion_tokens": 37,
-          "tokens_per_second": 65.28954097825496
+          "tokens_per_second": 66.19971350235102
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1508983571548015
+      "judge_seconds": 3.1070512989535928
     },
     {
       "part": "pcb1",
@@ -2356,7 +2369,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00011547282338142395
+      "judge_seconds": 0.00011551706120371819
     },
     {
       "part": "pcb1",
@@ -2375,7 +2388,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007091718725860119
+      "judge_seconds": 0.00007390789687633514
     },
     {
       "part": "pcb1",
@@ -2394,7 +2407,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006184307858347893
+      "judge_seconds": 0.00006288592703640461
     },
     {
       "part": "pcb1",
@@ -2413,7 +2426,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00005491077899932861
+      "judge_seconds": 0.0000542269553989172
     },
     {
       "part": "pcb1",
@@ -2432,7 +2445,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000055609969422221184
+      "judge_seconds": 0.00005081901326775551
     },
     {
       "part": "pcb1",
@@ -2451,7 +2464,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00005219806917011738
+      "judge_seconds": 0.00005242694169282913
     },
     {
       "part": "pcb1",
@@ -2470,7 +2483,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000048443907871842384
+      "judge_seconds": 0.000052751973271369934
     },
     {
       "part": "pcb1",
@@ -2489,7 +2502,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00004824320785701275
+      "judge_seconds": 0.00005168002098798752
     },
     {
       "part": "pcb1",
@@ -2508,7 +2521,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000048620859161019325
+      "judge_seconds": 0.00004891795106232166
     },
     {
       "part": "pcb1",
@@ -2527,7 +2540,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000047564972192049026
+      "judge_seconds": 0.000054287025704979897
     },
     {
       "part": "pcb1",
@@ -2546,7 +2559,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000046653905883431435
+      "judge_seconds": 0.00005087489262223244
     },
     {
       "part": "pcb1",
@@ -2569,15 +2582,15 @@
           "outcome": "accept",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.0807068429421633,
+          "seconds": 3.0770073640160263,
           "attempts": 1,
           "prompt_tokens": 4594,
           "completion_tokens": 36,
-          "tokens_per_second": 64.03114474880581
+          "tokens_per_second": 65.29363480337288
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1106859089341015
+      "judge_seconds": 3.1060234101023525
     },
     {
       "part": "pcb1",
@@ -2600,15 +2613,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.44518244988285,
+          "seconds": 3.4377549530472606,
           "attempts": 1,
           "prompt_tokens": 4727,
           "completion_tokens": 44,
-          "tokens_per_second": 62.33925894568366
+          "tokens_per_second": 62.123915540369715
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.503074625041336
+      "judge_seconds": 3.494075787020847
     },
     {
       "part": "pcb1",
@@ -2627,7 +2640,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00011768401600420475
+      "judge_seconds": 0.00011826213449239731
     },
     {
       "part": "pcb1",
@@ -2650,15 +2663,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1919376289006323,
+          "seconds": 3.2056564139202237,
           "attempts": 1,
           "prompt_tokens": 4606,
           "completion_tokens": 43,
-          "tokens_per_second": 63.200662102174405
+          "tokens_per_second": 63.97299730247194
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2204652579966933
+      "judge_seconds": 3.233860256150365
     },
     {
       "part": "pcb1",
@@ -2677,7 +2690,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000124271959066391
+      "judge_seconds": 0.00017578713595867157
     },
     {
       "part": "pcb1",
@@ -2696,7 +2709,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007097306661307812
+      "judge_seconds": 0.00007922598160803318
     },
     {
       "part": "pcb1",
@@ -2715,7 +2728,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007178308442234993
+      "judge_seconds": 0.00007647578604519367
     },
     {
       "part": "pcb1",
@@ -2734,7 +2747,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006397394463419914
+      "judge_seconds": 0.00006619701161980629
     },
     {
       "part": "pcb1",
@@ -2753,7 +2766,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00006179115734994411
+      "judge_seconds": 0.00005828915163874626
     },
     {
       "part": "pcb1",
@@ -2772,7 +2785,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00005294801667332649
+      "judge_seconds": 0.000058545032516121864
     },
     {
       "part": "pcb1",
@@ -2791,7 +2804,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000053714029490947723
+      "judge_seconds": 0.000059382058680057526
     },
     {
       "part": "pcb1",
@@ -2810,7 +2823,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00004924205131828785
+      "judge_seconds": 0.000055036041885614395
     },
     {
       "part": "pcb1",
@@ -2829,7 +2842,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000049080001190304756
+      "judge_seconds": 0.000055721960961818695
     },
     {
       "part": "pcb1",
@@ -2848,7 +2861,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00005791499279439449
+      "judge_seconds": 0.0000581440981477499
     },
     {
       "part": "pcb1",
@@ -2871,15 +2884,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.013366087106988,
+          "seconds": 3.0265323389321566,
           "attempts": 1,
           "prompt_tokens": 4577,
           "completion_tokens": 34,
-          "tokens_per_second": 65.25633876345171
+          "tokens_per_second": 67.43804895593638
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.0409242750611156
+      "judge_seconds": 3.0537424529902637
     },
     {
       "part": "pcb1",
@@ -2898,7 +2911,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00012370198965072632
+      "judge_seconds": 0.00011999090202152729
     },
     {
       "part": "pcb1",
@@ -2917,7 +2930,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00007157004438340664
+      "judge_seconds": 0.00008038198575377464
     },
     {
       "part": "pcb1",
@@ -2942,15 +2955,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 2.987488988088444,
+          "seconds": 2.9968898550141603,
           "attempts": 1,
           "prompt_tokens": 4591,
           "completion_tokens": 32,
-          "tokens_per_second": 66.79825204057887
+          "tokens_per_second": 69.30130867697095
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.016552940942347
+      "judge_seconds": 3.0250428470317274
     },
     {
       "part": "pcb1",
@@ -2975,15 +2988,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3702871301211417,
+          "seconds": 3.3925639768131077,
           "attempts": 1,
           "prompt_tokens": 4756,
           "completion_tokens": 40,
-          "tokens_per_second": 62.98917555244737
+          "tokens_per_second": 63.709666880121276
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4552746289409697
+      "judge_seconds": 3.4740353389643133
     },
     {
       "part": "pcb1",
@@ -3008,15 +3021,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3109704309608787,
+          "seconds": 3.3287225738167763,
           "attempts": 1,
           "prompt_tokens": 4729,
           "completion_tokens": 38,
-          "tokens_per_second": 63.300343019426364
+          "tokens_per_second": 64.0109614446409
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.382431108970195
+      "judge_seconds": 3.4019789311569184
     },
     {
       "part": "pcb1",
@@ -3041,15 +3054,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3166896430775523,
+          "seconds": 3.314945488004014,
           "attempts": 1,
           "prompt_tokens": 4682,
           "completion_tokens": 41,
-          "tokens_per_second": 63.07248131871944
+          "tokens_per_second": 64.00809062265469
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.396956796059385
+      "judge_seconds": 3.39638241706416
     },
     {
       "part": "pcb1",
@@ -3074,15 +3087,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.323079850990325,
+          "seconds": 3.324876382946968,
           "attempts": 1,
           "prompt_tokens": 4730,
           "completion_tokens": 38,
-          "tokens_per_second": 62.85696811962531
+          "tokens_per_second": 64.10767316868635
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3992906908970326
+      "judge_seconds": 3.402976182056591
     },
     {
       "part": "pcb1",
@@ -3107,15 +3120,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3394624199718237,
+          "seconds": 3.375899109058082,
           "attempts": 1,
           "prompt_tokens": 4732,
           "completion_tokens": 38,
-          "tokens_per_second": 62.87630192180568
+          "tokens_per_second": 63.60907581170338
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4568714580964297
+      "judge_seconds": 3.4944842378608882
     },
     {
       "part": "pcb1",
@@ -3140,15 +3153,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.332355498103425,
+          "seconds": 3.335505482973531,
           "attempts": 1,
           "prompt_tokens": 4729,
           "completion_tokens": 38,
-          "tokens_per_second": 63.481605775796695
+          "tokens_per_second": 63.993579887336715
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.430718599120155
+      "judge_seconds": 3.4279151239898056
     },
     {
       "part": "pcb1",
@@ -3173,15 +3186,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2848877639044076,
+          "seconds": 3.2791080749593675,
           "attempts": 1,
           "prompt_tokens": 4657,
           "completion_tokens": 38,
-          "tokens_per_second": 64.76593241937516
+          "tokens_per_second": 65.01573556518882
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4813276778440922
+      "judge_seconds": 3.449337821919471
     },
     {
       "part": "pcb1",
@@ -3206,15 +3219,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3580405078828335,
+          "seconds": 3.3493901521433145,
           "attempts": 1,
           "prompt_tokens": 4756,
           "completion_tokens": 38,
-          "tokens_per_second": 63.401652898226644
+          "tokens_per_second": 63.53098337376994
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.475159023189917
+      "judge_seconds": 3.4370540340896696
     },
     {
       "part": "pcb1",
@@ -3240,15 +3253,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2697270561475307,
+          "seconds": 3.2373716470319778,
           "attempts": 1,
           "prompt_tokens": 4685,
           "completion_tokens": 36,
-          "tokens_per_second": 63.166633579382406
+          "tokens_per_second": 65.99950594655549
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.401903472840786
+      "judge_seconds": 3.3341105091385543
     },
     {
       "part": "pcb1",
@@ -3273,15 +3286,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.272092203842476,
+          "seconds": 3.2658052081242204,
           "attempts": 1,
           "prompt_tokens": 4679,
           "completion_tokens": 38,
-          "tokens_per_second": 63.31637481240385
+          "tokens_per_second": 64.92367081944201
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3557451968081295
+      "judge_seconds": 3.332698828075081
     },
     {
       "part": "pcb1",
@@ -3306,15 +3319,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3306320819538087,
+          "seconds": 3.3047499468084425,
           "attempts": 1,
           "prompt_tokens": 4670,
           "completion_tokens": 40,
-          "tokens_per_second": 62.54169446297533
+          "tokens_per_second": 63.80138465364027
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.424674508161843
+      "judge_seconds": 3.3838139409199357
     },
     {
       "part": "pcb1",
@@ -3339,15 +3352,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3742900390643626,
+          "seconds": 3.354764206102118,
           "attempts": 1,
           "prompt_tokens": 4740,
           "completion_tokens": 38,
-          "tokens_per_second": 62.434823106959286
+          "tokens_per_second": 63.21242106989585
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.470237510977313
+      "judge_seconds": 3.442267581820488
     },
     {
       "part": "pcb1",
@@ -3372,15 +3385,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3871450000442564,
+          "seconds": 3.345151368994266,
           "attempts": 1,
           "prompt_tokens": 4731,
           "completion_tokens": 38,
-          "tokens_per_second": 63.031294185788994
+          "tokens_per_second": 63.97333176569854
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5098885579500347
+      "judge_seconds": 3.4521738060284406
     },
     {
       "part": "pcb1",
@@ -3405,15 +3418,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4673708889167756,
+          "seconds": 3.4276013700291514,
           "attempts": 1,
           "prompt_tokens": 4730,
           "completion_tokens": 40,
-          "tokens_per_second": 62.12189271071268
+          "tokens_per_second": 63.8203865224435
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6816729442216456
+      "judge_seconds": 3.6036436310969293
     },
     {
       "part": "pcb1",
@@ -3436,15 +3449,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.1879956708289683,
+          "seconds": 3.160320670111105,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 41,
-          "tokens_per_second": 62.34851259829633
+          "tokens_per_second": 63.61393972261141
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.231501515954733
+      "judge_seconds": 3.189566364046186
     },
     {
       "part": "pcb1",
@@ -3469,15 +3482,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2925406200811267,
+          "seconds": 3.27020596107468,
           "attempts": 1,
           "prompt_tokens": 4693,
           "completion_tokens": 38,
-          "tokens_per_second": 63.612137883606984
+          "tokens_per_second": 64.42244408305969
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.381732272915542
+      "judge_seconds": 3.332663278095424
     },
     {
       "part": "pcb1",
@@ -3502,15 +3515,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 2.978863053023815,
+          "seconds": 2.964565244037658,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 31,
-          "tokens_per_second": 66.38945381396347
+          "tokens_per_second": 68.83670556705384
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.02035283180885
+      "judge_seconds": 2.9955981001257896
     },
     {
       "part": "pcb1",
@@ -3533,15 +3546,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.136907664127648,
+          "seconds": 3.1195257999934256,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 39,
-          "tokens_per_second": 64.57269866300528
+          "tokens_per_second": 66.04893530854412
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1792454509995878
+      "judge_seconds": 3.1493921419605613
     },
     {
       "part": "pcb1",
@@ -3566,15 +3579,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.399904739111662,
+          "seconds": 3.39590945513919,
           "attempts": 1,
           "prompt_tokens": 4661,
           "completion_tokens": 46,
-          "tokens_per_second": 63.248262078309786
+          "tokens_per_second": 63.18032929587629
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4452253151685
+      "judge_seconds": 3.4274166258983314
     },
     {
       "part": "pcb1",
@@ -3593,7 +3606,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004549524048343301
+      "judge_seconds": 0.00012151896953582764
     },
     {
       "part": "pcb1",
@@ -3618,15 +3631,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.229750654892996,
+          "seconds": 3.228595260065049,
           "attempts": 1,
           "prompt_tokens": 4655,
           "completion_tokens": 36,
-          "tokens_per_second": 63.07931593185271
+          "tokens_per_second": 64.81217431882405
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2972690570168197
+      "judge_seconds": 3.2834460579324514
     },
     {
       "part": "pcb1",
@@ -3645,7 +3658,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00374424085021019
+      "judge_seconds": 0.0001268349587917328
     },
     {
       "part": "pcb1",
@@ -3670,15 +3683,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3837962939869612,
+          "seconds": 3.3779711090028286,
           "attempts": 1,
           "prompt_tokens": 4642,
           "completion_tokens": 46,
-          "tokens_per_second": 62.65533301309496
+          "tokens_per_second": 63.353958566511096
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.433831970207393
+      "judge_seconds": 3.420316581847146
     },
     {
       "part": "pcb1",
@@ -3701,15 +3714,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.170586295891553,
+          "seconds": 3.1735532600432634,
           "attempts": 1,
           "prompt_tokens": 4591,
           "completion_tokens": 40,
-          "tokens_per_second": 61.05311934475913
+          "tokens_per_second": 62.320628447609124
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2041679380927235
+      "judge_seconds": 3.2056466180365533
     },
     {
       "part": "pcb1",
@@ -3728,7 +3741,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004241090035066009
+      "judge_seconds": 0.0001173829659819603
     },
     {
       "part": "pcb1",
@@ -3753,15 +3766,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1334333489649,
+          "seconds": 3.137594466097653,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 40,
-          "tokens_per_second": 63.142760925316686
+          "tokens_per_second": 64.36684480328502
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.169276933884248
+      "judge_seconds": 3.170994390035048
     },
     {
       "part": "pcb1",
@@ -3784,15 +3797,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1467870860360563,
+          "seconds": 3.139779898105189,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 40,
-          "tokens_per_second": 63.12017595962897
+          "tokens_per_second": 63.77498875761416
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1847949270159006
+      "judge_seconds": 3.171490964014083
     },
     {
       "part": "pcb1",
@@ -3817,15 +3830,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.248555767117068,
+          "seconds": 3.234381403075531,
           "attempts": 1,
           "prompt_tokens": 4670,
           "completion_tokens": 37,
-          "tokens_per_second": 62.86090453349352
+          "tokens_per_second": 64.2407457636797
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.297557905083522
+      "judge_seconds": 3.2755479090847075
     },
     {
       "part": "pcb1",
@@ -3844,7 +3857,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004436824936419725
+      "judge_seconds": 0.00015672598965466022
     },
     {
       "part": "pcb1",
@@ -3869,15 +3882,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.237495263805613,
+          "seconds": 3.2331955570261925,
           "attempts": 1,
           "prompt_tokens": 4649,
           "completion_tokens": 37,
-          "tokens_per_second": 63.15446002059538
+          "tokens_per_second": 64.2346706634906
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2802417560014874
+      "judge_seconds": 3.272189697017893
     },
     {
       "part": "pcb1",
@@ -3900,15 +3913,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2835041501093656,
+          "seconds": 3.2748328768648207,
           "attempts": 1,
           "prompt_tokens": 4683,
           "completion_tokens": 39,
-          "tokens_per_second": 62.17084220222211
+          "tokens_per_second": 63.877999744488
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.339191352017224
+      "judge_seconds": 3.3070954440627247
     },
     {
       "part": "pcb1",
@@ -3933,15 +3946,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1773334450554103,
+          "seconds": 3.166823144070804,
           "attempts": 1,
           "prompt_tokens": 4676,
           "completion_tokens": 33,
-          "tokens_per_second": 65.57954901763885
+          "tokens_per_second": 66.55297200615615
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.240527261979878
+      "judge_seconds": 3.2195625910535455
     },
     {
       "part": "pcb1",
@@ -3964,15 +3977,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.029413177864626,
+          "seconds": 3.0181401998270303,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 33,
-          "tokens_per_second": 66.52198135721473
+          "tokens_per_second": 67.33128253468612
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.062973372871056
+      "judge_seconds": 3.049439050955698
     },
     {
       "part": "pcb1",
@@ -3997,15 +4010,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1327679969836026,
+          "seconds": 3.070194103056565,
           "attempts": 1,
           "prompt_tokens": 4601,
           "completion_tokens": 35,
-          "tokens_per_second": 62.28246931672467
+          "tokens_per_second": 67.01395664197005
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.187838885001838
+      "judge_seconds": 3.1038653950672597
     },
     {
       "part": "pcb1",
@@ -4028,15 +4041,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.2387201539240777,
+          "seconds": 3.177913622930646,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 41,
-          "tokens_per_second": 61.692978722091645
+          "tokens_per_second": 63.870011752082156
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3229307951405644
+      "judge_seconds": 3.210074260830879
     },
     {
       "part": "pcb1",
@@ -4061,15 +4074,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.193152929889038,
+          "seconds": 3.0659593518357724,
           "attempts": 1,
           "prompt_tokens": 4602,
           "completion_tokens": 35,
-          "tokens_per_second": 62.87354281318421
+          "tokens_per_second": 66.17579795361077
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.252430469961837
+      "judge_seconds": 3.099310277029872
     },
     {
       "part": "pcb1",
@@ -4088,7 +4101,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0006502261385321617
+      "judge_seconds": 0.00014837016351521015
     },
     {
       "part": "pcb1",
@@ -4113,15 +4126,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.404721772065386,
+          "seconds": 3.241674527991563,
           "attempts": 1,
           "prompt_tokens": 4669,
           "completion_tokens": 37,
-          "tokens_per_second": 63.37738061285928
+          "tokens_per_second": 64.58291100295467
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4862579219043255
+      "judge_seconds": 3.294169998029247
     },
     {
       "part": "pcb1",
@@ -4146,15 +4159,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.355251753004268,
+          "seconds": 3.2593405400402844,
           "attempts": 1,
           "prompt_tokens": 4741,
           "completion_tokens": 33,
-          "tokens_per_second": 61.78977958427064
+          "tokens_per_second": 65.63792887720169
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.408878616988659
+      "judge_seconds": 3.30535233579576
     },
     {
       "part": "pcb1",
@@ -4180,15 +4193,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.780907137086615,
+          "seconds": 3.632268221816048,
           "attempts": 1,
           "prompt_tokens": 4925,
           "completion_tokens": 35,
-          "tokens_per_second": 61.088452485760996
+          "tokens_per_second": 62.87726358148894
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 4.125121088931337
+      "judge_seconds": 3.9161986319813877
     },
     {
       "part": "pcb1",
@@ -4213,26 +4226,26 @@
           "outcome": "needs review",
           "review_cause": "no clause applies",
           "asked": true,
-          "seconds": 3.8487651301547885,
+          "seconds": 3.717556454008445,
           "attempts": 1,
           "prompt_tokens": 4699,
           "completion_tokens": 39,
-          "tokens_per_second": 62.40188125250428
+          "tokens_per_second": 63.658202359374
         },
         {
           "index": 2,
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3587654170114547,
+          "seconds": 3.2584858960472047,
           "attempts": 1,
           "prompt_tokens": 4684,
           "completion_tokens": 36,
-          "tokens_per_second": 63.525713393761414
+          "tokens_per_second": 65.877640752285
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 7.607140108011663
+      "judge_seconds": 7.308024798054248
     },
     {
       "part": "pcb1",
@@ -4257,15 +4270,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4702035449445248,
+          "seconds": 3.367015498923138,
           "attempts": 1,
           "prompt_tokens": 4715,
           "completion_tokens": 39,
-          "tokens_per_second": 62.38600189456437
+          "tokens_per_second": 63.1223993156203
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5774666648358107
+      "judge_seconds": 3.441284365952015
     },
     {
       "part": "pcb1",
@@ -4290,26 +4303,26 @@
           "outcome": "needs review",
           "review_cause": "no clause applies",
           "asked": true,
-          "seconds": 4.5089082000777125,
+          "seconds": 4.34219460003078,
           "attempts": 1,
           "prompt_tokens": 5487,
           "completion_tokens": 33,
-          "tokens_per_second": 57.85624531048011
+          "tokens_per_second": 59.72678727744772
         },
         {
           "index": 2,
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.779087034985423,
+          "seconds": 3.2170028041582555,
           "attempts": 1,
           "prompt_tokens": 4577,
           "completion_tokens": 43,
-          "tokens_per_second": 62.178190851515524
+          "tokens_per_second": 62.42930253091366
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 8.786917277844623
+      "judge_seconds": 7.930863025132567
     },
     {
       "part": "pcb1",
@@ -4334,15 +4347,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.461593506159261,
+          "seconds": 3.3951311758719385,
           "attempts": 1,
           "prompt_tokens": 4683,
           "completion_tokens": 43,
-          "tokens_per_second": 62.173680696700494
+          "tokens_per_second": 63.48985598384334
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.629571911878884
+      "judge_seconds": 3.527881847927347
     },
     {
       "part": "pcb1",
@@ -4367,15 +4380,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5067450569476932,
+          "seconds": 3.4862633030861616,
           "attempts": 1,
           "prompt_tokens": 4683,
           "completion_tokens": 47,
-          "tokens_per_second": 62.26076975967343
+          "tokens_per_second": 62.14528215984577
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6697326619178057
+      "judge_seconds": 3.614574095932767
     },
     {
       "part": "pcb1",
@@ -4400,15 +4413,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.327228452078998,
+          "seconds": 3.2917645659763366,
           "attempts": 1,
           "prompt_tokens": 4683,
           "completion_tokens": 36,
-          "tokens_per_second": 64.12605349945035
+          "tokens_per_second": 64.65819829006776
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5439992239698768
+      "judge_seconds": 3.4761512600816786
     },
     {
       "part": "pcb1",
@@ -4433,15 +4446,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.303206596057862,
+          "seconds": 3.259438060922548,
           "attempts": 1,
           "prompt_tokens": 4669,
           "completion_tokens": 38,
-          "tokens_per_second": 63.35366929042178
+          "tokens_per_second": 64.5542875387544
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.35478900000453
+      "judge_seconds": 3.2984450689982623
     },
     {
       "part": "pcb1",
@@ -4460,7 +4473,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0006097189616411924
+      "judge_seconds": 0.00012741913087666035
     },
     {
       "part": "pcb1",
@@ -4483,15 +4496,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5318553908728063,
+          "seconds": 3.4982557301409543,
           "attempts": 1,
           "prompt_tokens": 4679,
           "completion_tokens": 49,
-          "tokens_per_second": 62.78720239847113
+          "tokens_per_second": 63.42729382165301
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6468165901023895
+      "judge_seconds": 3.5961591568775475
     },
     {
       "part": "pcb1",
@@ -4516,15 +4529,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.361125836148858,
+          "seconds": 3.3146727420389652,
           "attempts": 1,
           "prompt_tokens": 4682,
           "completion_tokens": 37,
-          "tokens_per_second": 64.13396873469024
+          "tokens_per_second": 64.20419788447168
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.541700751055032
+      "judge_seconds": 3.481575772166252
     },
     {
       "part": "pcb1",
@@ -4549,15 +4562,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.336685972986743,
+          "seconds": 3.3002778058871627,
           "attempts": 1,
           "prompt_tokens": 4681,
           "completion_tokens": 38,
-          "tokens_per_second": 63.13960850029777
+          "tokens_per_second": 63.86169972228791
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.405909955035895
+      "judge_seconds": 3.365375337889418
     },
     {
       "part": "pcb1",
@@ -4582,15 +4595,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3166774560231715,
+          "seconds": 3.2679847641848028,
           "attempts": 1,
           "prompt_tokens": 4668,
           "completion_tokens": 38,
-          "tokens_per_second": 63.99734324542636
+          "tokens_per_second": 64.26590103398625
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3820273550227284
+      "judge_seconds": 3.319303713971749
     },
     {
       "part": "pcb1",
@@ -4615,15 +4628,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4300624830648303,
+          "seconds": 3.3894901680760086,
           "attempts": 1,
           "prompt_tokens": 4683,
           "completion_tokens": 42,
-          "tokens_per_second": 61.628464534321786
+          "tokens_per_second": 61.391582465366156
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5536778829991817
+      "judge_seconds": 3.4995165599975735
     },
     {
       "part": "pcb1",
@@ -4648,15 +4661,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3757019869517535,
+          "seconds": 3.328693174989894,
           "attempts": 1,
           "prompt_tokens": 4683,
           "completion_tokens": 39,
-          "tokens_per_second": 62.716930435371026
+          "tokens_per_second": 62.85677422342937
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.537883769022301
+      "judge_seconds": 3.4745362820103765
     },
     {
       "part": "pcb1",
@@ -4681,15 +4694,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.394140288932249,
+          "seconds": 3.36045512300916,
           "attempts": 1,
           "prompt_tokens": 4684,
           "completion_tokens": 40,
-          "tokens_per_second": 62.40269579645841
+          "tokens_per_second": 62.50230377081207
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.549467667005956
+      "judge_seconds": 3.4956857869401574
     },
     {
       "part": "pcb1",
@@ -4714,15 +4727,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4166445629671216,
+          "seconds": 3.3697858471423388,
           "attempts": 1,
           "prompt_tokens": 4682,
           "completion_tokens": 41,
-          "tokens_per_second": 61.65028567201123
+          "tokens_per_second": 62.093770908136925
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.56658223294653
+      "judge_seconds": 3.50200196984224
     },
     {
       "part": "pcb1",
@@ -4745,15 +4758,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3166097411885858,
+          "seconds": 3.269218208035454,
           "attempts": 1,
           "prompt_tokens": 4676,
           "completion_tokens": 38,
-          "tokens_per_second": 62.71250216103893
+          "tokens_per_second": 63.635222267512155
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.355062718037516
+      "judge_seconds": 3.304843300022185
     },
     {
       "part": "pcb1",
@@ -4776,15 +4789,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1658621879760176,
+          "seconds": 3.137809090083465,
           "attempts": 1,
           "prompt_tokens": 4590,
           "completion_tokens": 38,
-          "tokens_per_second": 63.228192254717335
+          "tokens_per_second": 63.551279871248546
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2007975459564477
+      "judge_seconds": 3.1694746571592987
     },
     {
       "part": "pcb1",
@@ -4809,15 +4822,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.466821125941351,
+          "seconds": 3.4151113778352737,
           "attempts": 1,
           "prompt_tokens": 4682,
           "completion_tokens": 43,
-          "tokens_per_second": 62.40444319635559
+          "tokens_per_second": 63.43855070099599
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.643327623838559
+      "judge_seconds": 3.5850733791012317
     },
     {
       "part": "pcb1",
@@ -4836,7 +4849,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0045059300027787685
+      "judge_seconds": 0.0001180300023406744
     },
     {
       "part": "pcb1",
@@ -4859,15 +4872,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.209367485018447,
+          "seconds": 3.180659767938778,
           "attempts": 1,
           "prompt_tokens": 4537,
           "completion_tokens": 41,
-          "tokens_per_second": 62.4687656171914
+          "tokens_per_second": 62.78823725163328
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.244854680960998
+      "judge_seconds": 3.2115903559606522
     },
     {
       "part": "pcb1",
@@ -4892,15 +4905,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2237630928866565,
+          "seconds": 3.172209443990141,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 41,
-          "tokens_per_second": 62.96793043303046
+          "tokens_per_second": 63.835253976537345
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.264196847099811
+      "judge_seconds": 3.205224151024595
     },
     {
       "part": "pcb1",
@@ -4925,15 +4938,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2486583651043475,
+          "seconds": 3.2027805370744318,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 42,
-          "tokens_per_second": 63.052381150106186
+          "tokens_per_second": 63.93981547904958
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2951337911654264
+      "judge_seconds": 3.236043800134212
     },
     {
       "part": "pcb1",
@@ -4958,15 +4971,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3647135321516544,
+          "seconds": 3.3154350579716265,
           "attempts": 1,
           "prompt_tokens": 4601,
           "completion_tokens": 48,
-          "tokens_per_second": 62.52677343224094
+          "tokens_per_second": 63.19412697985855
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4042410089168698
+      "judge_seconds": 3.350228538038209
     },
     {
       "part": "pcb1",
@@ -4991,15 +5004,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3473814090248197,
+          "seconds": 3.295967405894771,
           "attempts": 1,
           "prompt_tokens": 4674,
           "completion_tokens": 38,
-          "tokens_per_second": 62.60342254603043
+          "tokens_per_second": 63.80663485532277
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.415673142997548
+      "judge_seconds": 3.344896836904809
     },
     {
       "part": "pcb1",
@@ -5024,15 +5037,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3978106500580907,
+          "seconds": 3.34329682495445,
           "attempts": 1,
           "prompt_tokens": 4666,
           "completion_tokens": 42,
-          "tokens_per_second": 61.44043349972202
+          "tokens_per_second": 62.91006622435263
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4470607780385762
+      "judge_seconds": 3.3799764551222324
     },
     {
       "part": "pcb1",
@@ -5057,15 +5070,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.202210739022121,
+          "seconds": 3.1539127510041,
           "attempts": 1,
           "prompt_tokens": 4589,
           "completion_tokens": 39,
-          "tokens_per_second": 63.19262442295156
+          "tokens_per_second": 64.2835513617117
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2417509430088103
+      "judge_seconds": 3.186254704836756
     },
     {
       "part": "pcb1",
@@ -5090,15 +5103,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.325144039001316,
+          "seconds": 3.267340151127428,
           "attempts": 1,
           "prompt_tokens": 4670,
           "completion_tokens": 37,
-          "tokens_per_second": 63.551467862375766
+          "tokens_per_second": 64.38413002732749
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.418510772055015
+      "judge_seconds": 3.3417001189664006
     },
     {
       "part": "pcb1",
@@ -5123,15 +5136,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3285353740211576,
+          "seconds": 3.2496100799180567,
           "attempts": 1,
           "prompt_tokens": 4662,
           "completion_tokens": 37,
-          "tokens_per_second": 63.161219011526924
+          "tokens_per_second": 64.98382624768946
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.372561461990699
+      "judge_seconds": 3.285940534900874
     },
     {
       "part": "pcb1",
@@ -5156,15 +5169,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.350553489057347,
+          "seconds": 3.2524539360310882,
           "attempts": 1,
           "prompt_tokens": 4654,
           "completion_tokens": 37,
-          "tokens_per_second": 63.19037680772748
+          "tokens_per_second": 63.88200284274913
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4230465828441083
+      "judge_seconds": 3.3030079670716077
     },
     {
       "part": "pcb1",
@@ -5189,15 +5202,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.455299237044528,
+          "seconds": 3.357388951117173,
           "attempts": 1,
           "prompt_tokens": 4665,
           "completion_tokens": 42,
-          "tokens_per_second": 62.46001035922123
+          "tokens_per_second": 63.00587183990977
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5357067938894033
+      "judge_seconds": 3.4095200379379094
     },
     {
       "part": "pcb1",
@@ -5222,15 +5235,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.28762009809725,
+          "seconds": 3.214379263110459,
           "attempts": 1,
           "prompt_tokens": 4669,
           "completion_tokens": 35,
-          "tokens_per_second": 65.09818337775327
+          "tokens_per_second": 65.55556412491033
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3608948139008135
+      "judge_seconds": 3.2610505409538746
     },
     {
       "part": "pcb1",
@@ -5255,15 +5268,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1786286858841777,
+          "seconds": 3.11972077190876,
           "attempts": 1,
           "prompt_tokens": 4602,
           "completion_tokens": 37,
-          "tokens_per_second": 63.55214100101683
+          "tokens_per_second": 65.28172691928278
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2236014869995415
+      "judge_seconds": 3.1531521431170404
     },
     {
       "part": "pcb1",
@@ -5288,15 +5301,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.177553792949766,
+          "seconds": 3.114606572082266,
           "attempts": 1,
           "prompt_tokens": 4602,
           "completion_tokens": 37,
-          "tokens_per_second": 63.40439321995689
+          "tokens_per_second": 64.9987271082608
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2222752370871603
+      "judge_seconds": 3.149860659847036
     },
     {
       "part": "pcb1",
@@ -5319,15 +5332,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.168286773143336,
+          "seconds": 3.114870609017089,
           "attempts": 1,
           "prompt_tokens": 4591,
           "completion_tokens": 36,
-          "tokens_per_second": 63.31690108995523
+          "tokens_per_second": 64.55099251761781
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2124916708562523
+      "judge_seconds": 3.14698658301495
     },
     {
       "part": "pcb1",
@@ -5346,7 +5359,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0045000300742685795
+      "judge_seconds": 0.00012285099364817142
     },
     {
       "part": "pcb1",
@@ -5371,15 +5384,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.300001930911094,
+          "seconds": 3.262441848171875,
           "attempts": 1,
           "prompt_tokens": 4654,
           "completion_tokens": 37,
-          "tokens_per_second": 62.99774783051506
+          "tokens_per_second": 63.97372812231777
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.343715699855238
+      "judge_seconds": 3.299177674110979
     },
     {
       "part": "pcb1",
@@ -5404,15 +5417,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1590959599707276,
+          "seconds": 3.130778457969427,
           "attempts": 1,
           "prompt_tokens": 4590,
           "completion_tokens": 37,
-          "tokens_per_second": 64.14162470735383
+          "tokens_per_second": 64.92932623198888
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1993628868367523
+      "judge_seconds": 3.1644023559056222
     },
     {
       "part": "pcb1",
@@ -5437,15 +5450,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1362501569092274,
+          "seconds": 3.102693668100983,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 37,
-          "tokens_per_second": 64.90427520855006
+          "tokens_per_second": 65.1430432658379
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1742856281343848
+      "judge_seconds": 3.13453236897476
     },
     {
       "part": "pcb1",
@@ -5471,15 +5484,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.421878509921953,
+          "seconds": 3.389670806005597,
           "attempts": 1,
           "prompt_tokens": 4669,
           "completion_tokens": 43,
-          "tokens_per_second": 62.66355934985065
+          "tokens_per_second": 62.43115849933332
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.481532156933099
+      "judge_seconds": 3.4361578430980444
     },
     {
       "part": "pcb1",
@@ -5504,15 +5517,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.3065434109885246,
+          "seconds": 3.2699589589610696,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 46,
-          "tokens_per_second": 62.29227257437351
+          "tokens_per_second": 62.6968856367008
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3485207338817418
+      "judge_seconds": 3.303356273798272
     },
     {
       "part": "pcb1",
@@ -5537,15 +5550,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3875718519557267,
+          "seconds": 3.3448693009559065,
           "attempts": 1,
           "prompt_tokens": 4678,
           "completion_tokens": 41,
-          "tokens_per_second": 62.37680580852816
+          "tokens_per_second": 62.791095594733704
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.43815814005211
+      "judge_seconds": 3.3807857329957187
     },
     {
       "part": "pcb1",
@@ -5568,15 +5581,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3304619090631604,
+          "seconds": 3.28986751800403,
           "attempts": 1,
           "prompt_tokens": 4652,
           "completion_tokens": 38,
-          "tokens_per_second": 62.54468987131008
+          "tokens_per_second": 63.07094117185809
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.374467090005055
+      "judge_seconds": 3.3253238841425627
     },
     {
       "part": "pcb1",
@@ -5601,15 +5614,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.520713788922876,
+          "seconds": 3.4756602870766073,
           "attempts": 1,
           "prompt_tokens": 4681,
           "completion_tokens": 47,
-          "tokens_per_second": 62.28648261462405
+          "tokens_per_second": 62.923795180310876
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6110969248693436
+      "judge_seconds": 3.5377179798670113
     },
     {
       "part": "pcb1",
@@ -5632,15 +5645,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.2052228909451514,
+          "seconds": 3.122005545999855,
           "attempts": 1,
           "prompt_tokens": 4579,
           "completion_tokens": 36,
-          "tokens_per_second": 60.00137145991908
+          "tokens_per_second": 62.480809465664116
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2601829359773546
+      "judge_seconds": 3.155477773863822
     },
     {
       "part": "pcb1",
@@ -5665,15 +5678,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2741358808707446,
+          "seconds": 3.217652025166899,
           "attempts": 1,
           "prompt_tokens": 4600,
           "completion_tokens": 40,
-          "tokens_per_second": 62.947593707177475
+          "tokens_per_second": 63.69957321285947
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3380368801299483
+      "judge_seconds": 3.254009529016912
     },
     {
       "part": "pcb1",
@@ -5698,15 +5711,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3030477629508823,
+          "seconds": 3.2196025501471013,
           "attempts": 1,
           "prompt_tokens": 4603,
           "completion_tokens": 40,
-          "tokens_per_second": 61.531082663065256
+          "tokens_per_second": 63.383509236114946
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3523643820080906
+      "judge_seconds": 3.2523549150209874
     },
     {
       "part": "pcb1",
@@ -5731,15 +5744,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.337411032989621,
+          "seconds": 3.253272980917245,
           "attempts": 1,
           "prompt_tokens": 4602,
           "completion_tokens": 42,
-          "tokens_per_second": 61.13298810590619
+          "tokens_per_second": 63.038808843268605
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.39529492193833
+      "judge_seconds": 3.287234717980027
     },
     {
       "part": "pcb1",
@@ -5764,15 +5777,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.6458351730834693,
+          "seconds": 3.610827506054193,
           "attempts": 1,
           "prompt_tokens": 4683,
           "completion_tokens": 54,
-          "tokens_per_second": 62.253335839127985
+          "tokens_per_second": 63.247332871906245
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6903994060121477
+      "judge_seconds": 3.652924269903451
     },
     {
       "part": "pcb1",
@@ -5797,15 +5810,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5287020448595285,
+          "seconds": 3.4666418510023504,
           "attempts": 1,
           "prompt_tokens": 4665,
           "completion_tokens": 47,
-          "tokens_per_second": 61.42932689482765
+          "tokens_per_second": 62.483360409456175
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5783901140093803
+      "judge_seconds": 3.506810754071921
     },
     {
       "part": "pcb1",
@@ -5830,15 +5843,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.1854093309957534,
+          "seconds": 3.1403135519940406,
           "attempts": 1,
           "prompt_tokens": 4521,
           "completion_tokens": 37,
-          "tokens_per_second": 62.90275234487482
+          "tokens_per_second": 63.9404359316832
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2286105828825384
+      "judge_seconds": 3.172437977977097
     },
     {
       "part": "pcb1",
@@ -5863,15 +5876,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4138227289076895,
+          "seconds": 3.3322844551876187,
           "attempts": 1,
           "prompt_tokens": 4665,
           "completion_tokens": 40,
-          "tokens_per_second": 61.444222825110835
+          "tokens_per_second": 63.516260162601625
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4711696999147534
+      "judge_seconds": 3.39286697213538
     },
     {
       "part": "pcb1",
@@ -5896,15 +5909,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.48176382901147,
+          "seconds": 3.3736735770944506,
           "attempts": 1,
           "prompt_tokens": 4727,
           "completion_tokens": 38,
-          "tokens_per_second": 62.37251563527249
+          "tokens_per_second": 62.825482694975484
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.533095614053309
+      "judge_seconds": 3.424831649987027
     },
     {
       "part": "pcb1",
@@ -5929,15 +5942,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2771361959166825,
+          "seconds": 3.1896445169113576,
           "attempts": 1,
           "prompt_tokens": 4602,
           "completion_tokens": 39,
-          "tokens_per_second": 62.84035078145284
+          "tokens_per_second": 63.01448006420844
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3207012340426445
+      "judge_seconds": 3.2237869650125504
     },
     {
       "part": "pcb1",
@@ -5962,15 +5975,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.086426030145958,
+          "seconds": 3.0358614542055875,
           "attempts": 1,
           "prompt_tokens": 4603,
           "completion_tokens": 31,
-          "tokens_per_second": 67.24572709442421
+          "tokens_per_second": 67.53896998568175
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1327031161636114
+      "judge_seconds": 3.0695566430222243
     },
     {
       "part": "pcb1",
@@ -5989,7 +6002,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00039594504050910473
+      "judge_seconds": 0.00014982791617512703
     },
     {
       "part": "pcb1",
@@ -6014,15 +6027,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2111944099888206,
+          "seconds": 3.181843024911359,
           "attempts": 1,
           "prompt_tokens": 4602,
           "completion_tokens": 38,
-          "tokens_per_second": 63.87636298347501
+          "tokens_per_second": 64.43871268867917
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.255236562108621
+      "judge_seconds": 3.2173924911767244
     },
     {
       "part": "pcb1",
@@ -6047,15 +6060,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.208722327835858,
+          "seconds": 3.1731819468550384,
           "attempts": 1,
           "prompt_tokens": 4533,
           "completion_tokens": 39,
-          "tokens_per_second": 63.49545840379102
+          "tokens_per_second": 64.15212833126809
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2490457920357585
+      "judge_seconds": 3.2077669899445027
     },
     {
       "part": "pcb1",
@@ -6080,15 +6093,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.378297212999314,
+          "seconds": 3.366631933953613,
           "attempts": 1,
           "prompt_tokens": 4661,
           "completion_tokens": 40,
-          "tokens_per_second": 62.089156845170336
+          "tokens_per_second": 62.80071882668935
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4742956289555877
+      "judge_seconds": 3.421946033835411
     },
     {
       "part": "pcb4",
@@ -6107,7 +6120,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004413493908941746
+      "judge_seconds": 0.000199219211935997
     },
     {
       "part": "pcb4",
@@ -6126,7 +6139,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0005059461109340191
+      "judge_seconds": 0.00009999796748161316
     },
     {
       "part": "pcb4",
@@ -6145,7 +6158,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00036586495116353035
+      "judge_seconds": 0.00008441880345344543
     },
     {
       "part": "pcb4",
@@ -6164,7 +6177,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0004143291153013706
+      "judge_seconds": 0.00008472613990306854
     },
     {
       "part": "pcb4",
@@ -6183,7 +6196,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002725499216467142
+      "judge_seconds": 0.00007824809290468693
     },
     {
       "part": "pcb4",
@@ -6202,7 +6215,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0004411921836435795
+      "judge_seconds": 0.00007655401714146137
     },
     {
       "part": "pcb4",
@@ -6221,7 +6234,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0005122211296111345
+      "judge_seconds": 0.00007679895497858524
     },
     {
       "part": "pcb4",
@@ -6244,15 +6257,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.716980763943866,
+          "seconds": 3.509686689823866,
           "attempts": 1,
           "prompt_tokens": 4645,
           "completion_tokens": 41,
-          "tokens_per_second": 61.633187005875186
+          "tokens_per_second": 62.31092528608504
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7521847300231457
+      "judge_seconds": 3.5442563330288976
     },
     {
       "part": "pcb4",
@@ -6271,7 +6284,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0011990969069302082
+      "judge_seconds": 0.00016282591968774796
     },
     {
       "part": "pcb4",
@@ -6290,7 +6303,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0005100821144878864
+      "judge_seconds": 0.00010189320892095566
     },
     {
       "part": "pcb4",
@@ -6309,7 +6322,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0003756699152290821
+      "judge_seconds": 0.00008847890421748161
     },
     {
       "part": "pcb4",
@@ -6328,7 +6341,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002646399661898613
+      "judge_seconds": 0.00008014892227947712
     },
     {
       "part": "pcb4",
@@ -6347,7 +6360,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00024004094302654266
+      "judge_seconds": 0.00007960386574268341
     },
     {
       "part": "pcb4",
@@ -6366,7 +6379,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0004884188529103994
+      "judge_seconds": 0.00008237501606345177
     },
     {
       "part": "pcb4",
@@ -6385,7 +6398,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00024873693473637104
+      "judge_seconds": 0.0000763388816267252
     },
     {
       "part": "pcb4",
@@ -6404,7 +6417,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0003456121776252985
+      "judge_seconds": 0.00007771095260977745
     },
     {
       "part": "pcb4",
@@ -6423,7 +6436,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00036041787825524807
+      "judge_seconds": 0.00007698009721934795
     },
     {
       "part": "pcb4",
@@ -6442,7 +6455,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0004139849916100502
+      "judge_seconds": 0.00007631606422364712
     },
     {
       "part": "pcb4",
@@ -6461,7 +6474,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00037549296393990517
+      "judge_seconds": 0.00008294614963233471
     },
     {
       "part": "pcb4",
@@ -6480,7 +6493,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0003318570088595152
+      "judge_seconds": 0.00007578008808195591
     },
     {
       "part": "pcb4",
@@ -6499,7 +6512,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00027105514891445637
+      "judge_seconds": 0.00007574097253382206
     },
     {
       "part": "pcb4",
@@ -6518,7 +6531,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0005924978759139776
+      "judge_seconds": 0.00007521198131144047
     },
     {
       "part": "pcb4",
@@ -6537,7 +6550,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002519390545785427
+      "judge_seconds": 0.0000741069670766592
     },
     {
       "part": "pcb4",
@@ -6556,7 +6569,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.003951971186324954
+      "judge_seconds": 0.00007408997043967247
     },
     {
       "part": "pcb4",
@@ -6579,15 +6592,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.4954412339720875,
+          "seconds": 3.5275631491094828,
           "attempts": 1,
           "prompt_tokens": 4741,
           "completion_tokens": 44,
-          "tokens_per_second": 61.23689993178494
+          "tokens_per_second": 61.23105753156247
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5416137638967484
+      "judge_seconds": 3.5625284218695015
     },
     {
       "part": "pcb4",
@@ -6606,7 +6619,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004716505063697696
+      "judge_seconds": 0.00015338300727307796
     },
     {
       "part": "pcb4",
@@ -6629,15 +6642,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1617920440621674,
+          "seconds": 3.1853589040692896,
           "attempts": 1,
           "prompt_tokens": 4644,
           "completion_tokens": 35,
-          "tokens_per_second": 62.477719342734396
+          "tokens_per_second": 63.19174046780475
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1972734110895544
+      "judge_seconds": 3.22009991412051
     },
     {
       "part": "pcb4",
@@ -6656,7 +6669,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004525069147348404
+      "judge_seconds": 0.00014876388013362885
     },
     {
       "part": "pcb4",
@@ -6675,7 +6688,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00042452081106603146
+      "judge_seconds": 0.00010039284825325012
     },
     {
       "part": "pcb4",
@@ -6694,7 +6707,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002664569765329361
+      "judge_seconds": 0.00008773896843194962
     },
     {
       "part": "pcb4",
@@ -6713,7 +6726,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002409280277788639
+      "judge_seconds": 0.00008407304994761944
     },
     {
       "part": "pcb4",
@@ -6732,7 +6745,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002217041328549385
+      "judge_seconds": 0.00008189096115529537
     },
     {
       "part": "pcb4",
@@ -6751,7 +6764,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00021696998737752438
+      "judge_seconds": 0.00008349795825779438
     },
     {
       "part": "pcb4",
@@ -6774,15 +6787,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.127670930000022,
+          "seconds": 3.15658744587563,
           "attempts": 1,
           "prompt_tokens": 4550,
           "completion_tokens": 37,
-          "tokens_per_second": 63.15944602148123
+          "tokens_per_second": 64.0240161198245
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.15751390485093
+      "judge_seconds": 3.1854730618651956
     },
     {
       "part": "pcb4",
@@ -6801,7 +6814,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0043849400244653225
+      "judge_seconds": 0.00015110312961041927
     },
     {
       "part": "pcb4",
@@ -6820,7 +6833,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0005892189219594002
+      "judge_seconds": 0.00009870296344161034
     },
     {
       "part": "pcb4",
@@ -6839,7 +6852,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000270304037258029
+      "judge_seconds": 0.00008309492841362953
     },
     {
       "part": "pcb4",
@@ -6858,7 +6871,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00026164017617702484
+      "judge_seconds": 0.00008981721475720406
     },
     {
       "part": "pcb4",
@@ -6877,7 +6890,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00023562484420835972
+      "judge_seconds": 0.00007823808118700981
     },
     {
       "part": "pcb4",
@@ -6896,7 +6909,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00021783099509775639
+      "judge_seconds": 0.00008481810800731182
     },
     {
       "part": "pcb4",
@@ -6919,15 +6932,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2004834439139813,
+          "seconds": 3.214382180944085,
           "attempts": 1,
           "prompt_tokens": 4661,
           "completion_tokens": 37,
-          "tokens_per_second": 61.21376697619295
+          "tokens_per_second": 63.04088201198478
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2339903449174017
+      "judge_seconds": 3.2487972730305046
     },
     {
       "part": "pcb4",
@@ -6946,7 +6959,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004239273024722934
+      "judge_seconds": 0.0001485259272158146
     },
     {
       "part": "pcb4",
@@ -6965,7 +6978,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0006883081514388323
+      "judge_seconds": 0.00009822286665439606
     },
     {
       "part": "pcb4",
@@ -6984,7 +6997,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00029565603472292423
+      "judge_seconds": 0.00008492008782923222
     },
     {
       "part": "pcb4",
@@ -7003,7 +7016,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0003660691436380148
+      "judge_seconds": 0.0000823021400719881
     },
     {
       "part": "pcb4",
@@ -7022,7 +7035,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00034187897108495235
+      "judge_seconds": 0.00007734005339443684
     },
     {
       "part": "pcb4",
@@ -7041,7 +7054,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00029556197114288807
+      "judge_seconds": 0.00007650000043213367
     },
     {
       "part": "pcb4",
@@ -7060,7 +7073,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002813558094203472
+      "judge_seconds": 0.00007801107130944729
     },
     {
       "part": "pcb4",
@@ -7079,7 +7092,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002714910078793764
+      "judge_seconds": 0.00007725483737885952
     },
     {
       "part": "pcb4",
@@ -7098,7 +7111,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002569099888205528
+      "judge_seconds": 0.00007938616909086704
     },
     {
       "part": "pcb4",
@@ -7117,7 +7130,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002652248367667198
+      "judge_seconds": 0.00007416890002787113
     },
     {
       "part": "pcb4",
@@ -7136,7 +7149,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00026776897720992565
+      "judge_seconds": 0.00007926905527710915
     },
     {
       "part": "pcb4",
@@ -7155,7 +7168,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002639379817992449
+      "judge_seconds": 0.00007358589209616184
     },
     {
       "part": "pcb4",
@@ -7174,7 +7187,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000260727945715189
+      "judge_seconds": 0.00007605506107211113
     },
     {
       "part": "pcb4",
@@ -7193,7 +7206,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00024389103055000305
+      "judge_seconds": 0.00007362896576523781
     },
     {
       "part": "pcb4",
@@ -7212,7 +7225,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00025163101963698864
+      "judge_seconds": 0.00007345201447606087
     },
     {
       "part": "pcb4",
@@ -7231,7 +7244,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002485469449311495
+      "judge_seconds": 0.0000733640044927597
     },
     {
       "part": "pcb4",
@@ -7250,7 +7263,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00025918614119291306
+      "judge_seconds": 0.00007811188697814941
     },
     {
       "part": "pcb4",
@@ -7269,7 +7282,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00025901803746819496
+      "judge_seconds": 0.00007496005855500698
     },
     {
       "part": "pcb4",
@@ -7288,7 +7301,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00023903208784759045
+      "judge_seconds": 0.00007153698243200779
     },
     {
       "part": "pcb4",
@@ -7307,7 +7320,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00025599589571356773
+      "judge_seconds": 0.00007432489655911922
     },
     {
       "part": "pcb4",
@@ -7326,7 +7339,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00022118189372122288
+      "judge_seconds": 0.00007639196701347828
     },
     {
       "part": "pcb4",
@@ -7345,7 +7358,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00024428311735391617
+      "judge_seconds": 0.00007386994548141956
     },
     {
       "part": "pcb4",
@@ -7364,7 +7377,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002623510081321001
+      "judge_seconds": 0.00007667206227779388
     },
     {
       "part": "pcb4",
@@ -7383,7 +7396,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00025489297695457935
+      "judge_seconds": 0.00007386994548141956
     },
     {
       "part": "pcb4",
@@ -7402,7 +7415,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002615479752421379
+      "judge_seconds": 0.00008555897511541843
     },
     {
       "part": "pcb4",
@@ -7421,7 +7434,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00023827701807022095
+      "judge_seconds": 0.00007538986392319202
     },
     {
       "part": "pcb4",
@@ -7444,15 +7457,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3673849841579795,
+          "seconds": 3.379954108968377,
           "attempts": 1,
           "prompt_tokens": 4709,
           "completion_tokens": 38,
-          "tokens_per_second": 61.54757211462487
+          "tokens_per_second": 62.83241745178885
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.430581093998626
+      "judge_seconds": 3.4408577291760594
     },
     {
       "part": "pcb4",
@@ -7471,7 +7484,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004613440949469805
+      "judge_seconds": 0.00015311618335545063
     },
     {
       "part": "pcb4",
@@ -7490,7 +7503,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00046135997399687767
+      "judge_seconds": 0.00009802496060729027
     },
     {
       "part": "pcb4",
@@ -7509,7 +7522,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002950429916381836
+      "judge_seconds": 0.00008669495582580566
     },
     {
       "part": "pcb4",
@@ -7528,7 +7541,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00043410412035882473
+      "judge_seconds": 0.0000859179999679327
     },
     {
       "part": "pcb4",
@@ -7551,15 +7564,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.202439834130928,
+          "seconds": 3.233897295081988,
           "attempts": 1,
           "prompt_tokens": 4618,
           "completion_tokens": 40,
-          "tokens_per_second": 61.85115756820279
+          "tokens_per_second": 62.03316070087927
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2342160060070455
+      "judge_seconds": 3.2639634860679507
     },
     {
       "part": "pcb4",
@@ -7578,7 +7591,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.043576282914727926
+      "judge_seconds": 0.00015338300727307796
     },
     {
       "part": "pcb4",
@@ -7597,7 +7610,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0010892190039157867
+      "judge_seconds": 0.00010006106458604336
     },
     {
       "part": "pcb4",
@@ -7616,7 +7629,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00031291902996599674
+      "judge_seconds": 0.00008926610462367535
     },
     {
       "part": "pcb4",
@@ -7635,7 +7648,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002778808120638132
+      "judge_seconds": 0.00008274195715785027
     },
     {
       "part": "pcb4",
@@ -7654,7 +7667,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0005355849862098694
+      "judge_seconds": 0.0000792269129306078
     },
     {
       "part": "pcb4",
@@ -7673,7 +7686,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00039258995093405247
+      "judge_seconds": 0.00008488399907946587
     },
     {
       "part": "pcb4",
@@ -7692,7 +7705,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00045087095350027084
+      "judge_seconds": 0.00007965508848428726
     },
     {
       "part": "pcb4",
@@ -7711,7 +7724,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00038317800499498844
+      "judge_seconds": 0.00007708393968641758
     },
     {
       "part": "pcb4",
@@ -7734,15 +7747,15 @@
           "outcome": "accept",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.1911086889449507,
+          "seconds": 3.2096407040953636,
           "attempts": 1,
           "prompt_tokens": 4645,
           "completion_tokens": 37,
-          "tokens_per_second": 62.396763687856726
+          "tokens_per_second": 62.789639011900384
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2260051211342216
+      "judge_seconds": 3.243471360998228
     },
     {
       "part": "pcb4",
@@ -7761,7 +7774,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004362531006336212
+      "judge_seconds": 0.00014976412057876587
     },
     {
       "part": "pcb4",
@@ -7780,7 +7793,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00031109503470361233
+      "judge_seconds": 0.00009712507016956806
     },
     {
       "part": "pcb4",
@@ -7799,7 +7812,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002857379149645567
+      "judge_seconds": 0.00009548105299472809
     },
     {
       "part": "pcb4",
@@ -7818,7 +7831,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002867740113288164
+      "judge_seconds": 0.00008198106661438942
     },
     {
       "part": "pcb4",
@@ -7837,7 +7850,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.000297886086627841
+      "judge_seconds": 0.00007799500599503517
     },
     {
       "part": "pcb4",
@@ -7856,7 +7869,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00028629996813833714
+      "judge_seconds": 0.00007600896060466766
     },
     {
       "part": "pcb4",
@@ -7875,7 +7888,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002846920397132635
+      "judge_seconds": 0.0000862698070704937
     },
     {
       "part": "pcb4",
@@ -7894,7 +7907,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00026071490719914436
+      "judge_seconds": 0.00007659895345568657
     },
     {
       "part": "pcb4",
@@ -7913,7 +7926,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002604059409350157
+      "judge_seconds": 0.00007649394683539867
     },
     {
       "part": "pcb4",
@@ -7932,7 +7945,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00026502693071961403
+      "judge_seconds": 0.00007467390969395638
     },
     {
       "part": "pcb4",
@@ -7951,7 +7964,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00027921213768422604
+      "judge_seconds": 0.00007507298141717911
     },
     {
       "part": "pcb4",
@@ -7970,7 +7983,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0003772920463234186
+      "judge_seconds": 0.00008376897312700748
     },
     {
       "part": "pcb4",
@@ -7989,7 +8002,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00033332500606775284
+      "judge_seconds": 0.00007473607547581196
     },
     {
       "part": "pcb4",
@@ -8008,7 +8021,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0002965480089187622
+      "judge_seconds": 0.0000821931753307581
     },
     {
       "part": "pcb4",
@@ -8027,7 +8040,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0003388752229511738
+      "judge_seconds": 0.00007802480831742287
     },
     {
       "part": "pcb4",
@@ -8050,15 +8063,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.516435116995126,
+          "seconds": 3.545490306103602,
           "attempts": 1,
           "prompt_tokens": 4705,
           "completion_tokens": 48,
-          "tokens_per_second": 61.72320687517728
+          "tokens_per_second": 61.61389065500809
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5597456770483404
+      "judge_seconds": 3.5818416469264776
     },
     {
       "part": "pcb4",
@@ -8077,7 +8090,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004409834044054151
+      "judge_seconds": 0.000177453039214015
     },
     {
       "part": "pcb4",
@@ -8096,7 +8109,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0005204509943723679
+      "judge_seconds": 0.00011528213508427143
     },
     {
       "part": "pcb4",
@@ -8115,7 +8128,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.00044402689673006535
+      "judge_seconds": 0.00009819702245295048
     },
     {
       "part": "pcb4",
@@ -8140,15 +8153,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4875997819472104,
+          "seconds": 3.5183970630168915,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 46,
-          "tokens_per_second": 62.2817543524566
+          "tokens_per_second": 61.825416016354886
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.565860698930919
+      "judge_seconds": 3.589150401065126
     },
     {
       "part": "pcb4",
@@ -8173,15 +8186,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.404428966110572,
+          "seconds": 3.38658245280385,
           "attempts": 1,
           "prompt_tokens": 4705,
           "completion_tokens": 39,
-          "tokens_per_second": 62.32348512928843
+          "tokens_per_second": 62.393991786980344
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4595529809594154
+      "judge_seconds": 3.4227508809417486
     },
     {
       "part": "pcb4",
@@ -8206,15 +8219,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.512320230016485,
+          "seconds": 3.47914220392704,
           "attempts": 1,
           "prompt_tokens": 4751,
           "completion_tokens": 39,
-          "tokens_per_second": 61.028392656678356
+          "tokens_per_second": 61.87957583179177
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7685128999873996
+      "judge_seconds": 3.6884594610892236
     },
     {
       "part": "pcb4",
@@ -8239,15 +8252,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.590097264852375,
+          "seconds": 3.601630155928433,
           "attempts": 1,
           "prompt_tokens": 4755,
           "completion_tokens": 49,
-          "tokens_per_second": 62.032093854558
+          "tokens_per_second": 62.25139968381476
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6543338948395103
+      "judge_seconds": 3.653025164967403
     },
     {
       "part": "pcb4",
@@ -8272,15 +8285,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.434817248955369,
+          "seconds": 3.439111805986613,
           "attempts": 1,
           "prompt_tokens": 4755,
           "completion_tokens": 38,
-          "tokens_per_second": 60.85596380221482
+          "tokens_per_second": 61.13358183308219
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5044790669344366
+      "judge_seconds": 3.490731184836477
     },
     {
       "part": "pcb4",
@@ -8303,15 +8316,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.1947872599121183,
+          "seconds": 3.185304749989882,
           "attempts": 1,
           "prompt_tokens": 4574,
           "completion_tokens": 38,
-          "tokens_per_second": 61.85170635484491
+          "tokens_per_second": 63.07803776158206
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2431795198936015
+      "judge_seconds": 3.2173515697941184
     },
     {
       "part": "pcb4",
@@ -8337,15 +8350,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4253581389784813,
+          "seconds": 3.361955167958513,
           "attempts": 1,
           "prompt_tokens": 4770,
           "completion_tokens": 34,
-          "tokens_per_second": 63.133124802708984
+          "tokens_per_second": 63.70016909499432
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5278845408465713
+      "judge_seconds": 3.4469492360949516
     },
     {
       "part": "pcb4",
@@ -8370,15 +8383,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2672388600185513,
+          "seconds": 3.1802568181883544,
           "attempts": 1,
           "prompt_tokens": 4644,
           "completion_tokens": 36,
-          "tokens_per_second": 63.70922382142487
+          "tokens_per_second": 63.580528372356646
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.315549333114177
+      "judge_seconds": 3.212477863067761
     },
     {
       "part": "pcb4",
@@ -8403,15 +8416,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2283678529784083,
+          "seconds": 3.1583784960675985,
           "attempts": 1,
           "prompt_tokens": 4643,
           "completion_tokens": 35,
-          "tokens_per_second": 61.6281430352948
+          "tokens_per_second": 63.6173974871128
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2743393077980727
+      "judge_seconds": 3.191333683906123
     },
     {
       "part": "pcb4",
@@ -8436,15 +8449,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.251542645972222,
+          "seconds": 3.23341808677651,
           "attempts": 1,
           "prompt_tokens": 4642,
           "completion_tokens": 39,
-          "tokens_per_second": 63.004867955060945
+          "tokens_per_second": 62.90109795521772
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2981985840015113
+      "judge_seconds": 3.2675808668136597
     },
     {
       "part": "pcb4",
@@ -8470,15 +8483,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5161028360016644,
+          "seconds": 3.5180068500339985,
           "attempts": 1,
           "prompt_tokens": 4809,
           "completion_tokens": 39,
-          "tokens_per_second": 60.317173092826536
+          "tokens_per_second": 61.562787563020855
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.626830707071349
+      "judge_seconds": 3.6136276219040155
     },
     {
       "part": "pcb4",
@@ -8503,15 +8516,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.430094775976613,
+          "seconds": 3.565389861119911,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 40,
-          "tokens_per_second": 60.965220123524915
+          "tokens_per_second": 61.570035915854284
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5098156391177326
+      "judge_seconds": 3.639655306003988
     },
     {
       "part": "pcb4",
@@ -8536,15 +8549,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4816797468811274,
+          "seconds": 3.6729248620104045,
           "attempts": 1,
           "prompt_tokens": 4754,
           "completion_tokens": 39,
-          "tokens_per_second": 59.89080959765984
+          "tokens_per_second": 58.52393397884205
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.569939634995535
+      "judge_seconds": 3.836862837895751
     },
     {
       "part": "pcb4",
@@ -8570,15 +8583,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.501995055936277,
+          "seconds": 3.5969890910200775,
           "attempts": 1,
           "prompt_tokens": 4786,
           "completion_tokens": 38,
-          "tokens_per_second": 60.87038063729643
+          "tokens_per_second": 58.76989837572709
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5799691108986735
+      "judge_seconds": 3.689564801985398
     },
     {
       "part": "pcb4",
@@ -8603,15 +8616,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5464080839883536,
+          "seconds": 3.753370833117515,
           "attempts": 1,
           "prompt_tokens": 4735,
           "completion_tokens": 46,
-          "tokens_per_second": 61.38291617958187
+          "tokens_per_second": 60.002240083629786
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6202567440923303
+      "judge_seconds": 3.8285289742052555
     },
     {
       "part": "pcb4",
@@ -8636,15 +8649,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4254076220095158,
+          "seconds": 3.6195643949322402,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 39,
-          "tokens_per_second": 61.30446215820746
+          "tokens_per_second": 59.58905505871874
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.534962240140885
+      "judge_seconds": 3.722709979163483
     },
     {
       "part": "pcb4",
@@ -8669,15 +8682,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4583446881733835,
+          "seconds": 3.9731008580420166,
           "attempts": 1,
           "prompt_tokens": 4771,
           "completion_tokens": 38,
-          "tokens_per_second": 60.82535069102531
+          "tokens_per_second": 58.02283276878686
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5237161240074784
+      "judge_seconds": 4.058832125971094
     },
     {
       "part": "pcb4",
@@ -8702,15 +8715,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4501312081702054,
+          "seconds": 3.7317112658638507,
           "attempts": 1,
           "prompt_tokens": 4743,
           "completion_tokens": 39,
-          "tokens_per_second": 62.35303962863843
+          "tokens_per_second": 59.93246557431863
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6083149721380323
+      "judge_seconds": 4.014994137920439
     },
     {
       "part": "pcb4",
@@ -8735,15 +8748,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4213658140506595,
+          "seconds": 3.6589282650966197,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 40,
-          "tokens_per_second": 61.56566214658942
+          "tokens_per_second": 61.119617359851944
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4797386480495334
+      "judge_seconds": 3.7677501179277897
     },
     {
       "part": "pcb4",
@@ -8768,15 +8781,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2825770711060613,
+          "seconds": 3.4855411869939417,
           "attempts": 1,
           "prompt_tokens": 4642,
           "completion_tokens": 39,
-          "tokens_per_second": 63.06865521030076
+          "tokens_per_second": 61.83607581753801
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.383910949109122
+      "judge_seconds": 3.6352570799645036
     },
     {
       "part": "pcb4",
@@ -8801,15 +8814,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3035506398882717,
+          "seconds": 3.4804766979068518,
           "attempts": 1,
           "prompt_tokens": 4684,
           "completion_tokens": 42,
-          "tokens_per_second": 62.230209275640355
+          "tokens_per_second": 60.983228124869854
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3482372120488435
+      "judge_seconds": 3.578484317054972
     },
     {
       "part": "pcb4",
@@ -8835,15 +8848,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4370797220617533,
+          "seconds": 3.734160102903843,
           "attempts": 1,
           "prompt_tokens": 4707,
           "completion_tokens": 41,
-          "tokens_per_second": 61.8793692635891
+          "tokens_per_second": 60.272280025012996
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.541145068826154
+      "judge_seconds": 3.908756251912564
     },
     {
       "part": "pcb4",
@@ -8869,15 +8882,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3073064771015197,
+          "seconds": 3.482528961962089,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 35,
-          "tokens_per_second": 63.75159378984474
+          "tokens_per_second": 64.55826953457286
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3557654949836433
+      "judge_seconds": 3.5407313702162355
     },
     {
       "part": "pcb4",
@@ -8902,15 +8915,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.43965190788731,
+          "seconds": 3.5152317059691995,
           "attempts": 1,
           "prompt_tokens": 4707,
           "completion_tokens": 39,
-          "tokens_per_second": 58.33213087274078
+          "tokens_per_second": 61.35117899206471
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.492004242958501
+      "judge_seconds": 3.5843243438284844
     },
     {
       "part": "pcb4",
@@ -8935,15 +8948,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5660817089956254,
+          "seconds": 3.480849405983463,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 40,
-          "tokens_per_second": 60.40349534893086
+          "tokens_per_second": 61.69187597085613
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7539268240798265
+      "judge_seconds": 3.594065028009936
     },
     {
       "part": "pcb4",
@@ -8968,15 +8981,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5736009560059756,
+          "seconds": 3.428467334015295,
           "attempts": 1,
           "prompt_tokens": 4743,
           "completion_tokens": 40,
-          "tokens_per_second": 60.109954979185
+          "tokens_per_second": 61.627633198647985
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.707053459016606
+      "judge_seconds": 3.4944630479440093
     },
     {
       "part": "pcb4",
@@ -9001,15 +9014,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.492353656096384,
+          "seconds": 3.3751606778241694,
           "attempts": 1,
           "prompt_tokens": 4744,
           "completion_tokens": 36,
-          "tokens_per_second": 60.51845294085099
+          "tokens_per_second": 62.85659895514373
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.597986420849338
+      "judge_seconds": 3.4404238790739328
     },
     {
       "part": "pcb4",
@@ -9034,15 +9047,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.632009811932221,
+          "seconds": 3.5316891151014715,
           "attempts": 1,
           "prompt_tokens": 4695,
           "completion_tokens": 45,
-          "tokens_per_second": 61.561277956165576
+          "tokens_per_second": 60.89131039483863
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.769071315880865
+      "judge_seconds": 3.623175862012431
     },
     {
       "part": "pcb4",
@@ -9067,15 +9080,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.8109704370144755,
+          "seconds": 3.5924396528862417,
           "attempts": 1,
           "prompt_tokens": 4707,
           "completion_tokens": 50,
-          "tokens_per_second": 62.05540154277327
+          "tokens_per_second": 62.25194505567102
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.8847454448696226
+      "judge_seconds": 3.651926622958854
     },
     {
       "part": "pcb4",
@@ -9101,15 +9114,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.698185638990253,
+          "seconds": 3.588926566997543,
           "attempts": 1,
           "prompt_tokens": 4682,
           "completion_tokens": 50,
-          "tokens_per_second": 59.66202074046655
+          "tokens_per_second": 61.23400261681636
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.8022838628385216
+      "judge_seconds": 3.6542409260291606
     },
     {
       "part": "pcb4",
@@ -9135,15 +9148,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.580061649903655,
+          "seconds": 3.3594994849991053,
           "attempts": 1,
           "prompt_tokens": 4745,
           "completion_tokens": 36,
-          "tokens_per_second": 64.62166782985669
+          "tokens_per_second": 64.00831010746082
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.659639033023268
+      "judge_seconds": 3.411224279087037
     },
     {
       "part": "pcb4",
@@ -9169,15 +9182,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.7194191780872643,
+          "seconds": 3.504638709127903,
           "attempts": 1,
           "prompt_tokens": 4749,
           "completion_tokens": 43,
-          "tokens_per_second": 57.358243198951165
+          "tokens_per_second": 60.52169702838467
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.8730551530607045
+      "judge_seconds": 3.586451072944328
     },
     {
       "part": "pcb4",
@@ -9202,15 +9215,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.547263968968764,
+          "seconds": 3.318523052148521,
           "attempts": 1,
           "prompt_tokens": 4706,
           "completion_tokens": 36,
-          "tokens_per_second": 62.33714421074942
+          "tokens_per_second": 63.69368795552361
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.650493788998574
+      "judge_seconds": 3.383050159085542
     },
     {
       "part": "pcb4",
@@ -9235,15 +9248,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.755213461117819,
+          "seconds": 3.556968783028424,
           "attempts": 1,
           "prompt_tokens": 4737,
           "completion_tokens": 48,
-          "tokens_per_second": 60.45653689520953
+          "tokens_per_second": 61.92611292424328
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.920412782812491
+      "judge_seconds": 3.6341511660721153
     },
     {
       "part": "pcb4",
@@ -9269,15 +9282,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.7312938740942627,
+          "seconds": 3.5284277889877558,
           "attempts": 1,
           "prompt_tokens": 4798,
           "completion_tokens": 41,
-          "tokens_per_second": 60.71792879001311
+          "tokens_per_second": 60.79036594280538
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.9303192920051515
+      "judge_seconds": 3.644444040954113
     },
     {
       "part": "pcb4",
@@ -9302,15 +9315,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.628186507150531,
+          "seconds": 3.4754705170635134,
           "attempts": 1,
           "prompt_tokens": 4736,
           "completion_tokens": 43,
-          "tokens_per_second": 61.59685445396589
+          "tokens_per_second": 61.74836072804258
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.774310935055837
+      "judge_seconds": 3.5422016091179103
     },
     {
       "part": "pcb4",
@@ -9336,15 +9349,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.459882407914847,
+          "seconds": 3.4209847399033606,
           "attempts": 1,
           "prompt_tokens": 4746,
           "completion_tokens": 39,
-          "tokens_per_second": 60.08779142578842
+          "tokens_per_second": 61.332562910262396
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.561801116913557
+      "judge_seconds": 3.5090650729835033
     },
     {
       "part": "pcb4",
@@ -9370,15 +9383,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4984915629029274,
+          "seconds": 3.4690288400743157,
           "attempts": 1,
           "prompt_tokens": 4738,
           "completion_tokens": 41,
-          "tokens_per_second": 60.450172434116865
+          "tokens_per_second": 61.90110679178944
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.584813016001135
+      "judge_seconds": 3.5464016809128225
     },
     {
       "part": "pcb4",
@@ -9403,15 +9416,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2902360879816115,
+          "seconds": 3.3110244309064,
           "attempts": 1,
           "prompt_tokens": 4574,
           "completion_tokens": 45,
-          "tokens_per_second": 62.106277956647
+          "tokens_per_second": 62.4556422995032
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.330762220080942
+      "judge_seconds": 3.346793496981263
     },
     {
       "part": "pcb4",
@@ -9437,15 +9450,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.46666843816638,
+          "seconds": 3.4532845630310476,
           "attempts": 1,
           "prompt_tokens": 4725,
           "completion_tokens": 43,
-          "tokens_per_second": 61.63192533732473
+          "tokens_per_second": 62.693772269350355
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5622383719310164
+      "judge_seconds": 3.5425932509824634
     },
     {
       "part": "pcb4",
@@ -9471,15 +9484,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5448625560384244,
+          "seconds": 3.547789683798328,
           "attempts": 1,
           "prompt_tokens": 4744,
           "completion_tokens": 46,
-          "tokens_per_second": 61.20591983656659
+          "tokens_per_second": 61.505238196119706
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7112375791184604
+      "judge_seconds": 3.682092484086752
     },
     {
       "part": "pcb4",
@@ -9504,15 +9517,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.6203444418497384,
+          "seconds": 3.6157024840358645,
           "attempts": 1,
           "prompt_tokens": 4707,
           "completion_tokens": 54,
-          "tokens_per_second": 62.09419102984973
+          "tokens_per_second": 62.76564374457463
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7108311180491
+      "judge_seconds": 3.693498322973028
     },
     {
       "part": "pcb4",
@@ -9537,15 +9550,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.492092109983787,
+          "seconds": 3.4878985870163888,
           "attempts": 1,
           "prompt_tokens": 4706,
           "completion_tokens": 46,
-          "tokens_per_second": 61.18511488525072
+          "tokens_per_second": 61.919845448065765
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5499009659979492
+      "judge_seconds": 3.5339747730176896
     },
     {
       "part": "pcb4",
@@ -9570,15 +9583,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4750254689715803,
+          "seconds": 3.477603947976604,
           "attempts": 1,
           "prompt_tokens": 4701,
           "completion_tokens": 44,
-          "tokens_per_second": 60.48509042521019
+          "tokens_per_second": 62.27813414710095
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.569002714008093
+      "judge_seconds": 3.5622052107937634
     },
     {
       "part": "pcb4",
@@ -9603,15 +9616,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4856794369407,
+          "seconds": 3.5153291230089962,
           "attempts": 1,
           "prompt_tokens": 4746,
           "completion_tokens": 45,
-          "tokens_per_second": 60.5840300496789
+          "tokens_per_second": 60.62994512989965
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.55520170298405
+      "judge_seconds": 3.5725104580633342
     },
     {
       "part": "pcb4",
@@ -9637,15 +9650,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 10.619890590198338,
+          "seconds": 10.574332925025374,
           "attempts": 2,
           "prompt_tokens": 5118,
           "completion_tokens": 39,
-          "tokens_per_second": 57.65166560213372
+          "tokens_per_second": 58.463427279958275
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 10.861630610888824
+      "judge_seconds": 10.790763939963654
     },
     {
       "part": "pcb4",
@@ -9664,7 +9677,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0046418888960033655
+      "judge_seconds": 0.00015517603605985641
     },
     {
       "part": "pcb4",
@@ -9689,15 +9702,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.6520905669312924,
+          "seconds": 3.169875703053549,
           "attempts": 1,
           "prompt_tokens": 4643,
           "completion_tokens": 36,
-          "tokens_per_second": 63.452811956685295
+          "tokens_per_second": 63.629075215020826
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6870880268979818
+      "judge_seconds": 3.2019050458911806
     },
     {
       "part": "pcb4",
@@ -9722,15 +9735,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5747703870292753,
+          "seconds": 3.568069722969085,
           "attempts": 1,
           "prompt_tokens": 4707,
           "completion_tokens": 51,
-          "tokens_per_second": 61.04633416763323
+          "tokens_per_second": 61.074222280853476
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.6141162840649486
+      "judge_seconds": 3.600222387118265
     },
     {
       "part": "pcb4",
@@ -9755,15 +9768,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.6418689580168575,
+          "seconds": 3.6731098929885775,
           "attempts": 1,
           "prompt_tokens": 4799,
           "completion_tokens": 47,
-          "tokens_per_second": 60.643053667784166
+          "tokens_per_second": 60.90061416945464
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.8552262019366026
+      "judge_seconds": 3.865607517072931
     },
     {
       "part": "pcb4",
@@ -9788,15 +9801,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.390383322024718,
+          "seconds": 3.391068461118266,
           "attempts": 1,
           "prompt_tokens": 4706,
           "completion_tokens": 40,
-          "tokens_per_second": 61.30937970628091
+          "tokens_per_second": 61.76583779024005
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.442347887903452
+      "judge_seconds": 3.4255908660124987
     },
     {
       "part": "pcb4",
@@ -9821,15 +9834,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 6.670837382785976,
+          "seconds": 6.689758189022541,
           "attempts": 2,
           "prompt_tokens": 4762,
           "completion_tokens": 39,
-          "tokens_per_second": 62.027043791092915
+          "tokens_per_second": 61.85570366560156
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 6.709566829958931
+      "judge_seconds": 6.722369372844696
     },
     {
       "part": "pcb4",
@@ -9854,15 +9867,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5208482048474252,
+          "seconds": 3.520846393890679,
           "attempts": 1,
           "prompt_tokens": 4801,
           "completion_tokens": 39,
-          "tokens_per_second": 59.313925192653194
+          "tokens_per_second": 59.903838574919206
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7010204361286014
+      "judge_seconds": 3.690041070105508
     },
     {
       "part": "pcb4",
@@ -9887,15 +9900,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.488815770018846,
+          "seconds": 3.4796822229400277,
           "attempts": 1,
           "prompt_tokens": 4712,
           "completion_tokens": 42,
-          "tokens_per_second": 60.51901699403519
+          "tokens_per_second": 61.066519312659096
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.686377169098705
+      "judge_seconds": 3.664235828910023
     },
     {
       "part": "pcb4",
@@ -9921,15 +9934,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.385028824908659,
+          "seconds": 3.3894199661444873,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 40,
-          "tokens_per_second": 61.97559115179253
+          "tokens_per_second": 62.60645103292618
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.427105992101133
+      "judge_seconds": 3.4275879918131977
     },
     {
       "part": "pcb4",
@@ -9954,15 +9967,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2366003529168665,
+          "seconds": 3.2475233878940344,
           "attempts": 1,
           "prompt_tokens": 4642,
           "completion_tokens": 40,
-          "tokens_per_second": 61.616533453827884
+          "tokens_per_second": 62.030003435507886
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2749264459125698
+      "judge_seconds": 3.2819065148942173
     },
     {
       "part": "pcb4",
@@ -9987,15 +10000,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.576454753987491,
+          "seconds": 3.5889259029645473,
           "attempts": 1,
           "prompt_tokens": 4755,
           "completion_tokens": 47,
-          "tokens_per_second": 61.01532147779109
+          "tokens_per_second": 61.11365013232434
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.619477156084031
+      "judge_seconds": 3.633035267004743
     },
     {
       "part": "pcb4",
@@ -10020,15 +10033,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5035198479890823,
+          "seconds": 3.5214572241529822,
           "attempts": 1,
           "prompt_tokens": 4740,
           "completion_tokens": 42,
-          "tokens_per_second": 60.8212951672289
+          "tokens_per_second": 60.45378676622373
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.747972506796941
+      "judge_seconds": 3.7373372020665556
     },
     {
       "part": "pcb4",
@@ -10051,15 +10064,15 @@
           "outcome": "needs review",
           "review_cause": "not measured",
           "asked": true,
-          "seconds": 3.1446593729779124,
+          "seconds": 3.143845413113013,
           "attempts": 1,
           "prompt_tokens": 4574,
           "completion_tokens": 37,
-          "tokens_per_second": 62.18808787176816
+          "tokens_per_second": 63.20923838135187
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.1986374009866267
+      "judge_seconds": 3.1749934968538582
     },
     {
       "part": "pcb4",
@@ -10084,15 +10097,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3087821169756353,
+          "seconds": 3.2976664109155536,
           "attempts": 1,
           "prompt_tokens": 4706,
           "completion_tokens": 36,
-          "tokens_per_second": 63.24767790668257
+          "tokens_per_second": 63.6345124505469
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3479964109137654
+      "judge_seconds": 3.32933654403314
     },
     {
       "part": "pcb4",
@@ -10117,15 +10130,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5752586310263723,
+          "seconds": 3.575096351793036,
           "attempts": 1,
           "prompt_tokens": 4754,
           "completion_tokens": 47,
-          "tokens_per_second": 61.14801408531211
+          "tokens_per_second": 61.578168129817485
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.625951434019953
+      "judge_seconds": 3.6204315470531583
     },
     {
       "part": "pcb4",
@@ -10150,15 +10163,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2495948609430343,
+          "seconds": 3.236866710940376,
           "attempts": 1,
           "prompt_tokens": 4644,
           "completion_tokens": 40,
-          "tokens_per_second": 60.84129470275128
+          "tokens_per_second": 62.33028980388334
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.288213541964069
+      "judge_seconds": 3.267806818941608
     },
     {
       "part": "pcb4",
@@ -10183,15 +10196,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.405101594980806,
+          "seconds": 3.416952828876674,
           "attempts": 1,
           "prompt_tokens": 4712,
           "completion_tokens": 38,
-          "tokens_per_second": 62.32565660921477
+          "tokens_per_second": 62.827829672055714
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.592150242999196
+      "judge_seconds": 3.5837446220684797
     },
     {
       "part": "pcb4",
@@ -10214,15 +10227,15 @@
           "outcome": "needs review",
           "review_cause": "outside every zone",
           "asked": true,
-          "seconds": 3.2713538778480142,
+          "seconds": 3.2472717999480665,
           "attempts": 1,
           "prompt_tokens": 4669,
           "completion_tokens": 36,
-          "tokens_per_second": 63.34738438649868
+          "tokens_per_second": 64.47417625029244
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.32700135698542
+      "judge_seconds": 3.285755835007876
     },
     {
       "part": "pcb4",
@@ -10247,15 +10260,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.299723605858162,
+          "seconds": 3.284092937130481,
           "attempts": 1,
           "prompt_tokens": 4641,
           "completion_tokens": 42,
-          "tokens_per_second": 59.07551147145571
+          "tokens_per_second": 61.02434573715177
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.334450147114694
+      "judge_seconds": 3.315980187850073
     },
     {
       "part": "pcb4",
@@ -10280,15 +10293,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.642875175923109,
+          "seconds": 3.632912033936009,
           "attempts": 1,
           "prompt_tokens": 4766,
           "completion_tokens": 48,
-          "tokens_per_second": 58.764764647117595
+          "tokens_per_second": 59.76047493048077
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.879293254110962
+      "judge_seconds": 3.8562368520069867
     },
     {
       "part": "pcb4",
@@ -10313,15 +10326,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3171271418686956,
+          "seconds": 3.2924029850400984,
           "attempts": 1,
           "prompt_tokens": 4707,
           "completion_tokens": 36,
-          "tokens_per_second": 63.089549306285335
+          "tokens_per_second": 64.75317938110761
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.361838199896738
+      "judge_seconds": 3.3304777750745416
     },
     {
       "part": "pcb4",
@@ -10346,15 +10359,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2380569661036134,
+          "seconds": 3.235476610949263,
           "attempts": 1,
           "prompt_tokens": 4642,
           "completion_tokens": 40,
-          "tokens_per_second": 61.72331495350177
+          "tokens_per_second": 62.71941744918521
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.276601592078805
+      "judge_seconds": 3.2663223308045417
     },
     {
       "part": "pcb4",
@@ -10379,15 +10392,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5863554689567536,
+          "seconds": 3.5777148460038006,
           "attempts": 1,
           "prompt_tokens": 4750,
           "completion_tokens": 46,
-          "tokens_per_second": 61.143215073297135
+          "tokens_per_second": 61.35579955469324
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.8400221769697964
+      "judge_seconds": 3.8095219179522246
     },
     {
       "part": "pcb4",
@@ -10412,15 +10425,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3152445619925857,
+          "seconds": 3.2971934340894222,
           "attempts": 1,
           "prompt_tokens": 4706,
           "completion_tokens": 36,
-          "tokens_per_second": 63.04204904671416
+          "tokens_per_second": 63.82435537401072
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3650168869644403
+      "judge_seconds": 3.3312991871498525
     },
     {
       "part": "pcb4",
@@ -10445,15 +10458,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4923759950324893,
+          "seconds": 3.496488596079871,
           "attempts": 1,
           "prompt_tokens": 4708,
           "completion_tokens": 48,
-          "tokens_per_second": 63.191493080531515
+          "tokens_per_second": 62.48803420621583
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5317220999859273
+      "judge_seconds": 3.527991126058623
     },
     {
       "part": "pcb4",
@@ -10478,15 +10491,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.280157392146066,
+          "seconds": 3.2853985680267215,
           "attempts": 1,
           "prompt_tokens": 4708,
           "completion_tokens": 36,
-          "tokens_per_second": 62.68076685441049
+          "tokens_per_second": 63.8295932231209
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.321128217037767
+      "judge_seconds": 3.3191422801464796
     },
     {
       "part": "pcb4",
@@ -10505,7 +10518,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.0008130108471959829
+      "judge_seconds": 0.00012207007966935635
     },
     {
       "part": "pcb4",
@@ -10530,15 +10543,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.5365549409762025,
+          "seconds": 3.5710375371854752,
           "attempts": 1,
           "prompt_tokens": 4799,
           "completion_tokens": 42,
-          "tokens_per_second": 59.81664011391423
+          "tokens_per_second": 60.424652668780055
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.7787593491375446
+      "judge_seconds": 3.7612525359727442
     },
     {
       "part": "pcb4",
@@ -10563,15 +10576,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2062398488633335,
+          "seconds": 3.240620874799788,
           "attempts": 1,
           "prompt_tokens": 4645,
           "completion_tokens": 40,
-          "tokens_per_second": 61.62247229358842
+          "tokens_per_second": 61.85802473052107
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.25770759396255
+      "judge_seconds": 3.2717981000896543
     },
     {
       "part": "pcb4",
@@ -10596,15 +10609,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2788320630788803,
+          "seconds": 3.3165594581514597,
           "attempts": 1,
           "prompt_tokens": 4746,
           "completion_tokens": 35,
-          "tokens_per_second": 62.92544075569753
+          "tokens_per_second": 64.14319780252951
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3910248009487987
+      "judge_seconds": 3.4086311638820916
     },
     {
       "part": "pcb4",
@@ -10629,15 +10642,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4303777599707246,
+          "seconds": 3.4703268639277667,
           "attempts": 1,
           "prompt_tokens": 4798,
           "completion_tokens": 41,
-          "tokens_per_second": 61.97802878879437
+          "tokens_per_second": 61.891241615670864
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5089851208031178
+      "judge_seconds": 3.5300753470510244
     },
     {
       "part": "pcb4",
@@ -10662,15 +10675,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.2457342559937388,
+          "seconds": 3.283611661987379,
           "attempts": 1,
           "prompt_tokens": 4703,
           "completion_tokens": 35,
-          "tokens_per_second": 62.948624665122566
+          "tokens_per_second": 63.85456184502122
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.303079356905073
+      "judge_seconds": 3.325568532804027
     },
     {
       "part": "pcb4",
@@ -10696,15 +10709,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.260276721091941,
+          "seconds": 3.283654839033261,
           "attempts": 1,
           "prompt_tokens": 4747,
           "completion_tokens": 35,
-          "tokens_per_second": 62.40066364941105
+          "tokens_per_second": 63.92827999082441
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3358431910164654
+      "judge_seconds": 3.341396301984787
     },
     {
       "part": "pcb4",
@@ -10730,15 +10743,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.462742126081139,
+          "seconds": 3.482733743963763,
           "attempts": 1,
           "prompt_tokens": 4745,
           "completion_tokens": 44,
-          "tokens_per_second": 62.30565706386765
+          "tokens_per_second": 62.428678863972266
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5980947399511933
+      "judge_seconds": 3.5910270779859275
     },
     {
       "part": "pcb4",
@@ -10763,15 +10776,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 10.264873307896778,
+          "seconds": 10.303994955960661,
           "attempts": 2,
           "prompt_tokens": 5021,
           "completion_tokens": 42,
-          "tokens_per_second": 60.655014986226874
+          "tokens_per_second": 60.43836981501437
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 10.333686626981944
+      "judge_seconds": 10.362325534923002
     },
     {
       "part": "pcb4",
@@ -10790,7 +10803,7 @@
       "review_cause": null,
       "areas": [],
       "corrections_in_prompt": false,
-      "judge_seconds": 0.004649074049666524
+      "judge_seconds": 0.00013967999257147312
     },
     {
       "part": "pcb4",
@@ -10815,15 +10828,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.8401078989263624,
+          "seconds": 3.8680889611132443,
           "attempts": 1,
           "prompt_tokens": 4756,
           "completion_tokens": 41,
-          "tokens_per_second": 61.6928835716478
+          "tokens_per_second": 61.14534401134858
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.8892584829591215
+      "judge_seconds": 3.9124790839850903
     },
     {
       "part": "pcb4",
@@ -10848,15 +10861,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.504831054015085,
+          "seconds": 3.522818719036877,
           "attempts": 1,
           "prompt_tokens": 4750,
           "completion_tokens": 49,
-          "tokens_per_second": 62.17552149718656
+          "tokens_per_second": 61.72347369422705
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5607606179546565
+      "judge_seconds": 3.571844795020297
     },
     {
       "part": "pcb4",
@@ -10881,15 +10894,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3093142381403595,
+          "seconds": 3.3374210100155324,
           "attempts": 1,
           "prompt_tokens": 4748,
           "completion_tokens": 38,
-          "tokens_per_second": 62.80607351705524
+          "tokens_per_second": 63.303700357922544
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3624990740790963
+      "judge_seconds": 3.3827332460787147
     },
     {
       "part": "pcb4",
@@ -10914,15 +10927,15 @@
           "outcome": "needs review",
           "review_cause": "malformed answer",
           "asked": true,
-          "seconds": 13.586287665879354,
+          "seconds": 13.601575755048543,
           "attempts": 2,
           "prompt_tokens": 5024,
           "completion_tokens": 256,
-          "tokens_per_second": 63.43775934848674
+          "tokens_per_second": 63.50506097980091
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 13.628143111942336
+      "judge_seconds": 13.637216696050018
     },
     {
       "part": "pcb4",
@@ -10948,15 +10961,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.752068971050903,
+          "seconds": 3.7230576740112156,
           "attempts": 1,
           "prompt_tokens": 4707,
           "completion_tokens": 38,
-          "tokens_per_second": 62.55970647662043
+          "tokens_per_second": 63.344016216068155
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.803901127073914
+      "judge_seconds": 3.7667686089407653
     },
     {
       "part": "pcb4",
@@ -10981,15 +10994,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.38828262896277,
+          "seconds": 3.379859529901296,
           "attempts": 1,
           "prompt_tokens": 4702,
           "completion_tokens": 41,
-          "tokens_per_second": 62.108329348048876
+          "tokens_per_second": 61.920942436743886
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.4644904781598598
+      "judge_seconds": 3.4481063538696617
     },
     {
       "part": "pcb4",
@@ -11014,15 +11027,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.332597304834053,
+          "seconds": 3.311418636003509,
           "attempts": 1,
           "prompt_tokens": 4700,
           "completion_tokens": 38,
-          "tokens_per_second": 63.2062659617175
+          "tokens_per_second": 63.25153940570905
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.3777675949968398
+      "judge_seconds": 3.3499318370595574
     },
     {
       "part": "pcb4",
@@ -11048,15 +11061,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4747360330075026,
+          "seconds": 3.4251642290037125,
           "attempts": 1,
           "prompt_tokens": 4727,
           "completion_tokens": 41,
-          "tokens_per_second": 62.471302245530964
+          "tokens_per_second": 62.600160256410255
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.663473531836644
+      "judge_seconds": 3.583188682794571
     },
     {
       "part": "pcb4",
@@ -11081,15 +11094,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.458380280993879,
+          "seconds": 3.469834310002625,
           "attempts": 1,
           "prompt_tokens": 4695,
           "completion_tokens": 45,
-          "tokens_per_second": 61.39137981311906
+          "tokens_per_second": 61.35456945128099
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5589345719199628
+      "judge_seconds": 3.5535555940587074
     },
     {
       "part": "pcb4",
@@ -11114,15 +11127,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.4018677880521864,
+          "seconds": 3.4068461479619145,
           "attempts": 1,
           "prompt_tokens": 4748,
           "completion_tokens": 41,
-          "tokens_per_second": 59.93083981085826
+          "tokens_per_second": 60.030855859912
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.457657201215625
+      "judge_seconds": 3.450621427036822
     },
     {
       "part": "pcb4",
@@ -11147,15 +11160,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.479290201095864,
+          "seconds": 3.4821995929814875,
           "attempts": 1,
           "prompt_tokens": 4798,
           "completion_tokens": 42,
-          "tokens_per_second": 60.46296938066748
+          "tokens_per_second": 60.71087998199404
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.5483762389048934
+      "judge_seconds": 3.5362121420912445
     },
     {
       "part": "pcb4",
@@ -11180,15 +11193,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 10.181840552948415,
+          "seconds": 10.1719847319182,
           "attempts": 2,
           "prompt_tokens": 5067,
           "completion_tokens": 35,
-          "tokens_per_second": 59.751014009855396
+          "tokens_per_second": 59.92710044487059
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 10.251331218983978
+      "judge_seconds": 10.23103550891392
     },
     {
       "part": "pcb4",
@@ -11213,15 +11226,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.602067762054503,
+          "seconds": 3.2261289770249277,
           "attempts": 1,
           "prompt_tokens": 4686,
           "completion_tokens": 40,
-          "tokens_per_second": 62.07581526237377
+          "tokens_per_second": 62.27097454075157
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.643729930045083
+      "judge_seconds": 3.2578454890754074
     },
     {
       "part": "pcb4",
@@ -11247,15 +11260,15 @@
           "outcome": "needs review",
           "review_cause": "malformed answer",
           "asked": true,
-          "seconds": 13.641747404821217,
+          "seconds": 13.59888742188923,
           "attempts": 2,
           "prompt_tokens": 5021,
           "completion_tokens": 256,
-          "tokens_per_second": 63.68895413745925
+          "tokens_per_second": 63.805239385998426
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 13.724969014991075
+      "judge_seconds": 13.66964692203328
     },
     {
       "part": "pcb4",
@@ -11280,15 +11293,15 @@
           "outcome": "needs review",
           "review_cause": "malformed answer",
           "asked": true,
-          "seconds": 14.11332585918717,
+          "seconds": 13.770361069822684,
           "attempts": 2,
           "prompt_tokens": 5026,
           "completion_tokens": 256,
-          "tokens_per_second": 63.59373429640017
+          "tokens_per_second": 63.70682270091446
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 14.154489049920812
+      "judge_seconds": 13.801911915885285
     },
     {
       "part": "pcb4",
@@ -11313,15 +11326,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.875322913052514,
+          "seconds": 3.869852183153853,
           "attempts": 1,
           "prompt_tokens": 4702,
           "completion_tokens": 44,
-          "tokens_per_second": 60.11287240273947
+          "tokens_per_second": 59.809943472648776
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.930005473084748
+      "judge_seconds": 3.911025950917974
     },
     {
       "part": "pcb4",
@@ -11346,15 +11359,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.224380023078993,
+          "seconds": 3.2267097048461437,
           "attempts": 1,
           "prompt_tokens": 4643,
           "completion_tokens": 40,
-          "tokens_per_second": 63.47470288956378
+          "tokens_per_second": 62.5856540842756
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.2656314340420067
+      "judge_seconds": 3.2578676878474653
     },
     {
       "part": "pcb4",
@@ -11379,15 +11392,15 @@
           "outcome": "reject",
           "review_cause": null,
           "asked": true,
-          "seconds": 3.3926902927923948,
+          "seconds": 3.3865675339475274,
           "attempts": 1,
           "prompt_tokens": 4738,
           "completion_tokens": 41,
-          "tokens_per_second": 63.23450833588906
+          "tokens_per_second": 62.26427136014745
         }
       ],
       "corrections_in_prompt": false,
-      "judge_seconds": 3.47534823208116
+      "judge_seconds": 3.4535624489653856
     }
   ]
 }
