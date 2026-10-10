@@ -32,6 +32,24 @@ class Calibration(BaseModel):
     image_width_px: int = Field(gt=0)
     image_height_px: int = Field(gt=0)
 
+    @model_validator(mode="after")
+    def _gives_a_scale(self) -> Self:
+        """Refuse a width so small that a pixel has no size in floating point.
+
+        Returns:
+            The calibration unchanged.
+
+        Raises:
+            ValueError: If the scale underflows to zero millimetres per pixel.
+        """
+        if self.mm_per_px <= 0.0:
+            msg = (
+                f"a board width of {self.board_width_mm} mm over {self.image_width_px} pixels "
+                "gives no scale"
+            )
+            raise ValueError(msg)
+        return self
+
     @property
     def mm_per_px(self) -> float:
         """The side of one source pixel in millimetres."""
@@ -75,16 +93,18 @@ class CalibratedMask(BaseModel):
     @field_validator("pixels", mode="after")
     @classmethod
     def _two_dimensional_boolean(cls, value: BoolArray) -> BoolArray:
-        """Refuse anything that is not a mask, and hold a view that cannot be written.
+        """Refuse anything that is not a mask, and hold a copy that cannot be written.
 
         Thresholding is the anomaly model's decision, so an anomaly map or a
-        0 and 255 image is refused here instead of being coerced.
+        0 and 255 image is refused here instead of being coerced. The copy
+        keeps the mask as it was when calibrated, whatever the caller does to
+        its own array afterwards.
 
         Args:
             value: The array given.
 
         Returns:
-            A read-only view of the array.
+            A read-only copy of the array.
 
         Raises:
             ValueError: If the array is not boolean, not two-dimensional, or empty.
@@ -95,9 +115,9 @@ class CalibratedMask(BaseModel):
         if value.ndim != 2 or value.size == 0:
             msg = f"a mask has rows and columns, got shape {value.shape}"
             raise ValueError(msg)
-        view = value.view()
-        view.flags.writeable = False
-        return view
+        held = value.copy()
+        held.flags.writeable = False
+        return held
 
     @property
     def width_px(self) -> int:

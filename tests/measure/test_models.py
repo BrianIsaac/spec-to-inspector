@@ -154,3 +154,19 @@ def test_two_zones_cannot_share_a_rank() -> None:
     """With equal ranks neither zone is the stricter, so a straddling region has no answer."""
     with pytest.raises(ValidationError, match="rank"):
         ZoneMap(zones=(_zone("A", 1), _zone("B", 1)))
+
+
+def test_a_board_width_too_small_to_give_a_scale_is_refused() -> None:
+    """A width that underflows to no millimetres per pixel at all cannot measure anything."""
+    with pytest.raises(ValidationError, match="scale"):
+        _calibration(board_width_mm=5e-324, width_px=1562)
+
+
+def test_a_later_write_by_the_caller_does_not_change_the_mask() -> None:
+    """The mask keeps its own copy, so it stays what it was when it was calibrated."""
+    pixels = np.zeros((4, 4), dtype=np.bool_)
+    mask = CalibratedMask(pixels=pixels, calibration=_calibration())
+
+    pixels[0, 0] = True
+
+    assert not mask.pixels.any()
