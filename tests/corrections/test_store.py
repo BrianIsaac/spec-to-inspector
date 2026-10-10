@@ -227,3 +227,17 @@ def test_a_limit_below_one_is_refused(store: CorrectionStore) -> None:
     """Recall is asked for at least one correction."""
     with pytest.raises(ValueError, match="at least 1"):
         store.recall_for_part("pcb4", limit=0)
+
+
+def test_a_correction_copied_into_another_store_is_a_new_row_there(
+    store: CorrectionStore, tmp_path: Path
+) -> None:
+    """A stored correction can be recorded again elsewhere; the other store numbers it itself."""
+    store.record(_override(image_id="bad-001"))
+    kept = store.record(_override())
+    other = CorrectionStore(tmp_path / "other.sqlite3")
+
+    copied = other.record(kept)
+
+    assert copied.id == 1
+    assert copied.model_dump(exclude={"id", "created_at"}) == _override().model_dump()

@@ -257,7 +257,8 @@ class CorrectionStore:
         """Keep an override.
 
         Args:
-            override: The engineer's override.
+            override: The engineer's override. A correction read from another
+                store is kept as a new row, with a new id and time.
             at: When it was made; now, if None.
 
         Returns:
@@ -267,7 +268,7 @@ class CorrectionStore:
             StoreError: If the file is not a corrections store of this layout.
         """
         moment = (at or datetime.now(UTC)).astimezone(UTC).isoformat(timespec="seconds")
-        fields = override.model_dump(mode="json")
+        fields = override.model_dump(mode="json", include=set(_COLUMNS))
         names = (*_COLUMNS, "created_at")
         with self._open(create=True) as connection:
             cursor = connection.execute(
