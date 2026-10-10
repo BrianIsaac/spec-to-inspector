@@ -28,7 +28,13 @@ from spec_to_inspector.spec.schema import Specification
 
 MAX_REASON_CHARACTERS: Final = 240
 
-_Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, strict=True)]
+_ClassName = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, strict=True, pattern=r"^[A-Za-z]+( [A-Za-z]+)*$"),
+]
+_ClauseNumber = Annotated[
+    str, StringConstraints(strip_whitespace=True, strict=True, pattern=r"^[0-9]+(\.[0-9]+)*$")
+]
 _Reason = Annotated[
     str,
     StringConstraints(
@@ -63,17 +69,17 @@ class JudgeAnswer(BaseModel):
     Attributes:
         reason: One line on what is seen in the crop, in the model's words,
             without figures.
-        defect_class: The defect class named, or None when no clause covers
-            what is seen.
-        clause_id: The numbered heading of the clause cited, or None with
-            `defect_class`.
+        defect_class: The defect class named, in words only, or None when no
+            clause covers what is seen.
+        clause_id: The numbered heading of the clause cited, a clause number
+            and nothing else, or None with `defect_class`.
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     reason: _Reason
-    defect_class: _Name | None
-    clause_id: _Name | None
+    defect_class: _ClassName | None
+    clause_id: _ClauseNumber | None
 
     @field_validator("reason")
     @classmethod

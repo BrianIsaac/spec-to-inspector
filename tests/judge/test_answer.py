@@ -103,6 +103,10 @@ def test_an_unknown_clause_is_still_an_answer() -> None:
         (_answer(measured=3.2), "measured"),
         (_answer(clause_id=4.1), "clause_id"),
         (_answer(defect_class=7), "defect_class"),
+        (_answer(defect_class="scratch of 3 mm"), "defect_class"),
+        (_answer(defect_class="scratch; reject"), "defect_class"),
+        (_answer(clause_id="clause 4.1"), "clause_id"),
+        (_answer(clause_id="4.1 (limit 9 mm)"), "clause_id"),
         (_answer(reason=""), "reason"),
         (_answer(reason="x" * (MAX_REASON_CHARACTERS + 1)), "reason"),
         (_answer(reason="first line\nsecond line"), "one line"),
@@ -137,3 +141,12 @@ def test_the_error_carries_what_the_model_wrote() -> None:
 
     assert caught.value.text == "the board is scratched"
     assert "not JSON" in caught.value.problem
+
+
+def test_a_class_is_words_and_a_clause_is_a_clause_number() -> None:
+    """The two names are held to their shapes, so no free text rides in on them."""
+    answer = parse_answer(_answer(defect_class="Wrong Place", clause_id="5.4"))
+
+    assert answer.defect_class == "Wrong Place"
+    assert answer.clause_id == "5.4"
+    assert parse_answer(_answer(clause_id="5.6.1")).clause_id == "5.6.1"
