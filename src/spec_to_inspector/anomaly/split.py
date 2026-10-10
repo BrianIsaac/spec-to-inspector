@@ -29,6 +29,7 @@ from typing import Final
 import cv2
 from pydantic import BaseModel, ConfigDict
 
+from spec_to_inspector.anomaly.atomic import atomic_directory
 from spec_to_inspector.datasets.visa import NORMAL_LABEL, PUBLISHED_COUNTS, SPLIT_CSV, SPLIT_DIR
 
 SPLIT_ROOT: Final = "visa_pytorch"
@@ -215,10 +216,7 @@ def _link(source: Path, target: Path) -> None:
 
 def _build(visa_dir: Path, base: Path, entries: Sequence[_Entry]) -> None:
     """Write a category's split into a partial directory and rename it into place."""
-    partial = base.with_name(f".{base.name}.partial")
-    if partial.exists():
-        shutil.rmtree(partial)
-    try:
+    with atomic_directory(base) as partial:
         for leaf in _LEAVES:
             (partial / leaf).mkdir(parents=True)
         for entry in entries:
@@ -227,12 +225,6 @@ def _build(visa_dir: Path, base: Path, entries: Sequence[_Entry]) -> None:
                 _write_mask(entry.source, target, visa_dir)
             else:
                 _link(entry.source, target)
-        if base.exists():
-            shutil.rmtree(base)
-        partial.rename(base)
-    except BaseException:
-        shutil.rmtree(partial, ignore_errors=True)
-        raise
 
 
 def _describe(category: str, base: Path, entries: Sequence[_Entry], written: bool) -> CategorySplit:
@@ -282,7 +274,6 @@ def write_split(
         base = visa_dir / SPLIT_ROOT / category
         written = not _is_whole(base, entries)
         if written:
-            base.parent.mkdir(parents=True, exist_ok=True)
             _build(visa_dir, base, entries)
         result[category] = _describe(category, base, entries, written)
     return result
