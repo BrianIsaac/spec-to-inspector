@@ -69,9 +69,10 @@ def touched_zones(
 
     A region touches a zone when any of its area lies in the zone or when its
     centroid does; the centroid matters for a region that curls around a zone
-    without covering it. Sharing only an edge with a zone is not touching it.
-    The first zone returned is the one whose limits apply: where a region
-    straddles zones, the stricter wins.
+    without covering it. Area that only abuts a zone's edge is not in the
+    zone; a centroid exactly on a zone's edge is, so on the line between two
+    zones it counts for both. The first zone returned is the one whose limits
+    apply: where a region straddles zones, the stricter wins.
 
     Args:
         region: The region's pixels within its bounding box.

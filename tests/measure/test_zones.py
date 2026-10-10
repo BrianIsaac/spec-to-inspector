@@ -138,3 +138,28 @@ def test_the_region_box_is_placed_by_its_origin() -> None:
     assert at(2) == ["A"]
     assert at(15) == ["A", "B"]
     assert at(28) == ["B"]
+
+
+def test_a_centroid_exactly_on_a_zone_edge_is_in_the_zone() -> None:
+    """On the line between two zones the centroid counts for both, so the stricter applies."""
+    pixels = _blank()
+    pixels[5:10, 20:30] = True
+    pixels[12:17, 10:20] = True
+
+    touched = _touched(pixels, _HALVES)
+
+    assert [(overlap.zone_id, overlap.contains_centroid) for overlap in touched] == [
+        ("A", True),
+        ("B", True),
+    ]
+
+
+def test_a_centroid_on_the_edge_of_a_zone_it_does_not_overlap_still_counts() -> None:
+    """Three pixels in a shallow V: their centre sits on the edge of a zone none of them enters."""
+    sliver = Zone(id="A", rank=1, x_min=0.375, y_min=0.0, x_max=0.5, y_max=0.25)
+    pixels = np.zeros((4, 4), dtype=np.bool_)
+    pixels[0, 0] = pixels[1, 1] = pixels[0, 2] = True
+
+    assert _touched(pixels, ZoneMap(zones=(sliver,))) == (
+        ZoneOverlap(zone_id="A", rank=1, overlap_fraction=0.0, contains_centroid=True),
+    )
