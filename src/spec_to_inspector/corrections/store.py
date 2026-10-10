@@ -31,7 +31,6 @@ from pydantic import (
 
 from spec_to_inspector.judge.disposition import Outcome
 
-STORE_NAME: Final = "corrections.sqlite3"
 STORE_SCHEMA_VERSION: Final = 1
 MAX_RECALL: Final = 3
 MAX_NOTE_CHARACTERS: Final = 300

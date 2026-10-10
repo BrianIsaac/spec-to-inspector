@@ -26,6 +26,8 @@ def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.Monk
         "VLM_URL",
         "VLM_MODEL",
         "VLM_TIMEOUT_SECONDS",
+        "CORRECTIONS_DB",
+        "CORRECTIONS_RECALL",
     ):
         monkeypatch.delenv(f"SPEC_TO_INSPECTOR_{name}", raising=False)
 
@@ -41,6 +43,9 @@ def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.Monk
     assert settings.vlm_url == "http://127.0.0.1:8131/v1"
     assert settings.vlm_model == "qwen3-vl-8b-instruct"
     assert settings.vlm_timeout_seconds == 120.0
+    assert settings.corrections_db is None
+    assert settings.corrections_path == Path("runs/corrections.sqlite3")
+    assert settings.corrections_recall == "part"
 
 
 def test_environment_overrides_the_defaults(
@@ -102,4 +107,25 @@ def test_a_judge_timeout_must_be_positive(monkeypatch: pytest.MonkeyPatch) -> No
     monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_TIMEOUT_SECONDS", "0")
 
     with pytest.raises(ValueError, match="greater than 0"):
+        Settings()
+
+
+def test_the_corrections_store_follows_the_runs_directory_unless_moved(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """One file, copied with the runs; a variable puts it elsewhere."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_RUNS_DIR", str(tmp_path / "r"))
+    assert Settings().corrections_path == tmp_path / "r" / "corrections.sqlite3"
+
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_CORRECTIONS_DB", str(tmp_path / "demo.sqlite3"))
+    assert Settings().corrections_path == tmp_path / "demo.sqlite3"
+
+
+def test_the_recall_strategy_is_one_of_two(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Recall by part or on the answer; anything else is refused."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_CORRECTIONS_RECALL", "answer")
+    assert Settings().corrections_recall == "answer"
+
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_CORRECTIONS_RECALL", "always")
+    with pytest.raises(ValueError, match="corrections_recall"):
         Settings()

@@ -496,8 +496,41 @@ def train(
         out.print(f"Figures: {results_path}", markup=False, highlight=False, soft_wrap=True)
 
 
+def _read_specification(spec: Path) -> Specification:
+    """Read a clause table, or say why it cannot be read and exit.
+
+    Args:
+        spec: The clause table's path, as `parse` writes it.
+
+    Returns:
+        The specification.
+
+    Raises:
+        typer.Exit: With code 1, if the file cannot be read or is not a
+            valid clause table.
+    """
+    try:
+        return read_clause_table(spec)
+    except OSError as error:
+        err.print(
+            f"cannot read the specification {spec}: {error}",
+            markup=False,
+            highlight=False,
+            soft_wrap=True,
+        )
+        raise typer.Exit(code=1) from error
+    except ValueError as error:
+        err.print(
+            f"{spec} is not a valid clause table: {error}",
+            markup=False,
+            highlight=False,
+            soft_wrap=True,
+        )
+        raise typer.Exit(code=1) from error
+
+
 @app.command()
-def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources and its report
+def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its report
     images: Annotated[
         list[Path] | None,
         typer.Argument(
@@ -560,6 +593,14 @@ def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources a
             "An image with more is not accepted on the ones judged.",
         ),
     ] = 3,
+    corrections: Annotated[
+        bool | None,
+        typer.Option(
+            "--corrections/--no-corrections",
+            help="Show the judge the engineers' corrections from the corrections store. "
+            "On by default when the store holds any; --no-corrections judges as if it were empty.",
+        ),
+    ] = None,
 ) -> None:
     """Judge board images against the specification's clauses, one decision per image.
 
@@ -567,7 +608,8 @@ def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources a
     decided by rule from the clause it cites: accept, reject or needs review.
     The decision is written as `decision.json` beside the anomaly model's
     result, and one line per image is printed. Give image files, which are
-    scored first, or --run for a directory already scored.
+    scored first, or --run for a directory already scored. Corrections
+    recorded with `correct` are shown to the judge unless switched off.
     """
     if category is None:
         raise typer.BadParameter("give the part with --category", param_hint="--category")
@@ -584,24 +626,7 @@ def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources a
             param_hint="--image-id",
         )
 
-    try:
-        specification = read_clause_table(spec)
-    except OSError as error:
-        err.print(
-            f"cannot read the specification {spec}: {error}",
-            markup=False,
-            highlight=False,
-            soft_wrap=True,
-        )
-        raise typer.Exit(code=1) from error
-    except ValueError as error:
-        err.print(
-            f"{spec} is not a valid clause table: {error}",
-            markup=False,
-            highlight=False,
-            soft_wrap=True,
-        )
-        raise typer.Exit(code=1) from error
+    specification = _read_specification(spec)
     if category not in specification.categories():
         raise typer.BadParameter(
             f"the specification has no clause for part {category}; its parts are "
@@ -614,11 +639,29 @@ def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources a
     # ten seconds, is loaded only when image files have to be scored first.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", FutureWarning)
+        from spec_to_inspector.corrections import recall as recalling  # noqa: PLC0415
+        from spec_to_inspector.corrections.store import CorrectionStore  # noqa: PLC0415
         from spec_to_inspector.judge import console as verdicts  # noqa: PLC0415
         from spec_to_inspector.judge import inspect as judging  # noqa: PLC0415
         from spec_to_inspector.judge.client import ChatClient  # noqa: PLC0415
 
     try:
+        store = CorrectionStore(settings.corrections_path)
+        held = store.count()
+        shown = held > 0 and corrections is not False
+        strategy = recalling.RecallStrategy(settings.corrections_recall)
+        if shown:
+            how = (
+                "the judge is shown the part's latest"
+                if strategy is recalling.RecallStrategy.PART
+                else "the judge is asked again with those made on its own answer"
+            )
+            err.print(
+                f"Corrections: {held} recorded in {store.path}; {how}",
+                markup=False,
+                highlight=False,
+                soft_wrap=True,
+            )
         if run is not None:
             run_directory = run
             index = judging.read_run_index(run_directory)
@@ -666,6 +709,7 @@ def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources a
                 on_decision=lambda decision: out.print(
                     verdicts.verdict_line(decision), markup=False, highlight=False, soft_wrap=True
                 ),
+                **recalling.judge_options(store, strategy, in_prompt=shown),
             )
     except (judging.InspectError, ValueError, RuntimeError) as error:
         err.print(str(error), markup=False, highlight=False, soft_wrap=True)
@@ -687,6 +731,105 @@ def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources a
             soft_wrap=True,
         )
         raise typer.Exit(code=1)
+
+
+@app.command()
+def correct(
+    run: Annotated[
+        Path,
+        typer.Option("--run", help="The run directory the image was judged in."),
+    ],
+    image_id: Annotated[
+        str,
+        typer.Option("--image-id", help="The image of the run whose decision is overridden."),
+    ],
+    clause: Annotated[
+        str | None,
+        typer.Option(
+            "--clause",
+            help="The clause that does cover the flagged area: a numbered heading of the "
+            "board's part, such as 5.5, or one of its rows.",
+        ),
+    ] = None,
+    defect_class: Annotated[
+        str | None,
+        typer.Option(
+            "--defect-class",
+            help="The defect class it is. Optional with --clause, whose class is checked "
+            "against it; alone, it stands for its clause.",
+        ),
+    ] = None,
+    no_defect: Annotated[
+        bool,
+        typer.Option("--no-defect", help="The flagged area shows no defect: no clause applies."),
+    ] = False,
+    region: Annotated[
+        int | None,
+        typer.Option(
+            "--region",
+            min=1,
+            help="The flagged area overridden, by its index. Defaults to the one the "
+            "decision rests on.",
+        ),
+    ] = None,
+    note: Annotated[
+        str,
+        typer.Option("--note", help="A line for the judge: what the area shows, and why."),
+    ] = "",
+    spec: Annotated[
+        Path,
+        typer.Option("--spec", help="The specification's clause table, as `parse` writes it."),
+    ] = Path("specs/pcb-spec.clauses.json"),
+) -> None:
+    """Record an engineer's override of the judge on one flagged area of a judged image.
+
+    The judge's own answer is read from the image's decision; the corrected
+    class and clause are checked against the clause table of the board's part.
+    The override is kept in the corrections store and shown to the judge on
+    later boards, and the image's decision is flagged as overridden.
+    """
+    if no_defect and (clause is not None or defect_class is not None):
+        raise typer.BadParameter(
+            "--no-defect says that no clause applies; give it or a clause, not both"
+        )
+    if not no_defect and clause is None and defect_class is None:
+        raise typer.BadParameter("give the clause with --clause, or --no-defect")
+
+    specification = _read_specification(spec)
+    settings = Settings()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", FutureWarning)
+        from spec_to_inspector.corrections.override import record_override  # noqa: PLC0415
+        from spec_to_inspector.corrections.render import render_correction  # noqa: PLC0415
+        from spec_to_inspector.corrections.store import CorrectionStore  # noqa: PLC0415
+        from spec_to_inspector.judge import inspect as judging  # noqa: PLC0415
+
+    store = CorrectionStore(settings.corrections_path)
+    try:
+        index = judging.read_run_index(run)
+        if image_id not in {entry.image_id for entry in index.entries}:
+            raise judging.InspectError(f"the run {run} holds no image {image_id}")
+        kept = record_override(
+            store,
+            run / image_id,
+            specification,
+            region_index=region,
+            clause_id=clause,
+            defect_class=defect_class,
+            note=note,
+        )
+    except (ValueError, RuntimeError) as error:
+        err.print(str(error), markup=False, highlight=False, soft_wrap=True)
+        raise typer.Exit(code=1) from error
+
+    out.print(
+        f"Recorded correction {kept.id} of {kept.image_id}, region {kept.region_index}, "
+        f"in {store.path}",
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+    out.print(render_correction(kept), markup=False, highlight=False, soft_wrap=True)
 
 
 @app.command()
