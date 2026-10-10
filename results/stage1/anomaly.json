@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "unit": "U2",
-  "created_at": "2026-10-10T13:38:51+00:00",
+  "created_at": "2026-10-10T15:08:40+00:00",
   "written_by": [
     "spec-to-inspector",
     "train",
@@ -31,15 +31,15 @@
       "category": "pcb1",
       "comparison": {
         "category": "pcb1",
-        "measured_points": 92.9800033569336,
+        "measured_points": 92.9699957370758,
         "reference_points": 94.9,
-        "delta_points": -1.92,
+        "delta_points": -1.93,
         "within_gate": true
       },
       "record": {
         "schema_version": 1,
         "category": "pcb1",
-        "created_at": "2026-10-10T13:02:07+00:00",
+        "created_at": "2026-10-10T14:32:20+00:00",
         "model": {
           "name": "patchcore",
           "variant": "SingleCopyPatchcore",
@@ -56,6 +56,7 @@
           "coreset_sampling_ratio": 0.1,
           "num_neighbors": 9,
           "precision": "float32",
+          "tf32": false,
           "seed": 0,
           "train_batch_size": 32,
           "eval_batch_size": 32
@@ -67,12 +68,12 @@
         "memory_bank_rows": 92569,
         "memory_bank_dims": 1536,
         "thresholds": {
-          "image": 31.264629364013672,
-          "pixel": 41.697994232177734,
-          "image_min": 25.029830932617188,
-          "image_max": 68.86676025390625,
-          "pixel_min": 8.478507995605469,
-          "pixel_max": 68.17369079589844,
+          "image": 31.319473266601562,
+          "pixel": 41.46425247192383,
+          "image_min": 24.39255714416504,
+          "image_max": 67.99083709716797,
+          "pixel_min": 9.750436782836914,
+          "pixel_max": 68.58979797363281,
           "method": "anomalib.metrics.F1AdaptiveThreshold",
           "val_split_mode": "same_as_test",
           "split_images": 200,
@@ -80,34 +81,34 @@
           "tuned_on_test": true
         },
         "metrics": {
-          "image_auroc": 0.9298000335693359,
-          "pixel_auroc": 0.9961600303649902,
-          "image_f1": 0.8557692170143127,
-          "pixel_f1": 0.7703182101249695
+          "image_auroc": 0.9296999573707581,
+          "pixel_auroc": 0.9961406588554382,
+          "image_f1": 0.8666666746139526,
+          "pixel_f1": 0.7694997787475586
         },
         "embed": {
-          "seconds": 13.422414347995073,
-          "peak_allocated_bytes": 6319805440,
-          "peak_reserved_bytes": 7067402240
+          "seconds": 4.717423124006018,
+          "peak_allocated_bytes": 6422828032,
+          "peak_reserved_bytes": 6733955072
         },
         "coreset": {
-          "seconds": 738.2342655560933,
+          "seconds": 709.4259648290463,
           "peak_allocated_bytes": 8392051200,
-          "peak_reserved_bytes": 9625927680
+          "peak_reserved_bytes": 9292480512
         },
         "validate_split": {
-          "seconds": 9.485252401093021,
+          "seconds": 8.696832254063338,
           "peak_allocated_bytes": 1656686592,
-          "peak_reserved_bytes": 9625927680
+          "peak_reserved_bytes": 9292480512
         },
         "test": {
-          "seconds": 12.88384104007855,
+          "seconds": 14.084944276837632,
           "peak_allocated_bytes": 1603204096,
-          "peak_reserved_bytes": 2522873856
+          "peak_reserved_bytes": 2189426688
         },
-        "fit_seconds": 764.110135630006,
+        "fit_seconds": 725.7355407320429,
         "peak_allocated_bytes": 8392051200,
-        "peak_reserved_bytes": 9625927680,
+        "peak_reserved_bytes": 9292480512,
         "gpu_free_bytes_before": 11573460992,
         "device": {
           "index": 0,
@@ -140,7 +141,7 @@
       },
       "run": {
         "directory": "runs/pcb1/test",
-        "created_at": "2026-10-10T13:29:35+00:00",
+        "created_at": "2026-10-10T14:58:37+00:00",
         "options": {
           "batch_size": 16,
           "num_workers": 4,
@@ -154,24 +155,24 @@
         "images": 200,
         "labelled_good": 100,
         "labelled_bad": 100,
-        "image_auroc": 0.9299,
-        "seconds": 17.447086011059582,
-        "predicted_anomalous": 109,
-        "true_positive": 90,
-        "false_negative": 10,
+        "image_auroc": 0.9297,
+        "seconds": 17.003272328991443,
+        "predicted_anomalous": 110,
+        "true_positive": 91,
+        "false_negative": 9,
         "true_negative": 81,
         "false_positive": 19,
-        "regions": 140,
-        "images_with_regions": 109,
+        "regions": 139,
+        "images_with_regions": 110,
         "flagged_without_region": 0,
-        "peak_fallback_images": 15,
-        "anomalous_with_region": 90,
-        "anomalous_top_region_on_defect": 78
+        "peak_fallback_images": 17,
+        "anomalous_with_region": 91,
+        "anomalous_top_region_on_defect": 77
       },
       "bench": {
         "schema_version": 1,
         "category": "pcb1",
-        "created_at": "2026-10-10T13:31:38+00:00",
+        "created_at": "2026-10-10T15:00:51+00:00",
         "device": {
           "index": 0,
           "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
@@ -199,12 +200,12 @@
             "batch_size": 1,
             "images": 200,
             "pass_seconds": [
-              7.979038591030985,
-              7.994077390059829,
-              8.009207037976012
+              9.162399912951514,
+              9.200585155980662,
+              9.219016770133749
             ],
-            "seconds": 7.994077390059829,
-            "images_per_second": 25.01852186828819,
+            "seconds": 9.200585155980662,
+            "images_per_second": 21.737747829005624,
             "peak_allocated_bytes": 1282363904,
             "peak_reserved_bytes": 1830813696,
             "num_workers": null
@@ -214,12 +215,12 @@
             "batch_size": 1,
             "images": 200,
             "pass_seconds": [
-              8.576852011028677,
-              8.555139496922493,
-              8.568560246145353
+              9.735581058077514,
+              9.712124173063785,
+              9.716565337963402
             ],
-            "seconds": 8.568560246145353,
-            "images_per_second": 23.341144165960888,
+            "seconds": 9.716565337963402,
+            "images_per_second": 20.583405045256466,
             "peak_allocated_bytes": 1282626560,
             "peak_reserved_bytes": 1830813696,
             "num_workers": 8
@@ -229,12 +230,12 @@
             "batch_size": 16,
             "images": 200,
             "pass_seconds": [
-              7.78714449191466,
-              7.8065105772111565,
-              7.810741951921955
+              7.968400635989383,
+              7.973962269956246,
+              7.985361093189567
             ],
-            "seconds": 7.8065105772111565,
-            "images_per_second": 25.619641198443002,
+            "seconds": 7.973962269956246,
+            "images_per_second": 25.081633600593577,
             "peak_allocated_bytes": 1436086784,
             "peak_reserved_bytes": 1828716544,
             "num_workers": null
@@ -244,12 +245,12 @@
             "batch_size": 16,
             "images": 200,
             "pass_seconds": [
-              8.601598717039451,
-              8.617368846898898,
-              8.605370390927419
+              8.752516762819141,
+              8.747318794950843,
+              8.744342542020604
             ],
-            "seconds": 8.605370390927419,
-            "images_per_second": 23.241300596527324,
+            "seconds": 8.747318794950843,
+            "images_per_second": 22.864148968189507,
             "peak_allocated_bytes": 1440281600,
             "peak_reserved_bytes": 1828716544,
             "num_workers": 8
@@ -262,15 +263,15 @@
       "category": "pcb2",
       "comparison": {
         "category": "pcb2",
-        "measured_points": 92.91999936103821,
+        "measured_points": 92.330002784729,
         "reference_points": 92.4,
-        "delta_points": 0.52,
+        "delta_points": -0.07,
         "within_gate": true
       },
       "record": {
         "schema_version": 1,
         "category": "pcb2",
-        "created_at": "2026-10-10T13:15:15+00:00",
+        "created_at": "2026-10-10T14:45:06+00:00",
         "model": {
           "name": "patchcore",
           "variant": "SingleCopyPatchcore",
@@ -287,6 +288,7 @@
           "coreset_sampling_ratio": 0.1,
           "num_neighbors": 9,
           "precision": "float32",
+          "tf32": false,
           "seed": 0,
           "train_batch_size": 32,
           "eval_batch_size": 32
@@ -298,12 +300,12 @@
         "memory_bank_rows": 92262,
         "memory_bank_dims": 1536,
         "thresholds": {
-          "image": 29.978239059448242,
-          "pixel": 34.167842864990234,
-          "image_min": 23.89826011657715,
-          "image_max": 67.71256256103516,
-          "pixel_min": 11.801667213439941,
-          "pixel_max": 65.05740356445312,
+          "image": 29.304933547973633,
+          "pixel": 34.74386215209961,
+          "image_min": 23.895116806030273,
+          "image_max": 67.66985321044922,
+          "pixel_min": 11.812572479248047,
+          "pixel_max": 64.81105041503906,
           "method": "anomalib.metrics.F1AdaptiveThreshold",
           "val_split_mode": "same_as_test",
           "split_images": 200,
@@ -311,34 +313,34 @@
           "tuned_on_test": true
         },
         "metrics": {
-          "image_auroc": 0.9291999936103821,
-          "pixel_auroc": 0.982385516166687,
-          "image_f1": 0.8541666865348816,
-          "pixel_f1": 0.17176677286624908
+          "image_auroc": 0.92330002784729,
+          "pixel_auroc": 0.9817203283309937,
+          "image_f1": 0.8529411554336548,
+          "pixel_f1": 0.17255491018295288
         },
         "embed": {
-          "seconds": 13.451357880141586,
-          "peak_allocated_bytes": 6300931072,
-          "peak_reserved_bytes": 7048527872
+          "seconds": 4.939570121932775,
+          "peak_allocated_bytes": 6403953664,
+          "peak_reserved_bytes": 6715080704
         },
         "coreset": {
-          "seconds": 719.1748782990035,
+          "seconds": 706.7617513160221,
           "peak_allocated_bytes": 8364606464,
-          "peak_reserved_bytes": 9598664704
+          "peak_reserved_bytes": 9265217536
         },
         "validate_split": {
-          "seconds": 8.191517676925287,
+          "seconds": 8.115072515094653,
           "peak_allocated_bytes": 1652912640,
-          "peak_reserved_bytes": 9598664704
+          "peak_reserved_bytes": 9265217536
         },
         "test": {
-          "seconds": 11.407848707167432,
+          "seconds": 11.764683448942378,
           "peak_allocated_bytes": 1599430144,
-          "peak_reserved_bytes": 2518679552
+          "peak_reserved_bytes": 2185232384
         },
-        "fit_seconds": 743.1770211581606,
+        "fit_seconds": 721.99358231714,
         "peak_allocated_bytes": 8364606464,
-        "peak_reserved_bytes": 9598664704,
+        "peak_reserved_bytes": 9265217536,
         "gpu_free_bytes_before": 11573460992,
         "device": {
           "index": 0,
@@ -371,7 +373,7 @@
       },
       "run": {
         "directory": "runs/pcb2/test",
-        "created_at": "2026-10-10T13:31:58+00:00",
+        "created_at": "2026-10-10T15:01:10+00:00",
         "options": {
           "batch_size": 16,
           "num_workers": 4,
@@ -385,24 +387,24 @@
         "images": 200,
         "labelled_good": 100,
         "labelled_bad": 100,
-        "image_auroc": 0.9294,
-        "seconds": 16.59945476707071,
-        "predicted_anomalous": 92,
-        "true_positive": 82,
-        "false_negative": 18,
-        "true_negative": 90,
-        "false_positive": 10,
-        "regions": 101,
-        "images_with_regions": 92,
+        "image_auroc": 0.9233,
+        "seconds": 17.20234333211556,
+        "predicted_anomalous": 104,
+        "true_positive": 87,
+        "false_negative": 13,
+        "true_negative": 83,
+        "false_positive": 17,
+        "regions": 118,
+        "images_with_regions": 104,
         "flagged_without_region": 0,
-        "peak_fallback_images": 9,
-        "anomalous_with_region": 82,
-        "anomalous_top_region_on_defect": 74
+        "peak_fallback_images": 18,
+        "anomalous_with_region": 87,
+        "anomalous_top_region_on_defect": 78
       },
       "bench": {
         "schema_version": 1,
         "category": "pcb2",
-        "created_at": "2026-10-10T13:34:01+00:00",
+        "created_at": "2026-10-10T15:03:24+00:00",
         "device": {
           "index": 0,
           "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
@@ -430,12 +432,12 @@
             "batch_size": 1,
             "images": 200,
             "pass_seconds": [
-              8.050741896033287,
-              8.0199255279731,
-              8.042846784926951
+              9.193273750832304,
+              9.212300153216347,
+              9.224928987910971
             ],
-            "seconds": 8.042846784926951,
-            "images_per_second": 24.866817104463404,
+            "seconds": 9.212300153216347,
+            "images_per_second": 21.710104607281252,
             "peak_allocated_bytes": 1277541376,
             "peak_reserved_bytes": 1721761792,
             "num_workers": null
@@ -445,12 +447,12 @@
             "batch_size": 1,
             "images": 200,
             "pass_seconds": [
-              8.640063838101923,
-              8.600837694015354,
-              8.603035039035603
+              9.771321289939806,
+              9.763088473118842,
+              9.74053996289149
             ],
-            "seconds": 8.603035039035603,
-            "images_per_second": 23.247609604344923,
+            "seconds": 9.763088473118842,
+            "images_per_second": 20.485320864465088,
             "peak_allocated_bytes": 1277804032,
             "peak_reserved_bytes": 1721761792,
             "num_workers": 8
@@ -460,12 +462,12 @@
             "batch_size": 16,
             "images": 200,
             "pass_seconds": [
-              7.801653739064932,
-              7.818073915084824,
-              7.821409261086956
+              7.961192090064287,
+              7.9667584099806845,
+              7.967121673049405
             ],
-            "seconds": 7.818073915084824,
-            "images_per_second": 25.581748416845205,
+            "seconds": 7.9667584099806845,
+            "images_per_second": 25.104313411768803,
             "peak_allocated_bytes": 1431264256,
             "peak_reserved_bytes": 1719664640,
             "num_workers": null
@@ -475,12 +477,12 @@
             "batch_size": 16,
             "images": 200,
             "pass_seconds": [
-              8.622917166212574,
-              8.623814465012401,
-              8.623154597124085
+              8.798044531140476,
+              8.795984904980287,
+              8.803819571854547
             ],
-            "seconds": 8.623154597124085,
-            "images_per_second": 23.193368244459187,
+            "seconds": 8.798044531140476,
+            "images_per_second": 22.732324130902565,
             "peak_allocated_bytes": 1435459072,
             "peak_reserved_bytes": 1719664640,
             "num_workers": 8
@@ -493,15 +495,15 @@
       "category": "pcb3",
       "comparison": {
         "category": "pcb3",
-        "measured_points": 92.74256825447083,
+        "measured_points": 92.07921028137207,
         "reference_points": 99.0,
-        "delta_points": -6.26,
+        "delta_points": -6.92,
         "within_gate": false
       },
       "record": {
         "schema_version": 1,
         "category": "pcb3",
-        "created_at": "2026-10-10T13:28:03+00:00",
+        "created_at": "2026-10-10T14:57:50+00:00",
         "model": {
           "name": "patchcore",
           "variant": "SingleCopyPatchcore",
@@ -518,6 +520,7 @@
           "coreset_sampling_ratio": 0.1,
           "num_neighbors": 9,
           "precision": "float32",
+          "tf32": false,
           "seed": 0,
           "train_batch_size": 32,
           "eval_batch_size": 32
@@ -529,12 +532,12 @@
         "memory_bank_rows": 92672,
         "memory_bank_dims": 1536,
         "thresholds": {
-          "image": 32.212425231933594,
-          "pixel": 45.52423095703125,
-          "image_min": 25.189361572265625,
-          "image_max": 64.2542495727539,
-          "pixel_min": 10.118094444274902,
-          "pixel_max": 62.782920837402344,
+          "image": 31.54306983947754,
+          "pixel": 45.4342041015625,
+          "image_min": 24.89813804626465,
+          "image_max": 64.24115753173828,
+          "pixel_min": 10.090832710266113,
+          "pixel_max": 62.76778030395508,
           "method": "anomalib.metrics.F1AdaptiveThreshold",
           "val_split_mode": "same_as_test",
           "split_images": 201,
@@ -542,34 +545,34 @@
           "tuned_on_test": true
         },
         "metrics": {
-          "image_auroc": 0.9274256825447083,
-          "pixel_auroc": 0.9806442260742188,
-          "image_f1": 0.8415841460227966,
-          "pixel_f1": 0.33596280217170715
+          "image_auroc": 0.9207921028137207,
+          "pixel_auroc": 0.9805978536605835,
+          "image_f1": 0.8487805128097534,
+          "pixel_f1": 0.3349737524986267
         },
         "embed": {
-          "seconds": 4.460482775000855,
-          "peak_allocated_bytes": 6326096896,
-          "peak_reserved_bytes": 7073693696
+          "seconds": 4.545037255156785,
+          "peak_allocated_bytes": 6429119488,
+          "peak_reserved_bytes": 6740246528
         },
         "coreset": {
-          "seconds": 712.8886494031176,
+          "seconds": 708.9320143228397,
           "peak_allocated_bytes": 8399280128,
-          "peak_reserved_bytes": 9636413440
+          "peak_reserved_bytes": 9302966272
         },
         "validate_split": {
-          "seconds": 8.046194572933018,
+          "seconds": 8.141073988052085,
           "peak_allocated_bytes": 1657952256,
-          "peak_reserved_bytes": 9636413440
+          "peak_reserved_bytes": 9302966272
         },
         "test": {
-          "seconds": 11.148646329995245,
+          "seconds": 11.46728655602783,
           "peak_allocated_bytes": 1606566912,
-          "peak_reserved_bytes": 2522873856
+          "peak_reserved_bytes": 2189426688
         },
-        "fit_seconds": 727.3808450100478,
+        "fit_seconds": 723.4760688389651,
         "peak_allocated_bytes": 8399280128,
-        "peak_reserved_bytes": 9636413440,
+        "peak_reserved_bytes": 9302966272,
         "gpu_free_bytes_before": 11573460992,
         "device": {
           "index": 0,
@@ -602,7 +605,7 @@
       },
       "run": {
         "directory": "runs/pcb3/test",
-        "created_at": "2026-10-10T13:34:21+00:00",
+        "created_at": "2026-10-10T15:03:44+00:00",
         "options": {
           "batch_size": 16,
           "num_workers": 4,
@@ -616,24 +619,24 @@
         "images": 201,
         "labelled_good": 101,
         "labelled_bad": 100,
-        "image_auroc": 0.9272277227722773,
-        "seconds": 18.110841298941523,
-        "predicted_anomalous": 103,
-        "true_positive": 86,
-        "false_negative": 14,
-        "true_negative": 84,
-        "false_positive": 17,
-        "regions": 157,
-        "images_with_regions": 103,
+        "image_auroc": 0.9207920792079208,
+        "seconds": 18.761801501037553,
+        "predicted_anomalous": 105,
+        "true_positive": 87,
+        "false_negative": 13,
+        "true_negative": 83,
+        "false_positive": 18,
+        "regions": 174,
+        "images_with_regions": 105,
         "flagged_without_region": 0,
-        "peak_fallback_images": 19,
-        "anomalous_with_region": 86,
-        "anomalous_top_region_on_defect": 59
+        "peak_fallback_images": 11,
+        "anomalous_with_region": 87,
+        "anomalous_top_region_on_defect": 60
       },
       "bench": {
         "schema_version": 1,
         "category": "pcb3",
-        "created_at": "2026-10-10T13:36:26+00:00",
+        "created_at": "2026-10-10T15:05:59+00:00",
         "device": {
           "index": 0,
           "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
@@ -661,12 +664,12 @@
             "batch_size": 1,
             "images": 201,
             "pass_seconds": [
-              8.116269469028339,
-              8.099138676887378,
-              8.10816523898393
+              9.250991031061858,
+              9.278354302048683,
+              9.282412784872577
             ],
-            "seconds": 8.10816523898393,
-            "images_per_second": 24.78982532738667,
+            "seconds": 9.278354302048683,
+            "images_per_second": 21.66332449232066,
             "peak_allocated_bytes": 1284678144,
             "peak_reserved_bytes": 1725956096,
             "num_workers": null
@@ -676,12 +679,12 @@
             "batch_size": 1,
             "images": 201,
             "pass_seconds": [
-              8.698695275001228,
-              8.681908675003797,
-              8.675270652864128
+              9.779904444003478,
+              9.793853173032403,
+              9.786931479815394
             ],
-            "seconds": 8.681908675003797,
-            "images_per_second": 23.151591144779243,
+            "seconds": 9.786931479815394,
+            "images_per_second": 20.537591421227706,
             "peak_allocated_bytes": 1284940800,
             "peak_reserved_bytes": 1725956096,
             "num_workers": 8
@@ -691,12 +694,12 @@
             "batch_size": 16,
             "images": 201,
             "pass_seconds": [
-              7.862948674010113,
-              7.877789787948132,
-              7.8803796141874045
+              8.001909089973196,
+              8.004994273884222,
+              8.015440081013367
             ],
-            "seconds": 7.877789787948132,
-            "images_per_second": 25.51477069209192,
+            "seconds": 8.004994273884222,
+            "images_per_second": 25.109324644459715,
             "peak_allocated_bytes": 1438401024,
             "peak_reserved_bytes": 1723858944,
             "num_workers": null
@@ -706,12 +709,12 @@
             "batch_size": 16,
             "images": 201,
             "pass_seconds": [
-              8.655930900014937,
-              8.640168752986938,
-              8.659259678097442
+              8.793275007978082,
+              8.799016206059605,
+              8.797247780952603
             ],
-            "seconds": 8.655930900014937,
-            "images_per_second": 23.221072617348778,
+            "seconds": 8.797247780952603,
+            "images_per_second": 22.848054869523622,
             "peak_allocated_bytes": 1442595840,
             "peak_reserved_bytes": 1723858944,
             "num_workers": 8
@@ -724,15 +727,15 @@
       "category": "pcb4",
       "comparison": {
         "category": "pcb4",
-        "measured_points": 98.57425689697266,
+        "measured_points": 98.7128734588623,
         "reference_points": 99.0,
-        "delta_points": -0.43,
+        "delta_points": -0.29,
         "within_gate": true
       },
       "record": {
         "schema_version": 1,
         "category": "pcb4",
-        "created_at": "2026-10-10T12:47:55+00:00",
+        "created_at": "2026-10-10T14:19:33+00:00",
         "model": {
           "name": "patchcore",
           "variant": "SingleCopyPatchcore",
@@ -749,6 +752,7 @@
           "coreset_sampling_ratio": 0.1,
           "num_neighbors": 9,
           "precision": "float32",
+          "tf32": false,
           "seed": 0,
           "train_batch_size": 32,
           "eval_batch_size": 32
@@ -760,12 +764,12 @@
         "memory_bank_rows": 92569,
         "memory_bank_dims": 1536,
         "thresholds": {
-          "image": 29.815059661865234,
-          "pixel": 30.691007614135742,
-          "image_min": 22.340681076049805,
-          "image_max": 54.525489807128906,
-          "pixel_min": 11.61789321899414,
-          "pixel_max": 52.81232452392578,
+          "image": 30.048791885375977,
+          "pixel": 30.769989013671875,
+          "image_min": 22.67045021057129,
+          "image_max": 54.10724639892578,
+          "pixel_min": 10.1558256149292,
+          "pixel_max": 53.04261016845703,
           "method": "anomalib.metrics.F1AdaptiveThreshold",
           "val_split_mode": "same_as_test",
           "split_images": 201,
@@ -773,34 +777,34 @@
           "tuned_on_test": true
         },
         "metrics": {
-          "image_auroc": 0.9857425689697266,
-          "pixel_auroc": 0.9840223789215088,
-          "image_f1": 0.9463414549827576,
-          "pixel_f1": 0.427077978849411
+          "image_auroc": 0.987128734588623,
+          "pixel_auroc": 0.9842014312744141,
+          "image_f1": 0.9417475461959839,
+          "pixel_f1": 0.42386242747306824
         },
         "embed": {
-          "seconds": 4.973582786973566,
-          "peak_allocated_bytes": 6319805440,
-          "peak_reserved_bytes": 7067402240
+          "seconds": 4.471685417927802,
+          "peak_allocated_bytes": 6422828032,
+          "peak_reserved_bytes": 6733955072
         },
         "coreset": {
-          "seconds": 743.6222747908905,
+          "seconds": 710.6349682959262,
           "peak_allocated_bytes": 8392051200,
-          "peak_reserved_bytes": 9625927680
+          "peak_reserved_bytes": 9292480512
         },
         "validate_split": {
-          "seconds": 9.057620553998277,
+          "seconds": 8.160366428084671,
           "peak_allocated_bytes": 1656686592,
-          "peak_reserved_bytes": 9625927680
+          "peak_reserved_bytes": 9292480512
         },
         "test": {
-          "seconds": 15.801515639061108,
+          "seconds": 11.495100417174399,
           "peak_allocated_bytes": 1603204096,
-          "peak_reserved_bytes": 2522873856
+          "peak_reserved_bytes": 2189426688
         },
-        "fit_seconds": 760.3792779091746,
+        "fit_seconds": 725.2052176350262,
         "peak_allocated_bytes": 8392051200,
-        "peak_reserved_bytes": 9625927680,
+        "peak_reserved_bytes": 9292480512,
         "gpu_free_bytes_before": 11573460992,
         "device": {
           "index": 0,
@@ -833,7 +837,7 @@
       },
       "run": {
         "directory": "runs/pcb4/test",
-        "created_at": "2026-10-10T13:36:46+00:00",
+        "created_at": "2026-10-10T15:06:19+00:00",
         "options": {
           "batch_size": 16,
           "num_workers": 4,
@@ -847,24 +851,24 @@
         "images": 201,
         "labelled_good": 101,
         "labelled_bad": 100,
-        "image_auroc": 0.9857425742574257,
-        "seconds": 17.598255139077082,
+        "image_auroc": 0.9871287128712871,
+        "seconds": 17.315008450997993,
         "predicted_anomalous": 106,
-        "true_positive": 98,
-        "false_negative": 2,
-        "true_negative": 93,
-        "false_positive": 8,
-        "regions": 154,
+        "true_positive": 97,
+        "false_negative": 3,
+        "true_negative": 92,
+        "false_positive": 9,
+        "regions": 150,
         "images_with_regions": 106,
         "flagged_without_region": 0,
-        "peak_fallback_images": 2,
-        "anomalous_with_region": 98,
-        "anomalous_top_region_on_defect": 95
+        "peak_fallback_images": 4,
+        "anomalous_with_region": 97,
+        "anomalous_top_region_on_defect": 94
       },
       "bench": {
         "schema_version": 1,
         "category": "pcb4",
-        "created_at": "2026-10-10T13:38:51+00:00",
+        "created_at": "2026-10-10T15:08:39+00:00",
         "device": {
           "index": 0,
           "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
@@ -892,12 +896,12 @@
             "batch_size": 1,
             "images": 201,
             "pass_seconds": [
-              8.10945896897465,
-              8.095436116913334,
-              8.110968620982021
+              9.28318456793204,
+              9.320664481958374,
+              9.343564028153196
             ],
-            "seconds": 8.10945896897465,
-            "images_per_second": 24.785870520954642,
+            "seconds": 9.320664481958374,
+            "images_per_second": 21.56498610040812,
             "peak_allocated_bytes": 1281315328,
             "peak_reserved_bytes": 1725956096,
             "num_workers": null
@@ -907,12 +911,12 @@
             "batch_size": 1,
             "images": 201,
             "pass_seconds": [
-              8.698765298817307,
-              8.651889899978414,
-              8.680789536098018
+              9.872709792805836,
+              9.878349428065121,
+              10.045785423135385
             ],
-            "seconds": 8.680789536098018,
-            "images_per_second": 23.15457587863013,
+            "seconds": 9.878349428065121,
+            "images_per_second": 20.347528852233566,
             "peak_allocated_bytes": 1281577984,
             "peak_reserved_bytes": 1725956096,
             "num_workers": 8
@@ -922,12 +926,12 @@
             "batch_size": 16,
             "images": 201,
             "pass_seconds": [
-              7.876227492000908,
-              7.8867858541198075,
-              7.8925504761282355
+              8.241085225017741,
+              8.543990948004648,
+              8.572835970902815
             ],
-            "seconds": 7.8867858541198075,
-            "images_per_second": 25.485667256326472,
+            "seconds": 8.543990948004648,
+            "images_per_second": 23.525305822911864,
             "peak_allocated_bytes": 1435038208,
             "peak_reserved_bytes": 1723858944,
             "num_workers": null
@@ -937,12 +941,12 @@
             "batch_size": 16,
             "images": 201,
             "pass_seconds": [
-              8.678734214045107,
-              8.659364760154858,
-              8.670714097097516
+              9.202894994989038,
+              8.995238447096199,
+              8.964000781066716
             ],
-            "seconds": 8.670714097097516,
-            "images_per_second": 23.18148168064772,
+            "seconds": 8.995238447096199,
+            "images_per_second": 22.345155293230263,
             "peak_allocated_bytes": 1439233024,
             "peak_reserved_bytes": 1723858944,
             "num_workers": 8
