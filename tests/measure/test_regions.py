@@ -7,6 +7,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 from spec_to_inspector.measure.models import (
     CalibratedMask,
@@ -362,6 +364,81 @@ def test_zones_are_the_same_at_any_mask_resolution() -> None:
     assert full.zone == squashed.zone == "A"
     assert squashed.centroid == pytest.approx(full.centroid, abs=0.01)
     assert squashed.longest_extent_mm == pytest.approx(full.longest_extent_mm, abs=0.4)
+
+
+_masks = st.integers(2, 14).flatmap(
+    lambda height: st.integers(2, 14).flatmap(
+        lambda width: st.lists(
+            st.lists(st.booleans(), min_size=width, max_size=width),
+            min_size=height,
+            max_size=height,
+        )
+    )
+)
+_scales = st.sampled_from([(64.0, 1.0, 1.0), (10.0, 3.0, 1.0), (7.3, 1.0, 2.5), (100.0, 6.0, 4.0)])
+
+
+@given(_masks, _scales)
+def test_any_mask_is_split_into_regions_that_fit_their_rectangles(
+    rows: list[list[bool]], scale: tuple[float, float, float]
+) -> None:
+    """Whatever the mask and however its pixels are stretched, the measurements hold together.
+
+    Every marked pixel is in exactly one region; each region's pixel squares
+    lie inside its rectangle; the rectangle is no larger than the upright box
+    and no smaller than the region.
+    """
+    pixels = np.array(rows, dtype=np.bool_)
+    height, width = pixels.shape
+    board_width_mm, stretch_x, stretch_y = scale
+    calibration = Calibration(
+        board_width_mm=board_width_mm,
+        image_width_px=round(width * stretch_x),
+        image_height_px=round(height * stretch_y),
+    )
+    mask = CalibratedMask(pixels=pixels, calibration=calibration)
+    x_mm, y_mm = mask.pixel_size_mm
+
+    labels, count = label_regions(pixels)
+    regions = measure_regions(mask)
+
+    assert [region.label for region in regions] == list(range(1, count + 1))
+    assert sum(region.area_px for region in regions) == int(pixels.sum())
+    for region in regions:
+        ys, xs = np.nonzero(labels == region.label)
+        squares = np.concatenate(
+            [np.stack([xs + dx, ys + dy], axis=1) for dx in (0, 1) for dy in (0, 1)]
+        ) * np.array([x_mm, y_mm])
+        corners = np.array(region.rectangle_px) * np.array([x_mm, y_mm])
+        along = (corners[1] - corners[0]) / np.hypot(*(corners[1] - corners[0]))
+        for axis in (along, np.array([-along[1], along[0]])):
+            assert (squares @ axis).min() >= (corners @ axis).min() - 1e-9
+            assert (squares @ axis).max() <= (corners @ axis).max() + 1e-9
+        left, top, right, bottom = region.bbox_px
+        box_mm2 = (right - left) * x_mm * (bottom - top) * y_mm
+        rectangle_mm2 = region.longest_extent_mm * region.shortest_extent_mm
+        assert region.area_mm2 <= rectangle_mm2 * (1 + 1e-9) <= box_mm2 * (1 + 1e-6)
+        assert region.area_mm2 == pytest.approx(region.area_px * x_mm * y_mm)
+
+
+@given(_masks, st.integers(0, 5), st.integers(0, 5))
+def test_moving_a_mask_inside_its_image_changes_no_size(
+    rows: list[list[bool]], down: int, across: int
+) -> None:
+    """The same pixels further down and across measure the same to the last bit."""
+    pixels = np.array(rows, dtype=np.bool_)
+    here = np.zeros((32, 32), dtype=np.bool_)
+    there = np.zeros((32, 32), dtype=np.bool_)
+    here[1 : 1 + pixels.shape[0], 1 : 1 + pixels.shape[1]] = pixels
+    there[1 + down : 1 + down + pixels.shape[0], 1 + across : 1 + across + pixels.shape[1]] = pixels
+
+    def sizes(mask: np.ndarray) -> list[tuple[int, float, float, float]]:
+        return [
+            (region.label, region.longest_extent_mm, region.shortest_extent_mm, region.area_mm2)
+            for region in measure_regions(_mask(mask, board_width_mm=12.7))
+        ]
+
+    assert sizes(here) == sizes(there)
 
 
 # The real masks, when fetched
