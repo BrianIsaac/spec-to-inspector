@@ -40,9 +40,11 @@ class Region(BaseModel):
         bbox: The tight bounding box.
         area_px: Pixels in the region.
         centroid: The mean position of its pixels, as (x, y).
-        peak_score: The highest raw anomaly-map value inside the region.
+        peak_score: The highest value inside the region of the anomaly map stretched
+            to the source's size: raw units, but interpolated, so it can sit a
+            little under the stored map's own highest cell.
         peak_xy: Where that value is, as (x, y).
-        mean_score: The mean raw anomaly-map value inside the region.
+        mean_score: The mean of the stretched map's values inside the region.
         from_peak: Whether the region is the fallback for an image flagged anomalous
             with nothing above the region threshold: the one patch holding the
             anomaly map's peak. Its size is the patch's, not a defect's.
@@ -416,7 +418,8 @@ class RunIndex(BaseModel):
         labelled_bad: Images whose ground truth is "bad".
         image_auroc: Area under the ROC curve of the raw image scores, where the
             run holds both labels; None otherwise.
-        seconds: Wall time of the run, from the first image read to the last file written.
+        seconds: Wall time of the run, from the first image read to the last image's
+            files written; the index itself and the swap into place come after.
         entries: One line per image, in the order given.
     """
 
@@ -449,9 +452,10 @@ class Throughput(BaseModel):
         pass_seconds: Wall time of each pass over the set.
         seconds: The median of `pass_seconds`.
         images_per_second: `images` over `seconds`.
-        peak_allocated_bytes: `torch.cuda.max_memory_allocated` over the passes,
-            the resident model included.
-        peak_reserved_bytes: `torch.cuda.max_memory_reserved` over the passes.
+        peak_allocated_bytes: `torch.cuda.max_memory_allocated` while scoring, the
+            resident model included, counted from an emptied cache. For "model"
+            it is taken on a separate pass with one batch on the GPU at a time.
+        peak_reserved_bytes: `torch.cuda.max_memory_reserved` over the same span.
         num_workers: Data loader workers decoding images; None for "model".
     """
 

@@ -59,7 +59,8 @@ def test_the_model_figure_times_forward_passes_only() -> None:
 
     result = measure_model(model, images, batch_size=4, repeats=3, warmup_batches=2)
 
-    assert model.batches == [4, 4] + [4, 4, 2] * 3
+    # Two warm-up batches, three timed passes, and one more pass for the peak memory.
+    assert model.batches == [4, 4] + [4, 4, 2] * 3 + [4, 4, 2]
     assert result.mode == "model"
     assert result.batch_size == 4
     assert result.images == 10
@@ -78,7 +79,7 @@ def test_batch_one_makes_one_pass_per_image() -> None:
         model, torch.rand(5, 3, 256, 256), batch_size=1, repeats=1, warmup_batches=1
     )
 
-    assert model.batches == [1] * 6
+    assert model.batches == [1] * (1 + 5 + 5)
     assert result.images == 5
 
 

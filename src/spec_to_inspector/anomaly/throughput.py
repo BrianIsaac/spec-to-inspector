@@ -3,7 +3,9 @@
 Two figures per batch size, because they answer different questions:
 
 - "model": the forward pass alone, on resized images already on the GPU. This
-  is the card's own speed, the figure that moves when the card changes.
+  is the card's own speed, the figure that moves when the card changes. Its
+  peak memory is taken on a separate pass with one batch on the card at a
+  time, so it is what inference holds and not the preloaded test set.
 - "end_to_end": from the image files to scores and maps in host memory, with
   decoding and resizing in data loader workers. This is what a batch of
   boards costs; at these image sizes the CPU's JPEG decoding sets it.
@@ -50,15 +52,22 @@ def _synchronise(device: torch.device) -> None:
         torch.cuda.synchronize(device)
 
 
-def _reset_peak(device: torch.device) -> None:
+def _start_peak(device: torch.device) -> None:
+    """Return cached blocks to the driver and restart the peak counters.
+
+    Without emptying the cache first, the reserved peak would carry blocks an
+    earlier measurement left cached.
+    """
     if device.type == "cuda":
+        torch.cuda.empty_cache()
         torch.cuda.reset_peak_memory_stats(device)
 
 
 def _peak(device: torch.device) -> tuple[int, int]:
-    """The peak allocated and reserved bytes since the last reset; zeros off the GPU."""
+    """The peak allocated and reserved bytes since the last restart; zeros off the GPU."""
     if device.type != "cuda":
         return 0, 0
+    _synchronise(device)
     return torch.cuda.max_memory_allocated(device), torch.cuda.max_memory_reserved(device)
 
 
@@ -68,11 +77,10 @@ def _throughput(
     batch_size: int,
     images: int,
     pass_seconds: list[float],
-    device: torch.device,
+    peak: tuple[int, int],
     num_workers: int | None,
 ) -> Throughput:
     seconds = statistics.median(pass_seconds)
-    allocated, reserved = _peak(device)
     return Throughput.model_validate(
         {
             "mode": mode,
@@ -81,11 +89,32 @@ def _throughput(
             "pass_seconds": pass_seconds,
             "seconds": seconds,
             "images_per_second": images / seconds,
-            "peak_allocated_bytes": allocated,
-            "peak_reserved_bytes": reserved,
+            "peak_allocated_bytes": peak[0],
+            "peak_reserved_bytes": peak[1],
             "num_workers": num_workers,
         }
     )
+
+
+def _timed_passes(
+    model: MeasurableScorer, batches: list[torch.Tensor], *, repeats: int, warmup_batches: int
+) -> list[float]:
+    """Time passes over batches that are already on the model's device.
+
+    The batches are this function's alone, so they are freed when it returns.
+    """
+    device = model.device
+    for batch in (batches * warmup_batches)[:warmup_batches]:
+        model.score(batch)
+    _synchronise(device)
+    pass_seconds: list[float] = []
+    for _ in range(repeats):
+        started = time.perf_counter()
+        for batch in batches:
+            model.score(batch)
+        _synchronise(device)
+        pass_seconds.append(time.perf_counter() - started)
+    return pass_seconds
 
 
 def measure_model(
@@ -98,15 +127,21 @@ def measure_model(
 ) -> Throughput:
     """Time the forward pass alone over a set of resized images.
 
+    The timed passes run on batches already on the GPU, so the clock holds
+    nothing but the model. The peak memory is taken on one more pass, after
+    those batches are freed and the cache emptied, with one batch at a time
+    copied from host memory: it is what inference holds, not the test set.
+
     Args:
         model: The trained model.
-        images: Resized float images in [0, 1], as (count, 3, height, width).
+        images: Resized float images in [0, 1], as (count, 3, height, width),
+            in host memory.
         batch_size: Images per forward pass.
-        repeats: Passes over the set; the median is reported.
+        repeats: Timed passes over the set; the median is reported.
         warmup_batches: Batches scored before the clock starts.
 
     Returns:
-        The throughput and the peak GPU memory over the timed passes.
+        The throughput, and the peak GPU memory of a pass.
 
     Raises:
         ValueError: If there are no images.
@@ -115,28 +150,22 @@ def measure_model(
         msg = "no images to measure throughput on"
         raise ValueError(msg)
     device = model.device
-    on_device = images.to(device)
-    batches = [
-        on_device[start : start + batch_size] for start in range(0, images.shape[0], batch_size)
-    ]
-    for batch in (batches * warmup_batches)[:warmup_batches]:
-        model.score(batch)
-    _synchronise(device)
-    _reset_peak(device)
-
-    pass_seconds: list[float] = []
-    for _ in range(repeats):
-        started = time.perf_counter()
-        for batch in batches:
-            model.score(batch)
-        _synchronise(device)
-        pass_seconds.append(time.perf_counter() - started)
+    starts = range(0, images.shape[0], batch_size)
+    pass_seconds = _timed_passes(
+        model,
+        [images[start : start + batch_size].to(device) for start in starts],
+        repeats=repeats,
+        warmup_batches=warmup_batches,
+    )
+    _start_peak(device)
+    for start in starts:
+        model.score(images[start : start + batch_size])
     return _throughput(
         "model",
         batch_size=batch_size,
         images=images.shape[0],
         pass_seconds=pass_seconds,
-        device=device,
+        peak=_peak(device),
         num_workers=None,
     )
 
@@ -186,7 +215,7 @@ def measure_end_to_end(
 
     one_pass(limit=warmup_batches)
     _synchronise(device)
-    _reset_peak(device)
+    _start_peak(device)
     pass_seconds: list[float] = []
     for _ in range(repeats):
         started = time.perf_counter()
@@ -198,7 +227,7 @@ def measure_end_to_end(
         batch_size=batch_size,
         images=len(items),
         pass_seconds=pass_seconds,
-        device=device,
+        peak=_peak(device),
         num_workers=num_workers,
     )
 

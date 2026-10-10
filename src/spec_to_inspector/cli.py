@@ -330,10 +330,13 @@ def train(
             param_hint="--category",
         )
 
-    if backbone != TRAIN_BACKBONE and models_dir is None:
+    settings = Settings()
+    models_root = models_dir or settings.models_dir
+    runs_root = runs_dir or settings.runs_dir
+    if backbone != TRAIN_BACKBONE and models_root.resolve() == settings.models_dir.resolve():
         raise typer.BadParameter(
-            f"a backbone other than {TRAIN_BACKBONE} is for comparison: give it its own "
-            "--models-dir, so the product's models are not replaced",
+            f"a backbone other than {TRAIN_BACKBONE} is for comparison: give it a --models-dir "
+            f"of its own, not {settings.models_dir}, so the product's models are not replaced",
             param_hint="--backbone",
         )
 
@@ -343,9 +346,6 @@ def train(
         warnings.simplefilter("ignore", FutureWarning)
         from spec_to_inspector.anomaly import console, pipeline, results  # noqa: PLC0415
 
-    settings = Settings()
-    models_root = models_dir or settings.models_dir
-    runs_root = runs_dir or settings.runs_dir
     outcomes: list[pipeline.CategoryOutcome] = []
     try:
         with _terminate_cleanly():

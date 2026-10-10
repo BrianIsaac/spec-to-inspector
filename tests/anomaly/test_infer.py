@@ -388,6 +388,8 @@ def test_image_ids_must_be_unique_and_plain(tmp_path: Path) -> None:
         )
     with pytest.raises(ValueError, match="image_id"):
         InferenceItem(image_id="../escape", path=items[0].path)
+    with pytest.raises(ValueError, match="reserved"):
+        InferenceItem(image_id=RUN_INDEX_NAME, path=items[0].path)
     assert not (tmp_path / "run").exists()
 
 

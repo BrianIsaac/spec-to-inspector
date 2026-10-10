@@ -211,7 +211,8 @@ def _is_whole(base: Path, entries: Sequence[_Entry]) -> bool:
         if target.is_symlink():
             return False
         if entry.is_mask:
-            if target.stat().st_size == 0:
+            written = target.stat()
+            if written.st_size == 0 or written.st_mtime_ns < entry.source.stat().st_mtime_ns:
                 return False
         elif not (
             target.samefile(entry.source) or filecmp.cmp(target, entry.source, shallow=False)

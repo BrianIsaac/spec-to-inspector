@@ -1,6 +1,7 @@
 """Tests for the VisA one-class split in Anomalib's `visa_pytorch` layout."""
 
 import csv
+import os
 import shutil
 from pathlib import Path
 
@@ -276,3 +277,23 @@ def test_a_splits_images_carry_their_visa_paths_and_both_masks(visa: Path) -> No
     assert images[1].mask == visa / SPLIT_ROOT / "pcb4/ground_truth/bad/000.png"
     assert images[1].visa_mask == visa / "pcb4/Data/Masks/Anomaly/000.png"
     assert [i.path.name for i in split_images(visa, "pcb4", "train")] == ["0000.JPG", "0001.JPG"]
+
+
+def test_a_mask_older_than_its_source_is_rebuilt(visa: Path) -> None:
+    """If a fetched mask changes after the split was written, the binarised copy is redone."""
+    write_split(visa, ["pcb4"])
+    source = visa / "pcb4/Data/Masks/Anomaly/000.png"
+    changed = np.zeros((48, 64), dtype=np.uint8)
+    changed[0:4, 0:4] = 3
+    assert cv2.imwrite(str(source), changed)
+    later = source.stat().st_mtime_ns + 5_000_000_000
+    os.utime(source, ns=(later, later))
+
+    result = write_split(visa, ["pcb4"])
+
+    written = cv2.imread(
+        str(visa / SPLIT_ROOT / "pcb4/ground_truth/bad/000.png"), cv2.IMREAD_UNCHANGED
+    )
+    assert result["pcb4"].written
+    assert written is not None
+    assert int((written[..., 0] == 255).sum()) == 16

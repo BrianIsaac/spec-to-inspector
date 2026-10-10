@@ -173,3 +173,54 @@ def test_the_results_file_is_stable_json(tmp_path: Path) -> None:
     assert json.loads(text)["categories"]["pcb4"]["record"]["metrics"]["image_auroc"] == 0.9857
     assert AnomalyResults.model_validate_json(text) == results
     assert any("fraction" in note for note in results.notes)
+
+
+def test_a_run_made_with_another_model_is_left_out_and_named(tmp_path: Path) -> None:
+    """A run whose thresholds are not the model's, or that predates it, is not reported."""
+    models, runs = tmp_path / "models", tmp_path / "runs"
+    _put_model(models, "pcb4", 0.9857)
+    _put_run(runs, "pcb4")
+    _put_bench(runs, "pcb4")
+    base = model_dir(models, "pcb4")
+    retrained = train_record("pcb4", image_auroc=0.9857).model_copy(
+        update={"created_at": "2026-10-10T14:00:00+00:00"}
+    )
+    (base / TRAIN_RECORD_NAME).write_text(retrained.model_dump_json())
+
+    figures = collect(["pcb4"], models_dir=models, runs_dir=runs, written_by=[]).categories["pcb4"]
+
+    assert figures.run is None
+    assert figures.bench is None
+    assert figures.stale == ["run", "bench"]
+
+
+def test_a_run_with_other_thresholds_is_stale_whatever_its_date(tmp_path: Path) -> None:
+    """Thresholds that differ from the model's mean the run scored with another model."""
+    models, runs = tmp_path / "models", tmp_path / "runs"
+    _put_model(models, "pcb4", 0.9857)
+    _put_run(runs, "pcb4")
+    base = model_dir(models, "pcb4")
+    record = train_record("pcb4", image_auroc=0.9857)
+    other = record.thresholds.model_copy(update={"image": 12.5})
+    (base / TRAIN_RECORD_NAME).write_text(
+        record.model_copy(update={"thresholds": other}).model_dump_json()
+    )
+
+    figures = collect(["pcb4"], models_dir=models, runs_dir=runs, written_by=[]).categories["pcb4"]
+
+    assert figures.run is None
+    assert figures.stale == ["run"]
+
+
+def test_fresh_records_are_not_stale(tmp_path: Path) -> None:
+    """A run and a bench made after the model, with its thresholds, are reported."""
+    models, runs = tmp_path / "models", tmp_path / "runs"
+    _put_model(models, "pcb4", 0.9857)
+    _put_run(runs, "pcb4")
+    _put_bench(runs, "pcb4")
+
+    figures = collect(["pcb4"], models_dir=models, runs_dir=runs, written_by=[]).categories["pcb4"]
+
+    assert figures.run is not None
+    assert figures.bench is not None
+    assert figures.stale == []

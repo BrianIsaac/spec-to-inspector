@@ -104,6 +104,9 @@ class CategoryFigures(BaseModel):
         record: The training record, whole.
         run: The test-split run's summary; None if the split was not scored.
         bench: Throughput and inference memory; None if not benchmarked.
+        stale: Which of "run" and "bench" were on disk but left out because they
+            were made with an earlier model: before this one was trained, or
+            with thresholds that are not its own.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -113,6 +116,7 @@ class CategoryFigures(BaseModel):
     record: TrainRecord
     run: RunSummary | None
     bench: InferenceBench | None
+    stale: list[str] = []
 
 
 class AnomalyResults(BaseModel):
@@ -194,6 +198,12 @@ def collect(
         runs_dir: The root for run outputs.
         written_by: The command line collecting the figures, for the record.
 
+    A run or a bench left on disk by an earlier model (one made before the
+    current model was trained, or a run whose thresholds are not the
+    model's) is left out and named in the category's `stale` list, so a
+    retrained model is never reported beside another model's outputs. The
+    timestamps compared are all UTC in one ISO 8601 form.
+
     Returns:
         The results, ready to write.
 
@@ -204,13 +214,25 @@ def collect(
     for category in categories:
         record = load_train_record(models_dir, category)
         directory = run_dir(runs_dir, category)
-        run = _summarise(load_run_index(directory), directory) if directory.is_dir() else None
+        stale: list[str] = []
+        run: RunSummary | None = None
+        if directory.is_dir():
+            index = load_run_index(directory)
+            if index.thresholds == record.thresholds and index.created_at >= record.created_at:
+                run = _summarise(index, directory)
+            else:
+                stale.append("run")
+        bench = load_bench(runs_dir / category)
+        if bench is not None and bench.created_at < record.created_at:
+            bench = None
+            stale.append("bench")
         figures[category] = CategoryFigures(
             category=category,
             comparison=compare(category, record.metrics.image_auroc),
             record=record,
             run=run,
-            bench=load_bench(runs_dir / category),
+            bench=bench,
+            stale=stale,
         )
     return AnomalyResults(
         created_at=datetime.now(UTC).isoformat(timespec="seconds"),

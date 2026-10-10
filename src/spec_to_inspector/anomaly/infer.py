@@ -107,10 +107,14 @@ class InferenceItem(BaseModel):
             The id unchanged.
 
         Raises:
-            ValueError: If the id holds a separator or starts with a dot.
+            ValueError: If the id holds a separator, starts with a dot, or is
+                the run index's own file name.
         """
         if not _IMAGE_ID.fullmatch(value):
             msg = f"image_id must be letters, digits, '.', '-' or '_', got {value!r}"
+            raise ValueError(msg)
+        if value == RUN_INDEX_NAME:
+            msg = f"image_id {value!r} is reserved for the run's index"
             raise ValueError(msg)
         return value
 

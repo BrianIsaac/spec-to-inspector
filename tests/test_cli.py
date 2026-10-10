@@ -379,6 +379,13 @@ def test_train_another_backbone_needs_its_own_models_directory(
     assert "--models-dir" in refused.output
     assert training.calls == []
 
+    same = runner.invoke(
+        app, ["train", "--category", "pcb4", "--backbone", "resnet18", "--models-dir", "models"]
+    )
+
+    assert same.exit_code == 2
+    assert training.calls == []
+
     accepted = runner.invoke(
         app,
         [
