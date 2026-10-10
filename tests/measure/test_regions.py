@@ -395,6 +395,7 @@ def test_real_masks_measure_consistently(
 
     region_counts: list[int] = []
     longest_px: list[float] = []
+    image_sizes: set[tuple[int, int]] = set()
     for path in paths:
         mask = _real_mask(path)
         labels, count = label_regions(mask.pixels)
@@ -427,11 +428,12 @@ def test_real_masks_measure_consistently(
             assert region.bbox_px[1] <= region.centroid[1] * mask.height_px <= region.bbox_px[3]
             longest_px.append(region.longest_extent_mm)
         region_counts.append(count)
+        image_sizes.add((mask.width_px, mask.height_px))
 
     summary = {
         "category": category,
         "masks": len(paths),
-        "image_px": [mask.width_px, mask.height_px],
+        "image_px": sorted(image_sizes),
         "regions": sum(region_counts),
         "regions_per_mask_max": max(region_counts),
         "longest_extent_px_median": round(float(np.median(longest_px)), 1),
