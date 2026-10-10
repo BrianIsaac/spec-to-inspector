@@ -1,5 +1,6 @@
 """Tests for the clause schema and the specification it belongs to."""
 
+import re
 from pathlib import Path
 
 import pytest
@@ -158,7 +159,7 @@ def test_a_specification_refuses_a_table_that_cannot_be_judged_against(
     changes: dict[str, object], reason: str
 ) -> None:
     """Every defect class resolves to exactly one clause in every zone, or the table is refused."""
-    with pytest.raises(ValidationError, match=reason):
+    with pytest.raises(ValidationError, match=re.escape(reason)):
         altered(specification(), changes)
 
 
