@@ -37,6 +37,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict
 
 from spec_to_inspector.anomaly.records import ImageResult, RunIndex
+from spec_to_inspector.bench.gpu import read_gpu_memory
 from spec_to_inspector.bench.labels import ClauseLabel, Region1, read_labels, region1_types
 from spec_to_inspector.bench.mapping import mapping_problems
 from spec_to_inspector.bench.observe import Observation, observe
@@ -61,7 +62,6 @@ from spec_to_inspector.judge.timing import (
     GpuSampler,
     Spread,
     listening_pid,
-    read_nvidia_smi,
     server_facts,
     spread,
 )
@@ -231,7 +231,8 @@ class Probes:
     """How the run reads the machine it is on; replaced in tests.
 
     Attributes:
-        read_gpu: Reads the card's memory in use and one process's.
+        read_gpu: Reads the card's memory in use and one process's, without a
+            pipe: the data loader forks while the anomaly model's stage is sampled.
         own_pid: Gives the bench's own process.
         server_pid: Finds the process listening at the judge's URL.
         server_facts: Asks the server what it is serving.
@@ -241,7 +242,7 @@ class Probes:
         interval_seconds: The pause between memory readings.
     """
 
-    read_gpu: Callable[[int | None], GpuReading] = read_nvidia_smi
+    read_gpu: Callable[[int | None], GpuReading] = read_gpu_memory
     own_pid: Callable[[], int] = os.getpid
     server_pid: Callable[[str], int | None] = listening_pid
     server_facts: Callable[[str], dict[str, str]] = server_facts
