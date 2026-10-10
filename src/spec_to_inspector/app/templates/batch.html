@@ -29,10 +29,10 @@
 <div class="grid">
   {% for tile in tiles %}
   <a class="tile tile-{{ tile.board.status.value }}{% if tile.corrected %} tile-corrected{% endif %}" href="{{ tile.url }}">
-    <span class="tile-photo"><img loading="lazy" src="{{ base }}/{{ tile.board.image_id }}/thumbnail.jpg" alt=""></span>
+    <span class="tile-photo"><img loading="lazy" src="{{ base }}/{{ tile.board.image_id }}/thumbnail.jpg" alt=""><span class="badge badge-{{ tile.board.status.value }}">{{ tile.board.status.label }}</span></span>
     <span class="tile-body">
-      <span class="tile-head"><span class="tile-id">{{ tile.board.image_id }}</span><span class="badge badge-{{ tile.board.status.value }}">{{ tile.board.status.label }}</span></span>
-      <span class="tile-line">{% if tile.corrected %}<span class="tile-mark">Corrected</span> | {% endif %}{{ tile.line }}</span>
+      <span class="tile-head"><span class="tile-id">{{ tile.board.image_id }}</span>{% if tile.corrected %}<span class="tile-mark">Corrected</span>{% endif %}</span>
+      <span class="tile-line">{{ tile.line }}</span>
     </span>
   </a>
   {% endfor %}

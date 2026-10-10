@@ -7,6 +7,7 @@ PDF through docling.
 """
 
 import html
+import json
 import shutil
 import sys
 import time
@@ -15,12 +16,16 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import BaseModel
 
 from spec_to_inspector.anomaly.infer import load_result
+from spec_to_inspector.app import runs as runs_module
 from spec_to_inspector.app.sink import InMemorySink, Override
 from spec_to_inspector.app.specs import SpecStore
 from spec_to_inspector.app.training import JobState, TrainJob, TrainRunner
 from spec_to_inspector.app.web import ConsoleConfig, create_app
+from spec_to_inspector.judge.answer import JudgeAnswer
+from spec_to_inspector.judge.decision import Decision, RegionDecision
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import load_decision
 from spec_to_inspector.spec.pdf import PdfError
@@ -813,3 +818,68 @@ def test_the_console_writes_to_whatever_sink_it_is_given(world: World, tmp_path:
 
     assert [row.corrected_clause for row in store.rows] == ["4.2"]
     assert "Corrected by an engineer" in client.get(f"{CARD}/scratch").text
+
+
+# The corrections loop's flag, drawn when the decision carries it.
+
+
+class _Flag(BaseModel):
+    in_prompt: bool = False
+    overridden: bool = False
+
+
+class _RegionWithCorrections(RegionDecision):
+    corrections: tuple[str, ...] = ()
+    first_answer: JudgeAnswer | None = None
+
+
+class _DecisionWithFlag(Decision):
+    corrected: _Flag = _Flag()
+    regions: tuple[_RegionWithCorrections, ...] = ()  # pyright: ignore[reportIncompatibleVariableOverride]
+
+
+def test_the_card_draws_the_corrections_flag_when_the_decision_carries_it(
+    world: World, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A decision the corrections loop wrote shows what the judge was shown, and its first answer.
+
+    The loop adds `corrected` to the decision and `corrections` and
+    `first_answer` to a region; this branch's `Decision` has none of them, so
+    the test reads the file with a model that does, as the merged code will.
+    """
+    runs = tmp_path / "runs"
+    shutil.copytree(world.run, runs / CATEGORY / BATCH)
+    path = runs / CATEGORY / BATCH / "scratch" / "decision.json"
+    written = json.loads(path.read_text(encoding="utf-8"))
+    written["corrected"] = {"in_prompt": True, "overridden": True}
+    written["regions"][0]["corrections"] = [
+        "On a pcb9 board the judge said 'missing'; it is 'scratch'."
+    ]
+    written["regions"][0]["first_answer"] = {
+        "reason": "a pad with nothing on it",
+        "defect_class": "missing",
+        "clause_id": "4.2",
+    }
+    path.write_text(json.dumps(written), encoding="utf-8")
+    monkeypatch.setattr(runs_module, "Decision", _DecisionWithFlag)
+    moved = World(
+        root=world.root,
+        runs_dir=runs,
+        run=runs / CATEGORY / BATCH,
+        models_dir=world.models_dir,
+        spec_path=world.spec_path,
+        specification=world.specification,
+    )
+    client = Console(moved, tmp_path / "state", spec=world.spec_path).client
+
+    card = html.unescape(client.get(f"{CARD}/scratch").text)
+    plain = client.get(f"{CARD}/two").text
+    grid = client.get(CARD).text
+
+    assert "Judged with corrections in view" in card
+    assert "Corrected by an engineer" in card
+    assert "On a pcb9 board the judge said 'missing'; it is 'scratch'." in card
+    assert "Before it was shown corrections" in card
+    assert "Judged with corrections in view" not in plain
+    assert "Corrected by an engineer" not in plain
+    assert grid.count("tile-corrected") == 1

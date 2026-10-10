@@ -66,7 +66,7 @@
     <ul class="part-notes">
       <li>A board scoring above <b>{{ "%.3f"|format(record.thresholds.image) }}</b> (raw PatchCore distance) is flagged. The threshold is {{ "Anomalib's adaptive F1 threshold" if "F1AdaptiveThreshold" in record.thresholds.method else record.thresholds.method }}, {% if record.thresholds.tuned_on_test %}<b>tuned on the test split</b> ({{ record.thresholds.split_images }} images), which is Anomalib's default{% else %}chosen on {{ record.thresholds.split_images }} validation images{% endif %}.</li>
       <li>Learned from <b>{{ "{:,}".format(record.train_images) }} good boards</b> and no defect example; tested on {{ record.test_good }} good and {{ record.test_bad }} anomalous boards.</li>
-      <li>{{ record.model.name|capitalize }} on {{ record.model.backbone }} at {{ record.model.image_size[0] }} px; the memory bank keeps <b>{{ "{:,}".format(record.memory_bank_rows) }}</b> of {{ "{:,}".format(record.embedding_rows) }} patch embeddings.</li>
+      <li>{{ "PatchCore" if record.model.name == "patchcore" else record.model.name }} on {{ record.model.backbone }} at {{ record.model.image_size[0] }} px; the memory bank keeps <b>{{ "{:,}".format(record.memory_bank_rows) }}</b> of {{ "{:,}".format(record.embedding_rows) }} patch embeddings.</li>
       <li>Embedding {{ record.embed.seconds|duration }}, coreset {{ record.coreset.seconds|duration }}, thresholds {{ record.validate_split.seconds|duration }}; peak GPU memory <b>{{ record.peak_allocated_bytes|gib }}</b> on the {{ record.device.name }}.</li>
     </ul>
     {% else %}

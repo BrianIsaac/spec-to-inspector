@@ -3,7 +3,7 @@
 {% macro upload_form(large) %}
 <form class="upload{% if large %} upload-large{% endif %}" method="post" action="/specification" enctype="multipart/form-data" data-busy="Parsing the specification">
   <div class="upload-field">
-    <label for="pdf">{% if large %}The customer's specification, as a PDF{% else %}Replace with another PDF{% endif %}</label>
+    <label for="pdf"{% if not large %} class="upload-label"{% endif %}>{% if large %}The customer's specification, as a PDF{% else %}Replace with another PDF{% endif %}</label>
     <input id="pdf" type="file" name="pdf" accept="application/pdf,.pdf" required>
   </div>
   <button type="submit">Parse specification</button>
@@ -21,9 +21,9 @@
 </section>
 {% else %}
 <section class="strip">
-  <div class="strip-text">
-    <h1>{{ specification.title }}</h1>
-    {% if specification.notice %}<p class="notice">{{ specification.notice }}</p>{% endif %}
+  <h1>{{ specification.title }}</h1>
+  {% if specification.notice %}<p class="notice">{{ specification.notice }}</p>{% endif %}
+  <div class="strip-row">
     <ul class="facts">
       <li><span class="mono">{{ loaded.source }}</span></li>
       <li><b>{{ specification.pages }}</b> pages</li>
@@ -32,8 +32,8 @@
       {% if loaded.parse_seconds is not none %}<li>parsed in <b>{{ "%.1f"|format(loaded.parse_seconds) }} s</b> on the CPU</li>
       {% else %}<li>clause table as <span class="mono">parse</span> wrote it</li>{% endif %}
     </ul>
+    {{ upload_form(false) }}
   </div>
-  {{ upload_form(false) }}
 </section>
 <div class="spec-layout">
   <figure class="panel sheet">
@@ -76,7 +76,7 @@
           <tr class="clause-detail">
             <td colspan="9">
               <blockquote>{{ clause.source_text }}</blockquote>
-              <p class="where">Clause {{ clause.id }}, under heading {{ clause.heading_id }} {{ clause.title }}, printed on page {{ clause.page }} of the specification.</p>
+              <p class="printed">Clause {{ clause.id }}, under heading {{ clause.heading_id }} {{ clause.title }}, printed on page {{ clause.page }} of the specification.</p>
             </td>
           </tr>
           {% endif %}

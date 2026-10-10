@@ -29,7 +29,10 @@ from spec_to_inspector.app.card import (
     check_note,
     choose_region,
     clause_choices,
+    corrected_flag,
+    first_answer,
     judged_region,
+    prompt_corrections,
     region_cards,
 )
 from spec_to_inspector.app.runs import (
@@ -109,7 +112,8 @@ class Tile:
     Attributes:
         board: The board and its decision.
         line: What the tile says under the board's name.
-        corrected: Whether an engineer has overridden the judge on this board.
+        corrected: Whether an engineer has overridden the judge on this board,
+            by the console's sink or by the decision's own flag.
         url: The board's card.
     """
 
@@ -516,7 +520,8 @@ class _Pages:
             Tile(
                 board=board,
                 line=_tile_line(board),
-                corrected=bool(self.sink.overrides_for(category, run, board.image_id)),
+                corrected=corrected_flag(board.decision).overridden
+                or bool(self.sink.overrides_for(category, run, board.image_id)),
                 url=_url(f"{base}/{board.image_id}", disposition=kept.value if kept else None),
             )
             for board in boards
@@ -595,6 +600,9 @@ class _Pages:
             choices=choices,
             blocked=self._blocked(detail, chosen, loaded, bool(choices)),
             overrides=self.sink.overrides_for(category, run, image_id),
+            flag=corrected_flag(detail.decision),
+            shown_corrections=prompt_corrections(chosen.judged if chosen else None),
+            before=first_answer(chosen.judged if chosen else None),
             titles={choice.heading_id: choice.title for choice in choices},
             error=error,
             typed=typed or {},

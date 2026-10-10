@@ -31,9 +31,8 @@
     {% endif %}
   </div>
   <div class="flags">
-    {% if overrides %}<span class="badge badge-corrected">Corrected by an engineer</span>{% endif %}
-    {# The Decision's own "corrected" flag (a correction was in the judge's prompt) is drawn here
-       once the corrections loop writes it: see the report's join. #}
+    {% if overrides or flag.overridden %}<span class="badge badge-corrected">Corrected by an engineer</span>{% endif %}
+    {% if flag.in_prompt %}<span class="badge badge-corrected">Judged with corrections in view</span>{% endif %}
   </div>
 </section>
 
@@ -80,7 +79,7 @@
           </div>
           <figcaption>
             <b>Crop, with the measured extent</b><br>
-            {% if chosen.extent %}The yellow rectangle is the smallest that holds the flagged area: {{ "%.2f"|format(judged.measurement.longest_extent_mm) }} mm by {{ "%.2f"|format(judged.measurement.shortest_extent_mm) }} mm.
+            {% if chosen.extent %}Yellow: the smallest rectangle that holds the flagged area, {{ "%.2f"|format(judged.measurement.longest_extent_mm) }} mm by {{ "%.2f"|format(judged.measurement.shortest_extent_mm) }} mm.
             {% elif chosen.found.from_peak %}This area is the anomaly map's peak patch: a place, not an outline, so no size is drawn.
             {% else %}No size has been measured for this area yet.{% endif %}
           </figcaption>
@@ -92,7 +91,7 @@
           <figcaption>
             <b>Anomaly heatmap</b><br>
             <span class="scale"><span>like a good board</span><span class="scale-bar"></span><span>least like one</span></span>
-            The white line is the threshold, {{ "%.2f"|format(result.region_threshold) }}.
+            White line: the threshold, {{ "%.2f"|format(result.region_threshold) }}.
           </figcaption>
         </figure>
       </div>
@@ -102,14 +101,14 @@
     </section>
     <section class="panel">
       <h2>Where on the board</h2>
-      <div class="where">
+      <div class="locator">
         {% if photo %}
         <div class="frame" style="--w: {{ result.width }}; --h: {{ result.height }}">
           <img src="{{ here }}/board.jpg" alt="The whole board, with the crop and the specification's zones marked">
           <svg viewBox="0 0 {{ result.width }} {{ result.height }}" preserveAspectRatio="none" aria-hidden="true">
             {% for zone in zones %}
             <rect class="zone-line" x="{{ zone.x0 * result.width }}" y="{{ zone.y0 * result.height }}" width="{{ (zone.x1 - zone.x0) * result.width }}" height="{{ (zone.y1 - zone.y0) * result.height }}"/>
-            <text class="zone-name" x="{{ zone.x0 * result.width + 14 }}" y="{{ zone.y0 * result.height + 50 }}">{{ zone.name }}</text>
+            <text class="zone-name" x="{{ zone.x0 * result.width + 22 }}" y="{{ zone.y0 * result.height + 96 }}">{{ zone.name }}</text>
             {% endfor %}
             {% if chosen.found.crop_box %}<rect class="crop-line" x="{{ chosen.found.crop_box.x }}" y="{{ chosen.found.crop_box.y }}" width="{{ chosen.found.crop_box.width }}" height="{{ chosen.found.crop_box.height }}"/>{% endif %}
           </svg>
@@ -124,9 +123,9 @@
           {% if judged and judged.measurement %}
           <tr><th>Zone</th><td>{% if judged.measurement.zone %}{{ judged.measurement.zone }}{% if judged.measurement.zones|length > 1 %} <span class="muted small">strictest of {{ judged.measurement.zones|map(attribute="zone_id")|join(", ") }}</span>{% endif %}{% else %}outside every zone{% endif %}</td></tr>
           {% endif %}
+          {% if photo %}<tr><th colspan="2" class="legend">Yellow: the crop.{% if zones %} Dashed: the specification's zones.{% endif %}</th></tr>{% endif %}
         </table>
       </div>
-      {% if photo and zones %}<p class="hint">Yellow: the crop. Dashed: the specification's zones for part {{ run.category }}.</p>{% endif %}
     </section>
   </div>
 
@@ -157,18 +156,25 @@
       {% set measured = judged.measurement %}
       {% if judged.rule and judged.rule.measured is not none and judged.rule.limit is not none %}
       <div class="compare">
-        <div><p class="figure-label">Measured {{ judged.rule.quantity.value }}</p><p class="figure-value">{{ "%.2f"|format(judged.rule.measured) }} <span class="figure-unit">{{ judged.rule.unit }}</span></p></div>
+        <div><p class="figure-label">{{ judged.rule.quantity.value|capitalize }}</p><p class="figure-value">{{ "%.2f"|format(judged.rule.measured) }} <span class="figure-unit">{{ judged.rule.unit }}</span></p></div>
         <span class="compare-word {{ 'is-over' if judged.rule.outcome.value == 'reject' else 'is-within' }}">{{ "nonconforming" if judged.rule.outcome.value == "reject" else "conforming" }}</span>
-        <div><p class="figure-label">The clause's limit</p><p class="figure-value">{{ "%g"|format(judged.rule.limit) }} <span class="figure-unit">{{ judged.rule.unit }}</span></p></div>
+        <div><p class="figure-label">Limit of clause {{ judged.rule.clause_id }}</p><p class="figure-value">{{ "%g"|format(judged.rule.limit) }} <span class="figure-unit">{{ judged.rule.unit }}</span></p></div>
       </div>
+      <ul class="inline-facts">
+        <li>Shortest extent <b>{{ "%.2f"|format(measured.shortest_extent_mm) }} mm</b></li>
+        <li>Area <b>{{ "%.2f"|format(measured.area_mm2) }} mm<sup>2</sup></b></li>
+        {% if measured.touches_border %}<li><b>Reaches the image's edge</b>: the true extent may be larger</li>{% endif %}
+      </ul>
+      {% else %}
+      <div class="figures">
+        <div><p class="figure-label">Longest extent</p><p class="figure-value">{{ "%.2f"|format(measured.longest_extent_mm) }} <span class="figure-unit">mm</span></p></div>
+        <div><p class="figure-label">Shortest extent</p><p class="figure-value">{{ "%.2f"|format(measured.shortest_extent_mm) }} <span class="figure-unit">mm</span></p></div>
+        <div><p class="figure-label">Area</p><p class="figure-value">{{ "%.2f"|format(measured.area_mm2) }} <span class="figure-unit">mm<sup>2</sup></span></p></div>
+      </div>
+      {% if clause and clause.limit is none %}<p class="rule-note">Clause {{ clause.id }} sets no size limit ("{{ clause.limit_text }}"), so the size is recorded and not compared.</p>{% endif %}
+      {% if measured.touches_border %}<p class="rule-note"><b>Reaches the image's edge</b>: the true extent may be larger.</p>{% endif %}
       {% endif %}
-      <table class="facts-table">
-        <tr><th>Longest extent</th><td>{{ "%.2f"|format(measured.longest_extent_mm) }} mm</td></tr>
-        <tr><th>Shortest extent</th><td>{{ "%.2f"|format(measured.shortest_extent_mm) }} mm</td></tr>
-        <tr><th>Area</th><td>{{ "%.2f"|format(measured.area_mm2) }} mm<sup>2</sup></td></tr>
-        <tr><th>Reaches the image's edge</th><td>{{ "yes: the true extent may be larger" if measured.touches_border else "no" }}</td></tr>
-      </table>
-      <p class="hint">From the anomaly map's mask and the specification's calibration. No figure on this card comes from the language model.</p>
+      <p class="hint">Measured from the anomaly map's mask with the specification's calibration. No figure on this card comes from the language model.</p>
       {% elif chosen.found.from_peak %}
       <p>This area is the peak patch of the anomaly map: the model flagged the board without lifting any area above the threshold. It has a place and no outline, so <b>no size was measured</b> and no size limit can be applied to it.</p>
       {% else %}
@@ -176,6 +182,9 @@
       {% endif %}
     </section>
 
+  </div>
+
+  <div class="stack">
     <section class="panel">
       <h2>The model's description</h2>
       {% if judged and judged.answer %}
@@ -185,7 +194,15 @@
         <span>Clause cited: <b>{{ judged.answer.clause_id or "none" }}</b></span>
         {% if judged.call %}<span>Answered in <b>{{ "%.1f"|format(judged.call.seconds) }} s</b></span>{% endif %}
       </p>
+      {% if before %}<p class="model-meta"><span>Before it was shown corrections: class <b>{{ before.defect_class or "none" }}</b>, clause <b>{{ before.clause_id or "none" }}</b></span></p>{% endif %}
+      {% if shown_corrections %}
+      <ol class="shown-corrections">
+        {% for line in shown_corrections %}<li>{{ line }}</li>{% endfor %}
+      </ol>
+      <p class="hint">Above: the engineers' corrections the model was shown with this crop. Written by {{ decision.judge_model }}; code measures and decides.</p>
+      {% else %}
       <p class="hint">Written by {{ decision.judge_model }}. The model names the class and the clause; code measures and decides.</p>
+      {% endif %}
       {% elif judged and judged.call and judged.call.error %}
       <p>No valid answer came from the model: {{ judged.call.error }}.</p>
       {% elif judged %}
@@ -194,9 +211,21 @@
       <p class="muted">The judge has not been asked about this area.</p>
       {% endif %}
     </section>
-  </div>
-
-  <div class="stack" id="corrections">
+    {% if overrides %}
+    <section class="panel" id="corrections">
+      <h2>Corrections on this board</h2>
+      <ol class="corrections">
+        {% for override in overrides %}
+        <li>
+          <p class="to">{% if override.says_no_defect %}Not a defect: no clause applies{% else %}{{ override.corrected_clause }} {{ titles.get(override.corrected_clause, "") }} <span class="muted small">class {{ override.corrected_class }}</span>{% endif %}</p>
+          <p class="from">Area {{ override.region_index }}. The judge said {{ override.judged_class or "no class" }}, clause {{ override.judged_clause or "none" }} ({{ override.judged_outcome.value }}).</p>
+          <p class="said">"{{ override.note }}"</p>
+          <time datetime="{{ override.created_at }}">{{ override.created_at|when }}</time>
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+    {% endif %}
     <section class="panel">
       <h2>Engineer's override</h2>
       {% if blocked %}
@@ -233,21 +262,6 @@
       </form>
       {% endif %}
     </section>
-    {% if overrides %}
-    <section class="panel">
-      <h2>Corrections on this board</h2>
-      <ol class="corrections">
-        {% for override in overrides %}
-        <li>
-          <p class="to">{% if override.says_no_defect %}Not a defect: no clause applies{% else %}{{ override.corrected_clause }} {{ titles.get(override.corrected_clause, "") }} <span class="muted small">class {{ override.corrected_class }}</span>{% endif %}</p>
-          <p class="from">Area {{ override.region_index }}. The judge said {{ override.judged_class or "no class" }}, clause {{ override.judged_clause or "none" }} ({{ override.judged_outcome.value }}).</p>
-          <p class="said">"{{ override.note }}"</p>
-          <time datetime="{{ override.created_at }}">{{ override.created_at|when }}</time>
-        </li>
-        {% endfor %}
-      </ol>
-    </section>
-    {% endif %}
   </div>
 </div>
 <script>
