@@ -19,7 +19,6 @@ dependencies = [
     "rich>=13.5.2",
     "torch==2.14.1",
     "torchcodec==0.17.0",
-    "torchmetrics>=1.9.0",
     "torchvision==0.29.1",
     "typer>=0.26,<0.27", # docling 2.135.0 caps typer below 0.27
 ]
@@ -32,6 +31,7 @@ dev = [
     "pyright==1.1.414",
     "pytest>=9.1.1",
     "ruff==0.16.10",
+    "torchmetrics>=1.9.0",
 ]
 
 [build-system]

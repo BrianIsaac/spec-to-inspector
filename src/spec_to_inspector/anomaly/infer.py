@@ -41,13 +41,13 @@ from numpy.typing import NDArray
 from PIL import Image
 from pydantic import BaseModel, ConfigDict, field_validator
 from torch.utils.data import DataLoader, Dataset
-from torchmetrics.functional.classification import binary_auroc
 from torchvision.transforms.v2 import (  # pyright: ignore[reportMissingTypeStubs]
     Resize,
     Transform,
 )
 
 from spec_to_inspector.anomaly.atomic import atomic_directory
+from spec_to_inspector.anomaly.metrics import auroc
 from spec_to_inspector.anomaly.model import HostBufferedPatchcore
 from spec_to_inspector.anomaly.records import (
     ImageResult,
@@ -425,18 +425,6 @@ def _write_png(path: Path, image: NDArray[np.uint8] | NDArray[np.uint16]) -> Non
         raise OSError(msg)
 
 
-def _auroc(
-    scores: Sequence[float], labels: Sequence[Literal["good", "bad"] | None]
-) -> float | None:
-    """Area under the ROC curve of the labelled scores, if both labels are present."""
-    known = [(score, label == "bad") for score, label in zip(scores, labels, strict=True) if label]
-    if len({is_bad for _, is_bad in known}) < 2:
-        return None
-    values = torch.tensor([score for score, _ in known], dtype=torch.float64)
-    targets = torch.tensor([int(is_bad) for _, is_bad in known])
-    return float(binary_auroc(values, targets).item())
-
-
 def run_inference(
     model: Scorer,
     items: Sequence[InferenceItem],
@@ -506,8 +494,9 @@ def run_inference(
             images=len(ordered),
             labelled_good=sum(result.label == "good" for result in ordered),
             labelled_bad=sum(result.label == "bad" for result in ordered),
-            image_auroc=_auroc(
-                [result.score for result in ordered], [result.label for result in ordered]
+            image_auroc=auroc(
+                [result.score for result in ordered if result.label is not None],
+                [result.label == "bad" for result in ordered if result.label is not None],
             ),
             seconds=time.perf_counter() - started,
             entries=[
