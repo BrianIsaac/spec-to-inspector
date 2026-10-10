@@ -66,6 +66,7 @@ from playwright.sync_api import Page, sync_playwright
 
 from spec_to_inspector.app.runs import Board, Status, count_statuses, open_run
 from spec_to_inspector.app.specs import TABLE_NAME
+from spec_to_inspector.judge.decision import Decision, RegionDecision
 from spec_to_inspector.judge.inspect import DECISION_NAME, load_decision
 from spec_to_inspector.settings import Settings
 from spec_to_inspector.spec.schema import Specification, read_clause_table
@@ -545,6 +546,18 @@ def judge_batch(
         stop(process, signal.SIGTERM)
 
 
+def copy_whole(source: Path, target: Path) -> None:
+    """Copy a file so that the target is never seen half written.
+
+    Args:
+        source: The file to copy.
+        target: Where the copy goes; replaced in one step.
+    """
+    beside = target.with_name(f".{target.name}.partial")
+    shutil.copyfile(source, beside)
+    beside.replace(target)
+
+
 def keep_judged(run_directory: Path, image_id: str) -> None:
     """Keep a board's decision as the judge first left it, before the walk changes it.
 
@@ -555,7 +568,7 @@ def keep_judged(run_directory: Path, image_id: str) -> None:
     kept = run_directory / KEPT_DIR / f"{image_id}.judged.json"
     if not kept.exists():
         kept.parent.mkdir(exist_ok=True)
-        shutil.copyfile(run_directory / image_id / DECISION_NAME, kept)
+        copy_whole(run_directory / image_id / DECISION_NAME, kept)
 
 
 def restore_judged(run_directory: Path) -> None:
@@ -570,7 +583,7 @@ def restore_judged(run_directory: Path) -> None:
     for kept in sorted((run_directory / KEPT_DIR).glob("*.judged.json")):
         board = run_directory / kept.name.removesuffix(".judged.json")
         if board.is_dir():
-            shutil.copyfile(kept, board / DECISION_NAME)
+            copy_whole(kept, board / DECISION_NAME)
         kept.unlink()
     with suppress(OSError):
         # Gone only if empty: a live walk's second judgement stays for later walks.
@@ -605,7 +618,7 @@ def rejudge(
     if record.mode != "live":
         if not kept.is_file():
             return NOT_REJUDGED
-        shutil.copyfile(kept, run_directory / image_id / DECISION_NAME)
+        copy_whole(kept, run_directory / image_id / DECISION_NAME)
         return "recorded"
     command = verb(
         "inspect",
@@ -622,7 +635,7 @@ def rejudge(
     if done.returncode != 0:
         msg = f"inspect of board {image_id} exited with code {done.returncode}"
         raise WalkError(msg)
-    shutil.copyfile(run_directory / image_id / DECISION_NAME, kept)
+    copy_whole(run_directory / image_id / DECISION_NAME, kept)
     return "live"
 
 
@@ -663,8 +676,24 @@ class Picked:
     accepted: Board | None
 
 
+def card_region(decision: Decision) -> RegionDecision | None:
+    """Give the judged area a board's card opens on, and so the one its form corrects.
+
+    Args:
+        decision: The board's decision.
+
+    Returns:
+        The area the outcome rests on, else the first one judged; None for a
+        board with no judged area. The same choice as the card's own.
+    """
+    deciding = next(
+        (region for region in decision.regions if region.index == decision.deciding_region), None
+    )
+    return deciding or next(iter(decision.regions), None)
+
+
 def first_named(board: Board) -> str | None:
-    """Give the defect class the judge named for a board's first judged area.
+    """Give the defect class the judge named for the area a board's card opens on.
 
     Args:
         board: The board.
@@ -672,10 +701,8 @@ def first_named(board: Board) -> str | None:
     Returns:
         The class, or None if the judge named none or gave no valid answer.
     """
-    if board.decision is None:
-        return None
-    answers = [region.answer for region in board.decision.regions if region.answer is not None]
-    return answers[0].defect_class if answers else None
+    region = None if board.decision is None else card_region(board.decision)
+    return None if region is None or region.answer is None else region.answer.defect_class
 
 
 def pick(  # noqa: PLR0912 - one pass over the batch, one branch per kind of board wanted
@@ -695,10 +722,10 @@ def pick(  # noqa: PLR0912 - one pass over the batch, one branch per kind of boa
         to correct (the first on which the judge named another type than the
         label, else the first good board rejected) with the type to correct
         it to (None for a good board); the second board (the first other
-        board with the corrected board's label on which the judge named the
-        same wrong class, and failing that the first other good board
-        rejected, where the corrected board is one); the first board referred
-        for review, if any; the first board accepted, if any.
+        board of the same kind, which is the corrected board's label or, for
+        a good board, another good board rejected, on which the judge named
+        the same class as on the corrected one), if any; the first board
+        referred for review, if any; the first board accepted, if any.
 
     Raises:
         WalkError: If the batch has no reject, or no board the judge got wrong.
@@ -718,10 +745,10 @@ def pick(  # noqa: PLR0912 - one pass over the batch, one branch per kind of boa
         if board.status is Status.ACCEPT and accepted is None:
             accepted = board
         label = truth(known, sources[board.image_id])
-        answers = [region.answer for region in decision.regions if region.answer is not None]
-        if not answers or label is None:
+        region = card_region(decision)
+        if region is None or region.answer is None or label is None:
             continue
-        named = answers[0].defect_class
+        named = region.answer.defect_class
         if label == NORMAL:
             if board.status is Status.REJECT:
                 false_alarms.append((board, None))
@@ -729,7 +756,7 @@ def pick(  # noqa: PLR0912 - one pass over the batch, one branch per kind of boa
             continue
         elif named == label and board.status is Status.REJECT:
             right.append(board)
-            rule = decision.regions[0].rule
+            rule = region.rule
             if rule is not None and rule.measured is not None:
                 sized.append(board)
         elif named != label:
@@ -805,7 +832,7 @@ def live_times(record: Record, run_directory: Path) -> dict[str, str | float | N
 
 
 def answer_of(directory: Path) -> tuple[str, str, str]:
-    """Read what the judge said of a board's first judged area, and what code decided.
+    """Read what the judge said of the area a board's card opens on, and what code decided.
 
     Args:
         directory: The board's directory in its run.
@@ -815,9 +842,10 @@ def answer_of(directory: Path) -> tuple[str, str, str]:
         board's outcome.
     """
     decision = load_decision(directory)
-    answers = [region.answer for region in decision.regions if region.answer is not None]
-    named = answers[0].defect_class if answers else None
-    cited = answers[0].clause_id if answers else None
+    region = card_region(decision)
+    answer = None if region is None else region.answer
+    named = None if answer is None else answer.defect_class
+    cited = None if answer is None else answer.clause_id
     return named or "", cited or "", decision.outcome.value
 
 
@@ -946,7 +974,10 @@ def correct(camera: Camera, batch: Batch, picked: Picked, record: Record) -> tup
     page.locator("#panel-override form").wait_for()
     judged = corrected.decision
     assert judged is not None  # noqa: S101 - chosen among judged boards
-    said = next(region.answer for region in judged.regions if region.answer is not None)
+    region = card_region(judged)
+    assert region is not None  # noqa: S101 - chosen for what the judge answered
+    said = region.answer
+    assert said is not None  # noqa: S101 - as above
     if to is None:
         page.select_option("#clause", "")
         page.select_option("#defect_class", "")
@@ -971,9 +1002,11 @@ def correct(camera: Camera, batch: Batch, picked: Picked, record: Record) -> tup
     camera.window("page-11-1-override-form")
     keep_judged(batch.directory, corrected.image_id)
     page.get_by_role("button", name="Record correction").click()
-    page.locator("#corrections").wait_for()
+    page.locator("#corrections, .alert").first.wait_for()
+    if page.locator(".alert").count() > 0:
+        raise WalkError(page.locator(".alert").first.inner_text())
     page.wait_for_load_state("networkidle")
-    if page.locator("#verdict .badge-corrected").count() != 1:
+    if page.locator("#verdict .badge-corrected", has_text="Corrected by an engineer").count() != 1:
         raise WalkError("the card does not show the correction that was recorded")
     camera.window("page-11-2-override-recorded")
     return to or "", heading
@@ -1047,11 +1080,14 @@ def judge_second_board(
     if how == "live":
         record.sibling["rejudge_seconds"] = seconds
     page.goto(f"{batch.grid}/{sibling.image_id}", wait_until="networkidle")
-    if page.locator("#verdict .badge-corrected").count() != 1:
+    in_view = page.locator("#verdict .badge-corrected", has_text="Judged with corrections in view")
+    if in_view.count() != 1:
         raise WalkError("the second board's card does not say it was judged with corrections")
     camera.window("page-11-4-second-board-after")
     camera.element("page-11-4-second-board-after-model", "#panel-model")
-    camera.element("page-11-4-second-board-after-shown", "#panel-shown")
+    # Under recall on the answer the area the card opens on may have been shown none.
+    if page.locator("#panel-shown").count() > 0:
+        camera.element("page-11-4-second-board-after-shown", "#panel-shown")
 
 
 def walk(options: argparse.Namespace) -> Record:
@@ -1079,9 +1115,11 @@ def walk(options: argparse.Namespace) -> Record:
     with ExitStack() as stack:
         state = Path(stack.enter_context(tempfile.TemporaryDirectory(prefix="console-walk-")))
         environment = own_store(state)
+        # Registered before the console starts, so it runs after the console has stopped:
+        # a correction the console is still writing cannot land on top of the restored file.
+        stack.callback(restore_judged, run_directory)
         address = stack.enter_context(console(state))
         playwright = stack.enter_context(sync_playwright())
-        stack.callback(restore_judged, run_directory)
         # The VLM server's own stack, closed the moment the live part is over.
         live = stack.enter_context(ExitStack())
         browser = playwright.chromium.launch(headless=True)
@@ -1146,7 +1184,8 @@ def walk(options: argparse.Namespace) -> Record:
         live.close()
 
         page.goto(batch.grid, wait_until="networkidle")
-        if page.locator(".tile-corrected").count() != 1:
+        marked = page.locator(f'.tile-corrected[href$="/{picked.corrected.image_id}"]')
+        if marked.count() != 1:
             raise WalkError("the grid does not mark the corrected board")
         camera.window("page-11-5-batch-corrected")
         browser.close()
@@ -1155,7 +1194,7 @@ def walk(options: argparse.Namespace) -> Record:
 
 
 def _terminated(signum: int, frame: FrameType | None) -> NoReturn:
-    """Turn SIGTERM into an exit, so the walk's cleanup runs.
+    """Turn SIGTERM or SIGHUP into an exit, so the walk's cleanup runs.
 
     Args:
         signum: The signal's number.
@@ -1179,6 +1218,7 @@ def main() -> int:
     # A kill must still stop the VLM server and the console, which are stopped in
     # `finally` blocks: turn it into an exit that unwinds them.
     signal.signal(signal.SIGTERM, _terminated)
+    signal.signal(signal.SIGHUP, _terminated)
     try:
         record = walk(options)
     except (WalkError, PlaywrightError, httpx.HTTPError, subprocess.CalledProcessError) as error:

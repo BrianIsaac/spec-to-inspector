@@ -16,7 +16,7 @@ from spec_to_inspector.app.server import build_console
 from spec_to_inspector.app.sink import InMemorySink
 from spec_to_inspector.app.training import read_train_record
 from spec_to_inspector.corrections.store import CorrectionStore
-from spec_to_inspector.judge.inspect import load_decision
+from spec_to_inspector.judge.inspect import DECISION_NAME
 from spec_to_inspector.settings import Settings
 
 pytestmark = pytest.mark.recorded
@@ -165,6 +165,9 @@ def test_a_run_of_another_part_is_corrected_with_its_own_clauses(
     """A pcb1 board's override offers pcb1's clauses and none of pcb4's, and is recorded."""
     reject = next(board for board in _boards(settings, "pcb1") if board.status is Status.REJECT)
     base = f"/batch/pcb1/test/{reject.image_id}"
+    store = CorrectionStore(settings.corrections_path)
+    decision_file = settings.runs_dir / "pcb1" / "test" / reject.image_id / DECISION_NAME
+    stored, decision = store.count(), decision_file.read_bytes()
 
     card = client.get(base).text
     refused = client.post(
@@ -182,10 +185,9 @@ def test_a_run_of_another_part_is_corrected_with_its_own_clauses(
     assert "has no defect class" in refused.text
     assert recorded.status_code == 303
     assert "4.4 Bent header pin" in client.get(base).text
-    # Nothing shared was written: no row for the judge to recall, no flag on the decision.
-    assert CorrectionStore(settings.corrections_path).for_image("pcb1", reject.image_id) == []
-    directory = settings.runs_dir / "pcb1" / "test" / reject.image_id
-    assert not load_decision(directory).corrected.overridden
+    # Nothing shared was written: no row for the judge to recall, the decision byte for byte.
+    assert store.count() == stored
+    assert decision_file.read_bytes() == decision
 
 
 def test_a_part_filed_under_the_wrong_name_is_not_found(client: TestClient) -> None:

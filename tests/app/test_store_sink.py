@@ -178,6 +178,30 @@ def test_an_override_the_store_will_not_keep_is_refused_in_its_words(joined: Joi
     assert not load_decision(joined.directory("scratch")).corrected.overridden
 
 
+def test_a_correction_kept_whose_flag_could_not_be_written_is_not_called_refused(
+    joined: Joined, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """The row is in the store, so the engineer is not told to type it again.
+
+    The corrections loop stores the row and then flags the decision; where
+    the decision's file cannot be written it says so, and the correction
+    stands. The card lists it from the store, so the sink reports success and
+    leaves the loop's sentence in the log.
+    """
+
+    def unwritable(*_: object) -> None:
+        raise PermissionError("decision.json is read-only")
+
+    monkeypatch.setattr("spec_to_inspector.corrections.override.write_decision", unwritable)
+
+    with caplog.at_level("WARNING"):
+        joined.sink.record(joined.override())
+
+    (kept,) = joined.sink.overrides_for(CATEGORY, BATCH, "scratch")
+    assert kept.corrected_clause == "4.2"
+    assert "could not be flagged as overridden" in caplog.text
+
+
 def test_with_no_specification_in_force_nothing_is_recorded(joined: Joined) -> None:
     """The store checks the clause against the part's table; without a table it keeps nothing."""
     joined.in_force = None
