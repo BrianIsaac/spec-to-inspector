@@ -1178,6 +1178,11 @@ th {
   gap: 16px;
 }
 
+/* A crop is narrower than its column when it is tall: keep it on the caption's left edge. */
+.shot .frame {
+  margin: 0;
+}
+
 .shot figcaption {
   margin-top: 8px;
   color: var(--ink-soft);
