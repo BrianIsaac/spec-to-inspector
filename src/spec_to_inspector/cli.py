@@ -696,6 +696,63 @@ def bench() -> None:
 
 
 @app.command()
-def serve() -> None:
-    """Serve the local inspection console."""
-    _not_built("serve", "U8")
+def serve(
+    host: Annotated[
+        str,
+        typer.Option(
+            "--host",
+            help="The address to listen on. The default serves this machine alone; the console "
+            "has no login, so give another address only on a network you trust.",
+        ),
+    ] = "127.0.0.1",
+    port: Annotated[
+        int, typer.Option("--port", min=1, max=65535, help="The port to listen on.")
+    ] = 8130,
+    spec: Annotated[
+        Path | None,
+        typer.Option(
+            "--spec",
+            help="A clause table `parse` wrote, to start with; the PDF of the same name "
+            "beside it is shown with it. By default the console starts with the last "
+            "specification uploaded to it, if any.",
+        ),
+    ] = None,
+    state_dir: Annotated[
+        Path | None,
+        typer.Option(
+            "--state-dir",
+            help="Where the console keeps the uploaded specification and its training logs. "
+            "Defaults to .console under the settings' runs directory.",
+        ),
+    ] = None,
+) -> None:
+    """Serve the local inspection console: Specification, Train, Batch and the reject card.
+
+    The console reads the runs and the models from the settings' directories,
+    as `train` and `inspect` leave them, and is server-rendered: open the
+    address it prints in a browser.
+    """
+    settings = Settings()
+    # The console reads the judge's records, which load PyTorch; loaded for this verb only.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", FutureWarning)
+        import uvicorn  # noqa: PLC0415
+
+        from spec_to_inspector.app.server import build_console  # noqa: PLC0415
+        from spec_to_inspector.app.sink import InMemorySink  # noqa: PLC0415
+        from spec_to_inspector.app.specs import SpecError  # noqa: PLC0415
+
+    try:
+        # The corrections store is joined here: pass it in place of the in-memory sink.
+        console = build_console(settings, state_dir=state_dir, spec=spec, sink=InMemorySink())
+    except SpecError as error:
+        err.print(str(error), markup=False, highlight=False, soft_wrap=True)
+        raise typer.Exit(code=1) from error
+    err.print(
+        f"Console: http://{host}:{port}/ (runs {settings.runs_dir}, models {settings.models_dir}). "
+        "Ctrl-C stops it.",
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+    uvicorn.run(console, host=host, port=port, log_level="warning")

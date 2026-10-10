@@ -916,6 +916,7 @@ def create_app(
         openapi_url=None,
         lifespan=lifespan,
     )
+    app.state.config = config
     app.mount("/static", StaticFiles(directory=_PACKAGE / "static"), name="static")
 
     board = "/batch/{category}/{run}/{image_id}"
