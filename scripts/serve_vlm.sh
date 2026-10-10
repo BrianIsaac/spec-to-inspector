@@ -35,6 +35,7 @@ CONTEXT_TOKENS=16384
 # Qwen-VL needs 1024 to see properly. IMAGE_MIN_TOKENS=0 leaves the model's own minimum.
 IMAGE_MIN_TOKENS="${IMAGE_MIN_TOKENS:-1024}"
 START_TIMEOUT_SECONDS=300
+STOP_TIMEOUT_SECONDS=30
 
 mapfile -t SETTINGS < <(uv run python -m spec_to_inspector.judge.serving)
 MODELS_DIR="${SETTINGS[0]}"
@@ -137,20 +138,38 @@ server_arguments() {
     fi
 }
 
+# Stop one process of ours: ask it to end, wait, and only then insist.
+end_process() {
+    local pid=$1 waited=0
+    kill "$pid" 2>/dev/null || return 0
+    while kill -0 "$pid" 2>/dev/null; do
+        if ((waited >= STOP_TIMEOUT_SECONDS * 5)); then
+            echo "pid $pid did not end within $STOP_TIMEOUT_SECONDS s of SIGTERM: sending SIGKILL" >&2
+            kill -KILL "$pid" 2>/dev/null || true
+            break
+        fi
+        sleep 0.2
+        waited=$((waited + 1))
+    done
+}
+
 start() {
     ensure_ready
     server_arguments
-    local started
+    local started server_pid
     started=$(date +%s)
+    # A script's background child is not a process group leader, so setsid does not fork:
+    # the pid of the job is the server's own.
     nohup setsid "$SERVER" "${SERVER_ARGUMENTS[@]}" >"$LOG_FILE" 2>&1 &
+    server_pid=$!
     until curl --silent --fail --output /dev/null "http://$HOST:$PORT/health"; do
-        if (($(seconds_since "$started") > START_TIMEOUT_SECONDS)); then
-            echo "llama-server did not answer within $START_TIMEOUT_SECONDS s; see $LOG_FILE" >&2
-            stop
+        if ! kill -0 "$server_pid" 2>/dev/null; then
+            echo "llama-server exited while starting; see $LOG_FILE" >&2
             exit 1
         fi
-        if [[ -z "$(listening_pid)" ]] && ! pgrep --full --exact "$SERVER .*" >/dev/null; then
-            echo "llama-server exited while starting; see $LOG_FILE" >&2
+        if (($(seconds_since "$started") > START_TIMEOUT_SECONDS)); then
+            echo "llama-server did not answer within $START_TIMEOUT_SECONDS s; see $LOG_FILE" >&2
+            end_process "$server_pid"
             exit 1
         fi
         sleep 1
@@ -166,14 +185,11 @@ stop() {
         echo "nothing is listening on port $PORT"
         return
     fi
-    if [[ "$(cat "/proc/$pid/comm")" != "llama-server" ]]; then
+    if [[ "$(cat "/proc/$pid/comm" 2>/dev/null || true)" != "llama-server" ]]; then
         echo "pid $pid on port $PORT is not llama-server: left alone" >&2
         exit 1
     fi
-    kill "$pid"
-    while kill -0 "$pid" 2>/dev/null; do
-        sleep 0.2
-    done
+    end_process "$pid"
     echo "stopped llama-server, pid $pid"
 }
 
@@ -185,8 +201,8 @@ status() {
         return 1
     fi
     local memory
-    memory=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits |
-        awk -F', ' -v pid="$pid" '$1 == pid { print $2 }')
+    memory=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader,nounits \
+        2>/dev/null | awk -F', ' -v pid="$pid" '$1 == pid { print $2 }' || true)
     echo "up: pid $pid on http://$HOST:$PORT/v1, ${memory:-unknown} MiB on the GPU"
 }
 
