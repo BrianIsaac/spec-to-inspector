@@ -403,3 +403,61 @@ class RunIndex(BaseModel):
     image_auroc: float | None
     seconds: float
     entries: list[RunEntry]
+
+
+class Throughput(BaseModel):
+    """Inference speed at one batch size, by one way of counting.
+
+    Attributes:
+        mode: "model" times the forward pass alone, on resized images already on
+            the GPU: normalisation, backbone, nearest-neighbour search, anomaly
+            map. "end_to_end" starts from the image files: decoding, resizing,
+            the copy to the GPU, the forward pass, and the scores and maps
+            copied back to host memory; no output files are written.
+        batch_size: Images per forward pass.
+        images: Images in one pass over the set.
+        pass_seconds: Wall time of each pass over the set.
+        seconds: The median of `pass_seconds`.
+        images_per_second: `images` over `seconds`.
+        peak_allocated_bytes: `torch.cuda.max_memory_allocated` over the passes,
+            the resident model included.
+        peak_reserved_bytes: `torch.cuda.max_memory_reserved` over the passes.
+        num_workers: Data loader workers decoding images; None for "model".
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    mode: Literal["model", "end_to_end"]
+    batch_size: int
+    images: int
+    pass_seconds: list[float]
+    seconds: float
+    images_per_second: float
+    peak_allocated_bytes: int
+    peak_reserved_bytes: int
+    num_workers: int | None
+
+
+class InferenceBench(BaseModel):
+    """A category's inference throughput and memory, written as `bench.json`.
+
+    Attributes:
+        schema_version: The version of this record's layout.
+        category: The category whose model was measured.
+        created_at: When the measurement ended, in UTC, ISO 8601.
+        device: The GPU and the PyTorch build.
+        images: Images in the set measured, the category's test split.
+        resident_bytes: Bytes of the model's parameters and buffers on the device:
+            the backbone and the memory bank, what stays on the card between images.
+        runs: The figures, per batch size and mode.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    schema_version: int = SCHEMA_VERSION
+    category: str
+    created_at: str
+    device: CudaDevice
+    images: int
+    resident_bytes: int
+    runs: list[Throughput]

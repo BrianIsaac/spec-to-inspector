@@ -236,6 +236,12 @@ class AnomalyModel:
         """Where the model lives."""
         return self._device
 
+    @property
+    def resident_bytes(self) -> int:
+        """Bytes of the model's parameters and buffers: the backbone and the memory bank."""
+        tensors = [*self._module.parameters(), *self._module.buffers()]
+        return sum(tensor.numel() * tensor.element_size() for tensor in tensors)
+
     @torch.inference_mode()
     def score(self, images: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Score a batch of resized images.
@@ -278,6 +284,19 @@ class _Images(Dataset[tuple[torch.Tensor, int]]):
     def __getitem__(self, index: int) -> tuple[torch.Tensor, int]:
         image = cast("torch.Tensor", read_image(self._paths[index], as_tensor=True))
         return cast("torch.Tensor", self._resize(image)), index
+
+
+def image_dataset(paths: Sequence[Path], resize: Transform) -> Dataset[tuple[torch.Tensor, int]]:
+    """A dataset that decodes and resizes images as Anomalib's own datasets do.
+
+    Args:
+        paths: The image files.
+        resize: The resize to apply to each decoded image.
+
+    Returns:
+        A dataset of (resized float image in [0, 1], position in `paths`).
+    """
+    return _Images(paths, resize)
 
 
 def run_dir(runs_dir: Path, category: str, batch: str = TEST_BATCH) -> Path:
