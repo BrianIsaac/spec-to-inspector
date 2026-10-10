@@ -161,12 +161,37 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
         ),
         controls=("bad-002", "bad-056"),
     ),
+    Pair(
+        category="pcb1",
+        misjudged="bad-005",
+        sibling="bad-003",
+        truth="bent",
+        note=(
+            "A header pin is bent out of line and leans across its neighbours. There is no "
+            "solder between the pins: the bright streak is the pin's own metal."
+        ),
+        controls=("bad-021", "bad-001"),
+    ),
+    Pair(
+        category="pcb1",
+        misjudged="bad-054",
+        sibling="bad-055",
+        truth="missing",
+        note=(
+            "The transducer has lost its mesh cover: the bare metal disc shows inside the ring "
+            "where the mesh should be. A part that is absent is a missing component, whatever "
+            "marks the disc carries."
+        ),
+        controls=("bad-059", "bad-063"),
+    ),
 )
 """The scripted pairs, chosen from the judge's answers on the two test runs with an empty slot.
 
 On pcb4: a damaged component called a burn; a stray part called a burn; a missing component
 called foreign material; a dented connector called foreign material; and a good board the
-anomaly model flagged, called foreign material. The controls are images the judge had right.
+anomaly model flagged, called foreign material. On pcb1: a bent header pin called stray
+solder, and a transducer without its mesh cover called a scratch. The controls are images
+the judge had right.
 The notes were written for the check from the crops; see `NOTES`."""
 
 
