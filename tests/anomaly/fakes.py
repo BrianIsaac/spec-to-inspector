@@ -5,7 +5,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from tests.datasets.visa_fakes import FAKE, KEPT, fake_files, write_tree
+from tests.datasets.visa_fakes import FAKE, KEPT, FakeCategory, fake_files, write_tree
 
 IMAGE_SIZE = (48, 64)
 """Height and width of every synthetic image, deliberately not square."""
@@ -60,3 +60,53 @@ def categories() -> tuple[str, ...]:
         The category names, sorted.
     """
     return tuple(sorted(name for name in FAKE if name in KEPT))
+
+
+DEFECT = (slice(60, 100), slice(150, 200))
+"""Rows and columns of the defect planted in every anomalous trainable image."""
+
+
+def write_trainable_visa(
+    root: Path,
+    *,
+    category: str = "pcb1",
+    train: int = 20,
+    test_good: int = 3,
+    test_bad: int = 3,
+    size: tuple[int, int] = (192, 256),
+) -> None:
+    """Write a one-category VisA whose anomalies a model can tell from its normal images.
+
+    Normal images are one board-like pattern (a gradient crossed by traces)
+    with a little noise; anomalous ones carry a bright block at `DEFECT`,
+    which their mask marks with VisA's defect index 1.
+
+    Args:
+        root: The dataset directory to write under.
+        category: The category's name.
+        train: Normal training images.
+        test_good: Normal test images.
+        test_bad: Anomalous test images.
+        size: Height and width of every image.
+    """
+    files = fake_files({category: FakeCategory(train, test_good, ("melt",) * test_bad)})
+    write_tree(root, files)
+    height, width = size
+    rng = np.random.default_rng(11)
+    rows, columns = np.mgrid[0:height, 0:width]
+    board = np.stack([40 + rows // 4, 90 + columns // 8, np.full_like(rows, 60)], axis=-1).astype(
+        np.float64
+    )
+    board[::16, :, :] += 70
+    board[:, ::24, :] += 70
+    for member in sorted(files):
+        path = root / member
+        if _is_mask(member):
+            mask = np.zeros((height, width), dtype=np.uint8)
+            mask[DEFECT] = 1
+            assert cv2.imwrite(str(path), mask)
+        elif _is_image(member):
+            image = board + rng.normal(0.0, 2.0, size=board.shape)
+            if "/Anomaly/" in member:
+                image[DEFECT] = 250
+            assert cv2.imwrite(str(path), np.clip(image, 0, 255).astype(np.uint8))

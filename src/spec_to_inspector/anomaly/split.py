@@ -24,7 +24,7 @@ import shutil
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Final
+from typing import Final, Literal, cast
 
 import cv2
 from pydantic import BaseModel, ConfigDict
@@ -73,10 +73,32 @@ class CategorySplit(BaseModel):
     written: bool
 
 
+class SplitImage(BaseModel):
+    """One image of a category's split, as `1cls.csv` names it.
+
+    Attributes:
+        visa_image: The image's path in VisA's CSVs, such as
+            "pcb4/Data/Images/Anomaly/000.JPG"; the key into `image_anno.csv`.
+        path: The fetched image on disk.
+        split: "train" or "test".
+        label: "good" for a normal image, "bad" for an anomalous one.
+        mask: The binarised ground-truth mask in the split, for an anomalous image.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    visa_image: str
+    path: Path
+    split: Literal["train", "test"]
+    label: Literal["good", "bad"]
+    mask: Path | None
+
+
 @dataclass(frozen=True)
 class _Entry:
     """One file of a category's split: where it comes from and where it goes."""
 
+    name: str
     source: Path
     target: PurePosixPath
     is_mask: bool
@@ -139,6 +161,7 @@ def _plan(visa_dir: Path, categories: Sequence[str]) -> dict[str, list[_Entry]]:
             raise SplitError(msg)
         entries = [
             _Entry(
+                name=row["image"],
                 source=_resolve(visa_dir, row["image"], number),
                 target=PurePosixPath(split, folder, PurePosixPath(row["image"]).name),
                 is_mask=False,
@@ -150,6 +173,7 @@ def _plan(visa_dir: Path, categories: Sequence[str]) -> dict[str, list[_Entry]]:
                 raise SplitError(msg)
             entries.append(
                 _Entry(
+                    name=row["mask"],
                     source=_resolve(visa_dir, row["mask"], number),
                     target=PurePosixPath("ground_truth", folder, PurePosixPath(row["mask"]).name),
                     is_mask=True,
@@ -277,3 +301,41 @@ def write_split(
             _build(visa_dir, base, entries)
         result[category] = _describe(category, base, entries, written)
     return result
+
+
+def split_images(
+    visa_dir: Path, category: str, split: Literal["train", "test"] = "test"
+) -> list[SplitImage]:
+    """List one split of a category, in the CSV's order.
+
+    Args:
+        visa_dir: The dataset directory `data fetch` wrote.
+        category: The category's name.
+        split: Which split to list.
+
+    Returns:
+        The split's images, each with its label, its VisA path and, where it
+        is anomalous, its binarised mask under `visa_pytorch/`.
+
+    Raises:
+        SplitError: As `write_split` raises for a malformed CSV or a missing file.
+    """
+    base = visa_dir / SPLIT_ROOT / category
+    entries = _plan(visa_dir, [category])[category]
+    images: list[SplitImage] = []
+    for position, entry in enumerate(entries):
+        folder, label, _ = entry.target.parts
+        if entry.is_mask or folder != split:
+            continue
+        # A bad image's mask is planned straight after it, from the same row.
+        mask = base / entries[position + 1].target if label == "bad" else None
+        images.append(
+            SplitImage(
+                visa_image=entry.name,
+                path=visa_dir / entry.name,
+                split=split,
+                label=cast("Literal['good', 'bad']", label),
+                mask=mask,
+            )
+        )
+    return images
