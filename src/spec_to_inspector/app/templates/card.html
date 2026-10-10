@@ -215,7 +215,12 @@
       <p class="muted">The judge has not been asked about this area.</p>
       {% endif %}
     </section>
-    {% if overrides %}
+    {% if sink_problem %}
+    <section class="panel" id="corrections">
+      <h2>Corrections on this board</h2>
+      <p role="alert">The corrections recorded on this board cannot be shown: {{ sink_problem }}.</p>
+    </section>
+    {% elif overrides %}
     <section class="panel" id="corrections">
       <h2>Corrections on this board</h2>
       <ol class="corrections">
@@ -223,7 +228,7 @@
         <li>
           <p class="to">{% if override.says_no_defect %}Not a defect: no clause applies{% else %}{{ override.corrected_clause }} {{ titles.get(override.corrected_clause, "") }} <span class="muted small">class {{ override.corrected_class }}</span>{% endif %}</p>
           <p class="from">Area {{ override.region_index }}. The judge said {{ override.judged_class or "no class" }}, clause {{ override.judged_clause or "none" }} ({{ override.judged_outcome.value }}).</p>
-          <p class="said">"{{ override.note }}"</p>
+          {% if override.note %}<p class="said">"{{ override.note }}"</p>{% endif %}
           <time datetime="{{ override.created_at }}">{{ override.created_at|when }}</time>
         </li>
         {% endfor %}
@@ -258,7 +263,7 @@
         <div class="field">
           <label for="note">Why</label>
           <textarea id="note" name="note" maxlength="300" required placeholder="What the judge got wrong, in a sentence">{{ held_note }}</textarea>
-          <p class="hint">Recorded against the clause, with the time and what the judge had said.</p>
+          <p class="hint">Recorded against the clause, with the time and what the judge had said{% if reaches_judge %}, and shown to the judge on later boards of this part{% endif %}.</p>
         </div>
         <button type="submit">Record correction</button>
       </form>

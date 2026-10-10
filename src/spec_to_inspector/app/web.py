@@ -27,6 +27,7 @@ from spec_to_inspector.app import pictures
 from spec_to_inspector.app.card import (
     FormError,
     RegionCard,
+    check_changes_answer,
     check_correction,
     check_note,
     choose_region,
@@ -52,7 +53,13 @@ from spec_to_inspector.app.runs import (
     source_image,
     unlisted_runs,
 )
-from spec_to_inspector.app.sink import CorrectionSink, InMemorySink, Override
+from spec_to_inspector.app.sink import (
+    CorrectionSink,
+    InMemorySink,
+    Override,
+    OverrideRefusedError,
+    SinkError,
+)
 from spec_to_inspector.app.specs import LoadedSpec, SpecError, SpecStore
 from spec_to_inspector.app.training import (
     JobState,
@@ -532,17 +539,23 @@ class _Pages:
         kept = self._filter(disposition)
         boards = opened.boards()
         base = f"/batch/{category}/{run}"
-        tiles = [
-            Tile(
-                board=board,
-                line=_tile_line(board),
-                corrected=(board.decision is not None and board.decision.corrected.overridden)
-                or bool(self.sink.overrides_for(category, run, board.image_id)),
-                url=_url(f"{base}/{board.image_id}", disposition=kept.value if kept else None),
+        tiles: list[Tile] = []
+        sink_problem: str | None = None
+        for board in boards:
+            if kept is not None and board.status is not kept:
+                continue
+            corrected = board.decision is not None and board.decision.corrected.overridden
+            if not corrected and sink_problem is None:
+                overrides, sink_problem = self._overrides(category, run, board.image_id)
+                corrected = bool(overrides)
+            tiles.append(
+                Tile(
+                    board=board,
+                    line=_tile_line(board),
+                    corrected=corrected,
+                    url=_url(f"{base}/{board.image_id}", disposition=kept.value if kept else None),
+                )
             )
-            for board in boards
-            if kept is None or board.status is kept
-        ]
         return self.render(
             request,
             "batch.html",
@@ -552,6 +565,7 @@ class _Pages:
             unlisted=unlisted_runs(self.config.runs_dir),
             base=base,
             tiles=tiles,
+            sink_problem=sink_problem,
             total=len(boards),
             counts=count_statuses(boards),
             kept=kept,
@@ -559,6 +573,28 @@ class _Pages:
         )
 
     # The card.
+
+    def _overrides(
+        self, category: str, run: str, image_id: str
+    ) -> tuple[Sequence[Override], str | None]:
+        """List a board's overrides, or say why the sink could not be read.
+
+        A sink that cannot be read must not take the judge's decisions off
+        the screen, so the pages show the board without its corrections and
+        say what is wrong.
+
+        Args:
+            category: The part.
+            run: The batch's name.
+            image_id: The board's name within the batch.
+
+        Returns:
+            The overrides, newest first, and None; or nothing and the reason.
+        """
+        try:
+            return self.sink.overrides_for(category, run, image_id), None
+        except SinkError as error:
+            return (), str(error)
 
     def _card_page(
         self,
@@ -572,6 +608,21 @@ class _Pages:
         typed: dict[str, str] | None = None,
         status: int = 200,
     ) -> HTMLResponse:
+        """Draw a board's card, as asked for or as the answer to a form that was refused.
+
+        Args:
+            request: The request.
+            opened: The batch.
+            detail: The board.
+            region: The flagged area to open on; the deciding one if None.
+            kept: The grid's filter the card was opened from.
+            error: Why a correction was refused, to show beside the form.
+            typed: What the engineer typed into the refused form.
+            status: The response's status.
+
+        Returns:
+            The page.
+        """
         cards = region_cards(detail)
         try:
             chosen = choose_region(cards, region)
@@ -588,6 +639,7 @@ class _Pages:
         before = ids[at - 1] if at is not None and at > 0 else None
         after = ids[at + 1] if at is not None and at + 1 < len(ids) else None
 
+        overrides, sink_problem = self._overrides(category, run, image_id)
         choices = clause_choices(loaded.specification, category) if loaded else []
         held_clause, held_class = (
             form_defaults(
@@ -623,7 +675,9 @@ class _Pages:
             zones=loaded.specification.zones_of(category) if loaded else (),
             choices=choices,
             blocked=self._blocked(detail, chosen, loaded, bool(choices)),
-            overrides=self.sink.overrides_for(category, run, image_id),
+            overrides=overrides,
+            sink_problem=sink_problem,
+            reaches_judge=self.sink.reaches_judge,
             flag=detail.decision.corrected if detail.decision else Corrected(),
             shown_corrections=prompt_corrections(chosen.judged if chosen else None),
             before=first_answer(chosen.judged if chosen else None),
@@ -723,7 +777,9 @@ class _Pages:
 
         Returns:
             A redirect to the card, at its corrections; or the card with the
-            reason the correction was refused and what was typed.
+            reason the correction was refused and what was typed: 422 for a
+            correction that does not hold together or that the sink will not
+            keep, 503 where the sink cannot keep anything.
         """
         opened, detail = self._board(category, run, image_id)
         kept = self._filter(disposition)
@@ -743,8 +799,29 @@ class _Pages:
             corrected_class, corrected_clause = check_correction(
                 loaded.specification, category, defect_class=defect_class, clause=clause
             )
+            check_changes_answer(
+                loaded.specification, category, judged.answer, (corrected_class, corrected_clause)
+            )
             reason = check_note(note)
-        except FormError as error:
+            answer = judged.answer
+            self.sink.record(
+                Override(
+                    category=category,
+                    run=run,
+                    image_id=image_id,
+                    region_index=judged.index,
+                    crop_path=None if judged.crop is None else str(detail.directory / judged.crop),
+                    judged_outcome=judged.outcome,
+                    judged_class=None if answer is None else answer.defect_class,
+                    judged_clause=None if answer is None else answer.clause_id,
+                    judged_reason=None if answer is None else answer.reason,
+                    corrected_class=corrected_class,
+                    corrected_clause=corrected_clause,
+                    note=reason,
+                    created_at=datetime.now(UTC).isoformat(timespec="seconds"),
+                )
+            )
+        except (FormError, OverrideRefusedError, SinkError) as error:
             shown = region_number(region)
             if shown not in {found.index for found in detail.result.regions}:
                 shown = None
@@ -756,26 +833,8 @@ class _Pages:
                 kept=kept,
                 error=str(error),
                 typed=typed,
-                status=422,
+                status=503 if isinstance(error, SinkError) else 422,
             )
-        answer = judged.answer
-        self.sink.record(
-            Override(
-                category=category,
-                run=run,
-                image_id=image_id,
-                region_index=judged.index,
-                crop_path=None if judged.crop is None else str(detail.directory / judged.crop),
-                judged_outcome=judged.outcome,
-                judged_class=None if answer is None else answer.defect_class,
-                judged_clause=None if answer is None else answer.clause_id,
-                judged_reason=None if answer is None else answer.reason,
-                corrected_class=corrected_class,
-                corrected_clause=corrected_clause,
-                note=reason,
-                created_at=datetime.now(UTC).isoformat(timespec="seconds"),
-            )
-        )
         back = _url(
             f"/batch/{category}/{run}/{image_id}",
             region=judged.index,

@@ -65,14 +65,13 @@ def test_a_correction_to_no_defect_names_neither_class_nor_clause() -> None:
     [
         {"corrected_class": "damage", "corrected_clause": None},
         {"corrected_class": None, "corrected_clause": "5.5"},
-        {"note": "   "},
         {"note": "x" * 301},
         {"region_index": 0},
         {"image_id": ""},
     ],
 )
 def test_an_incomplete_override_is_refused(changes: dict[str, object]) -> None:
-    """A class without its clause, a blank note and a region that does not exist are refused."""
+    """A class without its clause, a note too long and a region that does not exist are refused."""
     with pytest.raises(ValidationError):
         _override(**changes)
 
@@ -80,3 +79,8 @@ def test_an_incomplete_override_is_refused(changes: dict[str, object]) -> None:
 def test_the_note_is_kept_as_one_line() -> None:
     """A note typed over several lines is folded, as the corrections store keeps it."""
     assert _override(note="  Cracked body,\n  not charred.\n").note == "Cracked body, not charred."
+
+
+def test_a_correction_may_carry_no_note_as_the_store_allows() -> None:
+    """The form asks for a note; the `correct` verb does not, and its rows must still be listed."""
+    assert _override(note="   ").note == ""

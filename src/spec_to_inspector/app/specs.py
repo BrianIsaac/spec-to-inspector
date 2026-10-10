@@ -168,6 +168,15 @@ class SpecStore:
         with self._lock:
             return self._current
 
+    def specification(self) -> Specification | None:
+        """Give the clause table in force.
+
+        Returns:
+            The specification, or None if none has been loaded.
+        """
+        loaded = self.current()
+        return None if loaded is None else loaded.specification
+
     def install(self, filename: str, data: bytes) -> LoadedSpec:
         """Parse an uploaded PDF and, if it parses, take it into force.
 

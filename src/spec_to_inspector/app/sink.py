@@ -1,9 +1,9 @@
 """Where the console sends an engineer's override, and reads back the ones on an image.
 
-The reject card's form writes to this protocol and to nothing else. The
-default keeps overrides in the console's memory, so the console runs without
-a corrections store; the store is joined by handing `create_app` an object
-with these two methods.
+The reject card's form writes to this protocol and to nothing else. `serve`
+joins it to the corrections store the judge recalls from
+(`spec_to_inspector.app.store_sink`); the default here keeps overrides in the
+console's memory, so a console can be built with no store at all.
 """
 
 from collections.abc import Sequence
@@ -25,9 +25,15 @@ MAX_NOTE_CHARACTERS: Final = 300
 """The longest note kept; the corrections store's own limit, so every note the form takes fits."""
 
 _Name = Annotated[str, StringConstraints(min_length=1)]
-_Note = Annotated[
-    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_NOTE_CHARACTERS)
-]
+_Note = Annotated[str, StringConstraints(strip_whitespace=True, max_length=MAX_NOTE_CHARACTERS)]
+
+
+class OverrideRefusedError(ValueError):
+    """The sink will not keep an override as given; the message is fit to show on the card."""
+
+
+class SinkError(RuntimeError):
+    """The sink cannot keep or list overrides at all; the message says why."""
 
 
 class Override(BaseModel):
@@ -50,7 +56,8 @@ class Override(BaseModel):
         corrected_clause: The clause heading the engineer gives; None with
             `corrected_class`.
         note: Why, in the engineer's words: one line of at most
-            `MAX_NOTE_CHARACTERS`.
+            `MAX_NOTE_CHARACTERS`. The form asks for one; a correction made
+            by the `correct` verb may have none.
         created_at: When the override was recorded, in UTC, ISO 8601.
     """
 
@@ -67,7 +74,7 @@ class Override(BaseModel):
     judged_reason: str | None = None
     corrected_class: _Name | None = None
     corrected_clause: _Name | None = None
-    note: _Note
+    note: _Note = ""
     created_at: _Name
 
     @field_validator("note", mode="before")
@@ -93,11 +100,20 @@ class Override(BaseModel):
 class CorrectionSink(Protocol):
     """What the console needs of a corrections store."""
 
+    @property
+    def reaches_judge(self) -> bool:
+        """Whether an override kept here is shown to the judge on later boards."""
+        ...
+
     def record(self, override: Override) -> None:
         """Keep an override.
 
         Args:
             override: The engineer's correction.
+
+        Raises:
+            OverrideRefusedError: If the sink will not keep this override.
+            SinkError: If the sink cannot keep overrides at all.
         """
         ...
 
@@ -111,6 +127,9 @@ class CorrectionSink(Protocol):
 
         Returns:
             The image's overrides; empty if it has none.
+
+        Raises:
+            SinkError: If the sink cannot be read.
         """
         ...
 
@@ -122,6 +141,11 @@ class InMemorySink:
         """Start with no override recorded."""
         self._overrides: list[Override] = []
         self._lock = Lock()
+
+    @property
+    def reaches_judge(self) -> bool:
+        """False: the judge recalls from the corrections store, never from here."""
+        return False
 
     def record(self, override: Override) -> None:
         """Keep an override.

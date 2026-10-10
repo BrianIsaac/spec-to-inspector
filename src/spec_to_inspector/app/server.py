@@ -7,7 +7,9 @@ from fastapi import FastAPI
 
 from spec_to_inspector.app.sink import CorrectionSink
 from spec_to_inspector.app.specs import SpecStore, docling_parser
+from spec_to_inspector.app.store_sink import StoreSink
 from spec_to_inspector.app.web import ConsoleConfig, create_app
+from spec_to_inspector.corrections.store import CorrectionStore
 from spec_to_inspector.settings import Settings
 
 LOOPBACK: Final = frozenset({"127.0.0.1", "localhost"})
@@ -63,8 +65,9 @@ def build_console(
             directory by default.
         spec: A clause table `parse` wrote, to start with; by default the
             last specification uploaded to the console, if any.
-        sink: Where the override form records. None keeps overrides in
-            memory; the corrections store is joined by passing it here.
+        sink: Where the override form records; by default the settings'
+            corrections store, which `inspect` recalls from and `correct`
+            writes to.
         host: The address the console will listen on, which decides the host
             names it answers to; None to answer to any.
 
@@ -75,6 +78,13 @@ def build_console(
         SpecError: If `spec` is given and cannot be read as a clause table.
     """
     state = state_dir if state_dir is not None else default_state_dir(settings)
+    specs = SpecStore(state, parser=docling_parser(settings.docling_artifacts_dir), initial=spec)
+    if sink is None:
+        sink = StoreSink(
+            CorrectionStore(settings.corrections_path),
+            runs_dir=settings.runs_dir,
+            specification=specs.specification,
+        )
     return create_app(
         ConsoleConfig(
             runs_dir=settings.runs_dir,
@@ -83,6 +93,6 @@ def build_console(
             state_dir=state,
             hosts=answered_hosts(host),
         ),
-        specs=SpecStore(state, parser=docling_parser(settings.docling_artifacts_dir), initial=spec),
+        specs=specs,
         sink=sink,
     )

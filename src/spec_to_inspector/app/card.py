@@ -238,6 +238,42 @@ def check_correction(
     return defect_class, clause
 
 
+def check_changes_answer(
+    specification: Specification,
+    category: str,
+    answer: JudgeAnswer | None,
+    corrected: tuple[str | None, str | None],
+) -> None:
+    """Refuse a correction that only repeats what the judge said of the area.
+
+    Args:
+        specification: The specification in force.
+        category: The board's part.
+        answer: The model's answer for the area; None if no valid answer came.
+        corrected: The class and the clause heading the engineer gives, or
+            None and None for "not a defect".
+
+    Raises:
+        FormError: If the judge named that same class under that same
+            heading, or itself said that no clause applies.
+    """
+    if answer is None:
+        return
+    cited = answer.clause_id
+    if cited is not None:
+        row = specification.find(cited)
+        if row is not None and row.category == category:
+            cited = row.heading_id
+    if (answer.defect_class, cited) == corrected:
+        said = (
+            "that no clause applies to this area"
+            if answer.defect_class is None
+            else f"{answer.defect_class!r} under clause {cited} of this area"
+        )
+        msg = f"the judge already said {said}, so there is nothing to correct"
+        raise FormError(msg)
+
+
 def check_note(note: str) -> str:
     """Check the engineer's note and fold it to one line.
 

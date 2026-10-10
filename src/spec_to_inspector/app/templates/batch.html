@@ -26,6 +26,9 @@
   {% for status in statuses %}<a class="chip chip-{{ status.value }}" href="{{ base }}?disposition={{ status.value }}"{% if kept == status %} aria-current="true"{% endif %}>{{ status.label }} {{ counts[status] }}</a>
   {% endfor %}
 </nav>
+{% if sink_problem %}
+<p class="note" role="alert">Engineers' corrections cannot be marked on this batch: {{ sink_problem }}.</p>
+{% endif %}
 {% if not tiles %}
 <p class="note">{% if kept %}No board of this batch is {{ kept.label|lower }}.{% else %}This batch holds no board.{% endif %}</p>
 {% endif %}

@@ -882,15 +882,14 @@ def serve(
         import uvicorn  # noqa: PLC0415
 
         from spec_to_inspector.app.server import build_console  # noqa: PLC0415
-        from spec_to_inspector.app.sink import InMemorySink  # noqa: PLC0415
         from spec_to_inspector.app.specs import SpecError  # noqa: PLC0415
+        from spec_to_inspector.corrections.store import CorrectionStore, StoreError  # noqa: PLC0415
 
     try:
-        # The corrections store is joined here: pass it in place of the in-memory sink.
-        console = build_console(
-            settings, state_dir=state_dir, spec=spec, sink=InMemorySink(), host=host
-        )
-    except SpecError as error:
+        # A file that is not a corrections store stops the verb here, as it stops `inspect`.
+        recorded = CorrectionStore(settings.corrections_path).count()
+        console = build_console(settings, state_dir=state_dir, spec=spec, host=host)
+    except (SpecError, StoreError) as error:
         err.print(str(error), markup=False, highlight=False, soft_wrap=True)
         raise typer.Exit(code=1) from error
     err.print(
@@ -901,8 +900,8 @@ def serve(
         soft_wrap=True,
     )
     err.print(
-        "Overrides recorded on a card are kept in this process's memory until the corrections "
-        "store is joined.",
+        f"Corrections: {settings.corrections_path} ({recorded} recorded); an override made on a "
+        "card is stored there and shown to the judge at the next `inspect`.",
         markup=False,
         highlight=False,
         soft_wrap=True,

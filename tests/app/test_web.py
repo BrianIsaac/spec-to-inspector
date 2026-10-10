@@ -18,10 +18,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from spec_to_inspector.anomaly.infer import load_result
-from spec_to_inspector.app.sink import InMemorySink, Override
+from spec_to_inspector.app.sink import CorrectionSink, InMemorySink, Override
 from spec_to_inspector.app.specs import SpecStore
+from spec_to_inspector.app.store_sink import StoreSink
 from spec_to_inspector.app.training import JobState, TrainJob, TrainRunner
 from spec_to_inspector.app.web import ConsoleConfig, create_app
+from spec_to_inspector.corrections.store import CorrectionStore
 from spec_to_inspector.judge.answer import JudgeAnswer
 from spec_to_inspector.judge.decision import Corrected
 from spec_to_inspector.judge.disposition import Outcome
@@ -71,17 +73,30 @@ class Parser:
 class Console:
     """One console over the fake world, with its client and the things behind it."""
 
-    def __init__(self, world: World, state_dir: Path, *, spec: Path | None) -> None:
+    def __init__(
+        self,
+        world: World,
+        state_dir: Path,
+        *,
+        spec: Path | None,
+        store: CorrectionStore | None = None,
+    ) -> None:
         """Build the console.
 
         Args:
             world: The fake world.
             state_dir: A fresh state directory.
             spec: The clause table to start with, or None to start with none.
+            store: The corrections store to join the override form to; None
+                keeps overrides in memory.
         """
         self.parser = Parser(specification())
         self.specs = SpecStore(state_dir, parser=self.parser, initial=spec)
-        self.sink = InMemorySink()
+        self.sink: CorrectionSink = (
+            InMemorySink()
+            if store is None
+            else StoreSink(store, runs_dir=world.runs_dir, specification=self.specs.specification)
+        )
         self.script = "import sys; print('pcb9: thresholds chosen', file=sys.stderr)"
         self.trainer = TrainRunner(
             state_dir, command_for=lambda _: [sys.executable, "-c", self.script]
@@ -805,6 +820,10 @@ def test_the_console_writes_to_whatever_sink_it_is_given(world: World, tmp_path:
         def __init__(self) -> None:
             self.rows: list[Override] = []
 
+        @property
+        def reaches_judge(self) -> bool:
+            return False
+
         def record(self, override: Override) -> None:
             self.rows.append(override)
 
@@ -830,6 +849,104 @@ def test_the_console_writes_to_whatever_sink_it_is_given(world: World, tmp_path:
 
     assert [row.corrected_clause for row in store.rows] == ["4.2"]
     assert "Corrected by an engineer" in client.get(f"{CARD}/scratch").text
+
+
+# The console joined to the corrections store.
+
+
+@pytest.fixture
+def joined(world: World, tmp_path: Path) -> Iterator[tuple[Console, CorrectionStore]]:
+    """A console whose override form writes to a corrections store, over a copy of the run.
+
+    Yields:
+        The console and the store, whose file does not exist yet.
+    """
+    runs = tmp_path / "runs"
+    shutil.copytree(world.run, runs / CATEGORY / BATCH)
+    moved = World(
+        root=world.root,
+        runs_dir=runs,
+        run=runs / CATEGORY / BATCH,
+        models_dir=world.models_dir,
+        spec_path=world.spec_path,
+        specification=world.specification,
+    )
+    store = CorrectionStore(tmp_path / "corrections.sqlite3")
+    made = Console(moved, tmp_path / "state", spec=world.spec_path, store=store)
+    yield made, store
+    made.trainer.stop()
+
+
+def test_an_override_on_a_joined_console_goes_into_the_corrections_store(
+    joined: tuple[Console, CorrectionStore], tmp_path: Path
+) -> None:
+    """The form's correction is a row of the store, flagged on the decision, shown on the pages."""
+    console, store = joined
+
+    response = console.client.post(f"{CARD}/scratch/override", data=_form())
+
+    assert response.status_code == 303
+    (row,) = store.for_image(CATEGORY, "scratch")
+    assert (row.judged_class, row.judged_clause) == ("scratch", "4.1")
+    assert (row.corrected_class, row.corrected_clause) == ("missing", "4.2")
+    assert row.note == "A pad with no part on it, not a scratch."
+    assert load_decision(tmp_path / "runs" / CATEGORY / BATCH / "scratch").corrected.overridden
+    card = console.client.get(f"{CARD}/scratch").text
+    assert "Corrected by an engineer" in card
+    assert "A pad with no part on it, not a scratch." in card
+    assert console.client.get(CARD).text.count("tile-corrected") == 1
+
+
+def test_the_form_says_the_judge_is_shown_a_correction_only_where_it_is(
+    joined: tuple[Console, CorrectionStore], console: Console
+) -> None:
+    """Joined to the store the form promises recall; kept in memory it does not."""
+    stored = joined[0].client.get(f"{CARD}/scratch").text
+    in_memory = console.client.get(f"{CARD}/scratch").text
+
+    assert "shown to the judge" in stored
+    assert "shown to the judge" not in in_memory
+    assert "Recorded against the clause" in in_memory
+
+
+def test_an_override_that_repeats_the_judge_is_refused_by_either_sink(
+    joined: tuple[Console, CorrectionStore], console: Console
+) -> None:
+    """Sending the judge's own class and clause back corrects nothing, and is said so."""
+    same = _form(defect_class="scratch", clause="4.1")
+
+    for made in (console, joined[0]):
+        response = made.client.post(f"{CARD}/scratch/override", data=same)
+
+        assert response.status_code == 422
+        assert "nothing to correct" in response.text
+        assert made.sink.overrides_for(CATEGORY, BATCH, "scratch") == ()
+    assert joined[1].count() == 0
+
+
+def test_a_corrections_store_that_cannot_be_read_does_not_take_the_pages_down(
+    joined: tuple[Console, CorrectionStore],
+) -> None:
+    """With a damaged store the batch and the card still open and say so; a correction is refused.
+
+    The engineer keeps the judge's decisions on screen and the note that was
+    typed; nothing is written over the damaged file.
+    """
+    console, store = joined
+    store.path.write_bytes(b"not a database at all, just bytes" * 40)
+
+    grid = console.client.get(CARD)
+    card = console.client.get(f"{CARD}/scratch")
+    posted = console.client.post(f"{CARD}/scratch/override", data=_form(note="Keep these words."))
+
+    assert grid.status_code == 200
+    assert "is not a corrections store" in grid.text
+    assert card.status_code == 200
+    assert "is not a corrections store" in card.text
+    assert posted.status_code == 503
+    assert "is not a corrections store" in posted.text
+    assert "Keep these words." in posted.text
+    assert store.path.read_bytes().startswith(b"not a database")
 
 
 # The corrections loop's flag, drawn when the decision carries it.

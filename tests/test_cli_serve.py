@@ -1,5 +1,6 @@
 """Tests for the `serve` verb: the console built from the settings, and served for real."""
 
+import shutil
 import signal
 import socket
 import subprocess
@@ -16,6 +17,8 @@ from typer.testing import CliRunner
 
 from spec_to_inspector import cli
 from spec_to_inspector.cli import app
+from spec_to_inspector.corrections.recall import StoreRecall
+from spec_to_inspector.corrections.store import CorrectionStore
 from tests.app.console_fakes import BATCH, World, write_world
 from tests.judge.run_fakes import CATEGORY
 
@@ -121,6 +124,60 @@ def test_serve_refuses_a_clause_table_it_cannot_read(
 
     assert result.exit_code == 1
     assert "absent.clauses.json" in result.output
+    assert "app" not in served
+
+
+def test_serve_joins_the_override_form_to_the_corrections_store(
+    served: dict[str, object], world: World, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A correction made on a card is a row of the settings' store, where the judge recalls it."""
+    runs = tmp_path / "runs"
+    shutil.copytree(world.runs_dir, runs)
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_RUNS_DIR", str(runs))
+    store = CorrectionStore(runs / "corrections.sqlite3")
+
+    result = runner.invoke(app, ["serve", "--spec", str(world.spec_path)])
+    application = served["app"]
+    assert isinstance(application, FastAPI)
+    posted = TestClient(application, base_url=LOOPBACK, follow_redirects=False).post(
+        f"/batch/{CATEGORY}/{BATCH}/scratch/override",
+        data={"region": "1", "defect_class": "missing", "clause": "4.2", "note": "No part here."},
+    )
+
+    assert result.exit_code == 0, result.output
+    assert f"Corrections: {store.path}" in result.output
+    assert "memory" not in result.output
+    assert posted.status_code == 303
+    (row,) = store.for_image(CATEGORY, "scratch")
+    assert (row.corrected_clause, row.note) == ("4.2", "No part here.")
+    assert StoreRecall(store).for_part(CATEGORY) != ()
+
+
+def test_serve_keeps_corrections_where_the_settings_put_the_store(
+    served: dict[str, object], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The settings' `corrections_db` moves the store, as it does for `correct` and `inspect`."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_CORRECTIONS_DB", str(tmp_path / "own.sqlite3"))
+
+    result = runner.invoke(app, ["serve"])
+
+    assert result.exit_code == 0, result.output
+    assert f"Corrections: {tmp_path / 'own.sqlite3'}" in result.output
+    assert not (tmp_path / "own.sqlite3").exists()
+
+
+def test_serve_refuses_a_corrections_file_that_is_not_a_store(
+    served: dict[str, object], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A damaged store stops the verb in words before anything is served, as it stops `inspect`."""
+    damaged = tmp_path / "damaged.sqlite3"
+    damaged.write_bytes(b"not a database at all, just bytes" * 40)
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_CORRECTIONS_DB", str(damaged))
+
+    result = runner.invoke(app, ["serve"])
+
+    assert result.exit_code == 1
+    assert "is not a corrections store" in result.output
     assert "app" not in served
 
 
