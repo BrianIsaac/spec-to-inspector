@@ -88,3 +88,7 @@ markers = [
     "gpu: needs the CUDA GPU (run with -m gpu)",
     "data: needs the fetched VisA data under data/visa (run with -m data)",
 ]
+filterwarnings = [
+    # kornia, which Anomalib imports, still calls torch.jit.script at import under torch 2.14.
+    "ignore:`torch.jit.script` is deprecated:FutureWarning",
+]
