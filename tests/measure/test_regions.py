@@ -1,7 +1,10 @@
 """Tests for measuring the connected regions of a mask, on masks of known geometry."""
 
 import math
+from collections.abc import Callable
+from pathlib import Path
 
+import cv2
 import numpy as np
 import pytest
 
@@ -13,6 +16,7 @@ from spec_to_inspector.measure.models import (
     ZoneMap,
 )
 from spec_to_inspector.measure.regions import label_regions, measure_regions
+from spec_to_inspector.settings import Settings
 
 _STRICT = Zone(id="A", rank=1, x_min=0.0, y_min=0.0, x_max=0.5, y_max=1.0)
 _LENIENT = Zone(id="B", rank=2, x_min=0.5, y_min=0.0, x_max=1.0, y_max=1.0)
@@ -358,3 +362,80 @@ def test_zones_are_the_same_at_any_mask_resolution() -> None:
     assert full.zone == squashed.zone == "A"
     assert squashed.centroid == pytest.approx(full.centroid, abs=0.01)
     assert squashed.longest_extent_mm == pytest.approx(full.longest_extent_mm, abs=0.4)
+
+
+# The real masks, when fetched
+
+
+def _real_mask(path: Path) -> CalibratedMask:
+    """Read a VisA mask, mark every labelled pixel, and calibrate it at 1 mm per pixel."""
+    image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    assert image is not None, path
+    height, width = image.shape
+    calibration = Calibration(
+        board_width_mm=float(width), image_width_px=width, image_height_px=height
+    )
+    return CalibratedMask(pixels=image > 0, calibration=calibration)
+
+
+@pytest.mark.data
+@pytest.mark.parametrize("category", ["pcb1", "pcb2", "pcb3", "pcb4"])
+def test_real_masks_measure_consistently(
+    category: str, record_property: Callable[[str, object], None]
+) -> None:
+    """Every VisA ground-truth mask of a category keeps the invariants the synthetic masks do.
+
+    Each marked pixel belongs to exactly one region; neighbours share a
+    region; a region fits inside its rectangle, the rectangle inside the
+    image; and OpenCV's own rectangle around the same pixel corners has the
+    same area, to its single precision.
+    """
+    paths = sorted((Settings().visa_dir / category / "Data" / "Masks" / "Anomaly").glob("*.png"))
+    assert len(paths) == 100, "run `spec-to-inspector data fetch` first"
+
+    region_counts: list[int] = []
+    longest_px: list[float] = []
+    for path in paths:
+        mask = _real_mask(path)
+        labels, count = label_regions(mask.pixels)
+        regions = measure_regions(mask)
+
+        assert np.array_equal(labels > 0, mask.pixels)
+        for near, far in (
+            (labels[:, :-1], labels[:, 1:]),
+            (labels[:-1, :], labels[1:, :]),
+            (labels[:-1, :-1], labels[1:, 1:]),
+            (labels[:-1, 1:], labels[1:, :-1]),
+        ):
+            touching = (near > 0) & (far > 0)
+            assert np.array_equal(near[touching], far[touching]), path
+        assert len(regions) == count
+        assert sum(region.area_px for region in regions) == int(mask.pixels.sum())
+
+        diagonal = math.hypot(mask.width_px, mask.height_px)
+        for region in regions:
+            assert 1.0 <= region.shortest_extent_mm <= region.longest_extent_mm <= diagonal
+            rectangle_area = region.longest_extent_mm * region.shortest_extent_mm
+            assert region.area_mm2 <= rectangle_area * (1 + 1e-9)
+            rows, columns = np.nonzero(labels == region.label)
+            corners = np.concatenate(
+                [np.stack([columns + dx, rows + dy], axis=1) for dx in (0, 1) for dy in (0, 1)]
+            )
+            (_, (width, height), _) = cv2.minAreaRect(corners.astype(np.float32))
+            assert rectangle_area == pytest.approx(width * height, rel=1e-3), path
+            assert region.bbox_px[0] <= region.centroid[0] * mask.width_px <= region.bbox_px[2]
+            assert region.bbox_px[1] <= region.centroid[1] * mask.height_px <= region.bbox_px[3]
+            longest_px.append(region.longest_extent_mm)
+        region_counts.append(count)
+
+    summary = {
+        "category": category,
+        "masks": len(paths),
+        "image_px": [mask.width_px, mask.height_px],
+        "regions": sum(region_counts),
+        "regions_per_mask_max": max(region_counts),
+        "longest_extent_px_median": round(float(np.median(longest_px)), 1),
+        "longest_extent_px_max": round(max(longest_px), 1),
+    }
+    record_property("real_masks", summary)
+    print(summary)
