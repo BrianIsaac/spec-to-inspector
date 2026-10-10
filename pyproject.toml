@@ -17,12 +17,15 @@ dependencies = [
     "pillow>=12.3.0",
     "pydantic>=2.14.0",
     "pydantic-settings>=2.15.0",
+    "pypdfium2>=5.14.0",
+    "python-multipart>=0.0.32",
     "rich>=13.5.2",
     "tokenizers>=0.23.2",
     "torch==2.14.1",
     "torchcodec==0.17.0",
     "torchvision==0.29.1",
     "typer>=0.26,<0.27", # docling 2.135.0 caps typer below 0.27
+    "uvicorn>=0.54.0",
 ]
 
 [project.scripts]
@@ -30,8 +33,8 @@ spec-to-inspector = "spec_to_inspector.cli:app"
 
 [dependency-groups]
 dev = [
-    "pypdfium2>=5.14.0",
     "hypothesis>=6.168.5",
+    "playwright>=1.63.0",
     "pyright==1.1.414",
     "pytest>=9.1.1",
     "ruff==0.16.10",
