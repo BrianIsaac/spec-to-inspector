@@ -480,6 +480,27 @@ def load_decision(directory: Path) -> Decision:
     return Decision.model_validate_json((directory / DECISION_NAME).read_text(encoding="utf-8"))
 
 
+def read_run_index(run_directory: Path) -> RunIndex:
+    """Read a run's index.
+
+    Args:
+        run_directory: The run's directory.
+
+    Returns:
+        The index.
+
+    Raises:
+        InspectError: If the directory holds no readable `run.json`.
+    """
+    try:
+        return RunIndex.model_validate_json(
+            (run_directory / RUN_INDEX_NAME).read_text(encoding="utf-8")
+        )
+    except (OSError, ValueError) as error:
+        msg = f"{run_directory} is not a run: no readable {RUN_INDEX_NAME} ({error})"
+        raise InspectError(msg) from error
+
+
 def judge_run(
     run_directory: Path,
     specification: Specification,
@@ -511,13 +532,7 @@ def judge_run(
         InspectError: If the directory is not a run, or names an image the
             run does not hold.
     """
-    try:
-        index = RunIndex.model_validate_json(
-            (run_directory / RUN_INDEX_NAME).read_text(encoding="utf-8")
-        )
-    except (OSError, ValueError) as error:
-        msg = f"{run_directory} is not a run: no readable {RUN_INDEX_NAME} ({error})"
-        raise InspectError(msg) from error
+    index = read_run_index(run_directory)
     held = [entry.image_id for entry in index.entries]
     chosen = held if image_ids is None else list(image_ids)
     unknown = [image_id for image_id in chosen if image_id not in held]

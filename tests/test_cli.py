@@ -31,7 +31,7 @@ def test_help_lists_every_verb() -> None:
 
 @pytest.mark.parametrize(
     ("verb", "unit"),
-    [("inspect", "U5"), ("bench", "U7"), ("serve", "U8")],
+    [("bench", "U7"), ("serve", "U8")],
 )
 def test_stubbed_verbs_fail_and_name_their_unit(verb: str, unit: str) -> None:
     """A verb not built yet exits non-zero and says which unit builds it."""
