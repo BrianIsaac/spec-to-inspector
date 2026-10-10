@@ -1106,6 +1106,17 @@ th {
   font-size: 19px;
 }
 
+.verdict .corrected-line {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.verdict .flags .badge {
+  padding: 4px 14px;
+  border-width: 2px;
+  font-size: 16px;
+}
+
 .verdict .flags {
   display: flex;
   flex: none;

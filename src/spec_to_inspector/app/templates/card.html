@@ -29,6 +29,10 @@
     </h1>
     <p class="reason">{{ decision.reason[:1]|upper }}{{ decision.reason[1:] }}.</p>
     {% endif %}
+    {% if overrides %}
+    {% set latest = overrides[0] %}
+    <p class="reason corrected-line">Corrected by an engineer, {{ latest.created_at|when }}: {% if latest.says_no_defect %}not a defect, no clause applies{% else %}clause {{ latest.corrected_clause }} {{ titles.get(latest.corrected_clause, "") }}, class {{ latest.corrected_class }}{% endif %}.</p>
+    {% endif %}
   </div>
   <div class="flags">
     {% if overrides or flag.overridden %}<span class="badge badge-corrected">Corrected by an engineer</span>{% endif %}
@@ -59,7 +63,7 @@
 {% else %}
 <div class="card">
   <div class="stack">
-    <section class="panel">
+    <section class="panel" id="panel-area">
       <h2>Flagged area {{ chosen.index }} of {{ cards|length }}{% if chosen.deciding %}: the outcome rests on it{% endif %}</h2>
       {% if cards|length > 1 %}
       <nav class="tabs" aria-label="Flagged areas">
@@ -99,7 +103,7 @@
       <p class="muted">The run holds no crop of this area.</p>
       {% endif %}
     </section>
-    <section class="panel">
+    <section class="panel" id="panel-where">
       <h2>Where on the board</h2>
       <div class="locator">
         {% if photo %}
@@ -130,7 +134,7 @@
   </div>
 
   <div class="stack">
-    <section class="panel clause-cited">
+    <section class="panel clause-cited" id="panel-clause">
       <h2>Clause applied</h2>
       {% if clause %}
       <h3>Clause {{ clause.id }} {{ clause.title }}</h3>
@@ -150,7 +154,7 @@
       {% endif %}
     </section>
 
-    <section class="panel">
+    <section class="panel" id="panel-measured">
       <h2>Measured by code</h2>
       {% if judged and judged.measurement and not judged.from_peak %}
       {% set measured = judged.measurement %}
@@ -185,7 +189,7 @@
   </div>
 
   <div class="stack">
-    <section class="panel">
+    <section class="panel" id="panel-model">
       <h2>The model's description</h2>
       {% if judged and judged.answer %}
       <p class="model-line">"{{ judged.answer.reason }}"</p>
@@ -226,7 +230,7 @@
       </ol>
     </section>
     {% endif %}
-    <section class="panel">
+    <section class="panel" id="panel-override">
       <h2>Engineer's override</h2>
       {% if blocked %}
       <p>{{ blocked }}</p>
