@@ -6,11 +6,12 @@
     "right": "the judge names the class and the clause the pair expects; for a good board, that no clause applies",
     "by_part": "the part's most recent corrections stand in the prompt; one question",
     "by_answer": "the judge is asked with an empty slot, and asked again with the corrections made where it gave that same answer before, if there are any; the second answer stands",
-    "seconds": "wall time of the chat-completion requests for one image as the client saw them, both requests where the judge was asked twice; the server's prompt cache is on",
+    "pairs_are_cold": "every request of a pair, its controls included, is sent with the server's prompt cache off, because a cached prefix can change the answer to the same prompt from one asking to the next; cold, the answer repeats, so a change between the before and the after is the correction's doing",
+    "seconds": "wall time of the chat-completion requests for one image as the client saw them, both requests where the judge was asked twice; in the passes over the timing images the server's prompt cache is on, after a warm-up on another image; in the pairs it is off",
     "drift": "over the timing images, with every override of the part's pairs in one store; the pairs' misjudged images are left out, since their own corrections are in the slot. Indicative: one run, images in the run's order",
     "notes_are_scripted": "the engineer's notes were written for this check by the unit's author looking at the crops; no engineer was involved"
   },
-  "measured_at": "2026-10-10T18:18:17+00:00",
+  "measured_at": "2026-10-10T19:04:25+00:00",
   "command": [
     "python",
     "-m",
@@ -36,12 +37,15 @@
           "pair": {
             "category": "pcb4",
             "misjudged": "bad-011",
-            "sibling": "bad-020",
+            "sibling": "bad-007",
             "truth": "damage",
             "note": "The component's body is cracked open and pieces of it lie beside it: it was broken by force. A burn leaves the part whole but charred or sooty.",
             "controls": [
+              "bad-000",
+              "bad-001",
               "bad-003",
-              "bad-009"
+              "bad-009",
+              "bad-018"
             ]
           },
           "expected_class": "damage",
@@ -64,19 +68,19 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 3.0565416319295764,
+            "seconds": 3.337869487935677,
             "prompt_tokens": 4703,
-            "cached_tokens": 2480
+            "cached_tokens": 0
           },
           "sibling_before": {
-            "image_id": "bad-020",
+            "image_id": "bad-007",
             "label": "bad",
             "truth": [
               "damage"
             ],
             "defect_class": "burnt",
             "clause_id": "5.7",
-            "judge_line": "A burn mark on the board surface",
+            "judge_line": "A burn mark on the component body",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [],
@@ -84,19 +88,19 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.359027488157153,
-            "prompt_tokens": 4684,
-            "cached_tokens": 2446
+            "seconds": 3.1040306121576577,
+            "prompt_tokens": 4644,
+            "cached_tokens": 0
           },
           "sibling_by_part": {
-            "image_id": "bad-020",
+            "image_id": "bad-007",
             "label": "bad",
             "truth": [
               "damage"
             ],
             "defect_class": "damage",
             "clause_id": "5.5",
-            "judge_line": "A component is cracked open with pieces lying beside it, indicating physical breakage.",
+            "judge_line": "The component's body is cracked open with pieces lying beside it.",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [
@@ -106,19 +110,19 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.526550712995231,
-            "prompt_tokens": 4757,
-            "cached_tokens": 2400
+            "seconds": 3.226479451172054,
+            "prompt_tokens": 4717,
+            "cached_tokens": 0
           },
           "sibling_by_answer": {
-            "image_id": "bad-020",
+            "image_id": "bad-007",
             "label": "bad",
             "truth": [
               "damage"
             ],
             "defect_class": "damage",
             "clause_id": "5.5",
-            "judge_line": "A component is cracked open with pieces lying beside it, indicating physical breakage.",
+            "judge_line": "The component's body is cracked open with pieces lying beside it.",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [
@@ -128,11 +132,147 @@
             "asked_twice": true,
             "first_class": "burnt",
             "first_clause": "5.7",
-            "seconds": 4.903274531941861,
-            "prompt_tokens": 4757,
-            "cached_tokens": 2400
+            "seconds": 6.359089815756306,
+            "prompt_tokens": 4717,
+            "cached_tokens": 0
           },
           "controls": [
+            {
+              "before": {
+                "image_id": "bad-000",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "burnt",
+                "clause_id": "5.7",
+                "judge_line": "A blackened area on the board surface under the flagged heatmap, indicating a burn mark.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4169417289085686,
+                "prompt_tokens": 4703,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-000",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The component's body is cracked open with pieces lying beside it.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The component's body is cracked open and pieces of it lie beside it: it was broken by force. A burn leaves the part whole but charred or sooty."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.3655552060808986,
+                "prompt_tokens": 4776,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-000",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The component's body is cracked open with pieces lying beside it.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The component's body is cracked open and pieces of it lie beside it: it was broken by force. A burn leaves the part whole but charred or sooty."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "burnt",
+                "first_clause": "5.7",
+                "seconds": 7.197774505242705,
+                "prompt_tokens": 4776,
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
+            {
+              "before": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "burnt",
+                "clause_id": "5.7",
+                "judge_line": "A burn mark on the board near the header pin.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.306458519073203,
+                "prompt_tokens": 4705,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "A component is cracked open with pieces lying beside it, indicating physical breakage.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The component's body is cracked open and pieces of it lie beside it: it was broken by force. A burn leaves the part whole but charred or sooty."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4209756939671934,
+                "prompt_tokens": 4778,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "A component is cracked open with pieces lying beside it, indicating physical breakage.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The component's body is cracked open and pieces of it lie beside it: it was broken by force. A burn leaves the part whole but charred or sooty."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "burnt",
+                "first_clause": "5.7",
+                "seconds": 7.094695882173255,
+                "prompt_tokens": 4778,
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
             {
               "before": {
                 "image_id": "bad-003",
@@ -142,7 +282,7 @@
                 ],
                 "defect_class": "burnt",
                 "clause_id": "5.7",
-                "judge_line": "A blackened, charred area on the board surface, indicating a burn mark.",
+                "judge_line": "A blackened, charred area on the board surface in zone A, which is a burn mark.",
                 "outcome": "reject",
                 "review_cause": null,
                 "corrections": [],
@@ -150,9 +290,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.7097150990739465,
+                "seconds": 3.5432662679813802,
                 "prompt_tokens": 4755,
-                "cached_tokens": 2446
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-003",
@@ -172,9 +312,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.594632714986801,
+                "seconds": 3.4070903011597693,
                 "prompt_tokens": 4828,
-                "cached_tokens": 2519
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-003",
@@ -194,9 +334,9 @@
                 "asked_twice": true,
                 "first_class": "burnt",
                 "first_clause": "5.7",
-                "seconds": 5.949145240010694,
+                "seconds": 7.771630211966112,
                 "prompt_tokens": 4828,
-                "cached_tokens": 2400
+                "cached_tokens": 0
               },
               "held_by_part": false,
               "held_by_answer": false
@@ -218,9 +358,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.395829264074564,
+                "seconds": 3.1886304188519716,
                 "prompt_tokens": 4642,
-                "cached_tokens": 2480
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-009",
@@ -240,9 +380,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.4734836427960545,
+                "seconds": 3.2740955748595297,
                 "prompt_tokens": 4715,
-                "cached_tokens": 2553
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-009",
@@ -260,9 +400,75 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.442319911904633,
+                "seconds": 3.2119300779886544,
                 "prompt_tokens": 4642,
-                "cached_tokens": 2400
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-018",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The integrated circuit is damaged with charred material on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.34230824210681,
+                "prompt_tokens": 4703,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-018",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The integrated circuit component is cracked and broken, with pieces lying beside it.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The component's body is cracked open and pieces of it lie beside it: it was broken by force. A burn leaves the part whole but charred or sooty."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.40158770699054,
+                "prompt_tokens": 4776,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-018",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The integrated circuit is damaged with charred material on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.8053287039510906,
+                "prompt_tokens": 4703,
+                "cached_tokens": 0
               },
               "held_by_part": true,
               "held_by_answer": true
@@ -281,7 +487,10 @@
             "note": "A loose black part lies across pads where the board has no component of its own: an extra object on the board. The black is the part's own body, not charring.",
             "controls": [
               "bad-000",
-              "bad-028"
+              "bad-001",
+              "bad-003",
+              "bad-028",
+              "bad-035"
             ]
           },
           "expected_class": "extra",
@@ -304,9 +513,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.718510395847261,
+            "seconds": 3.476947298971936,
             "prompt_tokens": 4737,
-            "cached_tokens": 2446
+            "cached_tokens": 0
           },
           "sibling_before": {
             "image_id": "bad-026",
@@ -324,9 +533,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.512195884017274,
+            "seconds": 3.2794774651993066,
             "prompt_tokens": 4744,
-            "cached_tokens": 2448
+            "cached_tokens": 0
           },
           "sibling_by_part": {
             "image_id": "bad-026",
@@ -346,9 +555,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 3.486043621087447,
+            "seconds": 3.6488235720898956,
             "prompt_tokens": 4819,
-            "cached_tokens": 2430
+            "cached_tokens": 0
           },
           "sibling_by_answer": {
             "image_id": "bad-026",
@@ -368,9 +577,9 @@
             "asked_twice": true,
             "first_class": "burnt",
             "first_clause": "5.7",
-            "seconds": 6.094747792929411,
+            "seconds": 7.34241965203546,
             "prompt_tokens": 4819,
-            "cached_tokens": 2400
+            "cached_tokens": 0
           },
           "controls": [
             {
@@ -390,9 +599,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.6866237688809633,
+                "seconds": 3.4594269080553204,
                 "prompt_tokens": 4703,
-                "cached_tokens": 2446
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-000",
@@ -412,9 +621,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.6606863338965923,
+                "seconds": 3.461613670922816,
                 "prompt_tokens": 4778,
-                "cached_tokens": 2521
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-000",
@@ -434,9 +643,145 @@
                 "asked_twice": true,
                 "first_class": "burnt",
                 "first_clause": "5.7",
-                "seconds": 6.187255830038339,
+                "seconds": 7.278542652959004,
                 "prompt_tokens": 4778,
-                "cached_tokens": 2400
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
+            {
+              "before": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "burnt",
+                "clause_id": "5.7",
+                "judge_line": "A burn mark on the board near the header pin.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.33502588304691,
+                "prompt_tokens": 4705,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "extra",
+                "clause_id": "5.3",
+                "judge_line": "A black, irregularly shaped object lies across the pads where the board has no component of its own.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'extra' (clause 5.3). The engineer's note: A loose black part lies across pads where the board has no component of its own: an extra object on the board. The black is the part's own body, not charring."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.5323765680659562,
+                "prompt_tokens": 4780,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "extra",
+                "clause_id": "5.3",
+                "judge_line": "A black, irregularly shaped object lies across the pads where the board has no component of its own.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'extra' (clause 5.3). The engineer's note: A loose black part lies across pads where the board has no component of its own: an extra object on the board. The black is the part's own body, not charring."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "burnt",
+                "first_clause": "5.7",
+                "seconds": 7.240243802778423,
+                "prompt_tokens": 4780,
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
+            {
+              "before": {
+                "image_id": "bad-003",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "burnt",
+                "clause_id": "5.7",
+                "judge_line": "A blackened, charred area on the board surface in zone A, which is a burn mark.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.565099097089842,
+                "prompt_tokens": 4755,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-003",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "extra",
+                "clause_id": "5.3",
+                "judge_line": "A black object is lying across the pads where the board has no component of its own.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'extra' (clause 5.3). The engineer's note: A loose black part lies across pads where the board has no component of its own: an extra object on the board. The black is the part's own body, not charring."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.5529719351325184,
+                "prompt_tokens": 4830,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-003",
+                "label": "bad",
+                "truth": [
+                  "burnt"
+                ],
+                "defect_class": "extra",
+                "clause_id": "5.3",
+                "judge_line": "A black object is lying across the pads where the board has no component of its own.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'extra' (clause 5.3). The engineer's note: A loose black part lies across pads where the board has no component of its own: an extra object on the board. The black is the part's own body, not charring."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "burnt",
+                "first_clause": "5.7",
+                "seconds": 7.912544768070802,
+                "prompt_tokens": 4830,
+                "cached_tokens": 0
               },
               "held_by_part": false,
               "held_by_answer": false
@@ -450,7 +795,7 @@
                 ],
                 "defect_class": "extra",
                 "clause_id": "5.3",
-                "judge_line": "A black, irregularly shaped object is present on the board, covering part of a resistor labeled R  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅",
+                "judge_line": "A black, irregularly shaped object is present on the board, covering a component and lying on the board surface.",
                 "outcome": "reject",
                 "review_cause": null,
                 "corrections": [],
@@ -458,9 +803,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 5.777154125040397,
+                "seconds": 3.5152660398744047,
                 "prompt_tokens": 4707,
-                "cached_tokens": 2480
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-028",
@@ -480,9 +825,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.7755077548790723,
+                "seconds": 3.459052613005042,
                 "prompt_tokens": 4782,
-                "cached_tokens": 2555
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-028",
@@ -492,7 +837,7 @@
                 ],
                 "defect_class": "extra",
                 "clause_id": "5.3",
-                "judge_line": "A black, irregularly shaped object is present on the board, covering part of a resistor labeled R  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅  ̅",
+                "judge_line": "A black, irregularly shaped object is present on the board, covering a component and lying on the board surface.",
                 "outcome": "reject",
                 "review_cause": null,
                 "corrections": [],
@@ -500,9 +845,75 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 6.858361952006817,
+                "seconds": 3.966832597972825,
                 "prompt_tokens": 4707,
-                "cached_tokens": 2400
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-035",
+                "label": "bad",
+                "truth": [
+                  "extra"
+                ],
+                "defect_class": "extra",
+                "clause_id": "5.3",
+                "judge_line": "A yellow plastic fragment is present on the board, not belonging to any component.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4404455618932843,
+                "prompt_tokens": 4736,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-035",
+                "label": "bad",
+                "truth": [
+                  "extra"
+                ],
+                "defect_class": "extra",
+                "clause_id": "5.3",
+                "judge_line": "A yellow component is present on the board where the design does not call for any component.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'burnt' (clause 5.7); the engineer corrected it to 'extra' (clause 5.3). The engineer's note: A loose black part lies across pads where the board has no component of its own: an extra object on the board. The black is the part's own body, not charring."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.476826182100922,
+                "prompt_tokens": 4811,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-035",
+                "label": "bad",
+                "truth": [
+                  "extra"
+                ],
+                "defect_class": "extra",
+                "clause_id": "5.3",
+                "judge_line": "A yellow plastic fragment is present on the board, not belonging to any component.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.807485503843054,
+                "prompt_tokens": 4736,
+                "cached_tokens": 0
               },
               "held_by_part": true,
               "held_by_answer": true
@@ -520,8 +931,11 @@
             "truth": "missing",
             "note": "The white outline holds two bare solder pads and no part between them: the component is absent. Dark specks on a bare pad are flux residue, not foreign material.",
             "controls": [
+              "bad-002",
+              "bad-004",
               "bad-056",
-              "bad-047"
+              "bad-049",
+              "bad-052"
             ]
           },
           "expected_class": "missing",
@@ -536,17 +950,17 @@
             ],
             "defect_class": "dirt",
             "clause_id": "5.1",
-            "judge_line": "A dark spot on the board surface in zone A.",
+            "judge_line": "A dark, irregularly shaped spot on the board surface, larger than the  zone A limit for foreign material.",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [],
-            "requests": 2,
+            "requests": 1,
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 3.749417302198708,
-            "prompt_tokens": 4825,
-            "cached_tokens": 4756
+            "seconds": 3.5598746889736503,
+            "prompt_tokens": 4707,
+            "cached_tokens": 0
           },
           "sibling_before": {
             "image_id": "bad-050",
@@ -556,7 +970,7 @@
             ],
             "defect_class": "dirt",
             "clause_id": "5.1",
-            "judge_line": "A foreign material spot on the board surface in zone A",
+            "judge_line": "A foreign material spot on the board surface in zone A.",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [],
@@ -564,9 +978,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.854807601077482,
+            "seconds": 3.313701123930514,
             "prompt_tokens": 4706,
-            "cached_tokens": 2480
+            "cached_tokens": 0
           },
           "sibling_by_part": {
             "image_id": "bad-050",
@@ -586,9 +1000,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.8430371929425746,
+            "seconds": 3.7890679298434407,
             "prompt_tokens": 4778,
-            "cached_tokens": 2400
+            "cached_tokens": 0
           },
           "sibling_by_answer": {
             "image_id": "bad-050",
@@ -608,14 +1022,82 @@
             "asked_twice": true,
             "first_class": "dirt",
             "first_clause": "5.1",
-            "seconds": 6.187318466138095,
+            "seconds": 7.0893830340355635,
             "prompt_tokens": 4778,
-            "cached_tokens": 2400
+            "cached_tokens": 0
           },
           "controls": [
             {
               "before": {
-                "image_id": "bad-056",
+                "image_id": "bad-002",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The USB receptacle has foreign material on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4212254229933023,
+                "prompt_tokens": 4751,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-002",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "A component is missing where it should be, leaving bare solder pads.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'missing' (clause 5.2). The engineer's note: The white outline holds two bare solder pads and no part between them: the component is absent. Dark specks on a bare pad are flux residue, not foreign material."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.513723738025874,
+                "prompt_tokens": 4823,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-002",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "A component is missing where it should be, leaving bare solder pads.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'missing' (clause 5.2). The engineer's note: The white outline holds two bare solder pads and no part between them: the component is absent. Dark specks on a bare pad are flux residue, not foreign material."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "dirt",
+                "first_clause": "5.1",
+                "seconds": 7.2829231668729335,
+                "prompt_tokens": 4823,
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
+            {
+              "before": {
+                "image_id": "bad-004",
                 "label": "bad",
                 "truth": [
                   "dirt"
@@ -630,12 +1112,12 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 3.144889377988875,
+                "seconds": 3.3546149481553584,
                 "prompt_tokens": 4755,
-                "cached_tokens": 2432
+                "cached_tokens": 0
               },
               "by_part": {
-                "image_id": "bad-056",
+                "image_id": "bad-004",
                 "label": "bad",
                 "truth": [
                   "dirt"
@@ -652,12 +1134,12 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 3.090943626128137,
+                "seconds": 3.5913340479601175,
                 "prompt_tokens": 4827,
-                "cached_tokens": 2504
+                "cached_tokens": 0
               },
               "by_answer": {
-                "image_id": "bad-056",
+                "image_id": "bad-004",
                 "label": "bad",
                 "truth": [
                   "dirt"
@@ -674,23 +1156,23 @@
                 "asked_twice": true,
                 "first_class": "dirt",
                 "first_clause": "5.1",
-                "seconds": 5.464166057994589,
+                "seconds": 7.356826395727694,
                 "prompt_tokens": 4827,
-                "cached_tokens": 4826
+                "cached_tokens": 0
               },
               "held_by_part": true,
               "held_by_answer": true
             },
             {
               "before": {
-                "image_id": "bad-047",
+                "image_id": "bad-056",
                 "label": "bad",
                 "truth": [
-                  "missing"
+                  "dirt"
                 ],
                 "defect_class": "dirt",
                 "clause_id": "5.1",
-                "judge_line": "A dark, irregularly shaped spot on the board surface, likely foreign material, within zone A.",
+                "judge_line": "The USB receptacle has brownish discoloration and speckled residue on its surface.",
                 "outcome": "reject",
                 "review_cause": null,
                 "corrections": [],
@@ -698,19 +1180,19 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.782114894827828,
-                "prompt_tokens": 4643,
-                "cached_tokens": 2432
+                "seconds": 3.4979679111856967,
+                "prompt_tokens": 4755,
+                "cached_tokens": 0
               },
               "by_part": {
-                "image_id": "bad-047",
+                "image_id": "bad-056",
                 "label": "bad",
                 "truth": [
-                  "missing"
+                  "dirt"
                 ],
-                "defect_class": "missing",
-                "clause_id": "5.2",
-                "judge_line": "A component is missing from its solder pads in zone A.",
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The receptacle component is covered in dark specks, which are flux residue, not foreign material.",
                 "outcome": "reject",
                 "review_cause": null,
                 "corrections": [
@@ -720,19 +1202,19 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.5895666640717536,
-                "prompt_tokens": 4715,
-                "cached_tokens": 2504
+                "seconds": 3.572529735043645,
+                "prompt_tokens": 4827,
+                "cached_tokens": 0
               },
               "by_answer": {
-                "image_id": "bad-047",
+                "image_id": "bad-056",
                 "label": "bad",
                 "truth": [
-                  "missing"
+                  "dirt"
                 ],
-                "defect_class": "missing",
-                "clause_id": "5.2",
-                "judge_line": "A component is missing from its solder pads in zone A.",
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The receptacle component is covered in dark specks, which are flux residue, not foreign material.",
                 "outcome": "reject",
                 "review_cause": null,
                 "corrections": [
@@ -742,12 +1224,144 @@
                 "asked_twice": true,
                 "first_class": "dirt",
                 "first_clause": "5.1",
-                "seconds": 5.290308188879862,
-                "prompt_tokens": 4715,
-                "cached_tokens": 2400
+                "seconds": 7.921317987143993,
+                "prompt_tokens": 4827,
+                "cached_tokens": 0
               },
-              "held_by_part": false,
-              "held_by_answer": false
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-049",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "A lump of solder on the board surface near the IN+ and IN- pads.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.5762389870360494,
+                "prompt_tokens": 4799,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-049",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "The component is absent, leaving two bare solder pads where a component should be.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'missing' (clause 5.2). The engineer's note: The white outline holds two bare solder pads and no part between them: the component is absent. Dark specks on a bare pad are flux residue, not foreign material."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.5821283149998635,
+                "prompt_tokens": 4871,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-049",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "A lump of solder on the board surface near the IN+ and IN- pads.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 4.040198876988143,
+                "prompt_tokens": 4799,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-052",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "A lump of solder on the board surface",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4473953819833696,
+                "prompt_tokens": 4801,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-052",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "A component is missing from its pads in the flagged area.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'missing' (clause 5.2). The engineer's note: The white outline holds two bare solder pads and no part between them: the component is absent. Dark specks on a bare pad are flux residue, not foreign material."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.956252550939098,
+                "prompt_tokens": 4873,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-052",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "5.2",
+                "judge_line": "A lump of solder on the board surface",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.985582591034472,
+                "prompt_tokens": 4801,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
             }
           ],
           "right_before": false,
@@ -762,8 +1376,11 @@
             "truth": "damage",
             "note": "The connector's metal shell is dented and bent out of shape: mechanical damage. Its surface is clean metal with nothing lying on it.",
             "controls": [
+              "bad-002",
               "bad-004",
-              "bad-056"
+              "bad-056",
+              "bad-009",
+              "bad-018"
             ]
           },
           "expected_class": "damage",
@@ -786,9 +1403,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.8114347278606147,
+            "seconds": 3.431953600840643,
             "prompt_tokens": 4754,
-            "cached_tokens": 2400
+            "cached_tokens": 0
           },
           "sibling_before": {
             "image_id": "bad-015",
@@ -806,9 +1423,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.734416679944843,
+            "seconds": 3.3680451379623264,
             "prompt_tokens": 4703,
-            "cached_tokens": 2480
+            "cached_tokens": 0
           },
           "sibling_by_part": {
             "image_id": "bad-015",
@@ -828,9 +1445,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.8863189830444753,
+            "seconds": 3.4511327531654388,
             "prompt_tokens": 4769,
-            "cached_tokens": 2400
+            "cached_tokens": 0
           },
           "sibling_by_answer": {
             "image_id": "bad-015",
@@ -850,11 +1467,79 @@
             "asked_twice": true,
             "first_class": "dirt",
             "first_clause": "5.1",
-            "seconds": 5.984690878307447,
+            "seconds": 7.112378975842148,
             "prompt_tokens": 4769,
-            "cached_tokens": 2400
+            "cached_tokens": 0
           },
           "controls": [
+            {
+              "before": {
+                "image_id": "bad-002",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The USB receptacle has foreign material on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4479504791088402,
+                "prompt_tokens": 4751,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-002",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The USB connector's metal shell is dented and bent out of shape.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The connector's metal shell is dented and bent out of shape: mechanical damage. Its surface is clean metal with nothing lying on it."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.479692373191938,
+                "prompt_tokens": 4817,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-002",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The USB connector's metal shell is dented and bent out of shape.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The connector's metal shell is dented and bent out of shape: mechanical damage. Its surface is clean metal with nothing lying on it."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "dirt",
+                "first_clause": "5.1",
+                "seconds": 7.283953709062189,
+                "prompt_tokens": 4817,
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
             {
               "before": {
                 "image_id": "bad-004",
@@ -872,9 +1557,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.7603648339863867,
+                "seconds": 3.422432929975912,
                 "prompt_tokens": 4755,
-                "cached_tokens": 2482
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-004",
@@ -894,9 +1579,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.8111658941488713,
+                "seconds": 3.4745674980804324,
                 "prompt_tokens": 4821,
-                "cached_tokens": 2548
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-004",
@@ -916,9 +1601,9 @@
                 "asked_twice": true,
                 "first_class": "dirt",
                 "first_clause": "5.1",
-                "seconds": 5.972820135997608,
+                "seconds": 7.348329391796142,
                 "prompt_tokens": 4821,
-                "cached_tokens": 2400
+                "cached_tokens": 0
               },
               "held_by_part": false,
               "held_by_answer": false
@@ -932,7 +1617,7 @@
                 ],
                 "defect_class": "dirt",
                 "clause_id": "5.1",
-                "judge_line": "The receptacle has foreign material on its surface.",
+                "judge_line": "The USB receptacle has brownish discoloration and speckled residue on its surface.",
                 "outcome": "reject",
                 "review_cause": null,
                 "corrections": [],
@@ -940,9 +1625,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.7288894900120795,
+                "seconds": 3.5734999580308795,
                 "prompt_tokens": 4755,
-                "cached_tokens": 2480
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-056",
@@ -962,9 +1647,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.902837360976264,
+                "seconds": 3.509073741035536,
                 "prompt_tokens": 4821,
-                "cached_tokens": 2546
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-056",
@@ -984,9 +1669,141 @@
                 "asked_twice": true,
                 "first_class": "dirt",
                 "first_clause": "5.1",
-                "seconds": 4.603963387897238,
+                "seconds": 7.955108498223126,
                 "prompt_tokens": 4821,
-                "cached_tokens": 4820
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-009",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "A component is damaged with charred material on its body.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.232535002985969,
+                "prompt_tokens": 4642,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-009",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The connector's metal shell is dented and bent out of shape.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The connector's metal shell is dented and bent out of shape: mechanical damage. Its surface is clean metal with nothing lying on it."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.22501581790857,
+                "prompt_tokens": 4708,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-009",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "A component is damaged with charred material on its body.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.1689180668909103,
+                "prompt_tokens": 4642,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-018",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The integrated circuit is damaged with charred material on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.347241476876661,
+                "prompt_tokens": 4703,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-018",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The component is damaged, with its body cracked and charred.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: The connector's metal shell is dented and bent out of shape: mechanical damage. Its surface is clean metal with nothing lying on it."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.3670185869559646,
+                "prompt_tokens": 4769,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-018",
+                "label": "bad",
+                "truth": [
+                  "damage"
+                ],
+                "defect_class": "damage",
+                "clause_id": "5.5",
+                "judge_line": "The integrated circuit is damaged with charred material on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.8077789798844606,
+                "prompt_tokens": 4703,
+                "cached_tokens": 0
               },
               "held_by_part": true,
               "held_by_answer": true
@@ -1005,7 +1822,10 @@
             "note": "Nothing is wrong here: the parts are present, whole and clean, and the board is bare where it should be. The detector reacted to an ordinary difference between boards.",
             "controls": [
               "bad-002",
-              "bad-056"
+              "bad-004",
+              "bad-056",
+              "good-0423",
+              "good-0688"
             ]
           },
           "expected_class": null,
@@ -1026,17 +1846,17 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 3.0298708837945014,
+            "seconds": 3.22826504195109,
             "prompt_tokens": 4645,
-            "cached_tokens": 2432
+            "cached_tokens": 0
           },
           "sibling_before": {
             "image_id": "good-0026",
             "label": "good",
             "truth": [],
-            "defect_class": "burnt",
-            "clause_id": "5.7",
-            "judge_line": "A burn mark on the component",
+            "defect_class": "dirt",
+            "clause_id": "5.1",
+            "judge_line": "A foreign material spot on the board surface",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [],
@@ -1044,9 +1864,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.3593931100331247,
+            "seconds": 3.151372753083706,
             "prompt_tokens": 4661,
-            "cached_tokens": 2432
+            "cached_tokens": 0
           },
           "sibling_by_part": {
             "image_id": "good-0026",
@@ -1064,27 +1884,29 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.428514481987804,
+            "seconds": 3.147246076958254,
             "prompt_tokens": 4730,
-            "cached_tokens": 2400
+            "cached_tokens": 0
           },
           "sibling_by_answer": {
             "image_id": "good-0026",
             "label": "good",
             "truth": [],
-            "defect_class": "burnt",
-            "clause_id": "5.7",
-            "judge_line": "A burn mark on the component",
-            "outcome": "reject",
-            "review_cause": null,
-            "corrections": [],
-            "requests": 1,
-            "asked_twice": false,
-            "first_class": null,
-            "first_clause": null,
-            "seconds": 2.40316467708908,
-            "prompt_tokens": 4661,
-            "cached_tokens": 2400
+            "defect_class": null,
+            "clause_id": null,
+            "judge_line": "The component is present, whole, in place and clean.",
+            "outcome": "needs review",
+            "review_cause": "no clause applies",
+            "corrections": [
+              "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to no defect: no clause applies. The engineer's note: Nothing is wrong here: the parts are present, whole and clean, and the board is bare where it should be. The detector reacted to an ordinary difference between boards."
+            ],
+            "requests": 2,
+            "asked_twice": true,
+            "first_class": "dirt",
+            "first_clause": "5.1",
+            "seconds": 6.368905134033412,
+            "prompt_tokens": 4730,
+            "cached_tokens": 0
           },
           "controls": [
             {
@@ -1104,9 +1926,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.7194528819527477,
+                "seconds": 3.4578424491919577,
                 "prompt_tokens": 4751,
-                "cached_tokens": 2432
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-002",
@@ -1126,9 +1948,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.960391932167113,
+                "seconds": 3.5623814282007515,
                 "prompt_tokens": 4820,
-                "cached_tokens": 2400
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-002",
@@ -1148,16 +1970,16 @@
                 "asked_twice": true,
                 "first_class": "dirt",
                 "first_clause": "5.1",
-                "seconds": 6.130387633107603,
+                "seconds": 7.371184716001153,
                 "prompt_tokens": 4820,
-                "cached_tokens": 2400
+                "cached_tokens": 0
               },
               "held_by_part": false,
               "held_by_answer": false
             },
             {
               "before": {
-                "image_id": "bad-056",
+                "image_id": "bad-004",
                 "label": "bad",
                 "truth": [
                   "dirt"
@@ -1172,9 +1994,77 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.6476621790789068,
+                "seconds": 3.464015472913161,
                 "prompt_tokens": 4755,
-                "cached_tokens": 2432
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-004",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The receptacle has corrosion spots on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to no defect: no clause applies. The engineer's note: Nothing is wrong here: the parts are present, whole and clean, and the board is bare where it should be. The detector reacted to an ordinary difference between boards."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.423543441807851,
+                "prompt_tokens": 4824,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-004",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The receptacle has corrosion spots on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to no defect: no clause applies. The engineer's note: Nothing is wrong here: the parts are present, whole and clean, and the board is bare where it should be. The detector reacted to an ordinary difference between boards."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "dirt",
+                "first_clause": "5.1",
+                "seconds": 7.2939849849790335,
+                "prompt_tokens": 4824,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-056",
+                "label": "bad",
+                "truth": [
+                  "dirt"
+                ],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The USB receptacle has brownish discoloration and speckled residue on its surface.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.6035702920053154,
+                "prompt_tokens": 4755,
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-056",
@@ -1194,9 +2084,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.8360515299718827,
+                "seconds": 3.547824040055275,
                 "prompt_tokens": 4824,
-                "cached_tokens": 2501
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-056",
@@ -1216,9 +2106,131 @@
                 "asked_twice": true,
                 "first_class": "dirt",
                 "first_clause": "5.1",
-                "seconds": 4.742351830005646,
+                "seconds": 8.09750857995823,
                 "prompt_tokens": 4824,
-                "cached_tokens": 4823
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "good-0423",
+                "label": "good",
+                "truth": [],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "Foreign material on the board surface",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.1635619399603456,
+                "prompt_tokens": 4644,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "good-0423",
+                "label": "good",
+                "truth": [],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The flagged area shows a dark, irregularly shaped spot on the board surface near a component, which appears to be foreign material.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to no defect: no clause applies. The engineer's note: Nothing is wrong here: the parts are present, whole and clean, and the board is bare where it should be. The detector reacted to an ordinary difference between boards."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4518657389562577,
+                "prompt_tokens": 4713,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "good-0423",
+                "label": "good",
+                "truth": [],
+                "defect_class": "dirt",
+                "clause_id": "5.1",
+                "judge_line": "The flagged area shows a dark, irregularly shaped spot on the board surface near a component, which appears to be foreign material.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to no defect: no clause applies. The engineer's note: Nothing is wrong here: the parts are present, whole and clean, and the board is bare where it should be. The detector reacted to an ordinary difference between boards."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "dirt",
+                "first_clause": "5.1",
+                "seconds": 6.610100505175069,
+                "prompt_tokens": 4713,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "good-0688",
+                "label": "good",
+                "truth": [],
+                "defect_class": "scratch",
+                "clause_id": "5.6",
+                "judge_line": "A scratch on the board surface in zone B",
+                "outcome": "accept",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.17679929593578,
+                "prompt_tokens": 4645,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "good-0688",
+                "label": "good",
+                "truth": [],
+                "defect_class": "scratch",
+                "clause_id": "5.6",
+                "judge_line": "The receptacle component has a scratch.",
+                "outcome": "accept",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to no defect: no clause applies. The engineer's note: Nothing is wrong here: the parts are present, whole and clean, and the board is bare where it should be. The detector reacted to an ordinary difference between boards."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.1637919589411467,
+                "prompt_tokens": 4714,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "good-0688",
+                "label": "good",
+                "truth": [],
+                "defect_class": "scratch",
+                "clause_id": "5.6",
+                "judge_line": "A scratch on the board surface in zone B",
+                "outcome": "accept",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.1833823919296265,
+                "prompt_tokens": 4645,
+                "cached_tokens": 0
               },
               "held_by_part": true,
               "held_by_answer": true
@@ -1226,7 +2238,7 @@
           ],
           "right_before": false,
           "right_by_part": true,
-          "right_by_answer": false
+          "right_by_answer": true
         }
       ],
       "slot_corrections": [
@@ -1242,11 +2254,11 @@
           "asked_twice": 0,
           "seconds": {
             "n": 24,
-            "p50": 2.654893202474341,
-            "p95": 2.9192785330349578,
-            "mean": 2.6428635406773537,
-            "minimum": 2.4066256280057132,
-            "maximum": 2.9501917290035635
+            "p50": 2.576664127409458,
+            "p95": 2.7284569746931084,
+            "mean": 2.54160862552817,
+            "minimum": 2.3285640301182866,
+            "maximum": 2.7675012450199574
           },
           "prompt_tokens": {
             "n": 24,
@@ -1279,7 +2291,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.654328742995858,
+              "seconds": 2.597489235922694,
               "prompt_tokens": 4741,
               "cached_tokens": 2431
             },
@@ -1297,7 +2309,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4066256280057132,
+              "seconds": 2.3505540031474084,
               "prompt_tokens": 4644,
               "cached_tokens": 2431
             },
@@ -1307,7 +2319,7 @@
               "truth": [],
               "defect_class": "dirt",
               "clause_id": "5.1",
-              "judge_line": "A small foreign particle on the board surface",
+              "judge_line": "A small spot of foreign material on the board surface.",
               "outcome": "needs review",
               "review_cause": "outside every zone",
               "corrections": [],
@@ -1315,7 +2327,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4099647258408368,
+              "seconds": 2.369942449964583,
               "prompt_tokens": 4550,
               "cached_tokens": 2431
             },
@@ -1325,7 +2337,7 @@
               "truth": [],
               "defect_class": "dirt",
               "clause_id": "5.1",
-              "judge_line": "A foreign material spot on the board surface in zone B",
+              "judge_line": "A foreign material spot on the board surface",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -1333,7 +2345,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4902746931184083,
+              "seconds": 2.3832919870037585,
               "prompt_tokens": 4661,
               "cached_tokens": 2431
             },
@@ -1351,7 +2363,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.597493877168745,
+              "seconds": 2.555839018896222,
               "prompt_tokens": 4709,
               "cached_tokens": 2432
             },
@@ -1369,7 +2381,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4577544999774545,
+              "seconds": 2.407817919040099,
               "prompt_tokens": 4618,
               "cached_tokens": 2431
             },
@@ -1387,7 +2399,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.43321601790376,
+              "seconds": 2.392080116085708,
               "prompt_tokens": 4645,
               "cached_tokens": 2431
             },
@@ -1405,7 +2417,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.73668661294505,
+              "seconds": 2.682405309053138,
               "prompt_tokens": 4705,
               "cached_tokens": 2432
             },
@@ -1417,7 +2429,7 @@
               ],
               "defect_class": "burnt",
               "clause_id": "5.7",
-              "judge_line": "A blackened area on the board surface, likely charred by heat, under the flagged area.",
+              "judge_line": "A blackened area on the board surface under the flagged heatmap, indicating a burn mark.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -1425,7 +2437,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7229476149659604,
+              "seconds": 2.6600971438456327,
               "prompt_tokens": 4703,
               "cached_tokens": 2432
             },
@@ -1437,7 +2449,7 @@
               ],
               "defect_class": "burnt",
               "clause_id": "5.7",
-              "judge_line": "A burn mark on the board near a component",
+              "judge_line": "A burn mark on the board near the header pin.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -1445,7 +2457,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.551361068850383,
+              "seconds": 2.523281113943085,
               "prompt_tokens": 4705,
               "cached_tokens": 2480
             },
@@ -1465,7 +2477,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.6726061310619116,
+              "seconds": 2.656115798978135,
               "prompt_tokens": 4751,
               "cached_tokens": 2446
             },
@@ -1485,7 +2497,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7704047469887882,
+              "seconds": 2.733122207922861,
               "prompt_tokens": 4755,
               "cached_tokens": 2446
             },
@@ -1505,7 +2517,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.691666648024693,
+              "seconds": 2.611971203936264,
               "prompt_tokens": 4755,
               "cached_tokens": 2432
             },
@@ -1523,7 +2535,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.469233951997012,
+              "seconds": 2.371129228034988,
               "prompt_tokens": 4574,
               "cached_tokens": 2473
             },
@@ -1544,7 +2556,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.6554576619528234,
+              "seconds": 2.554535578005016,
               "prompt_tokens": 4770,
               "cached_tokens": 2446
             },
@@ -1564,7 +2576,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4843759378418326,
+              "seconds": 2.3655651409644634,
               "prompt_tokens": 4644,
               "cached_tokens": 2432
             },
@@ -1584,7 +2596,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4357247608713806,
+              "seconds": 2.3285640301182866,
               "prompt_tokens": 4643,
               "cached_tokens": 2483
             },
@@ -1604,7 +2616,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.480000681942329,
+              "seconds": 2.387724390020594,
               "prompt_tokens": 4642,
               "cached_tokens": 2482
             },
@@ -1625,7 +2637,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.9195984408725053,
+              "seconds": 2.658541791839525,
               "prompt_tokens": 4809,
               "cached_tokens": 2446
             },
@@ -1646,7 +2658,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.9085279961582273,
+              "seconds": 2.650638733059168,
               "prompt_tokens": 4786,
               "cached_tokens": 2432
             },
@@ -1658,7 +2670,7 @@
               ],
               "defect_class": "burnt",
               "clause_id": "5.7",
-              "judge_line": "A blackened area on the board surface, likely charred by heat, is present under the flagged area.",
+              "judge_line": "A blackened area on the board surface, likely charred by heat, is present in zone A.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -1666,7 +2678,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.9501917290035635,
+              "seconds": 2.7675012450199574,
               "prompt_tokens": 4735,
               "cached_tokens": 2432
             },
@@ -1686,7 +2698,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.784593583783135,
+              "seconds": 2.6099347840063274,
               "prompt_tokens": 4703,
               "cached_tokens": 2432
             },
@@ -1706,7 +2718,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.828223502030596,
+              "seconds": 2.6784439308103174,
               "prompt_tokens": 4771,
               "cached_tokens": 2432
             },
@@ -1718,7 +2730,7 @@
               ],
               "defect_class": "burnt",
               "clause_id": "5.7",
-              "judge_line": "The USB receptacle has a blackened, charred area on its surface.",
+              "judge_line": "The USB receptacle has a burn mark on its surface.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -1726,7 +2738,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.917465721955523,
+              "seconds": 2.7020206530578434,
               "prompt_tokens": 4743,
               "cached_tokens": 2446
             }
@@ -1739,11 +2751,11 @@
           "asked_twice": 0,
           "seconds": {
             "n": 24,
-            "p50": 2.79225618543569,
-            "p95": 2.967672479862813,
-            "mean": 2.766825835501853,
-            "minimum": 2.372937103966251,
-            "maximum": 3.1926887359004468
+            "p50": 2.660352298640646,
+            "p95": 2.836397445667535,
+            "mean": 2.6314787963444055,
+            "minimum": 2.3596532130613923,
+            "maximum": 2.857898307032883
           },
           "prompt_tokens": {
             "n": 24,
@@ -1780,7 +2792,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 3.1926887359004468,
+              "seconds": 2.840479505015537,
               "prompt_tokens": 4960,
               "cached_tokens": 2650
             },
@@ -1802,7 +2814,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.807331657037139,
+              "seconds": 2.4705420420505106,
               "prompt_tokens": 4863,
               "cached_tokens": 2650
             },
@@ -1824,7 +2836,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.975603149039671,
+              "seconds": 2.6360533530823886,
               "prompt_tokens": 4769,
               "cached_tokens": 2650
             },
@@ -1846,7 +2858,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5761710139922798,
+              "seconds": 2.365935306996107,
               "prompt_tokens": 4880,
               "cached_tokens": 2650
             },
@@ -1868,7 +2880,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.8815160929225385,
+              "seconds": 2.66719868616201,
               "prompt_tokens": 4928,
               "cached_tokens": 2651
             },
@@ -1890,7 +2902,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.745433711912483,
+              "seconds": 2.4922629119828343,
               "prompt_tokens": 4837,
               "cached_tokens": 2650
             },
@@ -1912,7 +2924,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5813499519135803,
+              "seconds": 2.479278380982578,
               "prompt_tokens": 4864,
               "cached_tokens": 2650
             },
@@ -1934,7 +2946,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.8225327129475772,
+              "seconds": 2.643873978871852,
               "prompt_tokens": 4924,
               "cached_tokens": 2651
             },
@@ -1958,7 +2970,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.863353635184467,
+              "seconds": 2.6919685299508274,
               "prompt_tokens": 4922,
               "cached_tokens": 2651
             },
@@ -1982,7 +2994,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.766841311007738,
+              "seconds": 2.7281012190505862,
               "prompt_tokens": 4924,
               "cached_tokens": 2699
             },
@@ -2006,7 +3018,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.9227320211939514,
+              "seconds": 2.857898307032883,
               "prompt_tokens": 4970,
               "cached_tokens": 2665
             },
@@ -2030,7 +3042,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.904684712179005,
+              "seconds": 2.809080668957904,
               "prompt_tokens": 4974,
               "cached_tokens": 2665
             },
@@ -2054,7 +3066,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.8990410161204636,
+              "seconds": 2.8132657760288566,
               "prompt_tokens": 4974,
               "cached_tokens": 2651
             },
@@ -2076,7 +3088,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5345122718717903,
+              "seconds": 2.4900695900432765,
               "prompt_tokens": 4793,
               "cached_tokens": 2692
             },
@@ -2101,7 +3113,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7709872929845005,
+              "seconds": 2.741017827996984,
               "prompt_tokens": 4989,
               "cached_tokens": 2665
             },
@@ -2125,7 +3137,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.372937103966251,
+              "seconds": 2.3596532130613923,
               "prompt_tokens": 4863,
               "cached_tokens": 2651
             },
@@ -2149,7 +3161,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4642262540291995,
+              "seconds": 2.400872702943161,
               "prompt_tokens": 4862,
               "cached_tokens": 2702
             },
@@ -2173,7 +3185,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.575479825027287,
+              "seconds": 2.501797053962946,
               "prompt_tokens": 4861,
               "cached_tokens": 2701
             },
@@ -2198,7 +3210,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.856338720070198,
+              "seconds": 2.7822119700722396,
               "prompt_tokens": 5028,
               "cached_tokens": 2665
             },
@@ -2223,7 +3235,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.8826718928758055,
+              "seconds": 2.762177682016045,
               "prompt_tokens": 5005,
               "cached_tokens": 2651
             },
@@ -2247,7 +3259,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.674752354854718,
+              "seconds": 2.5482110800221562,
               "prompt_tokens": 4954,
               "cached_tokens": 2651
             },
@@ -2271,7 +3283,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.748122244141996,
+              "seconds": 2.6535059111192822,
               "prompt_tokens": 4922,
               "cached_tokens": 2651
             },
@@ -2295,7 +3307,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.787143087014556,
+              "seconds": 2.7121897349134088,
               "prompt_tokens": 4990,
               "cached_tokens": 2651
             },
@@ -2319,7 +3331,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.797369283856824,
+              "seconds": 2.707845679949969,
               "prompt_tokens": 4962,
               "cached_tokens": 2665
             }
@@ -2332,11 +3344,11 @@
           "asked_twice": 23,
           "seconds": {
             "n": 24,
-            "p50": 5.894838285050355,
-            "p95": 6.367290612135548,
-            "mean": 5.758418224926572,
-            "minimum": 2.962526274845004,
-            "maximum": 6.500415872083977
+            "p50": 5.754238921916112,
+            "p95": 6.411388465669006,
+            "mean": 5.66183804916606,
+            "minimum": 2.8718584820162505,
+            "maximum": 6.438658834667876
           },
           "prompt_tokens": {
             "n": 24,
@@ -2373,7 +3385,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.691143275005743,
+              "seconds": 5.509447982069105,
               "prompt_tokens": 4960,
               "cached_tokens": 2400
             },
@@ -2395,7 +3407,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.61228304496035,
+              "seconds": 5.397377973888069,
               "prompt_tokens": 4863,
               "cached_tokens": 2400
             },
@@ -2417,7 +3429,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.778214790858328,
+              "seconds": 5.587535213213414,
               "prompt_tokens": 4769,
               "cached_tokens": 2400
             },
@@ -2438,7 +3450,7 @@
               "asked_twice": true,
               "first_class": "burnt",
               "first_clause": "5.7",
-              "seconds": 5.646549222059548,
+              "seconds": 5.495787681080401,
               "prompt_tokens": 4815,
               "cached_tokens": 2400
             },
@@ -2460,7 +3472,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.923041793052107,
+              "seconds": 5.808431554818526,
               "prompt_tokens": 4928,
               "cached_tokens": 2400
             },
@@ -2482,7 +3494,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.556050445884466,
+              "seconds": 5.427883472992107,
               "prompt_tokens": 4837,
               "cached_tokens": 2400
             },
@@ -2504,7 +3516,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.549600303871557,
+              "seconds": 5.376237530726939,
               "prompt_tokens": 4864,
               "cached_tokens": 2400
             },
@@ -2526,7 +3538,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 6.046958802035078,
+              "seconds": 5.841038309969008,
               "prompt_tokens": 4924,
               "cached_tokens": 2400
             },
@@ -2549,7 +3561,7 @@
               "asked_twice": true,
               "first_class": "burnt",
               "first_clause": "5.7",
-              "seconds": 5.918211641954258,
+              "seconds": 5.832450518151745,
               "prompt_tokens": 4857,
               "cached_tokens": 2400
             },
@@ -2572,7 +3584,7 @@
               "asked_twice": true,
               "first_class": "burnt",
               "first_clause": "5.7",
-              "seconds": 5.892772828927264,
+              "seconds": 5.700046289013699,
               "prompt_tokens": 4859,
               "cached_tokens": 2400
             },
@@ -2596,7 +3608,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 6.020752975950018,
+              "seconds": 5.8953960170038044,
               "prompt_tokens": 4970,
               "cached_tokens": 2400
             },
@@ -2619,7 +3631,7 @@
               "asked_twice": true,
               "first_class": "burnt",
               "first_clause": "5.7",
-              "seconds": 6.059357970021665,
+              "seconds": 6.102703278884292,
               "prompt_tokens": 4909,
               "cached_tokens": 2400
             },
@@ -2643,7 +3655,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 6.03251134394668,
+              "seconds": 6.014045603806153,
               "prompt_tokens": 4974,
               "cached_tokens": 2400
             },
@@ -2665,7 +3677,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.475629991851747,
+              "seconds": 5.47694445005618,
               "prompt_tokens": 4793,
               "cached_tokens": 2400
             },
@@ -2690,7 +3702,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 6.367479782085866,
+              "seconds": 6.438658834667876,
               "prompt_tokens": 4989,
               "cached_tokens": 2665
             },
@@ -2713,7 +3725,7 @@
               "asked_twice": true,
               "first_class": "burnt",
               "first_clause": "5.7",
-              "seconds": 5.458313195034862,
+              "seconds": 5.416740097105503,
               "prompt_tokens": 4798,
               "cached_tokens": 2400
             },
@@ -2737,7 +3749,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.314438920002431,
+              "seconds": 5.257533977739513,
               "prompt_tokens": 4862,
               "cached_tokens": 2400
             },
@@ -2757,7 +3769,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.962526274845004,
+              "seconds": 2.8718584820162505,
               "prompt_tokens": 4642,
               "cached_tokens": 2400
             },
@@ -2782,7 +3794,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 6.1169570942875,
+              "seconds": 5.954660224961117,
               "prompt_tokens": 5028,
               "cached_tokens": 2665
             },
@@ -2807,7 +3819,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 6.500415872083977,
+              "seconds": 6.430435181828216,
               "prompt_tokens": 5005,
               "cached_tokens": 2665
             },
@@ -2830,7 +3842,7 @@
               "asked_twice": true,
               "first_class": "burnt",
               "first_clause": "5.7",
-              "seconds": 6.252314247190952,
+              "seconds": 6.136766517069191,
               "prompt_tokens": 4889,
               "cached_tokens": 2400
             },
@@ -2854,7 +3866,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 5.76339119207114,
+              "seconds": 5.690408112946898,
               "prompt_tokens": 4922,
               "cached_tokens": 2400
             },
@@ -2878,7 +3890,7 @@
               "asked_twice": true,
               "first_class": "dirt",
               "first_clause": "5.1",
-              "seconds": 6.3662186490837485,
+              "seconds": 6.303457074100152,
               "prompt_tokens": 4990,
               "cached_tokens": 2665
             },
@@ -2901,7 +3913,7 @@
               "asked_twice": true,
               "first_class": "burnt",
               "first_clause": "5.7",
-              "seconds": 5.896903741173446,
+              "seconds": 5.918268801877275,
               "prompt_tokens": 4897,
               "cached_tokens": 2400
             }
@@ -2947,7 +3959,10 @@
             "truth": "bent",
             "note": "A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal.",
             "controls": [
+              "bad-017",
+              "bad-019",
               "bad-021",
+              "bad-026",
               "bad-001"
             ]
           },
@@ -2971,9 +3986,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 3.1691578140016645,
+            "seconds": 3.845399637008086,
             "prompt_tokens": 4732,
-            "cached_tokens": 2271
+            "cached_tokens": 0
           },
           "sibling_before": {
             "image_id": "bad-003",
@@ -2983,7 +3998,7 @@
             ],
             "defect_class": "melt",
             "clause_id": "4.1",
-            "judge_line": "A stray solder blob is present on the board surface near the header pins.",
+            "judge_line": "A stray solder blob on the board surface near the header pins",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [],
@@ -2991,9 +4006,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.6700575628783554,
+            "seconds": 3.3788179298862815,
             "prompt_tokens": 4682,
-            "cached_tokens": 2407
+            "cached_tokens": 0
           },
           "sibling_by_part": {
             "image_id": "bad-003",
@@ -3013,9 +4028,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 3.16679787193425,
+            "seconds": 3.8366053260397166,
             "prompt_tokens": 4753,
-            "cached_tokens": 2359
+            "cached_tokens": 0
           },
           "sibling_by_answer": {
             "image_id": "bad-003",
@@ -3035,11 +4050,147 @@
             "asked_twice": true,
             "first_class": "melt",
             "first_clause": "4.1",
-            "seconds": 4.4902205020189285,
+            "seconds": 7.8338952420745045,
             "prompt_tokens": 4753,
-            "cached_tokens": 4752
+            "cached_tokens": 0
           },
           "controls": [
+            {
+              "before": {
+                "image_id": "bad-017",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "A bridge of solder joining two pads",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.0003672058228403,
+                "prompt_tokens": 4533,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-017",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "A header pin is bent out of line and leans across its neighbours.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.2502458221279085,
+                "prompt_tokens": 4604,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-017",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "A header pin is bent out of line and leans across its neighbours.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "melt",
+                "first_clause": "4.1",
+                "seconds": 6.238827117718756,
+                "prompt_tokens": 4604,
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
+            {
+              "before": {
+                "image_id": "bad-019",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "A lump of solder has flowed onto the board surface near the 'Trig' pad.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.438675781013444,
+                "prompt_tokens": 4661,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-019",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "A header pin is bent out of line and leans across its neighbours.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.4405173992272466,
+                "prompt_tokens": 4732,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-019",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "A header pin is bent out of line and leans across its neighbours.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "melt",
+                "first_clause": "4.1",
+                "seconds": 7.370740323327482,
+                "prompt_tokens": 4732,
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
             {
               "before": {
                 "image_id": "bad-021",
@@ -3057,9 +4208,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.5289147139992565,
+                "seconds": 3.2605423592031,
                 "prompt_tokens": 4655,
-                "cached_tokens": 2407
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-021",
@@ -3079,9 +4230,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.66853983909823,
+                "seconds": 3.450399254914373,
                 "prompt_tokens": 4726,
-                "cached_tokens": 2478
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-021",
@@ -3101,9 +4252,77 @@
                 "asked_twice": true,
                 "first_class": "melt",
                 "first_clause": "4.1",
-                "seconds": 5.762000508140773,
+                "seconds": 7.140354403993115,
                 "prompt_tokens": 4726,
-                "cached_tokens": 2359
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": false
+            },
+            {
+              "before": {
+                "image_id": "bad-026",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "Solder bridging between the Trig and Echo pads",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.186260278802365,
+                "prompt_tokens": 4533,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-026",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "A header pin is bent out of line and leans across its neighbours.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.246662364108488,
+                "prompt_tokens": 4604,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-026",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "A header pin is bent out of line and leans across its neighbours.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
+                ],
+                "requests": 2,
+                "asked_twice": true,
+                "first_class": "melt",
+                "first_clause": "4.1",
+                "seconds": 6.379812648985535,
+                "prompt_tokens": 4604,
+                "cached_tokens": 0
               },
               "held_by_part": false,
               "held_by_answer": false
@@ -3125,9 +4344,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.708731396123767,
+                "seconds": 3.440534486901015,
                 "prompt_tokens": 4756,
-                "cached_tokens": 2408
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-001",
@@ -3147,9 +4366,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.835949616972357,
+                "seconds": 3.5413075578399003,
                 "prompt_tokens": 4827,
-                "cached_tokens": 2479
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-001",
@@ -3167,9 +4386,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 3.487704686122015,
+                "seconds": 3.887487481115386,
                 "prompt_tokens": 4756,
-                "cached_tokens": 2359
+                "cached_tokens": 0
               },
               "held_by_part": true,
               "held_by_answer": true
@@ -3187,8 +4406,11 @@
             "truth": "missing",
             "note": "The transducer has lost its mesh cover: the bare metal disc shows inside the ring where the mesh should be. A part that is absent is a missing component, whatever marks the disc carries.",
             "controls": [
-              "bad-059",
-              "bad-063"
+              "bad-063",
+              "bad-017",
+              "bad-021",
+              "bad-050",
+              "bad-001"
             ]
           },
           "expected_class": "missing",
@@ -3203,7 +4425,7 @@
             ],
             "defect_class": "scratch",
             "clause_id": "4.2",
-            "judge_line": "The transducer is present but has a large, irregularly shaped area of discoloration and possible residue on its surface.",
+            "judge_line": "The transducer cover is present but has a visible scratch.",
             "outcome": "reject",
             "review_cause": null,
             "corrections": [],
@@ -3211,9 +4433,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.906008570920676,
+            "seconds": 3.407342276070267,
             "prompt_tokens": 4683,
-            "cached_tokens": 2407
+            "cached_tokens": 0
           },
           "sibling_before": {
             "image_id": "bad-055",
@@ -3231,9 +4453,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.7290603960864246,
+            "seconds": 3.475930036045611,
             "prompt_tokens": 4684,
-            "cached_tokens": 2407
+            "cached_tokens": 0
           },
           "sibling_by_part": {
             "image_id": "bad-055",
@@ -3253,9 +4475,9 @@
             "asked_twice": false,
             "first_class": null,
             "first_clause": null,
-            "seconds": 2.9355050190351903,
+            "seconds": 4.116633941186592,
             "prompt_tokens": 4760,
-            "cached_tokens": 2359
+            "cached_tokens": 0
           },
           "sibling_by_answer": {
             "image_id": "bad-055",
@@ -3275,77 +4497,11 @@
             "asked_twice": true,
             "first_class": "scratch",
             "first_clause": "4.2",
-            "seconds": 4.486349171958864,
+            "seconds": 7.923544928664342,
             "prompt_tokens": 4760,
-            "cached_tokens": 4759
+            "cached_tokens": 0
           },
           "controls": [
-            {
-              "before": {
-                "image_id": "bad-059",
-                "label": "bad",
-                "truth": [
-                  "missing"
-                ],
-                "defect_class": "melt",
-                "clause_id": "4.1",
-                "judge_line": "A lump of solder bridging two pads on the transducer",
-                "outcome": "reject",
-                "review_cause": null,
-                "corrections": [],
-                "requests": 1,
-                "asked_twice": false,
-                "first_class": null,
-                "first_clause": null,
-                "seconds": 2.784468026133254,
-                "prompt_tokens": 4682,
-                "cached_tokens": 2407
-              },
-              "by_part": {
-                "image_id": "bad-059",
-                "label": "bad",
-                "truth": [
-                  "missing"
-                ],
-                "defect_class": "missing",
-                "clause_id": "4.3",
-                "judge_line": "The transducer's mesh cover is missing, exposing the bare metal disc.",
-                "outcome": "reject",
-                "review_cause": null,
-                "corrections": [
-                  "On a pcb1 board the judge called the flagged area 'scratch' (clause 4.2); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: The transducer has lost its mesh cover: the bare metal disc shows inside the ring where the mesh should be. A part that is absent is a missing component, whatever marks the disc carries."
-                ],
-                "requests": 1,
-                "asked_twice": false,
-                "first_class": null,
-                "first_clause": null,
-                "seconds": 2.7856708602048457,
-                "prompt_tokens": 4758,
-                "cached_tokens": 2483
-              },
-              "by_answer": {
-                "image_id": "bad-059",
-                "label": "bad",
-                "truth": [
-                  "missing"
-                ],
-                "defect_class": "missing",
-                "clause_id": "4.3",
-                "judge_line": "The transducer is missing its mesh cover.",
-                "outcome": "reject",
-                "review_cause": null,
-                "corrections": [],
-                "requests": 1,
-                "asked_twice": false,
-                "first_class": null,
-                "first_clause": null,
-                "seconds": 3.226357338950038,
-                "prompt_tokens": 4682,
-                "cached_tokens": 2407
-              },
-              "held_by_part": false,
-              "held_by_answer": false
-            },
             {
               "before": {
                 "image_id": "bad-063",
@@ -3363,9 +4519,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.528101613977924,
+                "seconds": 3.2195268189534545,
                 "prompt_tokens": 4533,
-                "cached_tokens": 2405
+                "cached_tokens": 0
               },
               "by_part": {
                 "image_id": "bad-063",
@@ -3385,9 +4541,9 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.5525893210433424,
+                "seconds": 3.25475064991042,
                 "prompt_tokens": 4609,
-                "cached_tokens": 2359
+                "cached_tokens": 0
               },
               "by_answer": {
                 "image_id": "bad-063",
@@ -3405,9 +4561,273 @@
                 "asked_twice": false,
                 "first_class": null,
                 "first_clause": null,
-                "seconds": 2.4966315920464694,
+                "seconds": 3.2042693090625107,
                 "prompt_tokens": 4533,
-                "cached_tokens": 2359
+                "cached_tokens": 0
+              },
+              "held_by_part": false,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-017",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "A bridge of solder joining two pads",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.015450781909749,
+                "prompt_tokens": 4533,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-017",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "A bridge of solder joining two pads",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'scratch' (clause 4.2); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: The transducer has lost its mesh cover: the bare metal disc shows inside the ring where the mesh should be. A part that is absent is a missing component, whatever marks the disc carries."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.120277410140261,
+                "prompt_tokens": 4609,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-017",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "A bridge of solder joining two pads",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.0041143628768623,
+                "prompt_tokens": 4533,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-021",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "Solder has flowed between the header pins, forming a bridge.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.2931389410514385,
+                "prompt_tokens": 4655,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-021",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "A strand of solder has flowed between two header pins, forming a bridge.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'scratch' (clause 4.2); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: The transducer has lost its mesh cover: the bare metal disc shows inside the ring where the mesh should be. A part that is absent is a missing component, whatever marks the disc carries."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.445068454137072,
+                "prompt_tokens": 4731,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-021",
+                "label": "bad",
+                "truth": [
+                  "melt"
+                ],
+                "defect_class": "melt",
+                "clause_id": "4.1",
+                "judge_line": "Solder has flowed between the header pins, forming a bridge.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.764080602908507,
+                "prompt_tokens": 4655,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-050",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "4.3",
+                "judge_line": "The transducer without its mesh cover is missing.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.387747411848977,
+                "prompt_tokens": 4682,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-050",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "4.3",
+                "judge_line": "The transducer's mesh cover is missing, exposing the bare metal disc.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'scratch' (clause 4.2); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: The transducer has lost its mesh cover: the bare metal disc shows inside the ring where the mesh should be. A part that is absent is a missing component, whatever marks the disc carries."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.493934274185449,
+                "prompt_tokens": 4758,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-050",
+                "label": "bad",
+                "truth": [
+                  "missing"
+                ],
+                "defect_class": "missing",
+                "clause_id": "4.3",
+                "judge_line": "The transducer without its mesh cover is missing.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.7973368419334292,
+                "prompt_tokens": 4682,
+                "cached_tokens": 0
+              },
+              "held_by_part": true,
+              "held_by_answer": true
+            },
+            {
+              "before": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "bent"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "The header pins are bent, with one pin touching another.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.5050642848946154,
+                "prompt_tokens": 4756,
+                "cached_tokens": 0
+              },
+              "by_part": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "bent"
+                ],
+                "defect_class": "missing",
+                "clause_id": "4.3",
+                "judge_line": "The transducer has lost its mesh cover, exposing the bare metal disc.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [
+                  "On a pcb1 board the judge called the flagged area 'scratch' (clause 4.2); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: The transducer has lost its mesh cover: the bare metal disc shows inside the ring where the mesh should be. A part that is absent is a missing component, whatever marks the disc carries."
+                ],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.5500423901248723,
+                "prompt_tokens": 4832,
+                "cached_tokens": 0
+              },
+              "by_answer": {
+                "image_id": "bad-001",
+                "label": "bad",
+                "truth": [
+                  "bent"
+                ],
+                "defect_class": "bent",
+                "clause_id": "4.4",
+                "judge_line": "The header pins are bent, with one pin touching another.",
+                "outcome": "reject",
+                "review_cause": null,
+                "corrections": [],
+                "requests": 1,
+                "asked_twice": false,
+                "first_class": null,
+                "first_clause": null,
+                "seconds": 3.896962122991681,
+                "prompt_tokens": 4756,
+                "cached_tokens": 0
               },
               "held_by_part": false,
               "held_by_answer": true
@@ -3430,11 +4850,11 @@
           "asked_twice": 0,
           "seconds": {
             "n": 24,
-            "p50": 2.5274202650180086,
-            "p95": 2.8036864379653705,
-            "mean": 2.553029277109696,
-            "minimum": 2.3404030818492174,
-            "maximum": 2.9157992219552398
+            "p50": 2.462872112984769,
+            "p95": 2.664703570853453,
+            "mean": 2.4659130194146806,
+            "minimum": 2.254671246977523,
+            "maximum": 2.7378347378689796
           },
           "prompt_tokens": {
             "n": 24,
@@ -3467,7 +4887,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.6122835360001773,
+              "seconds": 2.5480879838578403,
               "prompt_tokens": 4670,
               "cached_tokens": 2391
             },
@@ -3485,7 +4905,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5051228951197118,
+              "seconds": 2.4809603770263493,
               "prompt_tokens": 4521,
               "cached_tokens": 2405
             },
@@ -3503,7 +4923,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4293301589787006,
+              "seconds": 2.413929518079385,
               "prompt_tokens": 4521,
               "cached_tokens": 2444
             },
@@ -3521,7 +4941,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5793431929778308,
+              "seconds": 2.54783314303495,
               "prompt_tokens": 4660,
               "cached_tokens": 2405
             },
@@ -3539,7 +4959,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5116260640788823,
+              "seconds": 2.486456348095089,
               "prompt_tokens": 4589,
               "cached_tokens": 2405
             },
@@ -3549,7 +4969,7 @@
               "truth": [],
               "defect_class": "scratch",
               "clause_id": "4.2",
-              "judge_line": "A dark, curved mark on the board surface near header pins",
+              "judge_line": "A scratch on the board surface in zone A",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -3557,7 +4977,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.673059640917927,
+              "seconds": 2.5303517319262028,
               "prompt_tokens": 4686,
               "cached_tokens": 2391
             },
@@ -3575,7 +4995,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4029439939185977,
+              "seconds": 2.3656411559786648,
               "prompt_tokens": 4579,
               "cached_tokens": 2390
             },
@@ -3585,7 +5005,7 @@
               "truth": [],
               "defect_class": "scratch",
               "clause_id": "4.2",
-              "judge_line": "A small, dark spot on the board surface, likely a foreign material or residue.",
+              "judge_line": "A small, dark spot on the board surface, likely foreign material.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -3593,7 +5013,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.580916645936668,
+              "seconds": 2.443949223961681,
               "prompt_tokens": 4606,
               "cached_tokens": 2390
             },
@@ -3611,7 +5031,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.3734394959174097,
+              "seconds": 2.329149316996336,
               "prompt_tokens": 4593,
               "cached_tokens": 2405
             },
@@ -3629,7 +5049,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.398641313891858,
+              "seconds": 2.3375814091414213,
               "prompt_tokens": 4579,
               "cached_tokens": 2390
             },
@@ -3647,7 +5067,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.3568833770696074,
+              "seconds": 2.2997626850847155,
               "prompt_tokens": 4521,
               "cached_tokens": 2390
             },
@@ -3655,9 +5075,9 @@
               "image_id": "good-0333",
               "label": "good",
               "truth": [],
-              "defect_class": "scratch",
-              "clause_id": "4.2",
-              "judge_line": "A white, irregularly shaped substance on the board surface, likely foreign material.",
+              "defect_class": "melt",
+              "clause_id": "4.1",
+              "judge_line": "Solder that has flowed or splashed to where the design puts none",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -3665,7 +5085,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.543214465957135,
+              "seconds": 2.4449947429820895,
               "prompt_tokens": 4601,
               "cached_tokens": 2391
             },
@@ -3683,7 +5103,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4393785300198942,
+              "seconds": 2.3451617781538516,
               "prompt_tokens": 4578,
               "cached_tokens": 2390
             },
@@ -3701,7 +5121,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.580322502180934,
+              "seconds": 2.5256903099361807,
               "prompt_tokens": 4660,
               "cached_tokens": 2390
             },
@@ -3719,7 +5139,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.3404030818492174,
+              "seconds": 2.3772008228115737,
               "prompt_tokens": 4606,
               "cached_tokens": 2407
             },
@@ -3737,7 +5157,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.460193824954331,
+              "seconds": 2.358534791972488,
               "prompt_tokens": 4594,
               "cached_tokens": 2405
             },
@@ -3755,7 +5175,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.9157992219552398,
+              "seconds": 2.7378347378689796,
               "prompt_tokens": 4727,
               "cached_tokens": 2405
             },
@@ -3773,7 +5193,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.698489216854796,
+              "seconds": 2.4807494829874486,
               "prompt_tokens": 4606,
               "cached_tokens": 2391
             },
@@ -3791,7 +5211,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4259404190815985,
+              "seconds": 2.2909327771048993,
               "prompt_tokens": 4577,
               "cached_tokens": 2390
             },
@@ -3811,7 +5231,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4031061429996043,
+              "seconds": 2.254671246977523,
               "prompt_tokens": 4591,
               "cached_tokens": 2390
             },
@@ -3823,7 +5243,7 @@
               ],
               "defect_class": "bent",
               "clause_id": "4.4",
-              "judge_line": "The header pins are bent, with one pin touching another.",
+              "judge_line": "The header pins are bent, touching each other.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -3831,7 +5251,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.8137370340991765,
+              "seconds": 2.6659426589030772,
               "prompt_tokens": 4756,
               "cached_tokens": 2405
             },
@@ -3851,7 +5271,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7445363129954785,
+              "seconds": 2.6161836460232735,
               "prompt_tokens": 4729,
               "cached_tokens": 2405
             },
@@ -3863,7 +5283,7 @@
               ],
               "defect_class": "melt",
               "clause_id": "4.1",
-              "judge_line": "A stray solder blob on the board surface near the header pins",
+              "judge_line": "A stray solder blob is present on the board surface near the header pins.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [],
@@ -3871,7 +5291,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7467330598738045,
+              "seconds": 2.657682071905583,
               "prompt_tokens": 4682,
               "cached_tokens": 2405
             },
@@ -3891,7 +5311,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7372585230041295,
+              "seconds": 2.6426305051427335,
               "prompt_tokens": 4730,
               "cached_tokens": 2407
             }
@@ -3904,11 +5324,11 @@
           "asked_twice": 0,
           "seconds": {
             "n": 24,
-            "p50": 2.520430679549463,
-            "p95": 2.818623310921248,
-            "mean": 2.5747552834606418,
-            "minimum": 2.334032322978601,
-            "maximum": 2.899118437897414
+            "p50": 2.469635798013769,
+            "p95": 2.7370168214314616,
+            "mean": 2.5274443822951675,
+            "minimum": 2.3192344119306654,
+            "maximum": 2.770480167120695
           },
           "prompt_tokens": {
             "n": 24,
@@ -3944,7 +5364,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.8211393891833723,
+              "seconds": 2.770480167120695,
               "prompt_tokens": 4823,
               "cached_tokens": 2544
             },
@@ -3965,7 +5385,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4233450579922646,
+              "seconds": 2.471962294075638,
               "prompt_tokens": 4674,
               "cached_tokens": 2558
             },
@@ -3986,7 +5406,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4419057299382985,
+              "seconds": 2.4485557009465992,
               "prompt_tokens": 4674,
               "cached_tokens": 2597
             },
@@ -4007,7 +5427,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.604575962992385,
+              "seconds": 2.5545843839645386,
               "prompt_tokens": 4813,
               "cached_tokens": 2558
             },
@@ -4028,7 +5448,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4292779648676515,
+              "seconds": 2.395222649909556,
               "prompt_tokens": 4742,
               "cached_tokens": 2558
             },
@@ -4049,7 +5469,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.6087733660824597,
+              "seconds": 2.5656106742098927,
               "prompt_tokens": 4839,
               "cached_tokens": 2544
             },
@@ -4070,7 +5490,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5080720051191747,
+              "seconds": 2.462679672986269,
               "prompt_tokens": 4732,
               "cached_tokens": 2543
             },
@@ -4091,7 +5511,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.567961632972583,
+              "seconds": 2.5473640530835837,
               "prompt_tokens": 4759,
               "cached_tokens": 2543
             },
@@ -4112,7 +5532,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.532688494073227,
+              "seconds": 2.4374135858379304,
               "prompt_tokens": 4746,
               "cached_tokens": 2558
             },
@@ -4133,7 +5553,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.470563770039007,
+              "seconds": 2.4303331449627876,
               "prompt_tokens": 4732,
               "cached_tokens": 2543
             },
@@ -4154,7 +5574,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.479146745055914,
+              "seconds": 2.4612543859984726,
               "prompt_tokens": 4674,
               "cached_tokens": 2543
             },
@@ -4175,7 +5595,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4928761709015816,
+              "seconds": 2.4673093019519,
               "prompt_tokens": 4754,
               "cached_tokens": 2544
             },
@@ -4185,7 +5605,7 @@
               "truth": [],
               "defect_class": "missing",
               "clause_id": "4.3",
-              "judge_line": "A component is missing, specifically a transducer without its mesh cover, exposing the bare metal disc.",
+              "judge_line": "A component is missing, showing bare metal where a mesh cover should be.",
               "outcome": "needs review",
               "review_cause": "outside every zone",
               "corrections": [
@@ -4196,7 +5616,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.559466889128089,
+              "seconds": 2.4536456579808146,
               "prompt_tokens": 4731,
               "cached_tokens": 2543
             },
@@ -4217,7 +5637,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.6833878888282925,
+              "seconds": 2.6775920239742845,
               "prompt_tokens": 4813,
               "cached_tokens": 2543
             },
@@ -4238,7 +5658,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.3727422039955854,
+              "seconds": 2.3663174270186573,
               "prompt_tokens": 4759,
               "cached_tokens": 2560
             },
@@ -4259,7 +5679,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4572187229059637,
+              "seconds": 2.4390614409931004,
               "prompt_tokens": 4747,
               "cached_tokens": 2558
             },
@@ -4280,7 +5700,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7412913059815764,
+              "seconds": 2.737196244066581,
               "prompt_tokens": 4880,
               "cached_tokens": 2558
             },
@@ -4301,7 +5721,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.508172865025699,
+              "seconds": 2.4766669399105012,
               "prompt_tokens": 4759,
               "cached_tokens": 2544
             },
@@ -4322,7 +5742,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.334032322978601,
+              "seconds": 2.3192344119306654,
               "prompt_tokens": 4730,
               "cached_tokens": 2543
             },
@@ -4345,7 +5765,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.4773121778853238,
+              "seconds": 2.4607459569815546,
               "prompt_tokens": 4744,
               "cached_tokens": 2543
             },
@@ -4368,7 +5788,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.804365534102544,
+              "seconds": 2.736000093165785,
               "prompt_tokens": 4909,
               "cached_tokens": 2558
             },
@@ -4391,7 +5811,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.78326148702763,
+              "seconds": 2.714950793189928,
               "prompt_tokens": 4882,
               "cached_tokens": 2558
             },
@@ -4414,7 +5834,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.899118437897414,
+              "seconds": 2.5801992130000144,
               "prompt_tokens": 4835,
               "cached_tokens": 2558
             },
@@ -4437,7 +5857,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7934306780807674,
+              "seconds": 2.684284957824275,
               "prompt_tokens": 4883,
               "cached_tokens": 2560
             }
@@ -4450,27 +5870,27 @@
           "asked_twice": 21,
           "seconds": {
             "n": 24,
-            "p50": 5.242097744019702,
-            "p95": 6.048536448925733,
-            "mean": 5.013351964987426,
-            "minimum": 2.3471632830332965,
-            "maximum": 6.464910374954343
+            "p50": 5.120658750995062,
+            "p95": 5.8704248169437045,
+            "mean": 4.883102455292828,
+            "minimum": 2.321641664020717,
+            "maximum": 6.31490168813616
           },
           "prompt_tokens": {
             "n": 24,
-            "p50": 4677.0,
+            "p50": 4674.5,
             "p95": 4795.15,
-            "mean": 4687.625,
+            "mean": 4687.416666666667,
             "minimum": 4521.0,
             "maximum": 4803.0
           },
           "cached_tokens": {
             "n": 24,
             "p50": 2359.0,
-            "p95": 2478.85,
-            "mean": 2380.5416666666665,
+            "p95": 2482.4,
+            "mean": 2381.25,
             "minimum": 2359.0,
-            "maximum": 2483.0
+            "maximum": 2484.0
           },
           "judgements": [
             {
@@ -4489,7 +5909,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 5.420917002949864,
+              "seconds": 5.1347635430283844,
               "prompt_tokens": 4746,
               "cached_tokens": 2359
             },
@@ -4509,7 +5929,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 5.612538222922012,
+              "seconds": 5.490462739020586,
               "prompt_tokens": 4597,
               "cached_tokens": 2359
             },
@@ -4517,11 +5937,11 @@
               "image_id": "good-0764",
               "label": "good",
               "truth": [],
-              "defect_class": null,
-              "clause_id": null,
-              "judge_line": "The transducer mesh cover is intact and shows no defect.",
-              "outcome": "needs review",
-              "review_cause": "no clause applies",
+              "defect_class": "bent",
+              "clause_id": "4.4",
+              "judge_line": "The flagged area shows a bent header pin leaning across its neighbours.",
+              "outcome": "reject",
+              "review_cause": null,
               "corrections": [
                 "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
               ],
@@ -4529,7 +5949,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 4.927693238016218,
+              "seconds": 4.876134615158662,
               "prompt_tokens": 4592,
               "cached_tokens": 2359
             },
@@ -4549,7 +5969,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 5.239545059157535,
+              "seconds": 5.10655395896174,
               "prompt_tokens": 4731,
               "cached_tokens": 2359
             },
@@ -4569,7 +5989,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 5.433700279099867,
+              "seconds": 5.305394203867763,
               "prompt_tokens": 4660,
               "cached_tokens": 2359
             },
@@ -4589,9 +6009,9 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 5.969543443992734,
+              "seconds": 5.7040656208992,
               "prompt_tokens": 4762,
-              "cached_tokens": 2467
+              "cached_tokens": 2484
             },
             {
               "image_id": "good-0518",
@@ -4609,7 +6029,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 5.557792488951236,
+              "seconds": 5.335270763142034,
               "prompt_tokens": 4650,
               "cached_tokens": 2359
             },
@@ -4619,7 +6039,7 @@
               "truth": [],
               "defect_class": "missing",
               "clause_id": "4.3",
-              "judge_line": "A transducer is missing its mesh cover, exposing the bare metal disc.",
+              "judge_line": "A transducer without its mesh cover, exposing the bare metal disc.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [
@@ -4629,7 +6049,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 5.066907307133079,
+              "seconds": 4.93937317491509,
               "prompt_tokens": 4682,
               "cached_tokens": 2359
             },
@@ -4649,7 +6069,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 5.244650428881869,
+              "seconds": 5.213206853950396,
               "prompt_tokens": 4669,
               "cached_tokens": 2359
             },
@@ -4669,7 +6089,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 4.8782779378816485,
+              "seconds": 4.833979872753844,
               "prompt_tokens": 4650,
               "cached_tokens": 2359
             },
@@ -4687,7 +6107,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.3471632830332965,
+              "seconds": 2.321641664020717,
               "prompt_tokens": 4521,
               "cached_tokens": 2359
             },
@@ -4695,20 +6115,20 @@
               "image_id": "good-0333",
               "label": "good",
               "truth": [],
-              "defect_class": "missing",
-              "clause_id": "4.3",
-              "judge_line": "The mesh cover of the transducer is missing, exposing the bare metal disc.",
+              "defect_class": "melt",
+              "clause_id": "4.1",
+              "judge_line": "A white, flaky residue on the board surface, likely foreign material.",
               "outcome": "reject",
               "review_cause": null,
               "corrections": [
-                "On a pcb1 board the judge called the flagged area 'scratch' (clause 4.2); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: The transducer has lost its mesh cover: the bare metal disc shows inside the ring where the mesh should be. A part that is absent is a missing component, whatever marks the disc carries."
+                "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: A header pin is bent out of line and leans across its neighbours. There is no solder between the pins: the bright streak is the pin's own metal."
               ],
               "requests": 2,
               "asked_twice": true,
-              "first_class": "scratch",
-              "first_clause": "4.2",
-              "seconds": 5.028035982046276,
-              "prompt_tokens": 4677,
+              "first_class": "melt",
+              "first_clause": "4.1",
+              "seconds": 4.900622974149883,
+              "prompt_tokens": 4672,
               "cached_tokens": 2359
             },
             {
@@ -4727,7 +6147,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 5.330001250142232,
+              "seconds": 4.841561337932944,
               "prompt_tokens": 4649,
               "cached_tokens": 2359
             },
@@ -4747,7 +6167,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 5.212461339076981,
+              "seconds": 5.141931232996285,
               "prompt_tokens": 4731,
               "cached_tokens": 2359
             },
@@ -4767,7 +6187,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 5.264452063944191,
+              "seconds": 5.19510631589219,
               "prompt_tokens": 4682,
               "cached_tokens": 2359
             },
@@ -4787,7 +6207,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 4.828884042799473,
+              "seconds": 4.754446655977517,
               "prompt_tokens": 4670,
               "cached_tokens": 2359
             },
@@ -4807,7 +6227,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 6.0624763909727335,
+              "seconds": 5.889025602024049,
               "prompt_tokens": 4803,
               "cached_tokens": 2483
             },
@@ -4827,7 +6247,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 5.642214621882886,
+              "seconds": 5.407697463873774,
               "prompt_tokens": 4677,
               "cached_tokens": 2359
             },
@@ -4837,7 +6257,7 @@
               "truth": [],
               "defect_class": "scratch",
               "clause_id": "4.2",
-              "judge_line": "A scratch on the board surface",
+              "judge_line": "A scratch is present on the board surface.",
               "outcome": "needs review",
               "review_cause": "outside every zone",
               "corrections": [
@@ -4847,7 +6267,7 @@
               "asked_twice": true,
               "first_class": "scratch",
               "first_clause": "4.2",
-              "seconds": 4.746533008757979,
+              "seconds": 4.6711767059750855,
               "prompt_tokens": 4653,
               "cached_tokens": 2359
             },
@@ -4869,7 +6289,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 4.860875046113506,
+              "seconds": 4.771393803181127,
               "prompt_tokens": 4662,
               "cached_tokens": 2359
             },
@@ -4889,7 +6309,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.7634052969515324,
+              "seconds": 2.686028541997075,
               "prompt_tokens": 4756,
               "cached_tokens": 2359
             },
@@ -4909,7 +6329,7 @@
               "asked_twice": false,
               "first_class": null,
               "first_clause": null,
-              "seconds": 2.5677366070449352,
+              "seconds": 2.594699227018282,
               "prompt_tokens": 4729,
               "cached_tokens": 2405
             },
@@ -4931,7 +6351,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 5.849732442991808,
+              "seconds": 5.765020368155092,
               "prompt_tokens": 4753,
               "cached_tokens": 2478
             },
@@ -4953,7 +6373,7 @@
               "asked_twice": true,
               "first_class": "melt",
               "first_clause": "4.1",
-              "seconds": 6.464910374954343,
+              "seconds": 6.31490168813616,
               "prompt_tokens": 4801,
               "cached_tokens": 2479
             }
@@ -4980,10 +6400,10 @@
           "right_after": 5,
           "wrong_to_right": 3,
           "right_to_wrong": 0,
-          "answers_changed": 19,
+          "answers_changed": 18,
           "good_boards": 19,
           "good_cleared_before": 1,
-          "good_cleared_after": 4
+          "good_cleared_after": 3
         }
       ]
     }
