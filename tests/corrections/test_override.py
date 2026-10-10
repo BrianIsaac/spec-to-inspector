@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from spec_to_inspector.corrections import override as override_module
 from spec_to_inspector.corrections.override import OverrideError, build_override, record_override
 from spec_to_inspector.corrections.store import CorrectionStore
 from spec_to_inspector.judge.client import ChatClient
@@ -14,7 +15,7 @@ from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import DECISION_NAME, judge_image, load_decision
 from tests.judge.fake_vlm import FakeVlm
 from tests.judge.run_fakes import write_run
-from tests.spec.spec_fakes import specification
+from tests.spec.spec_fakes import sized_clause, specification, unconditional_clause
 
 SPEC = specification()
 LINE = "a thin bright line scored across the board face"
@@ -199,3 +200,47 @@ def test_an_image_that_was_never_judged_cannot_be_overridden(
         record_override(store, run / "speck", SPEC, clause_id="4.2")
     with pytest.raises(OverrideError, match="holds no decision"):
         record_override(store, run / "nowhere", SPEC, clause_id="4.2")
+
+
+def test_a_flag_that_cannot_be_written_is_said_and_the_correction_stands(
+    run: Path, store: CorrectionStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The store is the record; a decision file that cannot be rewritten is reported in words."""
+    decision = _judged(run, "scratch")
+
+    def refuse(directory: Path, decision: Decision) -> None:
+        raise PermissionError(13, "Permission denied", str(directory / DECISION_NAME))
+
+    monkeypatch.setattr(override_module, "write_decision", refuse)
+    with pytest.raises(
+        OverrideError, match=r"correction 1 is recorded, but .* could not be flagged"
+    ):
+        record_override(store, run / "scratch", SPEC, clause_id="4.2")
+
+    assert store.overridden("pcb9", "scratch")
+    assert load_decision(run / "scratch") == decision
+
+
+def test_a_class_with_spaces_around_it_is_the_class(run: Path) -> None:
+    """A form's stray space does not make a class unknown."""
+    decision = _judged(run, "scratch")
+
+    override = build_override(decision, SPEC, run / "scratch", defect_class=" missing ")
+
+    assert (override.corrected_class, override.corrected_clause) == ("missing", "4.2")
+
+
+def test_a_class_under_two_headings_needs_its_clause_named(run: Path) -> None:
+    """Where a part has two clauses for one class, the class alone does not say which."""
+    two = specification(
+        clauses=(
+            sized_clause("4.1.1", "A"),
+            sized_clause("4.3.1", "B", heading_id="4.3", title="Scratch at the edge"),
+            unconditional_clause("4.2"),
+        )
+    )
+    decision = _judged(run, "scratch", _reply("missing", "4.2"))
+
+    with pytest.raises(OverrideError, match="'scratch' has more than one clause in part pcb9"):
+        build_override(decision, two, run / "scratch", defect_class="scratch")
+    assert build_override(decision, two, run / "scratch", clause_id="4.3").corrected_clause == "4.3"

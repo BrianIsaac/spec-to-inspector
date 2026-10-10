@@ -25,6 +25,7 @@ from pydantic import (
     ConfigDict,
     Field,
     StringConstraints,
+    ValidationError,
     field_validator,
     model_validator,
 )
@@ -45,7 +46,7 @@ _ClauseNumber = Annotated[
 ]
 
 _CREATE: Final = """
-CREATE TABLE corrections (
+CREATE TABLE IF NOT EXISTS corrections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     category TEXT NOT NULL,
     image_id TEXT NOT NULL,
@@ -60,7 +61,8 @@ CREATE TABLE corrections (
     note TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
-CREATE INDEX corrections_by_region ON corrections (category, image_id, region_index, id);
+CREATE INDEX IF NOT EXISTS corrections_by_region
+    ON corrections (category, image_id, region_index, id);
 """
 
 _COLUMNS: Final = (
@@ -211,17 +213,17 @@ class CorrectionStore:
 
         Raises:
             StoreError: If the file is not a corrections store of this layout,
-                or cannot be opened.
+                or it or its directory cannot be opened or made.
         """
-        if create:
-            self.path.parent.mkdir(parents=True, exist_ok=True)
         try:
+            if create:
+                self.path.parent.mkdir(parents=True, exist_ok=True)
             with closing(sqlite3.connect(self.path, timeout=_BUSY_SECONDS)) as connection:
                 connection.row_factory = sqlite3.Row
                 with connection:
                     self._migrate(connection, create=create)
                     yield connection
-        except sqlite3.OperationalError as error:
+        except (OSError, sqlite3.OperationalError) as error:
             msg = f"the corrections store {self.path} cannot be used: {error}"
             raise StoreError(msg) from error
         except sqlite3.DatabaseError as error:
@@ -299,7 +301,11 @@ class CorrectionStore:
             if not _has_table(connection):
                 return []
             rows = connection.execute(query, tuple(parameters)).fetchall()
-        return [Correction.model_validate(dict(row)) for row in rows]
+        try:
+            return [Correction.model_validate(dict(row)) for row in rows]
+        except ValidationError as error:
+            msg = f"{self.path} holds a row this code cannot read as a correction: {error}"
+            raise StoreError(msg) from error
 
     def recall_for_part(self, category: str, *, limit: int = MAX_RECALL) -> list[Correction]:
         """Recall a part's most recent corrections.

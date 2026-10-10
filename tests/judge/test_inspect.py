@@ -718,3 +718,19 @@ def test_a_decision_written_before_the_flag_existed_still_reads(run: Path) -> No
     path.write_text(json.dumps(old), encoding="utf-8")
 
     assert load_decision(run / "scratch") == decision
+
+
+def test_lines_already_in_the_prompt_do_not_bring_a_second_question(run: Path) -> None:
+    """Recall on the answer that gives what recall by part already showed asks once."""
+    with FakeVlm([_reply()]) as server:
+        decision = _judge(
+            run,
+            "scratch",
+            server,
+            recall=lambda _: [CORRECTION],
+            recall_on_answer=lambda *_: [CORRECTION],
+        )
+
+    assert len(server.requests) == 1
+    assert decision.regions[0].first_answer is None
+    assert decision.regions[0].corrections == (CORRECTION,)

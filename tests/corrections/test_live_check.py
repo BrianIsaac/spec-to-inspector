@@ -399,3 +399,17 @@ def test_the_command_fails_in_words_without_a_server_or_a_pair(
     assert "no pair to check; the pairs are of pcb9" in other.output
     assert unreadable.exit_code == 1
     assert not (tmp_path / "c.json").exists()
+
+
+def test_an_image_that_was_not_put_to_the_judge_is_not_a_judgement(
+    tmp_path: Path, store: CorrectionStore, client: tuple[FakeVlm, ChatClient]
+) -> None:
+    """A region referred before the question (its crop is gone) is no before and no timing."""
+    _, chat = client
+    broken = write_run(tmp_path / "broken", {"scratch": "scratch", "speck": "speck"})
+    (broken / "speck" / "crops" / "region-001.png").unlink()
+
+    with pytest.raises(LiveCheckError, match="speck was not put to the judge"):
+        check_pair(
+            PAIR.model_copy(update={"sibling": "speck", "controls": ()}), broken, SPEC, chat, store
+        )

@@ -115,13 +115,13 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
     Pair(
         category="pcb4",
         misjudged="bad-011",
-        sibling="bad-020",
+        sibling="bad-007",
         truth="damage",
         note=(
             "The component's body is cracked open and pieces of it lie beside it: it was "
             "broken by force. A burn leaves the part whole but charred or sooty."
         ),
-        controls=("bad-003", "bad-009"),
+        controls=("bad-000", "bad-001", "bad-003", "bad-009", "bad-018"),
     ),
     Pair(
         category="pcb4",
@@ -132,7 +132,7 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
             "A loose black part lies across pads where the board has no component of its own: "
             "an extra object on the board. The black is the part's own body, not charring."
         ),
-        controls=("bad-000", "bad-028"),
+        controls=("bad-000", "bad-001", "bad-003", "bad-028", "bad-035"),
     ),
     Pair(
         category="pcb4",
@@ -144,7 +144,7 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
             "component is absent. Dark specks on a bare pad are flux residue, not foreign "
             "material."
         ),
-        controls=("bad-056", "bad-047"),
+        controls=("bad-002", "bad-004", "bad-056", "bad-049", "bad-052"),
     ),
     Pair(
         category="pcb4",
@@ -155,7 +155,7 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
             "The connector's metal shell is dented and bent out of shape: mechanical damage. "
             "Its surface is clean metal with nothing lying on it."
         ),
-        controls=("bad-004", "bad-056"),
+        controls=("bad-002", "bad-004", "bad-056", "bad-009", "bad-018"),
     ),
     Pair(
         category="pcb4",
@@ -167,7 +167,7 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
             "bare where it should be. The detector reacted to an ordinary difference between "
             "boards."
         ),
-        controls=("bad-002", "bad-056"),
+        controls=("bad-002", "bad-004", "bad-056", "good-0423", "good-0688"),
     ),
     Pair(
         category="pcb1",
@@ -178,7 +178,7 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
             "A header pin is bent out of line and leans across its neighbours. There is no "
             "solder between the pins: the bright streak is the pin's own metal."
         ),
-        controls=("bad-021", "bad-001"),
+        controls=("bad-017", "bad-019", "bad-021", "bad-026", "bad-001"),
     ),
     Pair(
         category="pcb1",
@@ -190,7 +190,7 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
             "where the mesh should be. A part that is absent is a missing component, whatever "
             "marks the disc carries."
         ),
-        controls=("bad-059", "bad-063"),
+        controls=("bad-063", "bad-017", "bad-021", "bad-050", "bad-001"),
     ),
 )
 """The scripted pairs, chosen from the judge's answers on the two test runs with an empty slot.
@@ -198,8 +198,10 @@ DEFAULT_PAIRS: Final[tuple[Pair, ...]] = (
 On pcb4: a damaged component called a burn; a stray part called a burn; a missing component
 called foreign material; a dented connector called foreign material; and a good board the
 anomaly model flagged, called foreign material. On pcb1: a bent header pin called stray
-solder, and a transducer without its mesh cover called a scratch. The controls are images
-the judge had right.
+solder, and a transducer without its mesh cover called a scratch. The controls of a pair
+are images of the class the judge was corrected away from, which should keep their answer,
+and images of the class corrected to; for the pair of good boards, two more flagged good
+boards.
 The notes were written for the check from the crops; see `NOTES`."""
 
 
@@ -455,8 +457,9 @@ def _judgement(decision: Decision, result: ImageResult) -> Judgement:
         The judgement.
 
     Raises:
-        LiveCheckError: If the image has no region to judge, or the judge
-            could not be reached.
+        LiveCheckError: If the image has no region to judge, the region was
+            referred before the judge was asked, or the judge could not be
+            reached.
     """
     if not decision.regions:
         msg = f"{decision.image_id} has no flagged area, so there is nothing to put to the judge"
@@ -466,7 +469,10 @@ def _judgement(decision: Decision, result: ImageResult) -> Judgement:
         msg = f"{decision.image_id}: {region.reason}"
         raise LiveCheckError(msg)
     calls = [call for call in (region.first_call, region.call) if call is not None]
-    last = calls[-1] if calls else None
+    if not calls:
+        msg = f"{decision.image_id} was not put to the judge: {region.reason}"
+        raise LiveCheckError(msg)
+    last = calls[-1]
     values = result.regions[0].ground_truth_values or []
     try:
         truth = tuple(defect_types(result.category, values))
@@ -487,8 +493,8 @@ def _judgement(decision: Decision, result: ImageResult) -> Judgement:
         first_class=None if region.first_answer is None else region.first_answer.defect_class,
         first_clause=None if region.first_answer is None else region.first_answer.clause_id,
         seconds=sum(call.seconds for call in calls),
-        prompt_tokens=None if last is None else last.prompt_tokens,
-        cached_tokens=None if last is None else last.cached_tokens,
+        prompt_tokens=last.prompt_tokens,
+        cached_tokens=last.cached_tokens,
     )
 
 

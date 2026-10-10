@@ -241,3 +241,63 @@ def test_a_correction_copied_into_another_store_is_a_new_row_there(
 
     assert copied.id == 1
     assert copied.model_dump(exclude={"id", "created_at"}) == _override().model_dump()
+
+
+def test_a_store_whose_directory_cannot_be_made_is_an_error_in_words(tmp_path: Path) -> None:
+    """A path under a file cannot hold the store; the error is the store's own."""
+    (tmp_path / "runs").write_text("a file where the runs directory should be")
+
+    with pytest.raises(StoreError, match="cannot be used"):
+        CorrectionStore(tmp_path / "runs" / "corrections.sqlite3").record(_override())
+
+
+def test_a_table_of_another_shape_or_a_damaged_row_is_refused(
+    store: CorrectionStore, tmp_path: Path
+) -> None:
+    """Neither a foreign table of the same name nor a row edited by hand is read as a correction."""
+    foreign = tmp_path / "foreign.sqlite3"
+    with sqlite3.connect(foreign) as connection:
+        connection.execute("CREATE TABLE corrections (id INTEGER PRIMARY KEY, category TEXT)")
+        connection.execute("PRAGMA user_version = 1")
+    with pytest.raises(StoreError, match="cannot be used"):
+        CorrectionStore(foreign).recall_for_part("pcb4")
+
+    store.record(_override())
+    with sqlite3.connect(store.path) as connection:
+        connection.execute("UPDATE corrections SET judged_outcome = 'perhaps'")
+    with pytest.raises(StoreError, match="holds a row this code cannot read"):
+        store.recall_for_part("pcb4")
+
+
+def test_an_empty_file_is_an_empty_store_and_takes_the_first_row(tmp_path: Path) -> None:
+    """A zero-byte file reads as empty, and the first override gives it its table."""
+    path = tmp_path / "corrections.sqlite3"
+    path.touch()
+    store = CorrectionStore(path)
+
+    assert store.count() == 0
+    assert store.recall_for_part("pcb4") == []
+    assert store.record(_override()).id == 1
+
+
+def test_recall_by_answer_goes_by_the_engineers_last_word_on_a_region(
+    store: CorrectionStore,
+) -> None:
+    """An older row that matched the answer is not recalled once the region was overridden again."""
+    store.record(_override())
+    store.record(_override(judged_class="dirt", judged_clause="5.1", judged_reason="a dark spot"))
+
+    assert store.recall_for_answer("pcb4", "burnt", "5.7") == []
+    assert len(store.recall_for_answer("pcb4", "dirt", "5.1")) == 1
+
+
+def test_the_table_is_made_once_however_many_writers_begin(store: CorrectionStore) -> None:
+    """Creating the layout again in a file that has it is harmless."""
+    store.record(_override())
+    with sqlite3.connect(store.path) as connection:
+        connection.execute("PRAGMA user_version = 0")
+        tables = connection.execute("SELECT COUNT(*) FROM sqlite_master").fetchone()[0]
+    assert tables > 0
+
+    with pytest.raises(StoreError, match="layout 0"):
+        store.record(_override(image_id="bad-020"))

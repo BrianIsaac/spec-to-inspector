@@ -87,6 +87,7 @@ def _citation(
     """
     if clause_id is None and defect_class is None:
         return None, None
+    defect_class = None if defect_class is None else defect_class.strip()
     headings: dict[str, str] = {}
     rows: dict[str, str] = {}
     for clause in specification.clauses:
@@ -214,7 +215,9 @@ def record_override(
 
     Raises:
         OverrideError: If the image has no decision, or the override cannot
-            be made from it as asked.
+            be made from it as asked; nothing is stored then. Also if the row
+            was stored and the decision's file could not be written again:
+            the correction stands, and the message says so.
         spec_to_inspector.corrections.store.StoreError: If the store's file
             cannot be used.
     """
@@ -237,5 +240,12 @@ def record_override(
     )
     kept = store.record(override)
     flagged = decision.corrected.model_copy(update={"overridden": True})
-    write_decision(directory, decision.model_copy(update={"corrected": flagged}))
+    try:
+        write_decision(directory, decision.model_copy(update={"corrected": flagged}))
+    except OSError as error:
+        msg = (
+            f"correction {kept.id} is recorded, but {directory / DECISION_NAME} could not be "
+            f"flagged as overridden ({error}); the flag is set when the image is next judged"
+        )
+        raise OverrideError(msg) from error
     return kept
