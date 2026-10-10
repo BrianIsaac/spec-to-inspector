@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
+from spec_to_inspector.settings import Settings
 from spec_to_inspector.spec.figures import (
     CROP_SIZE,
     ZONE_COLOURS,
@@ -164,3 +165,17 @@ A scratch is rejected.
 
 ![A scratch.](figures/scratch.jpg "visa:{IMAGE}#mask=2")
 """
+
+
+@pytest.mark.data
+def test_the_tracked_figures_are_what_the_fetched_data_builds(tmp_path: Path) -> None:
+    """Rebuilt from `data/visa`, every figure of the demo specification is the tracked file."""
+    specs = Path(__file__).resolve().parents[2] / "specs"
+    source = tmp_path / "pcb-spec.md"
+    source.write_text((specs / "pcb-spec.md").read_text(encoding="utf-8"), encoding="utf-8")
+
+    built = build_figures(source, visa_dir=Settings().visa_dir.resolve())
+
+    assert len(built) == 14
+    for path in built:
+        assert path.read_bytes() == (specs / "figures" / path.name).read_bytes(), path.name
