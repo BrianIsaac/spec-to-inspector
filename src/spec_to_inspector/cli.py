@@ -1,7 +1,9 @@
 """The one entry point: `spec-to-inspector <verb>`."""
 
 import signal
+import sys
 import time
+import warnings
 from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
@@ -23,6 +25,7 @@ from rich.table import Table
 
 from spec_to_inspector.datasets.visa import (
     MANIFEST_NAME,
+    PUBLISHED_COUNTS,
     FetchResult,
     VisaFetchError,
     VisaVerificationError,
@@ -47,6 +50,10 @@ app.add_typer(data_app, name="data")
 
 out = Console()
 err = Console(stderr=True)
+
+TRAIN_BACKBONE = "wide_resnet50_2"
+"""The product's PatchCore backbone, Anomalib's default; kept here so the anomaly package,
+which takes seconds to import, is loaded by the `train` verb alone."""
 
 
 def _not_built(verb: str, unit: str) -> NoReturn:
@@ -335,9 +342,158 @@ def parse(
 
 
 @app.command()
-def train() -> None:
-    """Train the anomaly model on good boards of one category."""
-    _not_built("train", "U2")
+def train(
+    category: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--category",
+            "-c",
+            help="A VisA PCB category to train: pcb1, pcb2, pcb3 or pcb4. May be repeated.",
+        ),
+    ] = None,
+    all_categories: Annotated[
+        bool, typer.Option("--all", help="Train the four PCB categories, pcb1 to pcb4.")
+    ] = False,
+    models_dir: Annotated[
+        Path | None,
+        typer.Option(
+            "--models-dir",
+            help="The output root for trained models; each lands in "
+            "<models-dir>/patchcore/<category>/. Defaults to the settings' models directory.",
+        ),
+    ] = None,
+    runs_dir: Annotated[
+        Path | None,
+        typer.Option(
+            "--runs-dir",
+            help="The output root for inference; the test split lands in "
+            "<runs-dir>/<category>/test/. Defaults to the settings' runs directory.",
+        ),
+    ] = None,
+    reuse: Annotated[
+        bool,
+        typer.Option("--reuse", help="Keep a model already on disk instead of training it again."),
+    ] = False,
+    infer: Annotated[
+        bool,
+        typer.Option(
+            "--infer/--no-infer",
+            help="Score the category's test split and write, per image, the score, the anomaly "
+            "map, the thresholded mask and the region crops.",
+        ),
+    ] = True,
+    bench: Annotated[
+        bool,
+        typer.Option(
+            "--bench",
+            help="Measure inference images per second and peak GPU memory at batch 1 and "
+            "batch 16 on the test split, into <runs-dir>/<category>/bench.json.",
+        ),
+    ] = False,
+    results_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--results",
+            help="Collect every chosen category's figures from disk into this JSON file, "
+            "such as results/stage1/anomaly.json.",
+        ),
+    ] = None,
+    seed: Annotated[
+        int,
+        typer.Option("--seed", help="The seed for the coreset's random projection and first pick."),
+    ] = 0,
+    backbone: Annotated[
+        str,
+        typer.Option(
+            "--backbone",
+            help="The feature extractor, as timm names it. Another than the default is for "
+            "comparison only and needs its own --models-dir.",
+        ),
+    ] = TRAIN_BACKBONE,
+) -> None:
+    """Train the anomaly model on good boards of a category, and score its test split.
+
+    PatchCore through Anomalib, at 256 px, on the category's normal training
+    images; the thresholds are Anomalib's adaptive F1 thresholds. Needs the
+    CUDA GPU and the data from `spec-to-inspector data fetch`.
+    """
+    known = tuple(PUBLISHED_COUNTS)
+    if all_categories == bool(category):
+        raise typer.BadParameter(
+            "give --category (once or more) or --all, not both and not neither"
+        )
+    chosen = known if all_categories else tuple(dict.fromkeys(category or ()))
+    unknown = [name for name in chosen if name not in known]
+    if unknown:
+        raise typer.BadParameter(
+            f"unknown category {', '.join(unknown)}; the PCB categories are {', '.join(known)}",
+            param_hint="--category",
+        )
+
+    settings = Settings()
+    models_root = models_dir or settings.models_dir
+    runs_root = runs_dir or settings.runs_dir
+    if backbone != TRAIN_BACKBONE and models_root.resolve() == settings.models_dir.resolve():
+        raise typer.BadParameter(
+            f"a backbone other than {TRAIN_BACKBONE} is for comparison: give it a --models-dir "
+            f"of its own, not {settings.models_dir}, so the product's models are not replaced",
+            param_hint="--backbone",
+        )
+
+    # Anomalib takes about ten seconds to import, so it is loaded for this verb only; its
+    # dependencies' import-time deprecation notices are not the user's to act on.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", FutureWarning)
+        from spec_to_inspector.anomaly import console, pipeline, results  # noqa: PLC0415
+
+    outcomes: list[pipeline.CategoryOutcome] = []
+    try:
+        with _terminate_cleanly():
+            for name in chosen:
+                err.print(
+                    f"{name}: "
+                    + (
+                        "reusing the model on disk if there is one"
+                        if reuse
+                        else "PatchCore on the normal training images"
+                    )
+                    + (", then the test split" if infer else ""),
+                    markup=False,
+                    highlight=False,
+                    soft_wrap=True,
+                )
+                outcomes.append(
+                    pipeline.train_and_score(
+                        name,
+                        visa_dir=settings.visa_dir,
+                        models_dir=models_root,
+                        runs_dir=runs_root,
+                        reuse=reuse,
+                        infer=infer,
+                        bench=bench,
+                        seed=seed,
+                        backbone=backbone,
+                    )
+                )
+            if results_path is not None:
+                results.write_results(
+                    results_path,
+                    results.collect(
+                        chosen,
+                        models_dir=models_root,
+                        runs_dir=runs_root,
+                        written_by=["spec-to-inspector", *sys.argv[1:]],
+                    ),
+                )
+    except RuntimeError as error:
+        err.print(str(error), markup=False, highlight=False, soft_wrap=True)
+        raise typer.Exit(code=1) from error
+
+    out.print(console.outcome_table(outcomes))
+    for line in console.outcome_lines(outcomes, models_root, runs_root):
+        out.print(line, markup=False, highlight=False, soft_wrap=True)
+    if results_path is not None:
+        out.print(f"Figures: {results_path}", markup=False, highlight=False, soft_wrap=True)
 
 
 @app.command()

@@ -10,10 +10,11 @@ dependencies = [
     "fastapi>=0.143.0",
     "httpx>=0.28.1",
     "jinja2>=3.1.6",
+    "lightning>=2.6.6",
     "markdown-it-py>=4.2.0",
-    "pillow>=12.3.0",
     "numpy>=2.5.3",
     "opencv-python-headless>=5.0.0.93",
+    "pillow>=12.3.0",
     "pydantic>=2.14.0",
     "pydantic-settings>=2.15.0",
     "rich>=13.5.2",
@@ -21,7 +22,7 @@ dependencies = [
     "torch==2.14.1",
     "torchcodec==0.17.0",
     "torchvision==0.29.1",
-    "typer>=0.26,<0.27",  # docling 2.135.0 caps typer below 0.27
+    "typer>=0.26,<0.27", # docling 2.135.0 caps typer below 0.27
 ]
 
 [project.scripts]
@@ -34,6 +35,7 @@ dev = [
     "pyright==1.1.414",
     "pytest>=9.1.1",
     "ruff==0.16.10",
+    "torchmetrics>=1.9.0",
 ]
 
 [build-system]
@@ -94,4 +96,19 @@ addopts = ["--import-mode=importlib", "-m", "not gpu and not data", "--strict-ma
 markers = [
     "gpu: needs the CUDA GPU (run with -m gpu)",
     "data: needs the fetched VisA data under data/visa (run with -m data)",
+]
+filterwarnings = [
+    # Deprecations inside the pinned third-party stack, raised at import or by Anomalib's own calls:
+    # kornia calls torch.jit.script under torch 2.14; Anomalib imports timm's and its own old paths.
+    "ignore:`torch.jit.script` is deprecated:FutureWarning",
+    "ignore:Importing from timm.models.layers is deprecated:FutureWarning",
+    "ignore:The anomalib.models.components.dinov2 package is deprecated:FutureWarning",
+    "ignore:Argument embeddings is deprecated since v2.1.0",
+    # FrEIA, an Anomalib dependency, has an unescaped backslash in a docstring; Python says so
+    # once, when it first compiles the module in a fresh environment.
+    "ignore:invalid escape sequence:SyntaxWarning",
+    # Raised only in the gpu-marked runs: Lightning 2.6 on torch 2.14's pytree, and the data
+    # loaders' fork() under pytest's threads.
+    "ignore:`isinstance\\(treespec, LeafSpec\\)` is deprecated",
+    "ignore:This process \\(pid=\\d+\\) is multi-threaded, use of fork\\(\\):DeprecationWarning",
 ]

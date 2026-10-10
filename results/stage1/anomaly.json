@@ -1,0 +1,959 @@
+{
+  "schema_version": 1,
+  "unit": "U2",
+  "created_at": "2026-10-10T15:08:40+00:00",
+  "written_by": [
+    "spec-to-inspector",
+    "train",
+    "--all",
+    "--reuse",
+    "--bench",
+    "--results",
+    "results/stage1/anomaly.json"
+  ],
+  "reference_source": "Rolih, Ameln, Vaidya and Akcay, 'Divide and Conquer: High-Resolution Industrial Anomaly Detection via Memory Efficient Tiled Ensemble', arXiv 2403.04932: the table 'VisA results of all 6 setups for Patchcore' (Table 7 in v1 of 7 March 2024, Table 9 in v2 of 8 April 2024), column 'Single model 256' (SM256), detection AUROC; cited as the published reference, not as a current fact",
+  "reference_backbone": "resnet18",
+  "reference_note": "The paper's figures are the mean of 3 runs with a ResNet18 backbone, batch size 8, centre crop disabled. The product's PatchCore uses Anomalib's default wide_resnet50_2, so the comparison is to the published setting at the same resolution, not like for like in backbone. The paper's second figure per cell is AUPRO; it publishes no pixel AUROC. Its SM256 cells for PCB3 and PCB4 are identical (99.0/86.6) in both versions of the PDF.",
+  "gate_points": 3.0,
+  "outside_gate": [
+    "pcb3"
+  ],
+  "thresholds_tuned_on_test": true,
+  "notes": [
+    "AUROC and F1 are fractions of 1; *_points are percentage points (AUROC x 100).",
+    "*_bytes are bytes; *_seconds and seconds are wall-clock seconds.",
+    "Thresholds, scores and anomaly-map values are raw PatchCore distances, not normalised.",
+    "peak_allocated_bytes is torch.cuda.max_memory_allocated; peak_reserved_bytes is torch.cuda.max_memory_reserved, which is what the card actually gives up.",
+    "Where thresholds.tuned_on_test is true, every thresholded figure (F1, the confusion counts, predicted_anomalous) was tuned on the test images; AUROC needs no threshold."
+  ],
+  "categories": {
+    "pcb1": {
+      "category": "pcb1",
+      "comparison": {
+        "category": "pcb1",
+        "measured_points": 92.9699957370758,
+        "reference_points": 94.9,
+        "delta_points": -1.93,
+        "within_gate": true
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb1",
+        "created_at": "2026-10-10T14:32:20+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 904,
+        "test_good": 100,
+        "test_bad": 100,
+        "embedding_rows": 925696,
+        "memory_bank_rows": 92569,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 31.319473266601562,
+          "pixel": 41.46425247192383,
+          "image_min": 24.39255714416504,
+          "image_max": 67.99083709716797,
+          "pixel_min": 9.750436782836914,
+          "pixel_max": 68.58979797363281,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 200,
+          "split_images_in_test": 200,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.9296999573707581,
+          "pixel_auroc": 0.9961406588554382,
+          "image_f1": 0.8666666746139526,
+          "pixel_f1": 0.7694997787475586
+        },
+        "embed": {
+          "seconds": 4.717423124006018,
+          "peak_allocated_bytes": 6422828032,
+          "peak_reserved_bytes": 6733955072
+        },
+        "coreset": {
+          "seconds": 709.4259648290463,
+          "peak_allocated_bytes": 8392051200,
+          "peak_reserved_bytes": 9292480512
+        },
+        "validate_split": {
+          "seconds": 8.696832254063338,
+          "peak_allocated_bytes": 1656686592,
+          "peak_reserved_bytes": 9292480512
+        },
+        "test": {
+          "seconds": 14.084944276837632,
+          "peak_allocated_bytes": 1603204096,
+          "peak_reserved_bytes": 2189426688
+        },
+        "fit_seconds": 725.7355407320429,
+        "peak_allocated_bytes": 8392051200,
+        "peak_reserved_bytes": 9292480512,
+        "gpu_free_bytes_before": 11573460992,
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 668470439,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+cu130",
+          "torchvision": "0.29.1+cu130"
+        }
+      },
+      "run": {
+        "directory": "runs/pcb1/test",
+        "created_at": "2026-10-10T14:58:37+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 200,
+        "labelled_good": 100,
+        "labelled_bad": 100,
+        "image_auroc": 0.9297,
+        "seconds": 17.003272328991443,
+        "predicted_anomalous": 110,
+        "true_positive": 91,
+        "false_negative": 9,
+        "true_negative": 81,
+        "false_positive": 19,
+        "regions": 139,
+        "images_with_regions": 110,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 17,
+        "anomalous_with_region": 91,
+        "anomalous_top_region_on_defect": 77
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb1",
+        "created_at": "2026-10-10T15:00:51+00:00",
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "images": 200,
+        "resident_bytes": 668356981,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              9.162399912951514,
+              9.200585155980662,
+              9.219016770133749
+            ],
+            "seconds": 9.200585155980662,
+            "images_per_second": 21.737747829005624,
+            "peak_allocated_bytes": 1282363904,
+            "peak_reserved_bytes": 1830813696,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              9.735581058077514,
+              9.712124173063785,
+              9.716565337963402
+            ],
+            "seconds": 9.716565337963402,
+            "images_per_second": 20.583405045256466,
+            "peak_allocated_bytes": 1282626560,
+            "peak_reserved_bytes": 1830813696,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              7.968400635989383,
+              7.973962269956246,
+              7.985361093189567
+            ],
+            "seconds": 7.973962269956246,
+            "images_per_second": 25.081633600593577,
+            "peak_allocated_bytes": 1436086784,
+            "peak_reserved_bytes": 1828716544,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              8.752516762819141,
+              8.747318794950843,
+              8.744342542020604
+            ],
+            "seconds": 8.747318794950843,
+            "images_per_second": 22.864148968189507,
+            "peak_allocated_bytes": 1440281600,
+            "peak_reserved_bytes": 1828716544,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    },
+    "pcb2": {
+      "category": "pcb2",
+      "comparison": {
+        "category": "pcb2",
+        "measured_points": 92.330002784729,
+        "reference_points": 92.4,
+        "delta_points": -0.07,
+        "within_gate": true
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb2",
+        "created_at": "2026-10-10T14:45:06+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 901,
+        "test_good": 100,
+        "test_bad": 100,
+        "embedding_rows": 922624,
+        "memory_bank_rows": 92262,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 29.304933547973633,
+          "pixel": 34.74386215209961,
+          "image_min": 23.895116806030273,
+          "image_max": 67.66985321044922,
+          "pixel_min": 11.812572479248047,
+          "pixel_max": 64.81105041503906,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 200,
+          "split_images_in_test": 200,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.92330002784729,
+          "pixel_auroc": 0.9817203283309937,
+          "image_f1": 0.8529411554336548,
+          "pixel_f1": 0.17255491018295288
+        },
+        "embed": {
+          "seconds": 4.939570121932775,
+          "peak_allocated_bytes": 6403953664,
+          "peak_reserved_bytes": 6715080704
+        },
+        "coreset": {
+          "seconds": 706.7617513160221,
+          "peak_allocated_bytes": 8364606464,
+          "peak_reserved_bytes": 9265217536
+        },
+        "validate_split": {
+          "seconds": 8.115072515094653,
+          "peak_allocated_bytes": 1652912640,
+          "peak_reserved_bytes": 9265217536
+        },
+        "test": {
+          "seconds": 11.764683448942378,
+          "peak_allocated_bytes": 1599430144,
+          "peak_reserved_bytes": 2185232384
+        },
+        "fit_seconds": 721.99358231714,
+        "peak_allocated_bytes": 8364606464,
+        "peak_reserved_bytes": 9265217536,
+        "gpu_free_bytes_before": 11573460992,
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 666584231,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+cu130",
+          "torchvision": "0.29.1+cu130"
+        }
+      },
+      "run": {
+        "directory": "runs/pcb2/test",
+        "created_at": "2026-10-10T15:01:10+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 200,
+        "labelled_good": 100,
+        "labelled_bad": 100,
+        "image_auroc": 0.9233,
+        "seconds": 17.20234333211556,
+        "predicted_anomalous": 104,
+        "true_positive": 87,
+        "false_negative": 13,
+        "true_negative": 83,
+        "false_positive": 17,
+        "regions": 118,
+        "images_with_regions": 104,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 18,
+        "anomalous_with_region": 87,
+        "anomalous_top_region_on_defect": 78
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb2",
+        "created_at": "2026-10-10T15:03:24+00:00",
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "images": 200,
+        "resident_bytes": 666470773,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              9.193273750832304,
+              9.212300153216347,
+              9.224928987910971
+            ],
+            "seconds": 9.212300153216347,
+            "images_per_second": 21.710104607281252,
+            "peak_allocated_bytes": 1277541376,
+            "peak_reserved_bytes": 1721761792,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              9.771321289939806,
+              9.763088473118842,
+              9.74053996289149
+            ],
+            "seconds": 9.763088473118842,
+            "images_per_second": 20.485320864465088,
+            "peak_allocated_bytes": 1277804032,
+            "peak_reserved_bytes": 1721761792,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              7.961192090064287,
+              7.9667584099806845,
+              7.967121673049405
+            ],
+            "seconds": 7.9667584099806845,
+            "images_per_second": 25.104313411768803,
+            "peak_allocated_bytes": 1431264256,
+            "peak_reserved_bytes": 1719664640,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              8.798044531140476,
+              8.795984904980287,
+              8.803819571854547
+            ],
+            "seconds": 8.798044531140476,
+            "images_per_second": 22.732324130902565,
+            "peak_allocated_bytes": 1435459072,
+            "peak_reserved_bytes": 1719664640,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    },
+    "pcb3": {
+      "category": "pcb3",
+      "comparison": {
+        "category": "pcb3",
+        "measured_points": 92.07921028137207,
+        "reference_points": 99.0,
+        "delta_points": -6.92,
+        "within_gate": false
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb3",
+        "created_at": "2026-10-10T14:57:50+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 905,
+        "test_good": 101,
+        "test_bad": 100,
+        "embedding_rows": 926720,
+        "memory_bank_rows": 92672,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 31.54306983947754,
+          "pixel": 45.4342041015625,
+          "image_min": 24.89813804626465,
+          "image_max": 64.24115753173828,
+          "pixel_min": 10.090832710266113,
+          "pixel_max": 62.76778030395508,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 201,
+          "split_images_in_test": 201,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.9207921028137207,
+          "pixel_auroc": 0.9805978536605835,
+          "image_f1": 0.8487805128097534,
+          "pixel_f1": 0.3349737524986267
+        },
+        "embed": {
+          "seconds": 4.545037255156785,
+          "peak_allocated_bytes": 6429119488,
+          "peak_reserved_bytes": 6740246528
+        },
+        "coreset": {
+          "seconds": 708.9320143228397,
+          "peak_allocated_bytes": 8399280128,
+          "peak_reserved_bytes": 9302966272
+        },
+        "validate_split": {
+          "seconds": 8.141073988052085,
+          "peak_allocated_bytes": 1657952256,
+          "peak_reserved_bytes": 9302966272
+        },
+        "test": {
+          "seconds": 11.46728655602783,
+          "peak_allocated_bytes": 1606566912,
+          "peak_reserved_bytes": 2189426688
+        },
+        "fit_seconds": 723.4760688389651,
+        "peak_allocated_bytes": 8399280128,
+        "peak_reserved_bytes": 9302966272,
+        "gpu_free_bytes_before": 11573460992,
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 669103271,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+cu130",
+          "torchvision": "0.29.1+cu130"
+        }
+      },
+      "run": {
+        "directory": "runs/pcb3/test",
+        "created_at": "2026-10-10T15:03:44+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 201,
+        "labelled_good": 101,
+        "labelled_bad": 100,
+        "image_auroc": 0.9207920792079208,
+        "seconds": 18.761801501037553,
+        "predicted_anomalous": 105,
+        "true_positive": 87,
+        "false_negative": 13,
+        "true_negative": 83,
+        "false_positive": 18,
+        "regions": 174,
+        "images_with_regions": 105,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 11,
+        "anomalous_with_region": 87,
+        "anomalous_top_region_on_defect": 60
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb3",
+        "created_at": "2026-10-10T15:05:59+00:00",
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "images": 201,
+        "resident_bytes": 668989813,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              9.250991031061858,
+              9.278354302048683,
+              9.282412784872577
+            ],
+            "seconds": 9.278354302048683,
+            "images_per_second": 21.66332449232066,
+            "peak_allocated_bytes": 1284678144,
+            "peak_reserved_bytes": 1725956096,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              9.779904444003478,
+              9.793853173032403,
+              9.786931479815394
+            ],
+            "seconds": 9.786931479815394,
+            "images_per_second": 20.537591421227706,
+            "peak_allocated_bytes": 1284940800,
+            "peak_reserved_bytes": 1725956096,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              8.001909089973196,
+              8.004994273884222,
+              8.015440081013367
+            ],
+            "seconds": 8.004994273884222,
+            "images_per_second": 25.109324644459715,
+            "peak_allocated_bytes": 1438401024,
+            "peak_reserved_bytes": 1723858944,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              8.793275007978082,
+              8.799016206059605,
+              8.797247780952603
+            ],
+            "seconds": 8.797247780952603,
+            "images_per_second": 22.848054869523622,
+            "peak_allocated_bytes": 1442595840,
+            "peak_reserved_bytes": 1723858944,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    },
+    "pcb4": {
+      "category": "pcb4",
+      "comparison": {
+        "category": "pcb4",
+        "measured_points": 98.7128734588623,
+        "reference_points": 99.0,
+        "delta_points": -0.29,
+        "within_gate": true
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb4",
+        "created_at": "2026-10-10T14:19:33+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 904,
+        "test_good": 101,
+        "test_bad": 100,
+        "embedding_rows": 925696,
+        "memory_bank_rows": 92569,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 30.048791885375977,
+          "pixel": 30.769989013671875,
+          "image_min": 22.67045021057129,
+          "image_max": 54.10724639892578,
+          "pixel_min": 10.1558256149292,
+          "pixel_max": 53.04261016845703,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 201,
+          "split_images_in_test": 201,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.987128734588623,
+          "pixel_auroc": 0.9842014312744141,
+          "image_f1": 0.9417475461959839,
+          "pixel_f1": 0.42386242747306824
+        },
+        "embed": {
+          "seconds": 4.471685417927802,
+          "peak_allocated_bytes": 6422828032,
+          "peak_reserved_bytes": 6733955072
+        },
+        "coreset": {
+          "seconds": 710.6349682959262,
+          "peak_allocated_bytes": 8392051200,
+          "peak_reserved_bytes": 9292480512
+        },
+        "validate_split": {
+          "seconds": 8.160366428084671,
+          "peak_allocated_bytes": 1656686592,
+          "peak_reserved_bytes": 9292480512
+        },
+        "test": {
+          "seconds": 11.495100417174399,
+          "peak_allocated_bytes": 1603204096,
+          "peak_reserved_bytes": 2189426688
+        },
+        "fit_seconds": 725.2052176350262,
+        "peak_allocated_bytes": 8392051200,
+        "peak_reserved_bytes": 9292480512,
+        "gpu_free_bytes_before": 11573460992,
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 668470439,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+cu130",
+          "torchvision": "0.29.1+cu130"
+        }
+      },
+      "run": {
+        "directory": "runs/pcb4/test",
+        "created_at": "2026-10-10T15:06:19+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 201,
+        "labelled_good": 101,
+        "labelled_bad": 100,
+        "image_auroc": 0.9871287128712871,
+        "seconds": 17.315008450997993,
+        "predicted_anomalous": 106,
+        "true_positive": 97,
+        "false_negative": 3,
+        "true_negative": 92,
+        "false_positive": 9,
+        "regions": 150,
+        "images_with_regions": 106,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 4,
+        "anomalous_with_region": 97,
+        "anomalous_top_region_on_defect": 94
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb4",
+        "created_at": "2026-10-10T15:08:39+00:00",
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "images": 201,
+        "resident_bytes": 668356981,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              9.28318456793204,
+              9.320664481958374,
+              9.343564028153196
+            ],
+            "seconds": 9.320664481958374,
+            "images_per_second": 21.56498610040812,
+            "peak_allocated_bytes": 1281315328,
+            "peak_reserved_bytes": 1725956096,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              9.872709792805836,
+              9.878349428065121,
+              10.045785423135385
+            ],
+            "seconds": 9.878349428065121,
+            "images_per_second": 20.347528852233566,
+            "peak_allocated_bytes": 1281577984,
+            "peak_reserved_bytes": 1725956096,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              8.241085225017741,
+              8.543990948004648,
+              8.572835970902815
+            ],
+            "seconds": 8.543990948004648,
+            "images_per_second": 23.525305822911864,
+            "peak_allocated_bytes": 1435038208,
+            "peak_reserved_bytes": 1723858944,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              9.202894994989038,
+              8.995238447096199,
+              8.964000781066716
+            ],
+            "seconds": 8.995238447096199,
+            "images_per_second": 22.345155293230263,
+            "peak_allocated_bytes": 1439233024,
+            "peak_reserved_bytes": 1723858944,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    }
+  }
+}

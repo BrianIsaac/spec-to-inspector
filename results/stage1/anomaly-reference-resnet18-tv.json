@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "unit": "U2",
+  "created_at": "2026-10-10T15:21:05+00:00",
+  "written_by": [
+    "spec-to-inspector",
+    "train",
+    "--category",
+    "pcb3",
+    "--backbone",
+    "resnet18.tv_in1k",
+    "--models-dir",
+    "models/reference-resnet18-tv",
+    "--runs-dir",
+    "runs/reference-resnet18-tv",
+    "--no-infer",
+    "--results",
+    "<scratch>/ref18tv/anomaly-reference-resnet18-tv.json"
+  ],
+  "reference_source": "Rolih, Ameln, Vaidya and Akcay, 'Divide and Conquer: High-Resolution Industrial Anomaly Detection via Memory Efficient Tiled Ensemble', arXiv 2403.04932: the table 'VisA results of all 6 setups for Patchcore' (Table 7 in v1 of 7 March 2024, Table 9 in v2 of 8 April 2024), column 'Single model 256' (SM256), detection AUROC; cited as the published reference, not as a current fact",
+  "reference_backbone": "resnet18",
+  "reference_note": "The paper's figures are the mean of 3 runs with a ResNet18 backbone, batch size 8, centre crop disabled. The product's PatchCore uses Anomalib's default wide_resnet50_2, so the comparison is to the published setting at the same resolution, not like for like in backbone. The paper's second figure per cell is AUPRO; it publishes no pixel AUROC. Its SM256 cells for PCB3 and PCB4 are identical (99.0/86.6) in both versions of the PDF.",
+  "gate_points": 3.0,
+  "outside_gate": [
+    "pcb3"
+  ],
+  "thresholds_tuned_on_test": true,
+  "notes": [
+    "AUROC and F1 are fractions of 1; *_points are percentage points (AUROC x 100).",
+    "*_bytes are bytes; *_seconds and seconds are wall-clock seconds.",
+    "Thresholds, scores and anomaly-map values are raw PatchCore distances, not normalised.",
+    "peak_allocated_bytes is torch.cuda.max_memory_allocated; peak_reserved_bytes is torch.cuda.max_memory_reserved, which is what the card actually gives up.",
+    "Where thresholds.tuned_on_test is true, every thresholded figure (F1, the confusion counts, predicted_anomalous) was tuned on the test images; AUROC needs no threshold."
+  ],
+  "categories": {
+    "pcb3": {
+      "category": "pcb3",
+      "comparison": {
+        "category": "pcb3",
+        "measured_points": 93.67325901985168,
+        "reference_points": 99.0,
+        "delta_points": -5.33,
+        "within_gate": false
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb3",
+        "created_at": "2026-10-10T15:21:05+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "resnet18.tv_in1k",
+          "weights": "timm/resnet18.tv_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 905,
+        "test_good": 101,
+        "test_bad": 100,
+        "embedding_rows": 926720,
+        "memory_bank_rows": 92672,
+        "memory_bank_dims": 384,
+        "thresholds": {
+          "image": 1.3180649280548096,
+          "pixel": 2.188089370727539,
+          "image_min": 1.0392595529556274,
+          "image_max": 3.015098810195923,
+          "pixel_min": 0.35506752133369446,
+          "pixel_max": 3.245278835296631,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 201,
+          "split_images_in_test": 201,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.9367325901985168,
+          "pixel_auroc": 0.9882338643074036,
+          "image_f1": 0.8712871074676514,
+          "pixel_f1": 0.27191033959388733
+        },
+        "embed": {
+          "seconds": 4.339367577107623,
+          "peak_allocated_bytes": 1730847744,
+          "peak_reserved_bytes": 1767899136
+        },
+        "coreset": {
+          "seconds": 708.7379872689489,
+          "peak_allocated_bytes": 4037349888,
+          "peak_reserved_bytes": 4332716032
+        },
+        "validate_split": {
+          "seconds": 4.191443443996832,
+          "peak_allocated_bytes": 780267520,
+          "peak_reserved_bytes": 4332716032
+        },
+        "test": {
+          "seconds": 7.029404161032289,
+          "peak_allocated_bytes": 670444544,
+          "peak_reserved_bytes": 1012924416
+        },
+        "fit_seconds": 718.0505905698519,
+        "peak_allocated_bytes": 4037349888,
+        "peak_reserved_bytes": 4332716032,
+        "gpu_free_bytes_before": 11573460992,
+        "device": {
+          "index": 0,
+          "name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "capability": [
+            12,
+            0
+          ],
+          "total_memory_bytes": 12344164352,
+          "torch_version": "2.14.1+cu130",
+          "cuda_version": "13.0",
+          "arch_list": [
+            "sm_75",
+            "sm_80",
+            "sm_86",
+            "sm_90",
+            "sm_100",
+            "sm_120"
+          ]
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 153543735,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+cu130",
+          "torchvision": "0.29.1+cu130"
+        }
+      },
+      "run": null,
+      "bench": null,
+      "stale": []
+    }
+  }
+}
