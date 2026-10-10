@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Batch{% endblock %}
 {% block main %}
+{% if unlisted %}
+<p class="note">{{ unlisted|length }} {{ "batch" if unlisted|length == 1 else "batches" }} on disk cannot be opened here, because the console serves names of letters, digits, dots, dashes and underscores only: <span class="mono">{{ unlisted|join(", ") }}</span>. Rename the directory to open it.</p>
+{% endif %}
 {% if not runs %}
 <section class="panel empty">
   <h1>No batch has been scored yet</h1>
@@ -24,7 +27,7 @@
   {% endfor %}
 </nav>
 {% if not tiles %}
-<p class="note">No board of this batch is {{ kept.label|lower }}.</p>
+<p class="note">{% if kept %}No board of this batch is {{ kept.label|lower }}.{% else %}This batch holds no board.{% endif %}</p>
 {% endif %}
 <div class="grid">
   {% for tile in tiles %}
@@ -32,7 +35,7 @@
     <span class="tile-photo"><img loading="lazy" src="{{ base }}/{{ tile.board.image_id }}/thumbnail.jpg" alt=""><span class="badge badge-{{ tile.board.status.value }}">{{ tile.board.status.label }}</span></span>
     <span class="tile-body">
       <span class="tile-head"><span class="tile-id">{{ tile.board.image_id }}</span>{% if tile.corrected %}<span class="tile-mark">Corrected</span>{% endif %}</span>
-      <span class="tile-line">{{ tile.line }}</span>
+      <span class="tile-line" title="{{ tile.line }}">{{ tile.line }}</span>
     </span>
   </a>
   {% endfor %}

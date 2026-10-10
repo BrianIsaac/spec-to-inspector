@@ -3,14 +3,17 @@
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from spec_to_inspector.app.runs import (
     RunError,
     Status,
+    contained,
     count_statuses,
     list_runs,
     open_run,
     source_image,
+    unlisted_runs,
 )
 from tests.app.console_fakes import BATCH, World, write_world
 from tests.judge.run_fakes import CATEGORY
@@ -147,7 +150,72 @@ def test_a_source_image_that_moved_is_looked_for_under_the_data_directory(
     )
     kept = tmp_path / "data" / "visa" / "pcb9" / "Data" / "Images" / "Normal" / "000.JPG"
     kept.parent.mkdir(parents=True)
-    kept.write_bytes(b"jpeg")
+    Image.new("RGB", (board.result.width, board.result.height)).save(kept, format="JPEG")
 
     assert source_image(moved, data_dir=tmp_path / "data") == kept
     assert source_image(moved, data_dir=tmp_path / "other") is None
+
+
+@pytest.mark.parametrize("damage", [b"\xff\xfe\x00 not text", b"", b"\x00" * 64])
+def test_a_decision_that_is_not_text_does_not_take_the_batch_down(
+    world: World, damage: bytes
+) -> None:
+    """A decision file cut short, zero-filled or not UTF-8 is a problem on one board, no more."""
+    damaged = world.run / "late" / "decision.json"
+    damaged.write_bytes(damage)
+    try:
+        boards = open_run(world.runs_dir, CATEGORY, BATCH).boards()
+        detail = open_run(world.runs_dir, CATEGORY, BATCH).board("late")
+    finally:
+        damaged.unlink()
+
+    assert boards[-1].status is Status.NOT_JUDGED
+    assert boards[-1].problem is not None
+    assert detail.board.problem is not None
+
+
+def test_a_file_name_from_a_record_stays_inside_its_directory(tmp_path: Path) -> None:
+    """A name read from a result or a decision cannot point outside the board's directory."""
+    directory = tmp_path / "run" / "board"
+    (directory / "crops").mkdir(parents=True)
+    (directory / "crops" / "region-001.png").write_bytes(b"png")
+    (tmp_path / "secret.txt").write_text("not the console's to serve", encoding="utf-8")
+
+    assert contained(directory, "crops/region-001.png") == directory / "crops" / "region-001.png"
+    assert contained(directory, "../../secret.txt") is None
+    assert contained(directory, str(tmp_path / "secret.txt")) is None
+    assert contained(directory, "crops/absent.png") is None
+    assert contained(directory, None) is None
+
+
+def test_a_file_of_another_size_is_not_taken_for_the_photograph(
+    world: World, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A relative path that now lands on some other picture is not shown as the board."""
+    board = open_run(world.runs_dir, CATEGORY, BATCH).board("good")
+    monkeypatch.chdir(tmp_path)
+    Image.new("RGB", (64, 48)).save(tmp_path / "board-1.png")
+    moved = board.result.model_copy(update={"image": "board-1.png", "visa_image": None})
+
+    assert source_image(moved, data_dir=tmp_path / "data") is None
+
+    Image.new("RGB", (board.result.width, board.result.height)).save(tmp_path / "board-1.png")
+    assert source_image(moved, data_dir=tmp_path / "data") == Path("board-1.png")
+
+
+def test_a_batch_whose_name_cannot_be_served_is_named_not_dropped(
+    world: World, tmp_path: Path
+) -> None:
+    """`inspect --batch "line 3"` makes a run the console cannot link to; it says which."""
+    runs = tmp_path / "runs"
+    for name in ("line 3", "_scratch", "fine"):
+        target = runs / CATEGORY / name
+        target.mkdir(parents=True)
+        (target / "run.json").write_text(
+            (world.run / "run.json").read_text(encoding="utf-8"), encoding="utf-8"
+        )
+    (runs / ".console").mkdir()
+
+    assert [run.name for run in list_runs(runs)] == ["fine"]
+    assert unlisted_runs(runs) == [f"{CATEGORY}/_scratch", f"{CATEGORY}/line 3"]
+    assert unlisted_runs(tmp_path / "absent") == []

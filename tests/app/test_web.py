@@ -897,3 +897,170 @@ def test_the_card_draws_the_corrections_flag_when_the_decision_carries_it(
     assert "Judged with corrections in view" not in plain
     assert "Corrected by an engineer" not in plain
     assert grid.count("tile-corrected") == 1
+
+
+# What the cold review found.
+
+
+def test_an_error_nobody_foresaw_is_still_the_console_own_page(
+    console: Console, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A fault in a handler gives the console's page and a 500, not a bare trace."""
+
+    def broken(*_: object, **__: object) -> None:
+        raise RuntimeError("the disk went away")
+
+    monkeypatch.setattr("spec_to_inspector.app.web.list_runs", broken)
+    client = TestClient(console.app, raise_server_exceptions=False)
+
+    response = client.get(CARD)
+
+    assert response.status_code == 500
+    assert 'href="/batch"' in response.text
+    assert "RuntimeError" in response.text
+    assert "the disk went away" not in response.text
+
+
+@pytest.mark.parametrize(
+    ("path", "data"),
+    [
+        ("/train", {"category": CATEGORY, "replace": "yes"}),
+        (f"{CARD}/scratch/override", None),
+    ],
+)
+def test_a_form_sent_from_another_site_is_refused(
+    console: Console, path: str, data: dict[str, str] | None
+) -> None:
+    """A page on another origin cannot start a training or record an override here."""
+    for headers in (
+        {"origin": "http://evil.example"},
+        {"sec-fetch-site": "cross-site"},
+    ):
+        response = console.client.post(path, data=data or _form(), headers=headers)
+        assert response.status_code == 403
+        assert "another site" in response.text
+    assert console.trainer.latest() is None
+    assert console.sink.overrides_for(CATEGORY, BATCH, "scratch") == ()
+
+
+def test_a_form_sent_from_the_console_own_page_is_taken(console: Console) -> None:
+    """The browser's own Origin, which is the console's address, is not refused."""
+    response = console.client.post(
+        f"{CARD}/scratch/override",
+        data=_form(),
+        headers={"origin": "http://testserver", "sec-fetch-site": "same-origin"},
+    )
+
+    assert response.status_code == 303
+
+
+def test_a_console_bound_to_this_machine_answers_to_its_own_names_only(
+    world: World, tmp_path: Path
+) -> None:
+    """A request that reached the console under another host name is refused: DNS rebinding."""
+    made = Console(world, tmp_path / "state", spec=world.spec_path)
+    app = create_app(
+        ConsoleConfig(
+            runs_dir=world.runs_dir,
+            models_dir=world.models_dir,
+            data_dir=world.root / "data",
+            state_dir=tmp_path / "state",
+            hosts=("127.0.0.1", "localhost"),
+        ),
+        specs=made.specs,
+        trainer=made.trainer,
+    )
+
+    assert TestClient(app, base_url="http://127.0.0.1:8130").get("/train").status_code == 200
+    assert TestClient(app, base_url="http://localhost:8130").get("/train").status_code == 200
+    assert TestClient(app, base_url="http://evil.example:8130").get("/train").status_code == 400
+
+
+def test_a_region_number_too_long_to_be_one_is_refused_like_any_other(console: Console) -> None:
+    """A region of thousands of digits is not a number the form can mean."""
+    response = console.client.post(f"{CARD}/scratch/override", data=_form(region="9" * 5000))
+
+    assert response.status_code == 422
+    assert "no judged area" in response.text
+
+
+def test_a_file_named_outside_the_board_directory_is_not_served(
+    world: World, tmp_path: Path
+) -> None:
+    """A decision that names an overlay outside its directory serves nothing."""
+    runs = tmp_path / "runs"
+    shutil.copytree(world.run, runs / CATEGORY / BATCH)
+    (tmp_path / "secret.png").write_bytes(b"not the console's to serve")
+    path = runs / CATEGORY / BATCH / "scratch" / "decision.json"
+    written = json.loads(path.read_text(encoding="utf-8"))
+    written["regions"][0]["overlay"] = "../../../../secret.png"
+    path.write_text(json.dumps(written), encoding="utf-8")
+    moved = World(
+        root=world.root,
+        runs_dir=runs,
+        run=runs / CATEGORY / BATCH,
+        models_dir=world.models_dir,
+        spec_path=world.spec_path,
+        specification=world.specification,
+    )
+    client = Console(moved, tmp_path / "state", spec=world.spec_path).client
+
+    assert client.get(f"{CARD}/scratch/regions/1/overlay.png").status_code == 404
+    assert client.get(f"{CARD}/scratch").status_code == 200
+
+
+def test_the_form_opens_on_a_class_and_clause_that_belong_together(
+    world: World, tmp_path: Path
+) -> None:
+    """Where the judge cited a row and not a heading, the form still starts consistent."""
+    runs = tmp_path / "runs"
+    shutil.copytree(world.run, runs / CATEGORY / BATCH)
+    path = runs / CATEGORY / BATCH / "scratch" / "decision.json"
+    written = json.loads(path.read_text(encoding="utf-8"))
+    written["regions"][0]["answer"]["clause_id"] = "4.1.2"
+    path.write_text(json.dumps(written), encoding="utf-8")
+    moved = World(
+        root=world.root,
+        runs_dir=runs,
+        run=runs / CATEGORY / BATCH,
+        models_dir=world.models_dir,
+        spec_path=world.spec_path,
+        specification=world.specification,
+    )
+    client = Console(moved, tmp_path / "state", spec=world.spec_path).client
+
+    card = client.get(f"{CARD}/scratch").text
+
+    assert '<option value="4.1" data-class="scratch" selected>' in card
+    assert '<option value="scratch" selected>' in card
+
+
+def test_a_batch_with_no_board_says_so_in_a_whole_sentence(world: World, tmp_path: Path) -> None:
+    """An empty batch is an odd thing, and is said plainly."""
+    runs = tmp_path / "runs"
+    target = runs / CATEGORY / "empty"
+    target.mkdir(parents=True)
+    index = json.loads((world.run / "run.json").read_text(encoding="utf-8"))
+    index["entries"] = []
+    index["images"] = 0
+    (target / "run.json").write_text(json.dumps(index), encoding="utf-8")
+    spaced = runs / CATEGORY / "line 3"
+    spaced.mkdir()
+    (spaced / "run.json").write_text(json.dumps(index), encoding="utf-8")
+    moved = World(
+        root=world.root,
+        runs_dir=runs,
+        run=target,
+        models_dir=world.models_dir,
+        spec_path=world.spec_path,
+        specification=world.specification,
+    )
+    client = Console(moved, tmp_path / "state", spec=world.spec_path).client
+
+    page = client.get(f"/batch/{CATEGORY}/empty")
+
+    assert page.status_code == 200
+    assert "This batch holds no board." in page.text
+    assert "No board of this batch is ." not in page.text
+    assert "pcb9/line 3" in page.text
+    assert "cannot be opened" in page.text

@@ -44,9 +44,11 @@ from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Final
+from types import FrameType
+from typing import Final, NoReturn
 
 import httpx
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page, sync_playwright
 
 from spec_to_inspector.app.runs import Board, Status, count_statuses, open_run
@@ -230,6 +232,23 @@ def verb(*words: str) -> list[str]:
     return [sys.executable, "-c", "from spec_to_inspector.cli import app; app()", *words]
 
 
+def stop(process: subprocess.Popen[bytes], how: signal.Signals) -> None:
+    """Stop a process this walk started, and do not return while it is still running.
+
+    Args:
+        process: The process.
+        how: The signal to ask with; it is killed if it has not gone in a minute.
+    """
+    if process.poll() is not None:
+        return
+    process.send_signal(how)
+    try:
+        process.wait(timeout=60)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+
+
 @contextmanager
 def console(state_dir: Path) -> Iterator[str]:
     """Serve the console with the real verb for the length of the walk.
@@ -263,9 +282,7 @@ def console(state_dir: Path) -> Iterator[str]:
                 time.sleep(0.3)
         yield address
     finally:
-        if process.poll() is None:
-            process.send_signal(signal.SIGINT)
-            process.wait(timeout=60)
+        stop(process, signal.SIGINT)
 
 
 def gpu_used_mib() -> int:
@@ -398,12 +415,28 @@ def judge_live(
         gpu_wait_minutes: How long to wait for the GPU.
 
     Raises:
-        WalkError: If the GPU does not come free, or `inspect` fails.
+        WalkError: If the GPU does not come free, another server is already
+            on the judge's port, or `inspect` fails.
     """
     serve_vlm = str(ROOT / "scripts" / "serve_vlm.sh")
     record.gpu_wait_seconds = round(wait_for_gpu(gpu_free_below, gpu_wait_minutes), 1)
-    subprocess.run([serve_vlm, "start"], check=True, cwd=ROOT)
+    if (
+        subprocess.run([serve_vlm, "status"], check=False, capture_output=True, cwd=ROOT).returncode
+        == 0
+    ):
+        # The card is shared: a server already on the judge's port is someone else's.
+        raise WalkError("a VLM server is already up and is not this walk's; it was left alone")
+    process: subprocess.Popen[bytes] | None = None
+    mine = True
     try:
+        try:
+            # Inside the try: a start that is interrupted half way must still be stopped.
+            subprocess.run([serve_vlm, "start"], check=True, cwd=ROOT)
+        except subprocess.CalledProcessError:
+            # The script stops what it launched when a start fails (and fails without
+            # launching if the port was taken meanwhile), so nothing of this walk's is up.
+            mine = False
+            raise
         started = time.monotonic()
         command = verb(
             "inspect",
@@ -420,10 +453,9 @@ def judge_live(
         shot = False
         while process.poll() is None:
             if time.monotonic() - started > JUDGE_TIMEOUT_SECONDS:
-                process.terminate()
                 raise WalkError("inspect did not finish within half an hour")
             time.sleep(1.0)
-            if shot or httpx.get(url, timeout=10).status_code != 200:
+            if shot or httpx.get(url, timeout=10).status_code != httpx.codes.OK:
                 continue
             page = camera.page
             page.goto(url, wait_until="networkidle")
@@ -437,7 +469,10 @@ def judge_live(
             msg = f"inspect exited with code {process.returncode}"
             raise WalkError(msg)
     finally:
-        subprocess.run([serve_vlm, "stop"], check=False, cwd=ROOT)
+        if process is not None:
+            stop(process, signal.SIGTERM)
+        if mine:
+            subprocess.run([serve_vlm, "stop"], check=False, cwd=ROOT)
 
 
 def truth(known: dict[tuple[str, str], str], image: str) -> str | None:
@@ -582,7 +617,9 @@ def walk(options: argparse.Namespace) -> Record:  # noqa: PLR0915 - the video's 
         page.set_input_files("#pdf", str(options.spec_pdf))
         started = time.monotonic()
         page.get_by_role("button", name="Parse specification").click()
-        page.locator(".clause-table").wait_for(timeout=PARSE_TIMEOUT_MS)
+        page.locator(".clause-table, .alert").first.wait_for(timeout=PARSE_TIMEOUT_MS)
+        if page.locator(".clause-table").count() == 0:
+            raise WalkError(page.locator(".alert").inner_text())
         record.parse_seconds = round(time.monotonic() - started, 1)
         record.clauses = page.locator(".clause-row").count()
         camera.window("shot-3-2-clause-table")
@@ -698,6 +735,20 @@ def walk(options: argparse.Namespace) -> Record:  # noqa: PLR0915 - the video's 
     return record
 
 
+def _terminated(signum: int, frame: FrameType | None) -> NoReturn:
+    """Turn SIGTERM into an exit, so the walk's cleanup runs.
+
+    Args:
+        signum: The signal's number.
+        frame: The interrupted frame, unused.
+
+    Raises:
+        SystemExit: Always, with the shell's code for the signal.
+    """
+    del frame
+    raise SystemExit(128 + signum)
+
+
 def main() -> int:
     """Run the walk and write its record.
 
@@ -706,9 +757,12 @@ def main() -> int:
     """
     options = arguments()
     os.chdir(ROOT)
+    # A kill must still stop the VLM server and the console, which are stopped in
+    # `finally` blocks: turn it into an exit that unwinds them.
+    signal.signal(signal.SIGTERM, _terminated)
     try:
         record = walk(options)
-    except WalkError as error:
+    except (WalkError, PlaywrightError, httpx.HTTPError, subprocess.CalledProcessError) as error:
         print(f"console walk: {error}", file=sys.stderr)
         return 1
     path = options.out / "walk.json"

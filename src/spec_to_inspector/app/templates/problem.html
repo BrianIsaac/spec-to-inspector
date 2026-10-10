@@ -3,7 +3,7 @@
 {% block main %}
 <section class="panel empty">
   <h1>The console cannot show that</h1>
-  <p role="alert">{{ message[:1]|upper }}{{ message[1:] }}.</p>
+  <p role="alert">{{ message[:1]|upper }}{{ message[1:].rstrip(".") }}.</p>
   <p><a class="button" href="/batch">Back to the batch</a></p>
 </section>
 {% endblock %}

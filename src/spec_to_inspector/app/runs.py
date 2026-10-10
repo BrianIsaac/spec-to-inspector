@@ -13,6 +13,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Final
 
+from PIL import Image
+
 from spec_to_inspector.anomaly.records import ImageResult, RunEntry, RunIndex
 from spec_to_inspector.judge.decision import Decision
 from spec_to_inspector.judge.disposition import Outcome
@@ -153,13 +155,15 @@ def _read_decision(directory: Path) -> tuple[Decision | None, str | None]:
     """
     path = directory / DECISION_NAME
     try:
-        text = path.read_text(encoding="utf-8")
+        # Read as bytes: a file cut short or zero-filled is then refused by the
+        # validation below, in words, like any other file that is not a decision.
+        data = path.read_bytes()
     except FileNotFoundError:
         return None, None
     except OSError as error:
         return None, f"{path} could not be read: {error}"
     try:
-        return Decision.model_validate_json(text), None
+        return Decision.model_validate_json(data), None
     except ValueError as error:
         first = str(error).splitlines()[0]
         return None, f"{path} is not a decision this console can read: {first}"
@@ -242,6 +246,32 @@ def _read_index(directory: Path) -> RunIndex | None:
         return None
 
 
+def _run_directories(runs_dir: Path) -> list[tuple[Path, RunIndex]]:
+    """Find every directory two levels down that holds a readable run index.
+
+    Args:
+        runs_dir: The runs directory.
+
+    Returns:
+        Each run's directory and index, by part and then by name. A directory
+        whose name starts with a dot is the console's own or a run still
+        being written, and is passed over.
+    """
+    if not runs_dir.is_dir():
+        return []
+    found: list[tuple[Path, RunIndex]] = []
+    for part in sorted(path for path in runs_dir.iterdir() if path.is_dir()):
+        if part.name.startswith("."):
+            continue
+        for directory in sorted(path for path in part.iterdir() if path.is_dir()):
+            if directory.name.startswith("."):
+                continue
+            index = _read_index(directory)
+            if index is not None:
+                found.append((directory, index))
+    return found
+
+
 def list_runs(runs_dir: Path) -> list[RunSummary]:
     """List the batches under the runs directory, by part and then by name.
 
@@ -250,26 +280,40 @@ def list_runs(runs_dir: Path) -> list[RunSummary]:
 
     Returns:
         One summary per directory two levels down that holds a readable run
-        index filed under its own part; empty if the directory is absent.
+        index filed under its own part, and whose part and name the console
+        can put in an address; empty if the directory is absent.
     """
-    if not runs_dir.is_dir():
-        return []
-    runs: list[RunSummary] = []
-    for part in sorted(path for path in runs_dir.iterdir() if path.is_dir()):
-        if not is_name(part.name):
-            continue
-        for directory in sorted(path for path in part.iterdir() if path.is_dir()):
-            index = _read_index(directory) if is_name(directory.name) else None
-            if index is not None and index.category == part.name:
-                runs.append(
-                    RunSummary(
-                        category=part.name,
-                        name=directory.name,
-                        images=len(index.entries),
-                        created_at=index.created_at,
-                    )
-                )
-    return runs
+    return [
+        RunSummary(
+            category=directory.parent.name,
+            name=directory.name,
+            images=len(index.entries),
+            created_at=index.created_at,
+        )
+        for directory, index in _run_directories(runs_dir)
+        if is_name(directory.parent.name)
+        and is_name(directory.name)
+        and index.category == directory.parent.name
+    ]
+
+
+def unlisted_runs(runs_dir: Path) -> list[str]:
+    """Name the runs on disk that the console cannot open, because of how they are named.
+
+    `inspect --batch` takes any name; the console puts a batch's name in an
+    address and so serves letters, digits, dots, dashes and underscores only.
+
+    Args:
+        runs_dir: The runs directory.
+
+    Returns:
+        Each such run as "<part>/<batch>", in order.
+    """
+    return [
+        f"{directory.parent.name}/{directory.name}"
+        for directory, _ in _run_directories(runs_dir)
+        if not (is_name(directory.parent.name) and is_name(directory.name))
+    ]
 
 
 def open_run(runs_dir: Path, category: str, name: str) -> Run:
@@ -317,8 +361,55 @@ def count_statuses(boards: Sequence[Board]) -> dict[Status, int]:
     return counts
 
 
+def contained(directory: Path, name: str | None) -> Path | None:
+    """Resolve a file name read from a record, if it stays inside its directory.
+
+    A result or a decision names its own files (a crop, an overlay, the
+    anomaly map). The console serves them, so a name that climbs out of the
+    board's directory, or is absolute, is not followed.
+
+    Args:
+        directory: The board's directory in the run.
+        name: The file's name as the record gives it, relative to the directory.
+
+    Returns:
+        The file's path, or None if there is no name, the file is not there,
+        or it lies outside the directory.
+    """
+    if name is None:
+        return None
+    path = directory / name
+    try:
+        inside = path.resolve().is_relative_to(directory.resolve())
+    except OSError:
+        return None
+    return path if inside and path.is_file() else None
+
+
+def _is_photograph_of(path: Path, result: ImageResult) -> bool:
+    """Say whether a file is a picture of the size the result was scored from.
+
+    Args:
+        path: A candidate file.
+        result: The anomaly model's result for the board.
+
+    Returns:
+        Whether the file opens as an image of the result's width and height.
+    """
+    try:
+        with Image.open(path) as opened:
+            return opened.size == (result.width, result.height)
+    except (OSError, ValueError):
+        return False
+
+
 def source_image(result: ImageResult, *, data_dir: Path) -> Path | None:
     """Find the photograph a result was scored from.
+
+    The result records the path inference was given, which may be relative
+    to another working directory; a file found there is taken for the
+    photograph only if it has the photograph's size, so that some other
+    picture of the same name is not shown as the board.
 
     Args:
         result: The anomaly model's result for the board.
@@ -329,10 +420,10 @@ def source_image(result: ImageResult, *, data_dir: Path) -> Path | None:
         image under the data directory; else None.
     """
     recorded = Path(result.image)
-    if recorded.is_file():
+    if _is_photograph_of(recorded, result):
         return recorded
     if result.visa_image is not None:
         kept = data_dir / "visa" / result.visa_image
-        if kept.is_file():
+        if _is_photograph_of(kept, result):
             return kept
     return None

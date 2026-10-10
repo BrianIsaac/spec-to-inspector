@@ -744,7 +744,9 @@ def serve(
 
     try:
         # The corrections store is joined here: pass it in place of the in-memory sink.
-        console = build_console(settings, state_dir=state_dir, spec=spec, sink=InMemorySink())
+        console = build_console(
+            settings, state_dir=state_dir, spec=spec, sink=InMemorySink(), host=host
+        )
     except SpecError as error:
         err.print(str(error), markup=False, highlight=False, soft_wrap=True)
         raise typer.Exit(code=1) from error

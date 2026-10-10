@@ -953,7 +953,7 @@ th {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: #0d1017;
 }
@@ -995,13 +995,18 @@ th {
   white-space: nowrap;
 }
 
+/* Two lines, always: the longest clause title of the specification fits whole, and
+   every tile of a row is the same height. */
 .tile-line {
+  display: -webkit-box;
   overflow: hidden;
-  min-height: 21px;
+  height: 40px;
   color: var(--ink-soft);
   font-size: 15px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 20px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .tile-mark {
@@ -1326,7 +1331,7 @@ th {
 .limit-line {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 32px;
+  gap: 8px 22px;
   margin-top: 14px;
   font-size: 17px;
 }

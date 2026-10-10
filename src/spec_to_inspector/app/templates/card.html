@@ -19,7 +19,7 @@
   <div class="verdict-text">
     {% if decision is none %}
     <h1>This board has not been judged</h1>
-    <p class="reason">The anomaly model scored it {{ "%.3f"|format(result.score) }} against a threshold of {{ "%.3f"|format(result.image_threshold) }}{% if result.predicted_anomalous %} and flagged it; the judge has not been asked yet{% else %} and did not flag it{% endif %}.</p>
+    <p class="reason">The anomaly model scored it {{ "%.3f"|format(result.score) }} against a threshold of {{ "%.3f"|format(result.image_threshold) }}{% if result.predicted_anomalous %} and flagged it; {% if detail.board.problem %}its decision file could not be read{% else %}the judge has not been asked yet{% endif %}{% else %} and did not flag it{% endif %}.</p>
     {% else %}
     <h1>
       {% if decision.review_cause %}Referred to an engineer: {{ decision.review_cause.value }}
@@ -236,8 +236,6 @@
       <p>{{ blocked }}</p>
       {% if not loaded %}<p class="hint"><a href="/specification">Go to the Specification page</a></p>{% endif %}
       {% else %}
-      {% set held_clause = typed.get("clause", judged.answer.clause_id if judged.answer else "") or "" %}
-      {% set held_class = typed.get("defect_class", judged.answer.defect_class if judged.answer else "") or "" %}
       <form class="override" method="post" action="{{ here }}/override">
         <input type="hidden" name="region" value="{{ chosen.index }}">
         {% if kept %}<input type="hidden" name="disposition" value="{{ kept.value }}">{% endif %}
@@ -259,7 +257,7 @@
         </div>
         <div class="field">
           <label for="note">Why</label>
-          <textarea id="note" name="note" maxlength="300" required placeholder="What the judge got wrong, in a sentence">{{ typed.get("note", "") }}</textarea>
+          <textarea id="note" name="note" maxlength="300" required placeholder="What the judge got wrong, in a sentence">{{ held_note }}</textarea>
           <p class="hint">Recorded against the clause, with the time and what the judge had said.</p>
         </div>
         <button type="submit">Record correction</button>

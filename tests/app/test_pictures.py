@@ -1,6 +1,7 @@
 """Tests for the pictures the console draws: thumbnails, heatmaps and specification pages."""
 
 import io
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -114,3 +115,30 @@ def test_a_file_that_is_not_a_pdf_has_no_pages(tmp_path: Path) -> None:
 
     with pytest.raises(PictureError, match=r"notes\.pdf"):
         pdf_page(path, 1, width=600)
+
+
+@pytest.mark.parametrize("damage", [b"", b"\x93NUMPY cut short", b"not an array at all"])
+def test_a_damaged_anomaly_map_is_refused_in_words(
+    world: World, tmp_path: Path, damage: bytes
+) -> None:
+    """An anomaly map that was cut short gives an error in words, not a traceback."""
+    board = open_run(world.runs_dir, CATEGORY, BATCH).board("scratch")
+    directory = tmp_path / "scratch"
+    shutil.copytree(board.directory, directory)
+    (directory / board.result.anomaly_map).write_bytes(damage)
+
+    with pytest.raises(PictureError, match="cannot be read"):
+        heatmap(directory, board.result, board.result.regions[0])
+
+
+def test_a_crop_named_outside_the_board_directory_is_not_drawn(
+    world: World, tmp_path: Path
+) -> None:
+    """A result whose crop points out of its directory is refused, whatever the file is."""
+    board = open_run(world.runs_dir, CATEGORY, BATCH).board("scratch")
+    region = board.result.regions[0]
+    outside = region.model_copy(update={"crop": "../two/crops/region-001.png"})
+    tampered = board.result.model_copy(update={"regions": [outside]})
+
+    with pytest.raises(PictureError, match="outside"):
+        heatmap(board.directory, tampered, outside)

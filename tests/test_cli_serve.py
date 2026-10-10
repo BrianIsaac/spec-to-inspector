@@ -20,6 +20,7 @@ from tests.app.console_fakes import BATCH, World, write_world
 from tests.judge.run_fakes import CATEGORY
 
 runner = CliRunner()
+LOOPBACK = "http://127.0.0.1:8130"
 
 
 @pytest.fixture(scope="module")
@@ -67,7 +68,7 @@ def test_serve_hands_uvicorn_a_console_over_the_settings_directories(
     assert "http://0.0.0.0:9001/" in result.output
     application = served["app"]
     assert isinstance(application, FastAPI)
-    client = TestClient(application, follow_redirects=False)
+    client = TestClient(application, base_url=LOOPBACK, follow_redirects=False)
     assert client.get("/batch").headers["location"] == f"/batch/{CATEGORY}/{BATCH}"
     assert 'id="part-pcb9"' in client.get("/train").text
     assert "No specification is loaded" in client.get("/specification").text
@@ -91,7 +92,8 @@ def test_serve_starts_with_the_clause_table_it_is_given(
     assert result.exit_code == 0, result.output
     application = served["app"]
     assert isinstance(application, FastAPI)
-    assert "Fake workmanship specification" in TestClient(application).get("/specification").text
+    page = TestClient(application, base_url=LOOPBACK).get("/specification")
+    assert "Fake workmanship specification" in page.text
 
 
 def test_serve_keeps_its_state_where_it_is_told(
@@ -178,3 +180,33 @@ def test_the_verb_serves_the_console_over_http_and_stops_on_a_signal(
         process.send_signal(signal.SIGINT)
         code = process.wait(timeout=30)
     assert code == 0
+
+
+def test_a_console_on_the_loopback_address_refuses_another_host_name(
+    served: dict[str, object],
+) -> None:
+    """Served for this machine alone, the console does not answer under a name that is not its."""
+    runner.invoke(app, ["serve"])
+    application = served["app"]
+    assert isinstance(application, FastAPI)
+
+    assert TestClient(application, base_url=LOOPBACK).get("/train").status_code == 200
+    assert (
+        TestClient(application, base_url="http://localhost:8130").get("/train").status_code == 200
+    )
+    assert (
+        TestClient(application, base_url="http://evil.example:8130").get("/train").status_code
+        == 400
+    )
+
+
+def test_a_console_served_to_a_network_answers_to_any_name(served: dict[str, object]) -> None:
+    """On all interfaces the operator has said the network is trusted, and names are not checked."""
+    runner.invoke(app, ["serve", "--host", "0.0.0.0"])  # noqa: S104
+    application = served["app"]
+    assert isinstance(application, FastAPI)
+
+    assert (
+        TestClient(application, base_url="http://inspector.lan:8130").get("/train").status_code
+        == 200
+    )

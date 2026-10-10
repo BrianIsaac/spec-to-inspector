@@ -270,7 +270,7 @@ class TrainRunner:
             running = self._latest
             if running is not None and running.state is JobState.RUNNING:
                 msg = (
-                    f"part {running.category} is still training; the card holds one "
+                    f"part {running.category} is still training; the GPU holds one "
                     "training at a time"
                 )
                 raise TrainBusyError(msg)

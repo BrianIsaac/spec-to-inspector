@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, Any, Final
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -20,6 +20,8 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.base import RequestResponseEndpoint
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from spec_to_inspector.app import pictures
 from spec_to_inspector.app.card import (
@@ -31,9 +33,11 @@ from spec_to_inspector.app.card import (
     clause_choices,
     corrected_flag,
     first_answer,
+    form_defaults,
     judged_region,
     prompt_corrections,
     region_cards,
+    region_number,
 )
 from spec_to_inspector.app.runs import (
     Board,
@@ -41,11 +45,13 @@ from spec_to_inspector.app.runs import (
     Run,
     RunError,
     Status,
+    contained,
     count_statuses,
     is_name,
     list_runs,
     open_run,
     source_image,
+    unlisted_runs,
 )
 from spec_to_inspector.app.sink import CorrectionSink, InMemorySink, Override
 from spec_to_inspector.app.specs import LoadedSpec, SpecError, SpecStore
@@ -77,12 +83,17 @@ class ConsoleConfig:
             if it is no longer where inference read it.
         state_dir: The console's own directory: the uploaded specification
             and the training logs.
+        hosts: The host names the console answers to; a request that reached
+            it under another name is refused, which is what stops a page on
+            another site from reaching a console bound to this machine by
+            pointing its own name at it. Empty to answer to any name.
     """
 
     runs_dir: Path
     models_dir: Path
     data_dir: Path
     state_dir: Path
+    hosts: tuple[str, ...] = ()
 
 
 class PageError(Exception):
@@ -493,7 +504,12 @@ class _Pages:
         runs = list_runs(self.config.runs_dir)
         if not runs:
             return self.render(
-                request, "batch.html", nav="batch", runs=[], runs_dir=self.config.runs_dir
+                request,
+                "batch.html",
+                nav="batch",
+                runs=[],
+                runs_dir=self.config.runs_dir,
+                unlisted=unlisted_runs(self.config.runs_dir),
             )
         newest = max(runs, key=lambda run: run.created_at)
         return RedirectResponse(f"/batch/{newest.category}/{newest.name}", status_code=307)
@@ -533,6 +549,7 @@ class _Pages:
             nav="batch",
             run=opened,
             runs=list_runs(self.config.runs_dir),
+            unlisted=unlisted_runs(self.config.runs_dir),
             base=base,
             tiles=tiles,
             total=len(boards),
@@ -572,6 +589,13 @@ class _Pages:
         after = ids[at + 1] if at is not None and at + 1 < len(ids) else None
 
         choices = clause_choices(loaded.specification, category) if loaded else []
+        held_clause, held_class = (
+            form_defaults(
+                loaded.specification, category, chosen.judged.answer if chosen.judged else None
+            )
+            if loaded is not None and chosen is not None
+            else ("", "")
+        )
         return self.render(
             request,
             "card.html",
@@ -605,7 +629,9 @@ class _Pages:
             before=first_answer(chosen.judged if chosen else None),
             titles={choice.heading_id: choice.title for choice in choices},
             error=error,
-            typed=typed or {},
+            held_clause=(typed or {}).get("clause", held_clause),
+            held_class=(typed or {}).get("defect_class", held_class),
+            held_note=(typed or {}).get("note", ""),
         )
 
     @staticmethod
@@ -719,7 +745,7 @@ class _Pages:
             )
             reason = check_note(note)
         except FormError as error:
-            shown = int(region) if region.strip().isdecimal() else None
+            shown = region_number(region)
             if shown not in {found.index for found in detail.result.regions}:
                 shown = None
             return self._card_page(
@@ -782,10 +808,10 @@ class _Pages:
         _, detail = self._board(category, run, image_id)
         source = source_image(detail.result, data_dir=self.config.data_dir)
         if source is None:
-            crop = next((r.crop for r in detail.result.regions if r.crop is not None), None)
-            if crop is None:
+            crops = (contained(detail.directory, r.crop) for r in detail.result.regions)
+            source = next((crop for crop in crops if crop is not None), None)
+            if source is None:
                 raise PageError(404, f"board {image_id} has no photograph and no crop to show")
-            source = detail.directory / crop
         try:
             data = pictures.thumbnail(source, width=_THUMBNAIL_WIDTH)
         except pictures.PictureError as error:
@@ -826,8 +852,8 @@ class _Pages:
             The crop as a PNG.
         """
         detail, card = self._region(category, run, image_id, index)
-        path = detail.directory / (card.found.crop or "")
-        if card.found.crop is None or not path.is_file():
+        path = contained(detail.directory, card.found.crop)
+        if path is None:
             raise PageError(404, f"area {index} of board {image_id} has no crop on disk")
         return FileResponse(path, media_type="image/png")
 
@@ -863,10 +889,32 @@ class _Pages:
             The overlay as a PNG.
         """
         detail, card = self._region(category, run, image_id, index)
-        name = card.judged.overlay if card.judged is not None else None
-        if name is None or not (detail.directory / name).is_file():
+        path = contained(detail.directory, card.judged.overlay if card.judged else None)
+        if path is None:
             raise PageError(404, f"the judge left no overlay for area {index} of board {image_id}")
-        return FileResponse(detail.directory / name, media_type="image/png")
+        return FileResponse(path, media_type="image/png")
+
+
+def _from_another_site(request: Request) -> bool:
+    """Say whether a form was posted by a page that is not the console's own.
+
+    The console has no login, so anything that can post to it can start a
+    training or record an override. A browser says where a form came from: in
+    `Sec-Fetch-Site`, and in `Origin`, which must be the console's own
+    address. A request with neither header is not a browser's cross-site
+    form and is let through.
+
+    Args:
+        request: The request.
+
+    Returns:
+        Whether the browser reports another site as the form's source.
+    """
+    site = request.headers.get("sec-fetch-site")
+    if site is not None and site not in {"same-origin", "none"}:
+        return True
+    origin = request.headers.get("origin")
+    return origin is not None and urlsplit(origin).netloc != request.headers.get("host")
 
 
 def _first_problem(errors: Sequence[Any]) -> str:
@@ -961,7 +1009,25 @@ def create_app(
         assert isinstance(error, RequestValidationError)  # noqa: S101 - as above
         return pages.problem(request, 422, _first_problem(error.errors()))
 
+    async def unforeseen(request: Request, error: Exception) -> Response:
+        # The server logs the traceback; the page names the kind of fault and no more,
+        # since its message may hold a path.
+        return pages.problem(
+            request, 500, f"something went wrong inside the console ({type(error).__name__})"
+        )
+
+    async def same_site_forms(request: Request, call_next: RequestResponseEndpoint) -> Response:
+        if request.method == "POST" and _from_another_site(request):
+            return pages.problem(
+                request, 403, "the form was sent from another site, so it was not taken"
+            )
+        return await call_next(request)
+
     app.add_exception_handler(PageError, page_error)
     app.add_exception_handler(StarletteHTTPException, http_error)
     app.add_exception_handler(RequestValidationError, invalid_request)
+    app.add_exception_handler(Exception, unforeseen)
+    app.middleware("http")(same_site_forms)
+    if config.hosts:
+        app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(config.hosts))
     return app

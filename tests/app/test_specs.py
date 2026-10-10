@@ -1,5 +1,6 @@
 """Tests for the specification the console holds: uploaded, parsed, kept and reloaded."""
 
+import threading
 from pathlib import Path
 
 import pytest
@@ -162,3 +163,59 @@ def test_a_clause_table_that_cannot_be_read_stops_the_console_in_words(tmp_path:
             parser=Recording(specification()),
             initial=tmp_path / "absent.clauses.json",
         )
+
+
+def test_a_page_is_not_held_up_by_a_parse_in_progress(tmp_path: Path) -> None:
+    """While an upload is being parsed, the specification in force can still be read."""
+    started = threading.Event()
+    release = threading.Event()
+
+    def slow(path: Path) -> Specification:
+        started.set()
+        assert release.wait(timeout=10)
+        return specification(title="The new one")
+
+    store = SpecStore(tmp_path / "state", parser=Recording(specification()))
+    kept = store.install("first.pdf", PDF)
+    store.parser = slow
+    upload = threading.Thread(target=store.install, args=("second.pdf", PDF))
+    upload.start()
+    try:
+        assert started.wait(timeout=10)
+        seen: list[object] = []
+        reader = threading.Thread(target=lambda: seen.append(store.current()))
+        reader.start()
+        reader.join(timeout=2)
+        assert seen == [kept], "reading the specification waited for the parse"
+    finally:
+        release.set()
+        upload.join(timeout=10)
+    loaded = store.current()
+    assert loaded is not None
+    assert loaded.specification.title == "The new one"
+
+
+def test_an_upload_that_cannot_be_kept_leaves_the_earlier_one_whole(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """If the disk fails while the new files are written, the old ones are still the old ones."""
+    store = SpecStore(tmp_path / "state", parser=Recording(specification()))
+    kept = store.install("first.pdf", PDF)
+    store.parser = Recording(specification(title="The new one"))
+
+    def fail(*_: object, **__: object) -> None:
+        raise OSError(28, "No space left on device")
+
+    monkeypatch.setattr("spec_to_inspector.app.specs.write_clause_table", fail)
+    with pytest.raises(SpecError, match="No space left on device"):
+        store.install("second.pdf", PDF + b"more")
+    monkeypatch.undo()
+
+    assert store.current() == kept
+    again = SpecStore(tmp_path / "state", parser=Recording(specification()))
+    assert again.current() == kept
+    assert sorted(path.name for path in (tmp_path / "state").iterdir()) == [
+        "specification.clauses.json",
+        "specification.json",
+        "specification.pdf",
+    ]

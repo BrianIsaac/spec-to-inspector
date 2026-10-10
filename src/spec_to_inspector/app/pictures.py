@@ -20,6 +20,7 @@ from PIL import Image, UnidentifiedImageError
 
 from spec_to_inspector.anomaly.records import ImageResult, Region
 from spec_to_inspector.anomaly.regions import upsample
+from spec_to_inspector.app.runs import contained
 
 _JPEG_QUALITY: Final = 88
 _FAINTEST: Final = 0.1
@@ -95,13 +96,24 @@ def _heatmap(directory: Path, stamp: int, result: str, index: int) -> bytes:
     if region.crop is None or box is None:
         msg = f"region {index} of {sidecar.image_id} has no crop to draw the anomaly map on"
         raise PictureError(msg)
+    crop_path = contained(directory, region.crop)
+    map_path = contained(directory, sidecar.anomaly_map)
+    if crop_path is None or map_path is None:
+        msg = (
+            f"the crop or the anomaly map of {sidecar.image_id} is missing, or its record "
+            "names a file outside the board's directory"
+        )
+        raise PictureError(msg)
     try:
-        with Image.open(directory / region.crop) as opened:
+        with Image.open(crop_path) as opened:
             crop = np.asarray(opened.convert("RGB"))
-        stored = cast("NDArray[np.float32]", np.load(directory / sidecar.anomaly_map))
-    except (OSError, ValueError, UnidentifiedImageError) as error:
+        stored = cast("NDArray[np.float32]", np.load(map_path))
+    except (OSError, ValueError, EOFError, UnidentifiedImageError) as error:
         msg = f"the crop or the anomaly map of {sidecar.image_id} cannot be read: {error}"
         raise PictureError(msg) from error
+    if stored.ndim != 2 or stored.size == 0:
+        msg = f"the anomaly map of {sidecar.image_id} cannot be read: it is not a map"
+        raise PictureError(msg)
     stretched = upsample(stored, width=sidecar.width, height=sidecar.height)
     scores = stretched[box.y : box.y + box.height, box.x : box.x + box.width]
     if scores.shape != crop.shape[:2]:

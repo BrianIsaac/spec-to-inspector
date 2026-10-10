@@ -116,6 +116,7 @@ class SpecStore:
         self.parser = parser
         self._state_dir = state_dir
         self._lock = Lock()
+        self._installing = Lock()
         self._current = self._read_initial(initial) if initial is not None else self._read_kept()
 
     @staticmethod
@@ -194,7 +195,9 @@ class SpecStore:
             msg = f"{name} is not a PDF: it does not begin with a PDF header"
             raise SpecError(msg)
 
-        with self._lock:
+        # One upload at a time; the parse, which takes seconds, is not done under the lock
+        # that every page takes to read what is in force.
+        with self._installing:
             self._state_dir.mkdir(parents=True, exist_ok=True)
             partial = self._state_dir / f".{PDF_NAME}.partial"
             partial.write_bytes(data)
@@ -211,12 +214,22 @@ class SpecStore:
             note = _Note(source=name, parse_seconds=seconds, loaded_at=_now())
             table = self._state_dir / TABLE_NAME
             pdf = self._state_dir / PDF_NAME
-            write_clause_table(specification, table)
-            (self._state_dir / NOTE_NAME).write_text(
-                note.model_dump_json(indent=2) + "\n", encoding="utf-8"
-            )
-            partial.replace(pdf)
-            self._current = LoadedSpec(
+            new_table = self._state_dir / f".{TABLE_NAME}.partial"
+            new_note = self._state_dir / f".{NOTE_NAME}.partial"
+            try:
+                # Each file is written whole beside its place and renamed in, so a disk
+                # that fails part of the way leaves what was kept before as it was.
+                write_clause_table(specification, new_table)
+                new_note.write_text(note.model_dump_json(indent=2) + "\n", encoding="utf-8")
+                new_table.replace(table)
+                partial.replace(pdf)
+                new_note.replace(self._state_dir / NOTE_NAME)
+            except OSError as error:
+                for left in (partial, new_table, new_note):
+                    left.unlink(missing_ok=True)
+                msg = f"{name} was parsed, but could not be kept in {self._state_dir}: {error}"
+                raise SpecError(msg) from error
+            loaded = LoadedSpec(
                 specification=specification,
                 pdf=pdf,
                 table=table,
@@ -224,4 +237,6 @@ class SpecStore:
                 parse_seconds=note.parse_seconds,
                 loaded_at=note.loaded_at,
             )
-            return self._current
+            with self._lock:
+                self._current = loaded
+            return loaded

@@ -10,6 +10,7 @@ against the specification in force.
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Final
 
 from spec_to_inspector.anomaly.records import Region
 from spec_to_inspector.app.runs import BoardDetail, RunError
@@ -80,6 +81,9 @@ def first_answer(judged: RegionDecision | None) -> JudgeAnswer | None:
     """
     answer = getattr(judged, "first_answer", None)
     return answer if isinstance(answer, JudgeAnswer) else None
+
+
+_INDEX_DIGITS: Final = 6
 
 
 class FormError(ValueError):
@@ -296,6 +300,21 @@ def check_note(note: str) -> str:
     return folded
 
 
+def region_number(text: str) -> int | None:
+    """Read a flagged area's index as a form sent it.
+
+    Args:
+        text: The form's value.
+
+    Returns:
+        The index, or None if the text is not a number an index could be.
+    """
+    digits = text.strip()
+    # A board has a handful of areas; a longer run of digits is not an index, and Python
+    # refuses to convert thousands of them.
+    return int(digits) if digits.isdecimal() and len(digits) <= _INDEX_DIGITS else None
+
+
 def judged_region(decision: Decision, image_id: str, region: str) -> RegionDecision:
     """Find the judged area a correction is about.
 
@@ -310,9 +329,44 @@ def judged_region(decision: Decision, image_id: str, region: str) -> RegionDecis
     Raises:
         FormError: If the text is not the index of an area the judge answered for.
     """
-    index = int(region) if region.strip().isdecimal() else None
+    index = region_number(region)
     found = next((r for r in decision.regions if r.index == index), None)
     if found is None:
-        msg = f"board {image_id} has no judged area {region.strip() or '(none given)'}"
+        said = region.strip()[:12] or "(none given)"
+        msg = f"board {image_id} has no judged area {said}"
         raise FormError(msg)
     return found
+
+
+def form_defaults(
+    specification: Specification, category: str, answer: JudgeAnswer | None
+) -> tuple[str, str]:
+    """Give the clause and the class the override form opens on: the judge's own, made consistent.
+
+    The form starts from what the judge said, so the engineer changes only
+    what is wrong. The judge may cite a row of a heading, or a class that is
+    not its clause's; the form's two fields must belong together, so the
+    clause leads and its class follows.
+
+    Args:
+        specification: The specification in force.
+        category: The board's part.
+        answer: The model's answer for the area; None if no valid answer came.
+
+    Returns:
+        The clause heading and its defect class; two empty strings ("not a
+        defect") where the judge named nothing the part's clauses hold.
+    """
+    if answer is None:
+        return "", ""
+    choices = {choice.heading_id: choice for choice in clause_choices(specification, category)}
+    cited = answer.clause_id
+    if cited is not None and cited not in choices:
+        row = specification.find(cited)
+        cited = row.heading_id if row is not None and row.category == category else None
+    if cited is not None and cited in choices:
+        return cited, choices[cited].defect_class
+    for choice in choices.values():
+        if choice.defect_class == answer.defect_class:
+            return choice.heading_id, choice.defect_class
+    return "", ""
