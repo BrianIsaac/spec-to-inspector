@@ -16,6 +16,7 @@ import pytest
 from PIL import Image
 
 from spec_to_inspector.anomaly.infer import load_result
+from spec_to_inspector.judge.answer import JudgeAnswer
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause, Decision
 from spec_to_inspector.judge.disposition import Outcome
@@ -27,7 +28,12 @@ from spec_to_inspector.judge.inspect import (
     load_decision,
 )
 from spec_to_inspector.judge.join import calibration_for, measure_region, zone_map_for
-from spec_to_inspector.judge.prompt import FACTS_CLOSE, FACTS_OPEN, measured_facts
+from spec_to_inspector.judge.prompt import (
+    FACTS_CLOSE,
+    FACTS_OPEN,
+    NO_CORRECTIONS,
+    measured_facts,
+)
 from spec_to_inspector.measure import MeasuredRegion
 from tests.judge.fake_vlm import FakeVlm, Reply
 from tests.judge.run_fakes import write_run
@@ -554,3 +560,161 @@ def test_a_retry_that_the_server_fails_counts_both_requests(run: Path) -> None:
     assert region.call.attempts == 2
     assert region.call.texts == ("not json",)
     assert len(server.requests) == 2
+
+
+CORRECTION = (
+    "On a pcb9 board the judge called the flagged area 'scratch' (clause 4.1); "
+    "the engineer corrected it to 'missing' (clause 4.2)."
+)
+
+
+def test_a_decision_judged_without_corrections_is_not_flagged(run: Path) -> None:
+    """With nothing recalled, the flag is down and no region carries a correction."""
+    with FakeVlm([_reply()]) as server:
+        decision = _judge(run, "scratch", server)
+
+    assert not decision.corrected.in_prompt
+    assert not decision.corrected.overridden
+    assert decision.regions[0].corrections == ()
+    assert decision.regions[0].first_answer is None
+    assert load_decision(run / "scratch").corrected == decision.corrected
+
+
+def test_a_correction_in_the_prompt_raises_the_flag_and_is_kept_on_the_region(run: Path) -> None:
+    """The decision says a correction was shown, and quotes the lines the judge read."""
+    with FakeVlm([_reply("missing", "4.2")]) as server:
+        decision = _judge(run, "scratch", server, recall=lambda _: [CORRECTION])
+
+    assert decision.corrected.in_prompt
+    assert decision.regions[0].corrections == (CORRECTION,)
+    assert load_decision(run / "scratch") == decision
+
+
+def test_a_board_passed_by_the_anomaly_model_is_not_flagged_by_a_recall(run: Path) -> None:
+    """No question was asked, so no correction was in a prompt."""
+    with FakeVlm() as server:
+        decision = _judge(run, "good", server, recall=lambda _: [CORRECTION])
+
+    assert not decision.corrected.in_prompt
+    assert server.requests == []
+
+
+def test_an_image_an_engineer_overrode_says_so_when_judged_again(run: Path) -> None:
+    """The flag's other half is asked of the store, by part and image."""
+    asked: list[tuple[str, str]] = []
+
+    def overridden(category: str, image_id: str) -> bool:
+        asked.append((category, image_id))
+        return image_id == "scratch"
+
+    with FakeVlm(default=_reply()) as server:
+        scratch = _judge(run, "scratch", server, overridden=overridden)
+        speck = _judge(run, "speck", server, overridden=overridden)
+
+    assert scratch.corrected.overridden
+    assert not scratch.corrected.in_prompt
+    assert not speck.corrected.overridden
+    assert asked == [("pcb9", "scratch"), ("pcb9", "speck")]
+
+
+def test_corrections_recalled_on_the_answer_bring_a_second_question(run: Path) -> None:
+    """The judge answers, is shown the corrections for that answer, and its second answer stands."""
+    recalled: list[tuple[str, str | None, str | None]] = []
+
+    def on_answer(category: str, answer: JudgeAnswer) -> list[str]:
+        recalled.append((category, answer.defect_class, answer.clause_id))
+        return [CORRECTION]
+
+    with FakeVlm([_reply(), _reply("missing", "4.2")]) as server:
+        decision = _judge(run, "scratch", server, recall_on_answer=on_answer)
+
+    (region,) = decision.regions
+    assert recalled == [("pcb9", "scratch", "4.1")]
+    assert len(server.requests) == 2
+    assert NO_CORRECTIONS in _request_text(server.requests[0])
+    assert f"1. {CORRECTION}" in _request_text(server.requests[1])
+    assert region.first_answer is not None
+    assert region.first_answer.clause_id == "4.1"
+    assert region.first_call is not None
+    assert region.first_call.attempts == 1
+    assert region.answer is not None
+    assert region.answer.clause_id == "4.2"
+    assert region.clause is not None
+    assert region.clause.id == "4.2"
+    assert region.corrections == (CORRECTION,)
+    assert decision.corrected.in_prompt
+    assert decision.outcome is Outcome.REJECT
+
+
+def test_no_correction_on_record_for_the_answer_means_one_question(run: Path) -> None:
+    """The second question is asked only when there is something to show."""
+    with FakeVlm([_reply()]) as server:
+        decision = _judge(run, "scratch", server, recall_on_answer=lambda *_: [])
+
+    assert len(server.requests) == 1
+    assert decision.regions[0].first_answer is None
+    assert decision.regions[0].corrections == ()
+    assert not decision.corrected.in_prompt
+
+
+def test_an_answer_that_never_came_recalls_nothing(run: Path) -> None:
+    """With no valid answer there is nothing to recall on."""
+    called: list[str] = []
+
+    def on_answer(category: str, answer: JudgeAnswer) -> list[str]:
+        called.append(category)
+        return [CORRECTION]
+
+    with FakeVlm(["not json", "still not json"]) as server:
+        decision = _judge(run, "scratch", server, recall_on_answer=on_answer)
+
+    assert called == []
+    assert decision.review_cause is Cause.MALFORMED_ANSWER
+
+
+def test_a_second_question_the_server_fails_refers_the_region_and_keeps_the_first_answer(
+    run: Path,
+) -> None:
+    """Nothing is guessed: the first answer is on record, but it does not decide."""
+    with FakeVlm([_reply(), Reply(status=500, body="{}")]) as server:
+        decision = _judge(run, "scratch", server, recall_on_answer=lambda *_: [CORRECTION])
+
+    (region,) = decision.regions
+    assert decision.outcome is Outcome.NEEDS_REVIEW
+    assert decision.review_cause is Cause.SERVER_UNAVAILABLE
+    assert region.answer is None
+    assert region.first_answer is not None
+    assert region.first_answer.clause_id == "4.1"
+
+
+def test_a_run_passes_both_recalls_and_the_flag_to_every_image(run: Path) -> None:
+    """`judge_run` hands the corrections' callables on."""
+    with (
+        FakeVlm(default=_reply()) as server,
+        ChatClient(server.url, "fake-vlm", timeout_seconds=5.0) as client,
+    ):
+        decisions = judge_run(
+            run,
+            SPEC,
+            client,
+            image_ids=["scratch", "speck"],
+            recall=lambda _: [CORRECTION],
+            recall_on_answer=lambda *_: [],
+            overridden=lambda *_: True,
+        )
+
+    assert all(d.corrected.in_prompt and d.corrected.overridden for d in decisions)
+
+
+def test_a_decision_written_before_the_flag_existed_still_reads(run: Path) -> None:
+    """The runs U5 judged hold decisions without the new fields; they read as not corrected."""
+    with FakeVlm([_reply()]) as server:
+        decision = _judge(run, "scratch", server)
+    path = run / "scratch" / DECISION_NAME
+    old = json.loads(path.read_text(encoding="utf-8"))
+    del old["corrected"]
+    for region in old["regions"]:
+        del region["corrections"], region["first_answer"], region["first_call"]
+    path.write_text(json.dumps(old), encoding="utf-8")
+
+    assert load_decision(run / "scratch") == decision
