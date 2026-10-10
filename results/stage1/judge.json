@@ -1,0 +1,725 @@
+{
+  "schema_version": 1,
+  "notes": {
+    "units": "seconds are wall time of one chat-completion request as the client saw it; tokens are the server's own counts, images included; memory is MiB as nvidia-smi reports it",
+    "cold": "the request sent with cache_prompt false: the whole prompt is evaluated, clause table included",
+    "cached": "the request sent with the server's prompt cache on, after one warm-up request on another image: the prefix the images share is not evaluated again",
+    "percentiles": "numpy.percentile, linear interpolation between the ranked values",
+    "one_region": "each image is asked once per pass, about its most anomalous region only",
+    "live": "the answers of the marked live test, uv run pytest -m live: region decisions on real crops, recorded as they came; ground_truth is VisA's defect type under region 1"
+  },
+  "timing": {
+    "measured_at": "2026-10-10T17:04:40+00:00",
+    "command": [
+      "python",
+      "-m",
+      "spec_to_inspector.judge.timing",
+      "--category",
+      "pcb4",
+      "--images",
+      "24",
+      "--label",
+      "llama.cpp v0.6.0, Q4_K_M weights, F16 projector, 16K context, one slot, prompt cache on, --image-min-tokens 1024 (scripts/serve_vlm.sh as shipped)"
+    ],
+    "category": "pcb4",
+    "run": "<artefacts>/runs/pcb4/test",
+    "specification": "Workmanship acceptance specification: PCB1 and PCB4 assemblies",
+    "judge_url": "http://127.0.0.1:8131/v1",
+    "judge_model": "qwen3-vl-8b-instruct",
+    "server": {
+      "model_alias": "qwen3-vl-8b-instruct",
+      "model_file": "Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+      "model_ftype": "Q4_K - Medium",
+      "build_info": "b1-d812350",
+      "total_slots": "1",
+      "n_ctx": "16384"
+    },
+    "label": "llama.cpp v0.6.0, Q4_K_M weights, F16 projector, 16K context, one slot, prompt cache on, --image-min-tokens 1024 (scripts/serve_vlm.sh as shipped)",
+    "images": 24,
+    "clause_prefix_tokens": 2260,
+    "cold_seconds": {
+      "n": 24,
+      "p50": 3.430031363386661,
+      "p95": 3.5672590866684915,
+      "mean": 3.3955162912316155,
+      "minimum": 3.1745274611748755,
+      "maximum": 3.637469537789002
+    },
+    "cached_seconds": {
+      "n": 24,
+      "p50": 2.6209237296134233,
+      "p95": 2.7751341499970295,
+      "mean": 2.5974536981860488,
+      "minimum": 2.404805626021698,
+      "maximum": 2.7963352887891233
+    },
+    "warm_up_seconds": 0.693673542002216,
+    "prompt_tokens": {
+      "n": 24,
+      "p50": 4704.0,
+      "p95": 4783.6,
+      "mean": 4693.625,
+      "minimum": 4550.0,
+      "maximum": 4809.0
+    },
+    "cached_prompt_tokens": {
+      "n": 24,
+      "p50": 2432.0,
+      "p95": 2481.7,
+      "mean": 2443.75,
+      "minimum": 2431.0,
+      "maximum": 2483.0
+    },
+    "completion_tokens": {
+      "n": 24,
+      "p50": 39.0,
+      "p95": 47.699999999999996,
+      "mean": 39.458333333333336,
+      "minimum": 34.0,
+      "maximum": 49.0
+    },
+    "output_tokens_per_second": {
+      "n": 24,
+      "p50": 62.01537563662234,
+      "p95": 63.42809212668868,
+      "mean": 62.159809448416496,
+      "minimum": 60.77374088203969,
+      "maximum": 63.634628146505094
+    },
+    "gpu": {
+      "server_peak_mib": 8764,
+      "gpu_peak_mib": 9345,
+      "gpu_before_mib": 9247,
+      "samples": 274,
+      "interval_seconds": 0.5
+    },
+    "cold": [
+      {
+        "image_id": "good-0990",
+        "seconds": 3.3705027289688587,
+        "attempts": 1,
+        "prompt_tokens": 4645,
+        "cached_tokens": 0,
+        "completion_tokens": 41,
+        "tokens_per_second": 62.1611247433911,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0320",
+        "seconds": 3.5616544000804424,
+        "attempts": 1,
+        "prompt_tokens": 4741,
+        "cached_tokens": 0,
+        "completion_tokens": 44,
+        "tokens_per_second": 61.7532169117647,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0423",
+        "seconds": 3.189015900949016,
+        "attempts": 1,
+        "prompt_tokens": 4644,
+        "cached_tokens": 0,
+        "completion_tokens": 35,
+        "tokens_per_second": 62.971942295475465,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0011",
+        "seconds": 3.1745274611748755,
+        "attempts": 1,
+        "prompt_tokens": 4550,
+        "cached_tokens": 0,
+        "completion_tokens": 37,
+        "tokens_per_second": 63.0038117306097,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0026",
+        "seconds": 3.209344235016033,
+        "attempts": 1,
+        "prompt_tokens": 4661,
+        "cached_tokens": 0,
+        "completion_tokens": 37,
+        "tokens_per_second": 61.954563211724555,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0871",
+        "seconds": 3.3986351108178496,
+        "attempts": 1,
+        "prompt_tokens": 4709,
+        "cached_tokens": 0,
+        "completion_tokens": 38,
+        "tokens_per_second": 60.88089721988206,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0784",
+        "seconds": 3.2495376670267433,
+        "attempts": 1,
+        "prompt_tokens": 4618,
+        "cached_tokens": 0,
+        "completion_tokens": 40,
+        "tokens_per_second": 61.675583269153826,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0688",
+        "seconds": 3.222130492096767,
+        "attempts": 1,
+        "prompt_tokens": 4645,
+        "cached_tokens": 0,
+        "completion_tokens": 37,
+        "tokens_per_second": 62.137316565463394,
+        "outcome": "accept",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0615",
+        "seconds": 3.568248149007559,
+        "attempts": 1,
+        "prompt_tokens": 4705,
+        "cached_tokens": 0,
+        "completion_tokens": 48,
+        "tokens_per_second": 60.96350880014736,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-000",
+        "seconds": 3.5351921999827027,
+        "attempts": 1,
+        "prompt_tokens": 4703,
+        "cached_tokens": 0,
+        "completion_tokens": 46,
+        "tokens_per_second": 61.75457086748704,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-001",
+        "seconds": 3.408323190873489,
+        "attempts": 1,
+        "prompt_tokens": 4705,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 61.89257728835589,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-002",
+        "seconds": 3.544475422007963,
+        "attempts": 1,
+        "prompt_tokens": 4751,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 60.650363423361874,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-003",
+        "seconds": 3.637469537789002,
+        "attempts": 1,
+        "prompt_tokens": 4755,
+        "cached_tokens": 0,
+        "completion_tokens": 49,
+        "tokens_per_second": 61.717918254617274,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-004",
+        "seconds": 3.464281752007082,
+        "attempts": 1,
+        "prompt_tokens": 4755,
+        "cached_tokens": 0,
+        "completion_tokens": 38,
+        "tokens_per_second": 60.267751703378416,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-005",
+        "seconds": 3.2220429370645434,
+        "attempts": 1,
+        "prompt_tokens": 4574,
+        "cached_tokens": 0,
+        "completion_tokens": 38,
+        "tokens_per_second": 62.208398133748055,
+        "outcome": "needs review",
+        "review_cause": "not measured"
+      },
+      {
+        "image_id": "bad-006",
+        "seconds": 3.451739535899833,
+        "attempts": 1,
+        "prompt_tokens": 4770,
+        "cached_tokens": 0,
+        "completion_tokens": 34,
+        "tokens_per_second": 62.360279903171495,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-007",
+        "seconds": 3.2136261470150203,
+        "attempts": 1,
+        "prompt_tokens": 4644,
+        "cached_tokens": 0,
+        "completion_tokens": 36,
+        "tokens_per_second": 63.210097722811085,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-008",
+        "seconds": 3.2210054418537766,
+        "attempts": 1,
+        "prompt_tokens": 4643,
+        "cached_tokens": 0,
+        "completion_tokens": 35,
+        "tokens_per_second": 61.60871219671299,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-009",
+        "seconds": 3.2766314609907568,
+        "attempts": 1,
+        "prompt_tokens": 4642,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 62.117182429991495,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-010",
+        "seconds": 3.532498562010005,
+        "attempts": 1,
+        "prompt_tokens": 4809,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 60.84614571691171,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-011",
+        "seconds": 3.4548171679489315,
+        "attempts": 1,
+        "prompt_tokens": 4703,
+        "cached_tokens": 0,
+        "completion_tokens": 40,
+        "tokens_per_second": 61.504106581885615,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-012",
+        "seconds": 3.529610581928864,
+        "attempts": 1,
+        "prompt_tokens": 4754,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 60.41662029426074,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-013",
+        "seconds": 3.511302410857752,
+        "attempts": 1,
+        "prompt_tokens": 4786,
+        "cached_tokens": 0,
+        "completion_tokens": 38,
+        "tokens_per_second": 60.8280506089381,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-014",
+        "seconds": 3.5457784961909056,
+        "attempts": 1,
+        "prompt_tokens": 4735,
+        "cached_tokens": 0,
+        "completion_tokens": 46,
+        "tokens_per_second": 61.695304713109984,
+        "outcome": "reject",
+        "review_cause": null
+      }
+    ],
+    "cached": [
+      {
+        "image_id": "good-0990",
+        "seconds": 2.53653593105264,
+        "attempts": 1,
+        "prompt_tokens": 4645,
+        "cached_tokens": 2446,
+        "completion_tokens": 41,
+        "tokens_per_second": 60.77374088203969,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0320",
+        "seconds": 2.6317230109125376,
+        "attempts": 1,
+        "prompt_tokens": 4741,
+        "cached_tokens": 2431,
+        "completion_tokens": 37,
+        "tokens_per_second": 61.88523040215085,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0423",
+        "seconds": 2.404805626021698,
+        "attempts": 1,
+        "prompt_tokens": 4644,
+        "cached_tokens": 2431,
+        "completion_tokens": 35,
+        "tokens_per_second": 62.50746872328496,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0011",
+        "seconds": 2.449863228946924,
+        "attempts": 1,
+        "prompt_tokens": 4550,
+        "cached_tokens": 2431,
+        "completion_tokens": 39,
+        "tokens_per_second": 61.608201024317395,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0026",
+        "seconds": 2.446319276932627,
+        "attempts": 1,
+        "prompt_tokens": 4661,
+        "cached_tokens": 2431,
+        "completion_tokens": 37,
+        "tokens_per_second": 62.2286140996211,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0871",
+        "seconds": 2.6146457460708916,
+        "attempts": 1,
+        "prompt_tokens": 4709,
+        "cached_tokens": 2432,
+        "completion_tokens": 38,
+        "tokens_per_second": 62.400812222463955,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0784",
+        "seconds": 2.474772986024618,
+        "attempts": 1,
+        "prompt_tokens": 4618,
+        "cached_tokens": 2431,
+        "completion_tokens": 40,
+        "tokens_per_second": 61.205080963336584,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0688",
+        "seconds": 2.45181977795437,
+        "attempts": 1,
+        "prompt_tokens": 4645,
+        "cached_tokens": 2431,
+        "completion_tokens": 38,
+        "tokens_per_second": 61.89122867470807,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0615",
+        "seconds": 2.7766308200079948,
+        "attempts": 1,
+        "prompt_tokens": 4705,
+        "cached_tokens": 2432,
+        "completion_tokens": 48,
+        "tokens_per_second": 61.65349424458071,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-000",
+        "seconds": 2.740435505984351,
+        "attempts": 1,
+        "prompt_tokens": 4703,
+        "cached_tokens": 2432,
+        "completion_tokens": 46,
+        "tokens_per_second": 62.92535794041108,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-001",
+        "seconds": 2.6097341650165617,
+        "attempts": 1,
+        "prompt_tokens": 4705,
+        "cached_tokens": 2480,
+        "completion_tokens": 39,
+        "tokens_per_second": 62.746237702563015,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-002",
+        "seconds": 2.7553508409764618,
+        "attempts": 1,
+        "prompt_tokens": 4751,
+        "cached_tokens": 2446,
+        "completion_tokens": 39,
+        "tokens_per_second": 61.51534969857479,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-003",
+        "seconds": 2.7963352887891233,
+        "attempts": 1,
+        "prompt_tokens": 4755,
+        "cached_tokens": 2446,
+        "completion_tokens": 45,
+        "tokens_per_second": 62.09418276293711,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-004",
+        "seconds": 2.6848230371251702,
+        "attempts": 1,
+        "prompt_tokens": 4755,
+        "cached_tokens": 2432,
+        "completion_tokens": 38,
+        "tokens_per_second": 61.85418794645768,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-005",
+        "seconds": 2.4378231081645936,
+        "attempts": 1,
+        "prompt_tokens": 4574,
+        "cached_tokens": 2473,
+        "completion_tokens": 38,
+        "tokens_per_second": 61.25077391180551,
+        "outcome": "needs review",
+        "review_cause": "not measured"
+      },
+      {
+        "image_id": "bad-006",
+        "seconds": 2.627201713155955,
+        "attempts": 1,
+        "prompt_tokens": 4770,
+        "cached_tokens": 2446,
+        "completion_tokens": 34,
+        "tokens_per_second": 63.226990644321354,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-007",
+        "seconds": 2.4346182150766253,
+        "attempts": 1,
+        "prompt_tokens": 4644,
+        "cached_tokens": 2432,
+        "completion_tokens": 36,
+        "tokens_per_second": 63.634628146505094,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-008",
+        "seconds": 2.4342447430826724,
+        "attempts": 1,
+        "prompt_tokens": 4643,
+        "cached_tokens": 2483,
+        "completion_tokens": 35,
+        "tokens_per_second": 62.0284017105244,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-009",
+        "seconds": 2.470915243960917,
+        "attempts": 1,
+        "prompt_tokens": 4642,
+        "cached_tokens": 2482,
+        "completion_tokens": 39,
+        "tokens_per_second": 63.25394962655201,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-010",
+        "seconds": 2.7666530199348927,
+        "attempts": 1,
+        "prompt_tokens": 4809,
+        "cached_tokens": 2446,
+        "completion_tokens": 39,
+        "tokens_per_second": 60.98373178712826,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-011",
+        "seconds": 2.643666350049898,
+        "attempts": 1,
+        "prompt_tokens": 4703,
+        "cached_tokens": 2446,
+        "completion_tokens": 40,
+        "tokens_per_second": 62.89683467647643,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-012",
+        "seconds": 2.709404594032094,
+        "attempts": 1,
+        "prompt_tokens": 4754,
+        "cached_tokens": 2432,
+        "completion_tokens": 39,
+        "tokens_per_second": 62.00234956272027,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-013",
+        "seconds": 2.677786111133173,
+        "attempts": 1,
+        "prompt_tokens": 4786,
+        "cached_tokens": 2446,
+        "completion_tokens": 38,
+        "tokens_per_second": 61.809756252390955,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-014",
+        "seconds": 2.7627804160583764,
+        "attempts": 1,
+        "prompt_tokens": 4735,
+        "cached_tokens": 2432,
+        "completion_tokens": 49,
+        "tokens_per_second": 63.458823156124566,
+        "outcome": "reject",
+        "review_cause": null
+      }
+    ]
+  },
+  "live": {
+    "measured_at": "2026-10-10T17:05:08+00:00",
+    "command": [
+      "pytest",
+      "-m",
+      "live",
+      "-v"
+    ],
+    "category": "pcb4",
+    "run": "<artefacts>/runs/pcb4/test",
+    "judge_url": "http://127.0.0.1:8131/v1",
+    "judge_model": "qwen3-vl-8b-instruct",
+    "answers": [
+      {
+        "image_id": "bad-000",
+        "label": "bad",
+        "ground_truth": [
+          "burnt"
+        ],
+        "regions_found": 3,
+        "regions_judged": 1,
+        "outcome": "reject",
+        "reason": "region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size",
+        "review_cause": null,
+        "clause_id": "5.7",
+        "judge_reason": "A blackened area on the board surface under the flagged heatmap, indicating a burn mark.",
+        "judge_defect_class": "burnt",
+        "judge_clause_id": "5.7",
+        "seconds": 2.685350904939696
+      },
+      {
+        "image_id": "bad-002",
+        "label": "bad",
+        "ground_truth": [
+          "dirt"
+        ],
+        "regions_found": 2,
+        "regions_judged": 1,
+        "outcome": "reject",
+        "reason": "region 1: longest extent 18.11 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A",
+        "review_cause": null,
+        "clause_id": "5.1.1",
+        "judge_reason": "The USB receptacle has foreign material on its surface.",
+        "judge_defect_class": "dirt",
+        "judge_clause_id": "5.1",
+        "seconds": 2.6404200450051576
+      },
+      {
+        "image_id": "bad-016",
+        "label": "bad",
+        "ground_truth": [
+          "missing"
+        ],
+        "regions_found": 2,
+        "regions_judged": 1,
+        "outcome": "reject",
+        "reason": "region 1: longest extent 5.99 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A",
+        "review_cause": null,
+        "clause_id": "5.1.1",
+        "judge_reason": "A lump of foreign material on the board surface",
+        "judge_defect_class": "dirt",
+        "judge_clause_id": "5.1",
+        "seconds": 2.6345161728095263
+      },
+      {
+        "image_id": "good-0320",
+        "label": "good",
+        "ground_truth": [],
+        "regions_found": 1,
+        "regions_judged": 1,
+        "outcome": "needs review",
+        "reason": "region 1: the flagged area lies outside every zone of part pcb4, where the specification refers a defect for review; an engineer must decide",
+        "review_cause": "outside every zone",
+        "clause_id": null,
+        "judge_reason": "A foreign material object on the board surface",
+        "judge_defect_class": "dirt",
+        "judge_clause_id": "5.1",
+        "seconds": 2.588074626866728
+      },
+      {
+        "image_id": "good-0871",
+        "label": "good",
+        "ground_truth": [],
+        "regions_found": 1,
+        "regions_judged": 1,
+        "outcome": "reject",
+        "reason": "region 1: longest extent 9.14 mm exceeds the 2 mm limit of clause 5.1.3 in zone C",
+        "review_cause": null,
+        "clause_id": "5.1.3",
+        "judge_reason": "Foreign material on the board surface in zone C",
+        "judge_defect_class": "dirt",
+        "judge_clause_id": "5.1",
+        "seconds": 2.551767153898254
+      }
+    ]
+  }
+}
