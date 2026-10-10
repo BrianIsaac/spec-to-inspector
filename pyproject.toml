@@ -100,6 +100,9 @@ filterwarnings = [
     "ignore:Importing from timm.models.layers is deprecated:FutureWarning",
     "ignore:The anomalib.models.components.dinov2 package is deprecated:FutureWarning",
     "ignore:Argument embeddings is deprecated since v2.1.0",
+    # FrEIA, an Anomalib dependency, has an unescaped backslash in a docstring; Python says so
+    # once, when it first compiles the module in a fresh environment.
+    "ignore:invalid escape sequence:SyntaxWarning",
     # Raised only in the gpu-marked runs: Lightning 2.6 on torch 2.14's pytree, and the data
     # loaders' fork() under pytest's threads.
     "ignore:`isinstance\\(treespec, LeafSpec\\)` is deprecated",
