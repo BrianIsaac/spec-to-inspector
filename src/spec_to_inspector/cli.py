@@ -35,7 +35,7 @@ from spec_to_inspector.settings import Settings
 from spec_to_inspector.spec.extract import SpecificationError
 from spec_to_inspector.spec.limits import Comparison
 from spec_to_inspector.spec.pdf import PdfError, read_pdf
-from spec_to_inspector.spec.schema import Specification, write_clause_table
+from spec_to_inspector.spec.schema import Specification, read_clause_table, write_clause_table
 from spec_to_inspector.spec.summary import summarise
 from spec_to_inspector.spec.tokens import TokenizerError
 
@@ -497,9 +497,196 @@ def train(
 
 
 @app.command()
-def inspect() -> None:
-    """Inspect a batch of board images and judge each region against the clauses."""
-    _not_built("inspect", "U5")
+def inspect(  # noqa: PLR0912, PLR0915 - one verb: its checks, its two sources and its report
+    images: Annotated[
+        list[Path] | None,
+        typer.Argument(
+            help="Board images to score with the category's anomaly model and then judge.",
+            exists=True,
+            dir_okay=False,
+        ),
+    ] = None,
+    category: Annotated[
+        str | None,
+        typer.Option("--category", "-c", help="The part the boards are, such as pcb4."),
+    ] = None,
+    run: Annotated[
+        Path | None,
+        typer.Option(
+            "--run",
+            help="A run directory the anomaly model already wrote, such as "
+            "<runs-dir>/pcb4/test, to judge instead of image files.",
+        ),
+    ] = None,
+    spec: Annotated[
+        Path,
+        typer.Option("--spec", help="The specification's clause table, as `parse` writes it."),
+    ] = Path("specs/pcb-spec.clauses.json"),
+    url: Annotated[
+        str | None,
+        typer.Option(
+            "--url",
+            help="The judge's OpenAI-compatible server, up to and including /v1. "
+            "Defaults to the settings' VLM URL.",
+        ),
+    ] = None,
+    model: Annotated[
+        str | None,
+        typer.Option(
+            "--model",
+            help="The model's name on that server. Defaults to the settings' VLM model.",
+        ),
+    ] = None,
+    batch: Annotated[
+        str | None,
+        typer.Option(
+            "--batch",
+            help="The name of the run the image files are scored into, "
+            "<runs-dir>/<category>/<batch>/, replaced whole. Defaults to `inspect`.",
+        ),
+    ] = None,
+    image_id: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--image-id", help="Judge only this image of --run. May be repeated; kept in order."
+        ),
+    ] = None,
+    max_regions: Annotated[
+        int,
+        typer.Option(
+            "--max-regions",
+            min=1,
+            help="The most flagged areas per image to put to the judge, most anomalous first. "
+            "An image with more is not accepted on the ones judged.",
+        ),
+    ] = 3,
+) -> None:
+    """Judge board images against the specification's clauses, one decision per image.
+
+    Each flagged area is measured, shown to the VLM with the clause table, and
+    decided by rule from the clause it cites: accept, reject or needs review.
+    The decision is written as `decision.json` beside the anomaly model's
+    result, and one line per image is printed. Give image files, which are
+    scored first, or --run for a directory already scored.
+    """
+    if category is None:
+        raise typer.BadParameter("give the part with --category", param_hint="--category")
+    if (run is None) == (not images):
+        raise typer.BadParameter("give image files or --run, not both and not neither")
+    if run is not None and batch is not None:
+        raise typer.BadParameter(
+            "--batch names the run that image files are scored into; --run already names one",
+            param_hint="--batch",
+        )
+    if run is None and image_id:
+        raise typer.BadParameter(
+            "--image-id picks images of --run; image files are all judged",
+            param_hint="--image-id",
+        )
+
+    try:
+        specification = read_clause_table(spec)
+    except OSError as error:
+        err.print(
+            f"cannot read the specification {spec}: {error}",
+            markup=False,
+            highlight=False,
+            soft_wrap=True,
+        )
+        raise typer.Exit(code=1) from error
+    except ValueError as error:
+        err.print(
+            f"{spec} is not a valid clause table: {error}",
+            markup=False,
+            highlight=False,
+            soft_wrap=True,
+        )
+        raise typer.Exit(code=1) from error
+    if category not in specification.categories():
+        raise typer.BadParameter(
+            f"the specification has no clause for part {category}; its parts are "
+            f"{', '.join(specification.categories())}",
+            param_hint="--category",
+        )
+
+    settings = Settings()
+    # The judge reads the anomaly model's records, which load PyTorch; Anomalib itself, about
+    # ten seconds, is loaded only when image files have to be scored first.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", FutureWarning)
+        from spec_to_inspector.judge import console as verdicts  # noqa: PLC0415
+        from spec_to_inspector.judge import inspect as judging  # noqa: PLC0415
+        from spec_to_inspector.judge.client import ChatClient  # noqa: PLC0415
+
+    try:
+        if run is not None:
+            run_directory = run
+            index = judging.read_run_index(run_directory)
+            if index.category != category:
+                raise judging.InspectError(
+                    f"{run_directory} is a run of part {index.category}, not of {category}"
+                )
+        else:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", FutureWarning)
+                from spec_to_inspector.anomaly import infer  # noqa: PLC0415
+                from spec_to_inspector.anomaly.train import (  # noqa: PLC0415
+                    ModelNotTrainedError,
+                )
+            run_directory = infer.run_dir(settings.runs_dir, category, batch or "inspect")
+            try:
+                items = [
+                    infer.InferenceItem(image_id=path.stem, path=path) for path in images or ()
+                ]
+                scorer = infer.AnomalyModel.load(settings.models_dir, category)
+            except ModelNotTrainedError as error:
+                raise judging.InspectError(
+                    f"{error}; train it with `spec-to-inspector train --category {category}`"
+                ) from error
+            err.print(
+                f"Scoring {len(items)} image(s) with the {category} anomaly model into "
+                f"{run_directory}",
+                markup=False,
+                highlight=False,
+                soft_wrap=True,
+            )
+            infer.run_inference(scorer, items, run_directory)
+
+        with ChatClient(
+            url or settings.vlm_url,
+            model or settings.vlm_model,
+            timeout_seconds=settings.vlm_timeout_seconds,
+        ) as client:
+            decisions = judging.judge_run(
+                run_directory,
+                specification,
+                client,
+                image_ids=image_id or None,
+                max_regions=max_regions,
+                on_decision=lambda decision: out.print(
+                    verdicts.verdict_line(decision), markup=False, highlight=False, soft_wrap=True
+                ),
+            )
+    except (judging.InspectError, ValueError, RuntimeError) as error:
+        err.print(str(error), markup=False, highlight=False, soft_wrap=True)
+        raise typer.Exit(code=1) from error
+
+    out.print(
+        verdicts.summary_line(decisions, run_directory),
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+    unasked = verdicts.unreachable(decisions)
+    if unasked:
+        err.print(
+            f"{unasked} of {len(decisions)} images could not be put to the judge at "
+            f"{url or settings.vlm_url}: start it with scripts/serve_vlm.sh start",
+            markup=False,
+            highlight=False,
+            soft_wrap=True,
+        )
+        raise typer.Exit(code=1)
 
 
 @app.command()

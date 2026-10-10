@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "notes": {
+    "units": "seconds are wall time of one chat-completion request as the client saw it; tokens are the server's own counts, images included; memory is MiB as nvidia-smi reports it",
+    "cold": "the request sent with cache_prompt false: the whole prompt is evaluated, clause table included",
+    "cached": "the request sent with the server's prompt cache on, after one warm-up request on another image: the prefix the images share is not evaluated again",
+    "percentiles": "numpy.percentile, linear interpolation between the ranked values",
+    "one_region": "each image is asked once per pass, about its most anomalous region only",
+    "live": "the answers of the marked live test, uv run pytest -m live: region decisions on real crops, recorded as they came; ground_truth is VisA's defect type under region 1"
+  },
+  "timing": {
+    "measured_at": "2026-10-10T17:20:14+00:00",
+    "command": [
+      "python",
+      "-m",
+      "spec_to_inspector.judge.timing",
+      "--category",
+      "pcb4",
+      "--images",
+      "24",
+      "--results",
+      "results/stage1/judge-own-image-tokens.json",
+      "--label",
+      "llama.cpp v0.6.0, Q4_K_M weights, F16 projector, 16K context, one slot, prompt cache on; IMAGE_MIN_TOKENS=0, so no --image-min-tokens (the model's own minimum)"
+    ],
+    "category": "pcb4",
+    "run": "<artefacts>/runs/pcb4/test",
+    "specification": "Workmanship acceptance specification: PCB1 and PCB4 assemblies",
+    "judge_url": "http://127.0.0.1:8131/v1",
+    "judge_model": "qwen3-vl-8b-instruct",
+    "server": {
+      "model_alias": "qwen3-vl-8b-instruct",
+      "model_file": "Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+      "model_ftype": "Q4_K - Medium",
+      "build_info": "b1-d812350",
+      "total_slots": "1",
+      "n_ctx": "16384"
+    },
+    "label": "llama.cpp v0.6.0, Q4_K_M weights, F16 projector, 16K context, one slot, prompt cache on; IMAGE_MIN_TOKENS=0, so no --image-min-tokens (the model's own minimum)",
+    "images": 24,
+    "clause_prefix_tokens": 2260,
+    "cold_seconds": {
+      "n": 24,
+      "p50": 1.5842357849469408,
+      "p95": 1.7894542623194865,
+      "mean": 1.6581020672262337,
+      "minimum": 1.4684424209408462,
+      "maximum": 2.9835356641560793
+    },
+    "cached_seconds": {
+      "n": 24,
+      "p50": 0.8104737305548042,
+      "p95": 1.0561303021968342,
+      "mean": 0.8968936154754678,
+      "minimum": 0.6861943060066551,
+      "maximum": 2.2444413090124726
+    },
+    "warm_up_seconds": 0.7327222470194101,
+    "prompt_tokens": {
+      "n": 24,
+      "p50": 2757.0,
+      "p95": 3264.7499999999995,
+      "mean": 2902.5416666666665,
+      "minimum": 2630.0,
+      "maximum": 4325.0
+    },
+    "cached_prompt_tokens": {
+      "n": 24,
+      "p50": 2432.0,
+      "p95": 2481.7,
+      "mean": 2443.75,
+      "minimum": 2431.0,
+      "maximum": 2483.0
+    },
+    "completion_tokens": {
+      "n": 24,
+      "p50": 40.5,
+      "p95": 50.0,
+      "mean": 41.416666666666664,
+      "minimum": 34.0,
+      "maximum": 51.0
+    },
+    "output_tokens_per_second": {
+      "n": 24,
+      "p50": 69.48810621615286,
+      "p95": 71.3972281097226,
+      "mean": 68.82143819969069,
+      "minimum": 63.05724451306432,
+      "maximum": 71.78110255773528
+    },
+    "gpu": {
+      "server_peak_mib": 8754,
+      "gpu_peak_mib": 9335,
+      "gpu_before_mib": 9247,
+      "samples": 121,
+      "interval_seconds": 0.5
+    },
+    "cold": [
+      {
+        "image_id": "good-0990",
+        "seconds": 1.5278412189800292,
+        "attempts": 1,
+        "prompt_tokens": 2725,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 68.00468874432921,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0320",
+        "seconds": 1.4788110579829663,
+        "attempts": 1,
+        "prompt_tokens": 2751,
+        "cached_tokens": 0,
+        "completion_tokens": 36,
+        "tokens_per_second": 69.20716274360922,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0423",
+        "seconds": 1.5070848241448402,
+        "attempts": 1,
+        "prompt_tokens": 2724,
+        "cached_tokens": 0,
+        "completion_tokens": 40,
+        "tokens_per_second": 69.46757556380062,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0011",
+        "seconds": 1.5611752290278673,
+        "attempts": 1,
+        "prompt_tokens": 2630,
+        "cached_tokens": 0,
+        "completion_tokens": 45,
+        "tokens_per_second": 68.12896193139414,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0026",
+        "seconds": 1.514038217952475,
+        "attempts": 1,
+        "prompt_tokens": 2741,
+        "cached_tokens": 0,
+        "completion_tokens": 41,
+        "tokens_per_second": 70.94789941006822,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0871",
+        "seconds": 1.6536906040273607,
+        "attempts": 1,
+        "prompt_tokens": 2961,
+        "cached_tokens": 0,
+        "completion_tokens": 40,
+        "tokens_per_second": 69.34060639249272,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0784",
+        "seconds": 1.541250959970057,
+        "attempts": 1,
+        "prompt_tokens": 2698,
+        "cached_tokens": 0,
+        "completion_tokens": 43,
+        "tokens_per_second": 68.41538564286843,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0688",
+        "seconds": 1.5144778310786933,
+        "attempts": 1,
+        "prompt_tokens": 2725,
+        "cached_tokens": 0,
+        "completion_tokens": 40,
+        "tokens_per_second": 69.06603243978415,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0615",
+        "seconds": 1.5019586530979723,
+        "attempts": 1,
+        "prompt_tokens": 2759,
+        "cached_tokens": 0,
+        "completion_tokens": 37,
+        "tokens_per_second": 69.65971230538818,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-000",
+        "seconds": 1.7912002459634095,
+        "attempts": 1,
+        "prompt_tokens": 2959,
+        "cached_tokens": 0,
+        "completion_tokens": 50,
+        "tokens_per_second": 70.84282723603094,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-001",
+        "seconds": 1.5262866080738604,
+        "attempts": 1,
+        "prompt_tokens": 2755,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 70.2814773166532,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-002",
+        "seconds": 2.9835356641560793,
+        "attempts": 1,
+        "prompt_tokens": 4325,
+        "cached_tokens": 0,
+        "completion_tokens": 44,
+        "tokens_per_second": 67.38143218450602,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-003",
+        "seconds": 1.6408765108790249,
+        "attempts": 1,
+        "prompt_tokens": 2835,
+        "cached_tokens": 0,
+        "completion_tokens": 44,
+        "tokens_per_second": 70.44664813209893,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-004",
+        "seconds": 1.6072963408660144,
+        "attempts": 1,
+        "prompt_tokens": 2881,
+        "cached_tokens": 0,
+        "completion_tokens": 38,
+        "tokens_per_second": 67.41798238021919,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-005",
+        "seconds": 1.4684424209408462,
+        "attempts": 1,
+        "prompt_tokens": 2654,
+        "cached_tokens": 0,
+        "completion_tokens": 38,
+        "tokens_per_second": 68.65888780024346,
+        "outcome": "needs review",
+        "review_cause": "not measured"
+      },
+      {
+        "image_id": "bad-006",
+        "seconds": 1.68606546218507,
+        "attempts": 1,
+        "prompt_tokens": 3150,
+        "cached_tokens": 0,
+        "completion_tokens": 33,
+        "tokens_per_second": 70.33523531532165,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-007",
+        "seconds": 1.6751663971226662,
+        "attempts": 1,
+        "prompt_tokens": 2724,
+        "cached_tokens": 0,
+        "completion_tokens": 50,
+        "tokens_per_second": 68.98309069587046,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-008",
+        "seconds": 1.4987147499341518,
+        "attempts": 1,
+        "prompt_tokens": 2723,
+        "cached_tokens": 0,
+        "completion_tokens": 38,
+        "tokens_per_second": 68.33666705452343,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-009",
+        "seconds": 1.5334751249756664,
+        "attempts": 1,
+        "prompt_tokens": 2722,
+        "cached_tokens": 0,
+        "completion_tokens": 41,
+        "tokens_per_second": 70.03389640586043,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-010",
+        "seconds": 1.7785806579049677,
+        "attempts": 1,
+        "prompt_tokens": 3285,
+        "cached_tokens": 0,
+        "completion_tokens": 34,
+        "tokens_per_second": 71.39411063490998,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-011",
+        "seconds": 1.6883075369987637,
+        "attempts": 1,
+        "prompt_tokens": 3015,
+        "cached_tokens": 0,
+        "completion_tokens": 40,
+        "tokens_per_second": 71.58156719581964,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-012",
+        "seconds": 1.6833595561329275,
+        "attempts": 1,
+        "prompt_tokens": 3010,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 69.5850897464539,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-013",
+        "seconds": 1.6532533860299736,
+        "attempts": 1,
+        "prompt_tokens": 2974,
+        "cached_tokens": 0,
+        "completion_tokens": 39,
+        "tokens_per_second": 69.435054469973,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-014",
+        "seconds": 1.7795603550039232,
+        "attempts": 1,
+        "prompt_tokens": 2935,
+        "cached_tokens": 0,
+        "completion_tokens": 50,
+        "tokens_per_second": 69.17464763281534,
+        "outcome": "reject",
+        "review_cause": null
+      }
+    ],
+    "cached": [
+      {
+        "image_id": "good-0990",
+        "seconds": 0.768750712973997,
+        "attempts": 1,
+        "prompt_tokens": 2725,
+        "cached_tokens": 2446,
+        "completion_tokens": 42,
+        "tokens_per_second": 69.58694209517796,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0320",
+        "seconds": 0.6955720300320536,
+        "attempts": 1,
+        "prompt_tokens": 2751,
+        "cached_tokens": 2431,
+        "completion_tokens": 36,
+        "tokens_per_second": 70.11358400608987,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0423",
+        "seconds": 0.7741013560444117,
+        "attempts": 1,
+        "prompt_tokens": 2724,
+        "cached_tokens": 2431,
+        "completion_tokens": 41,
+        "tokens_per_second": 67.72028137776913,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0011",
+        "seconds": 0.7897848770953715,
+        "attempts": 1,
+        "prompt_tokens": 2630,
+        "cached_tokens": 2431,
+        "completion_tokens": 45,
+        "tokens_per_second": 68.68421340185104,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0026",
+        "seconds": 0.7606901160907,
+        "attempts": 1,
+        "prompt_tokens": 2741,
+        "cached_tokens": 2431,
+        "completion_tokens": 41,
+        "tokens_per_second": 70.1029988310325,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0871",
+        "seconds": 0.8910054408479482,
+        "attempts": 1,
+        "prompt_tokens": 2961,
+        "cached_tokens": 2432,
+        "completion_tokens": 40,
+        "tokens_per_second": 68.56588302308735,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0784",
+        "seconds": 0.8001253970433027,
+        "attempts": 1,
+        "prompt_tokens": 2698,
+        "cached_tokens": 2431,
+        "completion_tokens": 45,
+        "tokens_per_second": 70.34766133996305,
+        "outcome": "needs review",
+        "review_cause": "outside every zone"
+      },
+      {
+        "image_id": "good-0688",
+        "seconds": 0.8093953700736165,
+        "attempts": 1,
+        "prompt_tokens": 2725,
+        "cached_tokens": 2431,
+        "completion_tokens": 44,
+        "tokens_per_second": 69.63619138616507,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "good-0615",
+        "seconds": 0.7372706430032849,
+        "attempts": 1,
+        "prompt_tokens": 2759,
+        "cached_tokens": 2432,
+        "completion_tokens": 37,
+        "tokens_per_second": 68.7960312333982,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-000",
+        "seconds": 1.0566342000383884,
+        "attempts": 1,
+        "prompt_tokens": 2959,
+        "cached_tokens": 2432,
+        "completion_tokens": 50,
+        "tokens_per_second": 66.70850696831619,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-001",
+        "seconds": 0.7143072839826345,
+        "attempts": 1,
+        "prompt_tokens": 2755,
+        "cached_tokens": 2480,
+        "completion_tokens": 39,
+        "tokens_per_second": 71.44898542440697,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-002",
+        "seconds": 2.2444413090124726,
+        "attempts": 1,
+        "prompt_tokens": 4325,
+        "cached_tokens": 2446,
+        "completion_tokens": 44,
+        "tokens_per_second": 63.68370230386901,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-003",
+        "seconds": 0.8445937118958682,
+        "attempts": 1,
+        "prompt_tokens": 2835,
+        "cached_tokens": 2446,
+        "completion_tokens": 44,
+        "tokens_per_second": 70.01546853374583,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-004",
+        "seconds": 0.8115520910359919,
+        "attempts": 1,
+        "prompt_tokens": 2881,
+        "cached_tokens": 2432,
+        "completion_tokens": 38,
+        "tokens_per_second": 71.10393665984454,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-005",
+        "seconds": 0.7030669481027871,
+        "attempts": 1,
+        "prompt_tokens": 2654,
+        "cached_tokens": 2473,
+        "completion_tokens": 38,
+        "tokens_per_second": 69.27126627874759,
+        "outcome": "needs review",
+        "review_cause": "not measured"
+      },
+      {
+        "image_id": "bad-006",
+        "seconds": 1.0322147069964558,
+        "attempts": 1,
+        "prompt_tokens": 3150,
+        "cached_tokens": 2446,
+        "completion_tokens": 38,
+        "tokens_per_second": 64.72514554411106,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-007",
+        "seconds": 0.8834824108052999,
+        "attempts": 1,
+        "prompt_tokens": 2724,
+        "cached_tokens": 2432,
+        "completion_tokens": 50,
+        "tokens_per_second": 69.80047036970032,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-008",
+        "seconds": 0.6861943060066551,
+        "attempts": 1,
+        "prompt_tokens": 2723,
+        "cached_tokens": 2483,
+        "completion_tokens": 38,
+        "tokens_per_second": 71.78110255773528,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-009",
+        "seconds": 0.7455546220298856,
+        "attempts": 1,
+        "prompt_tokens": 2722,
+        "cached_tokens": 2482,
+        "completion_tokens": 41,
+        "tokens_per_second": 69.38927033712777,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-010",
+        "seconds": 1.0532748810946941,
+        "attempts": 1,
+        "prompt_tokens": 3285,
+        "cached_tokens": 2446,
+        "completion_tokens": 34,
+        "tokens_per_second": 63.05724451306432,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-011",
+        "seconds": 0.9030714360997081,
+        "attempts": 1,
+        "prompt_tokens": 3015,
+        "cached_tokens": 2446,
+        "completion_tokens": 40,
+        "tokens_per_second": 69.91089050341219,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-012",
+        "seconds": 0.9056467129848897,
+        "attempts": 1,
+        "prompt_tokens": 3010,
+        "cached_tokens": 2432,
+        "completion_tokens": 39,
+        "tokens_per_second": 69.25952455159015,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-013",
+        "seconds": 0.8659261751454324,
+        "attempts": 1,
+        "prompt_tokens": 2974,
+        "cached_tokens": 2446,
+        "completion_tokens": 39,
+        "tokens_per_second": 70.31424918259685,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-014",
+        "seconds": 1.0487900329753757,
+        "attempts": 1,
+        "prompt_tokens": 2935,
+        "cached_tokens": 2432,
+        "completion_tokens": 51,
+        "tokens_per_second": 67.6909663697741,
+        "outcome": "reject",
+        "review_cause": null
+      }
+    ]
+  },
+  "live": null
+}
