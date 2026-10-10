@@ -156,6 +156,11 @@ code,
   text-transform: uppercase;
 }
 
+/* With no title after it the label ends the bar: no gap, so it meets the page's right gutter. */
+.bar-label-alone {
+  margin-right: 0;
+}
+
 .page {
   max-width: 1920px;
   margin: 0 auto;
@@ -345,6 +350,7 @@ select:focus-visible,
 textarea:focus-visible,
 input:focus-visible,
 a:focus-visible,
+summary:focus-visible,
 button:focus-visible {
   outline: 3px solid var(--extent);
   outline-offset: 2px;
@@ -469,8 +475,14 @@ th {
 }
 
 .upload-large {
+  align-items: flex-end;
   width: 100%;
   margin-top: 24px;
+}
+
+/* Beside a labelled field the button stands on the input's line, at the input's height. */
+.upload-large button {
+  height: 48px;
 }
 
 .spec-layout {
@@ -1431,7 +1443,7 @@ th {
 .shown-corrections {
   display: grid;
   gap: 6px;
-  margin-top: 12px;
+  margin-top: 0;
   padding: 10px 14px 10px 34px;
   border-radius: 8px;
   background: var(--brand-wash);
@@ -1451,6 +1463,34 @@ th {
 
 .override button {
   width: 100%;
+}
+
+/* A board already corrected: the form is folded away, so the card stays on one screen. */
+.again summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 500;
+  list-style: none;
+}
+
+.again summary::-webkit-details-marker {
+  display: none;
+}
+
+.again summary:hover {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+.again[open] summary {
+  margin-bottom: 16px;
 }
 
 .corrections li {

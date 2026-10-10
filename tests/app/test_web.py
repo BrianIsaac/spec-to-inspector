@@ -725,6 +725,26 @@ def test_a_recorded_override_shows_on_the_card_and_in_the_grid(console: Console)
     assert grid.count("tile-corrected") == 1
 
 
+def test_a_corrected_board_folds_the_form_away_so_the_card_stays_on_one_screen(
+    console: Console,
+) -> None:
+    """After a correction the form is behind "Record another correction", open after a refusal.
+
+    The corrections list takes the form's place on the frame; the form
+    stays one click away, and comes back open with what was typed if a second
+    correction is refused.
+    """
+    fresh = console.client.get(f"{CARD}/scratch").text
+    console.client.post(f"{CARD}/scratch/override", data=_form())
+    corrected = console.client.get(f"{CARD}/scratch").text
+    refused = console.client.post(f"{CARD}/scratch/override", data=_form(note=" ")).text
+
+    assert "<details" not in fresh
+    assert '<details class="again">' in corrected
+    assert "Record another correction" in corrected
+    assert '<details class="again" open>' in refused
+
+
 def test_an_engineer_may_say_the_area_is_not_a_defect(console: Console) -> None:
     """Leaving class and clause at "not a defect" records a correction that names neither."""
     response = console.client.post(
@@ -998,6 +1018,11 @@ def test_the_card_draws_the_corrections_flag_when_the_decision_carries_it(
     assert "Judged with corrections in view" in card
     assert "Corrected by an engineer" in card
     assert "On a pcb9 board the judge said 'missing'; it is 'scratch'." in card
+    # In a panel of their own beside the clause, so the model's panel and the form keep their
+    # height and the card stays on one screen.
+    shown = card.index('id="panel-shown"')
+    assert card.index('id="panel-measured"') < shown < card.index('id="panel-model"')
+    assert 'id="panel-shown"' not in plain
     assert "Before it was shown corrections" in card
     assert "Judged with corrections in view" not in plain
     assert "Corrected by an engineer" not in plain

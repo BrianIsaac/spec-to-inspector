@@ -185,6 +185,15 @@
       <p class="muted">Nothing has been measured for this area yet: measurement runs with the judge.</p>
       {% endif %}
     </section>
+    {% if shown_corrections %}
+    <section class="panel" id="panel-shown">
+      <h2>Corrections the judge was shown</h2>
+      <ol class="shown-corrections">
+        {% for line in shown_corrections %}<li>{{ line }}</li>{% endfor %}
+      </ol>
+      <p class="hint">Recalled from the corrections store and put in the prompt with this crop.</p>
+    </section>
+    {% endif %}
 
   </div>
 
@@ -199,14 +208,7 @@
         {% if judged.call %}<span>Answered in <b>{{ "%.1f"|format(judged.call.seconds) }} s</b></span>{% endif %}
       </p>
       {% if before %}<p class="model-meta"><span>Before it was shown corrections: class <b>{{ before.defect_class or "none" }}</b>, clause <b>{{ before.clause_id or "none" }}</b></span></p>{% endif %}
-      {% if shown_corrections %}
-      <ol class="shown-corrections">
-        {% for line in shown_corrections %}<li>{{ line }}</li>{% endfor %}
-      </ol>
-      <p class="hint">Above: the engineers' corrections the model was shown with this crop. Written by {{ decision.judge_model }}; code measures and decides.</p>
-      {% else %}
-      <p class="hint">Written by {{ decision.judge_model }}. The model names the class and the clause; code measures and decides.</p>
-      {% endif %}
+      <p class="hint">Written by {{ decision.judge_model }}{% if shown_corrections %}, with the engineers' corrections in view{% endif %}. The model names the class and the clause; code measures and decides.</p>
       {% elif judged and judged.call and judged.call.error %}
       <p>No valid answer came from the model: {{ judged.call.error }}.</p>
       {% elif judged %}
@@ -241,6 +243,7 @@
       <p>{{ blocked }}</p>
       {% if not loaded %}<p class="hint"><a href="/specification">Go to the Specification page</a></p>{% endif %}
       {% else %}
+      {% if overrides %}<details class="again"{% if error %} open{% endif %}><summary>Record another correction</summary>{% endif %}
       <form class="override" method="post" action="{{ here }}/override">
         <input type="hidden" name="region" value="{{ chosen.index }}">
         {% if kept %}<input type="hidden" name="disposition" value="{{ kept.value }}">{% endif %}
@@ -267,6 +270,7 @@
         </div>
         <button type="submit">Record correction</button>
       </form>
+      {% if overrides %}</details>{% endif %}
       {% endif %}
     </section>
   </div>
