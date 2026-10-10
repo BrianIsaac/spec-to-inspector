@@ -50,6 +50,7 @@ from torchvision.transforms.v2 import (  # pyright: ignore[reportMissingTypeStub
 from spec_to_inspector.anomaly.atomic import atomic_directory
 from spec_to_inspector.anomaly.metrics import auroc
 from spec_to_inspector.anomaly.model import SingleCopyPatchcore
+from spec_to_inspector.anomaly.precision import full_float32
 from spec_to_inspector.anomaly.records import (
     ImageResult,
     InferenceOptions,
@@ -271,7 +272,8 @@ class AnomalyModel:
         The batch goes through the model's own transform (its resize, which
         changes nothing at this size, and its normalisation) and the PatchCore
         network, as Anomalib's prediction loop does; nothing is normalised or
-        thresholded here.
+        thresholded here. It runs in the precision the model was trained in:
+        full float32 unless its record says TF32 was allowed.
 
         Args:
             images: Float images in [0, 1], as (batch, 3, height, width).
@@ -280,9 +282,10 @@ class AnomalyModel:
             The raw image scores as (batch,) and the raw anomaly maps as
             (batch, height, width), on the model's device.
         """
-        batch = cast("torch.Tensor", self._transform(images.to(self._device)))
-        output = self._module.model(batch)
-        return output.pred_score.reshape(-1), output.anomaly_map.squeeze(1)
+        with full_float32(enabled=not self._record.model.tf32):
+            batch = cast("torch.Tensor", self._transform(images.to(self._device)))
+            output = self._module.model(batch)
+            return output.pred_score.reshape(-1), output.anomaly_map.squeeze(1)
 
 
 def _resizes(transform: Transform) -> list[Resize]:

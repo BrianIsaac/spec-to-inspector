@@ -9,6 +9,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pytest
+import torch
 from anomalib.data import ImageBatch, Visa
 from anomalib.engine import Engine
 from PIL import Image
@@ -22,6 +23,7 @@ from spec_to_inspector.anomaly.infer import (
     RUN_INDEX_NAME,
     AnomalyModel,
     InferenceOptions,
+    image_dataset,
     load_anomaly_map,
     load_result,
     load_run_index,
@@ -30,6 +32,7 @@ from spec_to_inspector.anomaly.infer import (
     visa_test_items,
 )
 from spec_to_inspector.anomaly.model import SingleCopyPatchcore
+from spec_to_inspector.anomaly.precision import full_float32
 from spec_to_inspector.anomaly.records import RunIndex, TrainRecord
 from spec_to_inspector.anomaly.train import CHECKPOINT_NAME, model_dir, train_category
 from tests.anomaly.fakes import DEFECT, write_trainable_visa
@@ -138,16 +141,26 @@ def test_every_sidecar_agrees_with_its_files(trained: Trained) -> None:
 
 
 def test_the_planted_defect_is_found_where_it_was_planted(trained: Trained) -> None:
-    """Anomalous images score above the threshold and region 1 lies on the defect."""
+    """Anomalous images score above the threshold and region 1 lies on the defect.
+
+    Anomalib's adaptive threshold is the score of one of the anomalous images,
+    and an image is anomalous only above the threshold: so the lowest-scoring
+    anomalous image sits on the threshold itself and may fall either side of
+    it by float32 rounding. Every other one must be flagged.
+    """
     rows, columns = DEFECT
+    flagged = 0
     for entry in trained.index.entries:
         result = load_result(trained.output / entry.image_id)
         if result.label == "good":
             assert not result.predicted_anomalous
             continue
-        assert result.predicted_anomalous
         assert result.ground_truth_mask is not None
         assert Path(result.ground_truth_mask).is_file()
+        if not result.predicted_anomalous:
+            assert result.score == pytest.approx(result.image_threshold, abs=5e-3)
+            continue
+        flagged += 1
         top = result.regions[0]
         assert top.on_ground_truth is True
         assert top.ground_truth_values == [1]
@@ -158,6 +171,7 @@ def test_the_planted_defect_is_found_where_it_was_planted(trained: Trained) -> N
         assert top.bbox.x + top.bbox.width > columns.start
         assert top.bbox.y < rows.stop
         assert top.bbox.y + top.bbox.height > rows.start
+    assert flagged >= 2
 
 
 def test_the_runs_auroc_is_the_training_records(trained: Trained) -> None:
@@ -166,19 +180,41 @@ def test_the_runs_auroc_is_the_training_records(trained: Trained) -> None:
     assert trained.index.image_auroc == pytest.approx(trained.record.metrics.image_auroc)
 
 
+def test_a_score_does_not_depend_on_its_batch(trained: Trained) -> None:
+    """One image scores the same alone as beside five others, to float32 rounding.
+
+    With cuDNN's TF32 allowed, as PyTorch defaults, the same comparison differs
+    in the second decimal on real boards; the model runs in full float32.
+    """
+    items = visa_test_items(trained.visa, "pcb1")
+    dataset = image_dataset([item.path for item in items], trained.model.resize)
+    images = torch.stack([dataset[index][0] for index in range(len(items))])
+
+    together, maps_together = trained.model.score(images)
+    alone = torch.cat([trained.model.score(images[index : index + 1])[0] for index in range(6)])
+    map_alone = trained.model.score(images[3:4])[1]
+
+    # Float32 rounding between cuDNN's kernels for one image and for six: about 1e-3 on
+    # these near-identical boards, 2e-4 on real ones. TF32 would be a hundred times that.
+    assert float((alone - together).abs().max()) < 5e-3
+    assert float((map_alone[0] - maps_together[3]).abs().max()) < 5e-3
+    assert torch.backends.cudnn.allow_tf32 is True
+
+
 def test_scores_and_maps_equal_anomalibs_own_predictions(trained: Trained) -> None:
     """Our raw scores, normalised, are the scores Anomalib's Engine predicts for the images.
 
-    The images go through in Anomalib's order and batch size: float32 rounding
-    in PatchCore's distances depends on which images share a batch, and moves
-    a normalised score by about 1e-5 otherwise.
+    Anomalib's Engine runs here in full float32, as training did, and the
+    images go through in its order and batch size, so nothing but the two
+    code paths differs.
     """
     checkpoint = model_dir(trained.models, "pcb1") / CHECKPOINT_NAME
     module = SingleCopyPatchcore.load_from_checkpoint(checkpoint)
     datamodule = Visa(root=trained.visa, category="pcb1", eval_batch_size=4, num_workers=2)
     engine = Engine(default_root_dir=trained.runs / "engine", accelerator="gpu", devices=1)
 
-    batches = engine.predict(model=module, datamodule=datamodule)
+    with full_float32():
+        batches = engine.predict(model=module, datamodule=datamodule)
 
     assert batches is not None
     theirs: list[tuple[str, float, np.ndarray]] = []

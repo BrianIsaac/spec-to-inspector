@@ -404,3 +404,26 @@ def test_train_another_backbone_needs_its_own_models_directory(
     assert accepted.exit_code == 0, accepted.output
     assert training.calls[0]["backbone"] == "resnet18"
     assert training.calls[0]["models_dir"] == tmp_path / "reference"
+
+
+def test_train_output_fits_an_80_column_log(
+    training: _TrainCalls, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """In a plain 80-column log no column of the table is cut short."""
+    monkeypatch.setattr(cli.out, "width", 80)
+
+    result = runner.invoke(app, ["train", "--all"])
+
+    assert result.exit_code == 0, result.output
+    assert "…" not in result.output
+    for expected in ("Category", "within", "outside", "98.57", "-0.43", "12:41", "8.00"):
+        assert expected in result.output
+    assert "image 29.800, pixel 30.700" in result.output
+
+
+def test_train_says_when_it_reuses_a_model(training: _TrainCalls) -> None:
+    """With --reuse the progress line does not claim to be training."""
+    result = runner.invoke(app, ["train", "--category", "pcb4", "--reuse"])
+
+    assert "reusing the model on disk if there is one" in result.output
+    assert "PatchCore on the normal training images" not in result.output

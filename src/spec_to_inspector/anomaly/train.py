@@ -8,7 +8,8 @@ renamed into place, so a failed or killed run leaves the previous model whole:
     <models_dir>/patchcore/<category>/train.json    the `TrainRecord`
 
 The model is Anomalib's PatchCore with its defaults (`wide_resnet50_2`,
-layers 2 and 3, 256 x 256, a 10% coreset). The thresholds are Anomalib's
+layers 2 and 3, 256 x 256, a 10% coreset), run in full float32
+(`anomaly.precision`) so that a score does not depend on its batch. The thresholds are Anomalib's
 adaptive F1 thresholds, chosen on the datamodule's validation split; with
 Anomalib's default for VisA that split is the test set itself, and the record
 says so from the data rather than by assumption.
@@ -32,6 +33,7 @@ from lightning.pytorch import Callback, LightningModule, Trainer, seed_everythin
 
 from spec_to_inspector.anomaly.atomic import atomic_directory
 from spec_to_inspector.anomaly.model import SingleCopyPatchcore
+from spec_to_inspector.anomaly.precision import full_float32
 from spec_to_inspector.anomaly.records import Metrics, ModelSpec, Phase, Thresholds, TrainRecord
 from spec_to_inspector.anomaly.split import write_split
 from spec_to_inspector.device import cuda_device
@@ -230,6 +232,7 @@ def _model_spec(
         coreset_sampling_ratio=model.coreset_sampling_ratio,
         num_neighbors=model.model.num_neighbors,
         precision=str(parameter.dtype).removeprefix("torch."),
+        tf32=False,
         seed=seed,
         train_batch_size=train_batch_size,
         eval_batch_size=eval_batch_size,
@@ -296,6 +299,7 @@ def train_category(
         atomic_directory(model_dir(models_dir, category)) as partial,
         tempfile.TemporaryDirectory(prefix=f".{category}.engine.", dir=partial.parent) as work,
         _quiet_lightning(),
+        full_float32(),
     ):
         engine = Engine(
             default_root_dir=work,

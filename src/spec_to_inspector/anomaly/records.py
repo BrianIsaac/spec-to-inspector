@@ -163,6 +163,10 @@ class ModelSpec(BaseModel):
         coreset_sampling_ratio: The fraction of patch embeddings kept.
         num_neighbors: Neighbours used to weight the image score.
         precision: The model's floating-point precision.
+        tf32: Whether TF32 was allowed in convolutions and matrix products while
+            the model was trained and its thresholds chosen; inference uses the
+            same setting. False is full float32. A record written before the
+            field existed was trained under PyTorch's default, which allows it.
         seed: The seed given to `lightning.seed_everything`.
         train_batch_size: Images per training batch.
         eval_batch_size: Images per validation and test batch.
@@ -179,6 +183,7 @@ class ModelSpec(BaseModel):
     coreset_sampling_ratio: float
     num_neighbors: int
     precision: str
+    tf32: bool = True
     seed: int
     train_batch_size: int
     eval_batch_size: int

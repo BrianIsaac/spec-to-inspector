@@ -351,7 +351,12 @@ def train(
         with _terminate_cleanly():
             for name in chosen:
                 err.print(
-                    f"{name}: PatchCore on the normal training images"
+                    f"{name}: "
+                    + (
+                        "reusing the model on disk if there is one"
+                        if reuse
+                        else "PatchCore on the normal training images"
+                    )
                     + (", then the test split" if infer else ""),
                     markup=False,
                     highlight=False,

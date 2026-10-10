@@ -21,13 +21,15 @@ AUROC_TOLERANCE = 1e-4
 
 
 def _duration(seconds: float) -> str:
-    """Write a duration as minutes and seconds."""
+    """Write a duration as minutes and seconds, such as 12:41."""
     minutes, rest = divmod(round(seconds), 60)
-    return f"{minutes} min {rest:02d} s" if minutes else f"{rest} s"
+    return f"{minutes}:{rest:02d}"
 
 
 def outcome_table(outcomes: Sequence[CategoryOutcome]) -> Table:
-    """Lay out each category's AUROC against its reference, its thresholds and its cost.
+    """Lay out each category's AUROC against its reference and what the fit cost.
+
+    Narrow enough for an 80-column log; the thresholds are in the lines below it.
 
     Args:
         outcomes: The categories' outcomes.
@@ -43,10 +45,8 @@ def outcome_table(outcomes: Sequence[CategoryOutcome]) -> Table:
         "Delta",
         "Gate",
         "Pixel\nAUROC",
-        "Image\nthreshold",
-        "Pixel\nthreshold",
-        "Fit",
-        "Peak GPU\nallocated",
+        "Fit\n(min:s)",
+        "Peak GPU\n(GiB)",
     ):
         table.add_column(column, justify="right")
     for outcome in outcomes:
@@ -59,10 +59,8 @@ def outcome_table(outcomes: Sequence[CategoryOutcome]) -> Table:
             "n/a" if comparison is None else f"{comparison.delta_points:+.2f}",
             "n/a" if comparison is None else "within" if comparison.within_gate else "outside",
             f"{record.metrics.pixel_auroc * 100:.2f}",
-            f"{record.thresholds.image:.3f}",
-            f"{record.thresholds.pixel:.3f}",
             _duration(record.fit_seconds) if outcome.trained else "reused",
-            f"{record.peak_allocated_bytes / 1024**3:.2f} GiB",
+            f"{record.peak_allocated_bytes / 1024**3:.2f}",
         )
     return table
 
@@ -97,7 +95,8 @@ def outcome_lines(
             else "chosen on a validation split held out of the test split"
         )
         lines.append(
-            f"{outcome.category} thresholds: {thresholds.method}, {where} "
+            f"{outcome.category} thresholds (raw): image {thresholds.image:.3f}, "
+            f"pixel {thresholds.pixel:.3f}; {thresholds.method}, {where} "
             f"({thresholds.split_images_in_test} of {thresholds.split_images} validation images "
             f"are test images; val_split_mode {thresholds.val_split_mode}). "
             + (
