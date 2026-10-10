@@ -1904,6 +1904,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pypdfium2", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "pyright", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "pytest", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "ruff", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
@@ -1930,6 +1931,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pypdfium2", specifier = ">=5.14.0" },
     { name = "pyright", specifier = "==1.1.414" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "ruff", specifier = "==0.16.10" },

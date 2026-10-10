@@ -21,13 +21,13 @@ from spec_to_inspector.spec.extract import extract_specification
 from spec_to_inspector.spec.markdown import FigureSource, figure_sources, read_markdown
 from spec_to_inspector.spec.schema import Zone
 
-ZONE_FIGURE_WIDTH: Final = 900
+ZONE_FIGURE_WIDTH: Final = 720
 CROP_SIZE: Final = (600, 450)
 ZONE_COLOURS: Final = ((255, 107, 0), (255, 230, 0), (255, 255, 255))
 JPEG_QUALITY: Final = 85
 
 _SOURCE: Final = re.compile(r"^visa:(?P<image>[^#]+)#(?:(?P<zones>zones)|mask=(?P<mask>\d+))$")
-_OUTLINE: Final = 4
+_OUTLINE: Final = 5
 _CROP_PADDING: Final = 0.6
 _CROP_MIN_WIDTH: Final = 260
 _MARKER_MARGIN: Final = 8
@@ -128,7 +128,7 @@ def _zone_drawing(image: Image.Image, zones: Sequence[Zone]) -> Image.Image:
     height = ZONE_FIGURE_WIDTH * image.height // image.width
     drawn = image.resize((ZONE_FIGURE_WIDTH, height), Image.Resampling.LANCZOS)
     draw = ImageDraw.Draw(drawn)
-    font = ImageFont.load_default(size=30)
+    font = ImageFont.load_default(size=44)
     for zone in sorted(zones, key=lambda zone: -zone.rank):
         colour = ZONE_COLOURS[(zone.rank - 1) % len(ZONE_COLOURS)]
         left, top = zone.x0 * ZONE_FIGURE_WIDTH, zone.y0 * height
@@ -137,9 +137,9 @@ def _zone_drawing(image: Image.Image, zones: Sequence[Zone]) -> Image.Image:
             outline=colour,
             width=_OUTLINE,
         )
-        tag = (left + _OUTLINE, top + _OUTLINE, left + _OUTLINE + 34, top + _OUTLINE + 38)
+        tag = (left + _OUTLINE, top + _OUTLINE, left + _OUTLINE + 46, top + _OUTLINE + 52)
         draw.rectangle(tag, fill=colour)
-        draw.text((tag[0] + 7, tag[1] + 1), zone.name, fill=(0, 0, 0), font=font)
+        draw.text((tag[0] + 8, tag[1] + 1), zone.name, fill=(0, 0, 0), font=font)
     return drawn
 
 

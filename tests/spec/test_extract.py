@@ -138,6 +138,18 @@ def test_a_clause_takes_the_page_of_its_heading() -> None:
     assert [c.page for c in spec.clauses] == [2, 2, 3]
 
 
+def test_sections_may_sit_at_the_titles_level_when_levels_come_from_numbering() -> None:
+    """Without a PDF outline a section is level 1 and a clause level 2: still consistent."""
+    blocks = [
+        block.model_copy(update={"level": block.level - 1})
+        if isinstance(block, Heading) and block.level > 1
+        else block
+        for block in document()
+    ]
+
+    assert extract_specification(blocks, pages=3) == extract_specification(document(), pages=3)
+
+
 def test_a_review_disposition_is_read() -> None:
     """A clause may refer a defect for review instead of rejecting it."""
     blocks = replaced(

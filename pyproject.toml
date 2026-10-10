@@ -27,6 +27,7 @@ spec-to-inspector = "spec_to_inspector.cli:app"
 
 [dependency-groups]
 dev = [
+    "pypdfium2>=5.14.0",
     "pyright==1.1.414",
     "pytest>=9.1.1",
     "ruff==0.16.10",

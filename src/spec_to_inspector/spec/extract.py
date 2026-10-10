@@ -4,9 +4,9 @@ The document's shape is fixed and checked, never guessed:
 
 - the first block is the title, a level-1 heading; the paragraph after it is
   the notice saying what the document is;
-- every other heading is numbered, and its level is its number's depth plus
-  one (`5` at level 2, `5.6` at level 3), so a clause number that a reader
-  put at the wrong level stops the parse;
+- every other heading is numbered, and its level follows its number's depth
+  (`5.6` one level below `5`, and `5` at the title's level or one below it),
+  so a clause number that a reader put at the wrong level stops the parse;
 - a section headed `Acceptance criteria for part <PART>` holds that part's
   clauses: each level-3 heading there states its requirement in prose and
   then in one requirement table (`Clause | Defect class | Zone | Limit |
@@ -52,6 +52,9 @@ _CRITERIA: Final = re.compile(
     r"^acceptance criteria for part (?P<part>[a-z][a-z0-9]*)$", re.IGNORECASE
 )
 _PLAIN_NUMBER: Final = re.compile(r"^\d+(?:\.\d+)?$")
+# A section sits at the title's level when levels come from numbering alone, and one below
+# it when they come from a PDF outline.
+_SECTION_LEVELS: Final = (1, 2)
 
 
 class SpecificationError(ValueError):
@@ -162,6 +165,7 @@ class _Extraction:
         self._section: str | None = None
         self._category: str | None = None
         self._clause: _OpenClause | None = None
+        self._base: int | None = None
         self._ranks: Counter[str] = Counter()
 
     def read(self, block: Block) -> None:
@@ -212,10 +216,13 @@ class _Extraction:
             )
         number, title = numbered["number"], numbered["title"]
         depth = number.count(".") + 1
-        if heading.level != depth + 1:
+        if self._base is None and depth == 1 and heading.level in _SECTION_LEVELS:
+            self._base = heading.level - 1
+        base = self._base if self._base is not None else _SECTION_LEVELS[-1] - 1
+        if heading.level != base + depth:
             raise SpecificationError(
                 f"heading {heading.text!r} on page {heading.page} is numbered at depth {depth}, "
-                f"so it belongs at level {depth + 1}, but is printed at level {heading.level}"
+                f"so it belongs at level {base + depth}, but is printed at level {heading.level}"
             )
         if depth == 1:
             criteria = _CRITERIA.fullmatch(title)
