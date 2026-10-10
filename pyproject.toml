@@ -12,6 +12,8 @@ dependencies = [
     "jinja2>=3.1.6",
     "markdown-it-py>=4.2.0",
     "pillow>=12.3.0",
+    "numpy>=2.5.3",
+    "opencv-python-headless>=5.0.0.93",
     "pydantic>=2.14.0",
     "pydantic-settings>=2.15.0",
     "rich>=13.5.2",
@@ -28,6 +30,7 @@ spec-to-inspector = "spec_to_inspector.cli:app"
 [dependency-groups]
 dev = [
     "pypdfium2>=5.14.0",
+    "hypothesis>=6.168.5",
     "pyright==1.1.414",
     "pytest>=9.1.1",
     "ruff==0.16.10",
