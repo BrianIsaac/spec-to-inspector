@@ -15,7 +15,9 @@ from spec_to_inspector.judge.timing import (
     LiveAnswer,
     LiveRecord,
     TimingError,
+    listening_pid,
     measure,
+    parse_listening_pid,
     parse_nvidia_smi,
     read_results,
     server_facts,
@@ -166,18 +168,37 @@ def test_the_sampler_keeps_the_peak_of_what_it_reads() -> None:
     assert memory.interval_seconds == 0.01
 
 
-def test_nvidia_smi_output_is_read_for_the_card_and_the_server() -> None:
-    """The card's used memory and the llama-server process's are picked out of the two queries."""
-    reading = parse_nvidia_smi(
-        "7412\n",
+def test_nvidia_smi_output_is_read_for_the_card_and_the_servers_own_process() -> None:
+    """The server is known by its pid: another program's llama-server on the card is not ours."""
+    apps = (
         "1234, /usr/bin/gnome-shell, 180\n"
+        "4051306, /usr/lib/ollama/llama-server, 504\n"
         "88231, /home/u/llama.cpp/build/bin/llama-server, 6790\n"
-        "90001, python, 620\n",
+        "90001, python, 620\n"
     )
 
-    assert reading == GpuReading(gpu_used_mib=7412, server_mib=6790)
-    assert parse_nvidia_smi("", "") == GpuReading(gpu_used_mib=None, server_mib=None)
-    assert parse_nvidia_smi("N/A\n", "1, python, N/A\n") == GpuReading(None, None)
+    assert parse_nvidia_smi("7412\n", apps, 88231) == GpuReading(gpu_used_mib=7412, server_mib=6790)
+    assert parse_nvidia_smi("7412\n", apps, None) == GpuReading(gpu_used_mib=7412, server_mib=None)
+    assert parse_nvidia_smi("7412\n", apps, 5) == GpuReading(gpu_used_mib=7412, server_mib=None)
+    assert parse_nvidia_smi("", "", 88231) == GpuReading(gpu_used_mib=None, server_mib=None)
+    assert parse_nvidia_smi("N/A\n", "88231, llama-server, N/A\n", 88231) == GpuReading(None, None)
+
+
+def test_the_pid_listening_on_a_port_is_read_from_ss() -> None:
+    """The server's process is the one listening on the judge's port, as `ss` names it."""
+    listening = 'LISTEN 0 512 127.0.0.1:8131 0.0.0.0:* users:(("llama-server",pid=3226610,fd=11))\n'
+
+    assert parse_listening_pid(listening) == 3226610
+    assert parse_listening_pid("") is None
+    assert parse_listening_pid("LISTEN 0 512 127.0.0.1:8131 0.0.0.0:*\n") is None
+
+
+def test_a_port_nothing_listens_on_has_no_pid() -> None:
+    """A server on another machine, or none, is simply not found among this machine's sockets."""
+    with FakeVlm() as server:
+        url = server.url
+
+    assert listening_pid(url) is None
 
 
 def _live() -> LiveRecord:

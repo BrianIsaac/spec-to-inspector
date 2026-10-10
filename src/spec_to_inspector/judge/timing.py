@@ -20,6 +20,7 @@ on, `nvidia-smi` is sampled for the server process's memory and the card's.
 Nothing is written into the run: no decision, no overlay.
 """
 
+import re
 import shutil
 import subprocess
 import sys
@@ -29,6 +30,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from types import TracebackType
 from typing import Annotated, Final, Literal, NamedTuple, Self, cast
+from urllib.parse import urlsplit
 
 import httpx
 import numpy as np
@@ -47,7 +49,6 @@ from spec_to_inspector.spec.tokens import count_tokens
 RESULTS_SCHEMA_VERSION: Final = 1
 DEFAULT_IMAGES: Final = 24
 DEFAULT_RESULTS: Final = Path("results/stage1/judge.json")
-SERVER_PROCESS: Final = "llama-server"
 _SMI_TIMEOUT_SECONDS: Final = 5.0
 
 NOTES: Final[dict[str, str]] = {
@@ -169,8 +170,9 @@ class GpuMemory(BaseModel):
     """What `nvidia-smi` showed while the run went on.
 
     Attributes:
-        server_peak_mib: The most memory the llama-server process held; None
-            if no such process was seen.
+        server_peak_mib: The most memory the VLM server's own process held,
+            found by the pid listening on the judge's port; None if that
+            process is not on this machine's card.
         gpu_peak_mib: The most memory in use on the card, by every process.
         gpu_before_mib: The memory in use on the card at the first sample.
         samples: How many times `nvidia-smi` was read.
@@ -191,8 +193,8 @@ class GpuReading(NamedTuple):
 
     Attributes:
         gpu_used_mib: Memory in use on the card, or None if unreadable.
-        server_mib: Memory the llama-server process holds, or None if it is
-            not among the card's processes.
+        server_mib: Memory the VLM server's own process holds, or None if
+            the process is not known or not among the card's.
     """
 
     gpu_used_mib: int | None
@@ -212,32 +214,72 @@ def _mib(text: str) -> int | None:
     return int(stripped) if stripped.isdigit() else None
 
 
-def parse_nvidia_smi(gpu_text: str, apps_text: str) -> GpuReading:
+def parse_nvidia_smi(gpu_text: str, apps_text: str, server_pid: int | None) -> GpuReading:
     """Read the two `nvidia-smi` queries the sampler makes.
 
     Args:
         gpu_text: The output of `--query-gpu=memory.used`, one card per line.
-        apps_text: The output of `--query-compute-apps=pid,process_name,used_memory`.
+        apps_text: The output of `--query-compute-apps=pid,used_memory`.
+        server_pid: The VLM server's process, or None if it is not known.
 
     Returns:
-        The first card's memory in use and the llama-server processes' together.
+        The first card's memory in use and the server process's own.
     """
     lines = gpu_text.strip().splitlines()
-    held: list[int] = []
+    server: int | None = None
     for row in apps_text.strip().splitlines():
         fields = [field.strip() for field in row.split(",")]
-        if len(fields) == 3 and Path(fields[1]).name == SERVER_PROCESS:
-            used = _mib(fields[2])
-            if used is not None:
-                held.append(used)
-    return GpuReading(
-        gpu_used_mib=_mib(lines[0]) if lines else None,
-        server_mib=sum(held) if held else None,
-    )
+        if server_pid is not None and fields[0] == str(server_pid):
+            server = _mib(fields[-1])
+    return GpuReading(gpu_used_mib=_mib(lines[0]) if lines else None, server_mib=server)
 
 
-def read_nvidia_smi() -> GpuReading:
+def parse_listening_pid(ss_text: str) -> int | None:
+    """Read the process that listens on a port from `ss -ltnpH`'s output.
+
+    Args:
+        ss_text: The output, one listening socket per line.
+
+    Returns:
+        The first listener's pid, or None if there is none or it is not shown.
+    """
+    found = re.search(r"pid=(\d+)", ss_text)
+    return int(found.group(1)) if found else None
+
+
+def listening_pid(url: str) -> int | None:
+    """Find the process on this machine that listens on a server URL's port.
+
+    Args:
+        url: The server's URL.
+
+    Returns:
+        The listener's pid; None if nothing here listens on the port, as for
+        a server on another machine, or `ss` is absent.
+    """
+    parts = urlsplit(url)
+    port = parts.port or (443 if parts.scheme == "https" else 80)
+    program = shutil.which("ss")
+    if program is None:
+        return None
+    try:
+        done = subprocess.run(
+            [program, "-ltnpH", f"sport = :{port}"],
+            capture_output=True,
+            text=True,
+            timeout=_SMI_TIMEOUT_SECONDS,
+            check=True,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return parse_listening_pid(done.stdout)
+
+
+def read_nvidia_smi(server_pid: int | None = None) -> GpuReading:
     """Read the card's memory in use and the server process's, through `nvidia-smi`.
+
+    Args:
+        server_pid: The VLM server's process, or None if it is not known.
 
     Returns:
         The reading; both figures None if `nvidia-smi` is absent or fails.
@@ -246,7 +288,7 @@ def read_nvidia_smi() -> GpuReading:
     if program is None:
         return GpuReading(None, None)
     outputs: list[str] = []
-    for query in ("--query-gpu=memory.used", "--query-compute-apps=pid,process_name,used_memory"):
+    for query in ("--query-gpu=memory.used", "--query-compute-apps=pid,used_memory"):
         try:
             done = subprocess.run(
                 [program, query, "--format=csv,noheader,nounits"],
@@ -258,7 +300,7 @@ def read_nvidia_smi() -> GpuReading:
         except (OSError, subprocess.SubprocessError):
             return GpuReading(None, None)
         outputs.append(done.stdout)
-    return parse_nvidia_smi(outputs[0], outputs[1])
+    return parse_nvidia_smi(outputs[0], outputs[1], server_pid)
 
 
 class GpuSampler:
@@ -587,8 +629,9 @@ def measure(
         specification: The parsed specification.
         client: The VLM server's client.
         images: How many flagged images to ask, each once per pass.
-        sampler: Reads the GPU's memory during the run; `nvidia-smi` every
-            half second if None.
+        sampler: Reads the GPU's memory during the run; if None, `nvidia-smi`
+            every half second, for the card and for the process listening on
+            the client's port.
         command: The command line, for the record.
         server: What the server says of itself, for the record.
         label: What the server was started with that it does not report.
@@ -619,7 +662,8 @@ def measure(
             )
         )
 
-    watching = sampler if sampler is not None else GpuSampler()
+    server_pid = listening_pid(client.url) if sampler is None else None
+    watching = sampler if sampler is not None else GpuSampler(lambda: read_nvidia_smi(server_pid))
     with watching:
         cold = [ask(image_id, cache_prompt=False) for image_id in chosen]
         warm_up = ask(chosen[-1], cache_prompt=None)
