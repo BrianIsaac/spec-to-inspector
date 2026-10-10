@@ -1,205 +1,131 @@
-"""The anomaly model end to end on the GPU: train on 20 images, score the test split.
-
-These need the GPU and the backbone's pretrained weights, but no fetched data:
-the images are a synthetic board with a planted defect.
-"""
+"""Tests for the per-category orchestration behind `spec-to-inspector train`, without a GPU."""
 
 from pathlib import Path
 
-import cv2
-import numpy as np
 import pytest
-from anomalib.data import ImageBatch, Visa
-from anomalib.engine import Engine
-from PIL import Image
 
-from spec_to_inspector.anomaly.infer import (
-    CROPS_DIR,
-    MAP_NAME,
-    MASK_NAME,
-    REGIONS_NAME,
-    RESULT_NAME,
-    RUN_INDEX_NAME,
-    AnomalyModel,
-    InferenceOptions,
-    load_anomaly_map,
-    load_result,
-    load_run_index,
-    run_dir,
-    run_inference,
-    visa_test_items,
-)
-from spec_to_inspector.anomaly.model import HostBufferedPatchcore
-from spec_to_inspector.anomaly.records import RunIndex, TrainRecord
-from spec_to_inspector.anomaly.train import CHECKPOINT_NAME, model_dir, train_category
-from tests.anomaly.fakes import DEFECT, write_trainable_visa
-
-pytestmark = pytest.mark.gpu
-
-SIZE = (192, 256)
+from spec_to_inspector.anomaly import pipeline
+from spec_to_inspector.anomaly.records import InferenceOptions, RunIndex, TrainRecord
+from tests.anomaly.records_fakes import run_index, train_record
 
 
-class Trained:
-    """A category trained once for the module, with its run on the test split."""
+class _Calls:
+    """Stands in for training, loading and inference, recording what was asked."""
 
-    def __init__(self, root: Path) -> None:
-        """Train on 20 synthetic images and score the six test images.
+    def __init__(self, models_dir: Path) -> None:
+        self.models_dir = models_dir
+        self.trained: list[str] = []
+        self.loaded: list[str] = []
+        self.runs: list[tuple[str, Path, int]] = []
 
-        Args:
-            root: A directory for the data, the model and the run.
-        """
-        self.visa = root / "data" / "visa"
-        self.models = root / "models"
-        self.runs = root / "runs"
-        write_trainable_visa(self.visa, size=SIZE)
-        self.record: TrainRecord = train_category(
-            "pcb1", visa_dir=self.visa, models_dir=self.models, num_workers=2
-        )
-        self.model = AnomalyModel.load(self.models, "pcb1")
-        self.output = run_dir(self.runs, "pcb1")
-        self.index: RunIndex = run_inference(
-            self.model,
-            visa_test_items(self.visa, "pcb1"),
-            self.output,
-            options=InferenceOptions(batch_size=4, num_workers=2, crop_min_side=64),
-        )
+    def train_category(
+        self, category: str, *, visa_dir: Path, models_dir: Path, seed: int
+    ) -> TrainRecord:
+        self.trained.append(category)
+        assert visa_dir.name == "visa"
+        assert models_dir == self.models_dir
+        return train_record(category, seed=seed)
+
+    def load_train_record(self, models_dir: Path, category: str) -> TrainRecord:
+        if category == "pcb2":
+            return train_record(category, image_auroc=0.5)
+        raise pipeline.ModelNotTrainedError(category)
+
+    def load_model(self, models_dir: Path, category: str) -> str:
+        self.loaded.append(category)
+        return category
+
+    def visa_test_items(self, visa_dir: Path, category: str) -> list[str]:
+        return [f"{category}-a", f"{category}-b"]
+
+    def run_inference(
+        self, model: str, items: list[str], output_dir: Path, *, options: InferenceOptions
+    ) -> RunIndex:
+        self.runs.append((model, output_dir, options.batch_size))
+        return run_index(model, images=len(items))
 
 
-@pytest.fixture(scope="module")
-def trained(tmp_path_factory: pytest.TempPathFactory) -> Trained:
-    """Train and score once for every test in this module.
+@pytest.fixture
+def calls(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> _Calls:
+    """Replace the GPU work with recorders.
 
     Returns:
-        The trained category and its run.
+        The recorder.
     """
-    return Trained(tmp_path_factory.mktemp("pipeline"))
+    recorder = _Calls(tmp_path / "models")
+    monkeypatch.setattr(pipeline, "train_category", recorder.train_category)
+    monkeypatch.setattr(pipeline, "load_train_record", recorder.load_train_record)
+    monkeypatch.setattr(pipeline.AnomalyModel, "load", recorder.load_model)
+    monkeypatch.setattr(pipeline, "visa_test_items", recorder.visa_test_items)
+    monkeypatch.setattr(pipeline, "run_inference", recorder.run_inference)
+    return recorder
 
 
-def test_the_run_directory_has_the_documented_layout(trained: Trained) -> None:
-    """`runs/<category>/test/` holds the index and one directory per test image."""
-    ids = ["good-0020", "good-0021", "good-0022", "bad-000", "bad-001", "bad-002"]
-
-    assert trained.output == trained.runs / "pcb1" / "test"
-    assert sorted(p.name for p in trained.output.iterdir()) == sorted([RUN_INDEX_NAME, *ids])
-    assert load_run_index(trained.output) == trained.index
-    assert [entry.image_id for entry in trained.index.entries] == ids
-    assert trained.index.thresholds == trained.record.thresholds
-    for image_id in ids:
-        names = {p.name for p in (trained.output / image_id).iterdir()}
-        assert {RESULT_NAME, MAP_NAME, MASK_NAME, REGIONS_NAME} <= names
-        assert names <= {RESULT_NAME, MAP_NAME, MASK_NAME, REGIONS_NAME, CROPS_DIR}
-
-
-def test_every_sidecar_agrees_with_its_files(trained: Trained) -> None:
-    """Score, thresholds, sizes, mask, label image and crops are consistent per image."""
-    height, width = SIZE
-    for entry in trained.index.entries:
-        directory = trained.output / entry.image_id
-        result = load_result(directory)
-        source = np.asarray(Image.open(result.image).convert("RGB"))
-
-        assert (result.width, result.height) == (width, height)
-        assert (result.map_width, result.map_height) == (256, 256)
-        assert result.image_threshold == trained.record.thresholds.image
-        assert result.pixel_threshold == trained.record.thresholds.pixel
-        assert result.predicted_anomalous == (result.score > result.image_threshold)
-        assert result.visa_image is not None
-        assert Path(result.image).is_file()
-
-        anomaly_map = load_anomaly_map(directory, result)
-        assert anomaly_map.shape == (256, 256)
-        assert anomaly_map.dtype == np.float32
-        mask = cv2.imread(str(directory / result.mask), cv2.IMREAD_UNCHANGED)
-        labels = cv2.imread(str(directory / result.regions_image), cv2.IMREAD_UNCHANGED)
-        assert mask is not None
-        assert labels is not None
-        assert mask.shape == labels.shape == (height, width)
-        at_source = load_anomaly_map(directory, result, at_source=True)
-        assert np.array_equal(mask == 255, at_source > result.pixel_threshold)
-        assert np.array_equal(labels > 0, mask == 255)
-        assert (
-            sorted(np.unique(labels).tolist())
-            == [0, *(r.index for r in result.regions)][0 if (labels == 0).any() else 1 :]
-        )
-        for region in result.regions:
-            assert region.crop is not None
-            assert region.crop_box is not None
-            box = region.crop_box
-            crop = np.asarray(Image.open(directory / region.crop))
-            assert np.array_equal(
-                crop, source[box.y : box.y + box.height, box.x : box.x + box.width]
-            )
-
-
-def test_the_planted_defect_is_found_where_it_was_planted(trained: Trained) -> None:
-    """Anomalous images score above the threshold and region 1 lies on the defect."""
-    rows, columns = DEFECT
-    for entry in trained.index.entries:
-        result = load_result(trained.output / entry.image_id)
-        if result.label == "good":
-            assert not result.predicted_anomalous
-            continue
-        assert result.predicted_anomalous
-        assert result.ground_truth_mask is not None
-        assert Path(result.ground_truth_mask).is_file()
-        top = result.regions[0]
-        x, y = top.peak_xy
-        assert columns.start - 8 <= x < columns.stop + 8
-        assert rows.start - 8 <= y < rows.stop + 8
-        assert top.bbox.x < columns.stop
-        assert top.bbox.x + top.bbox.width > columns.start
-        assert top.bbox.y < rows.stop
-        assert top.bbox.y + top.bbox.height > rows.start
-
-
-def test_the_runs_auroc_is_the_training_records(trained: Trained) -> None:
-    """Scoring the test split again gives the image AUROC Anomalib's test pass gave."""
-    assert (trained.index.labelled_good, trained.index.labelled_bad) == (3, 3)
-    assert trained.index.image_auroc == pytest.approx(trained.record.metrics.image_auroc)
-
-
-def test_scores_and_maps_equal_anomalibs_own_predictions(trained: Trained) -> None:
-    """Our raw scores, normalised, are the scores Anomalib's Engine predicts for the images.
-
-    The images go through in Anomalib's order and batch size: float32 rounding
-    in PatchCore's distances depends on which images share a batch, and moves
-    a normalised score by about 1e-5 otherwise.
-    """
-    checkpoint = model_dir(trained.models, "pcb1") / CHECKPOINT_NAME
-    module = HostBufferedPatchcore.load_from_checkpoint(checkpoint)
-    datamodule = Visa(root=trained.visa, category="pcb1", eval_batch_size=4, num_workers=2)
-    engine = Engine(default_root_dir=trained.runs / "engine", accelerator="gpu", devices=1)
-
-    batches = engine.predict(model=module, datamodule=datamodule)
-
-    assert batches is not None
-    theirs: list[tuple[str, float, np.ndarray]] = []
-    for batch in batches:
-        assert isinstance(batch, ImageBatch)
-        assert batch.image_path is not None
-        assert batch.pred_score is not None
-        assert batch.anomaly_map is not None
-        for path, score, anomaly_map in zip(
-            batch.image_path, batch.pred_score, batch.anomaly_map, strict=True
-        ):
-            theirs.append((Path(path).name, float(score), anomaly_map.squeeze().cpu().numpy()))
-    by_name = {item.path.name: item for item in visa_test_items(trained.visa, "pcb1")}
-    output = trained.runs / "pcb1" / "parity"
-    index = run_inference(
-        trained.model,
-        [by_name[name] for name, _, _ in theirs],
-        output,
-        options=InferenceOptions(batch_size=4, num_workers=2),
+def _run(
+    tmp_path: Path,
+    category: str,
+    *,
+    reuse: bool = False,
+    infer: bool = True,
+    seed: int = 0,
+    options: InferenceOptions | None = None,
+) -> pipeline.CategoryOutcome:
+    return pipeline.train_and_score(
+        category,
+        visa_dir=tmp_path / "data" / "visa",
+        models_dir=tmp_path / "models",
+        runs_dir=tmp_path / "runs",
+        reuse=reuse,
+        infer=infer,
+        seed=seed,
+        options=options,
     )
 
-    thresholds = trained.record.thresholds
-    assert len(theirs) == len(index.entries) == 6
-    for entry, (_, score, anomaly_map) in zip(index.entries, theirs, strict=True):
-        directory = output / entry.image_id
-        result = load_result(directory)
-        assert result.score_normalised == pytest.approx(score, abs=1e-6)
-        ours = load_anomaly_map(directory, result)
-        normalised = np.clip(
-            (ours - thresholds.pixel) / (thresholds.pixel_max - thresholds.pixel_min) + 0.5, 0, 1
-        )
-        assert np.allclose(normalised, anomaly_map, atol=1e-6)
+
+def test_a_category_is_trained_then_its_test_split_is_scored(calls: _Calls, tmp_path: Path) -> None:
+    """By default a category is trained, loaded, and run over its test split."""
+    outcome = _run(tmp_path, "pcb4", seed=5)
+
+    assert calls.trained == ["pcb4"]
+    assert calls.loaded == ["pcb4"]
+    assert calls.runs == [("pcb4", tmp_path / "runs" / "pcb4" / "test", 16)]
+    assert outcome.trained
+    assert outcome.record.model.seed == 5
+    assert outcome.run is not None
+    assert outcome.run.images == 2
+    assert outcome.run_dir == tmp_path / "runs" / "pcb4" / "test"
+
+
+def test_inference_can_be_left_out(calls: _Calls, tmp_path: Path) -> None:
+    """Without inference nothing is loaded or written under the runs directory."""
+    outcome = _run(tmp_path, "pcb4", infer=False)
+
+    assert calls.trained == ["pcb4"]
+    assert calls.loaded == []
+    assert outcome.run is None
+    assert outcome.run_dir is None
+
+
+def test_reuse_keeps_a_model_that_is_on_disk(calls: _Calls, tmp_path: Path) -> None:
+    """With reuse, a category already trained is not trained again, only scored."""
+    outcome = _run(tmp_path, "pcb2", reuse=True)
+
+    assert calls.trained == []
+    assert calls.loaded == ["pcb2"]
+    assert not outcome.trained
+    assert outcome.record.metrics.image_auroc == 0.5
+
+
+def test_reuse_trains_a_category_that_is_missing(calls: _Calls, tmp_path: Path) -> None:
+    """With reuse, a category with no model on disk is trained as usual."""
+    outcome = _run(tmp_path, "pcb4", reuse=True)
+
+    assert calls.trained == ["pcb4"]
+    assert outcome.trained
+
+
+def test_inference_options_reach_the_run(calls: _Calls, tmp_path: Path) -> None:
+    """The caller's inference options are the run's."""
+    _run(tmp_path, "pcb4", options=InferenceOptions(batch_size=4))
+
+    assert calls.runs[0][2] == 4
