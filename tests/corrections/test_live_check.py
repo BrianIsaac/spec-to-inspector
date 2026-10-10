@@ -111,6 +111,7 @@ def test_a_pair_is_recorded_before_and_after_under_both_strategies(
 
     record = checked.record
     assert len(server.requests) == len(script)
+    assert all(request["cache_prompt"] is False for request in server.requests), "asked cold"
     assert (record.expected_class, record.expected_clause) == ("missing", "4.2")
     assert record.correction == RENDERED
     assert record.not_recorded is None
@@ -205,11 +206,14 @@ def test_a_part_is_checked_pair_by_pair_then_timed_three_ways(
     run: Path, tmp_path: Path, client: tuple[FakeVlm, ChatClient]
 ) -> None:
     """Each pair has a store of its own; the passes share one that holds every override."""
-    _, chat = client
+    server, chat = client
     pair = PAIR.model_copy(update={"controls": ()})
 
     check = check_category("pcb9", [pair], run, SPEC, chat, tmp_path, timing_images=2)
 
+    cold = [request.get("cache_prompt") for request in server.requests]
+    assert cold[:5] == [False] * 5, "the pair: two before, by part, and twice on the answer"
+    assert cold[5:] == [None] * 12, "the passes leave the server's cache on"
     assert [record.pair for record in check.pairs] == [pair]
     assert check.slot_corrections == (RENDERED,)
     assert [timed.recall for timed in check.passes] == ["none", "part", "answer"]

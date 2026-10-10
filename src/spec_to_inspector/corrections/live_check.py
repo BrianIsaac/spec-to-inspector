@@ -11,6 +11,9 @@ type on another board:
 4. the pair's controls, images the judge had right, are judged the same three
    ways, to see what the correction disturbs.
 
+The pairs are asked with the server's prompt cache off, so that an answer
+repeats and a change is the correction's doing.
+
 Then, per part, with every override of that part's pairs in one store, the
 first flagged images of the run are judged with the slot empty, by part and on
 the answer: the answer time with the corrections in the prompt, the cost of
@@ -64,8 +67,13 @@ NOTES: Final = {
     "by_part": "the part's most recent corrections stand in the prompt; one question",
     "by_answer": "the judge is asked with an empty slot, and asked again with the corrections "
     "made where it gave that same answer before, if there are any; the second answer stands",
+    "pairs_are_cold": "every request of a pair, its controls included, is sent with the "
+    "server's prompt cache off, because a cached prefix can change the answer to the same "
+    "prompt from one asking to the next; cold, the answer repeats, so a change between the "
+    "before and the after is the correction's doing",
     "seconds": "wall time of the chat-completion requests for one image as the client saw them, "
-    "both requests where the judge was asked twice; the server's prompt cache is on",
+    "both requests where the judge was asked twice; in the passes over the timing images the "
+    "server's prompt cache is on, after a warm-up on another image; in the pairs it is off",
     "drift": "over the timing images, with every override of the part's pairs in one store; "
     "the pairs' misjudged images are left out, since their own corrections are in the slot. "
     "Indicative: one run, images in the run's order",
@@ -497,12 +505,20 @@ class _Bench(NamedTuple):
     specification: Specification
     client: ChatClient
 
-    def judge(self, image_id: str, options: JudgeOptions | None = None) -> Decision:
+    def judge(
+        self,
+        image_id: str,
+        options: JudgeOptions | None = None,
+        *,
+        cache_prompt: bool | None = None,
+    ) -> Decision:
         """Judge region 1 of an image, leaving no file in the run.
 
         Args:
             image_id: The image.
             options: The corrections' callables; none for an empty slot.
+            cache_prompt: llama.cpp's per-request prompt-cache switch; None
+                leaves the server's default, which is on.
 
         Returns:
             The decision.
@@ -519,6 +535,7 @@ class _Bench(NamedTuple):
             self.specification,
             self.client,
             max_regions=1,
+            cache_prompt=cache_prompt,
             write=False,
             **(options or JudgeOptions(recall=None, recall_on_answer=None, overridden=None)),
         )
@@ -542,17 +559,25 @@ class _Bench(NamedTuple):
             raise LiveCheckError(msg) from error
         return ImageResult.model_validate_json(text)
 
-    def judged(self, image_id: str, options: JudgeOptions | None = None) -> Judgement:
+    def judged(
+        self,
+        image_id: str,
+        options: JudgeOptions | None = None,
+        *,
+        cache_prompt: bool | None = None,
+    ) -> Judgement:
         """Judge region 1 of an image and take the check's record of it.
 
         Args:
             image_id: The image.
             options: The corrections' callables; none for an empty slot.
+            cache_prompt: llama.cpp's per-request prompt-cache switch.
 
         Returns:
             The judgement.
         """
-        return _judgement(self.judge(image_id, options), self.result(image_id))
+        decision = self.judge(image_id, options, cache_prompt=cache_prompt)
+        return _judgement(decision, self.result(image_id))
 
 
 def _expected(specification: Specification, pair: Pair) -> tuple[str | None, str | None]:
@@ -596,6 +621,12 @@ def check_pair(
 ) -> PairDecisions:
     """Judge a pair before and after its override, under both recall strategies.
 
+    Every request of a pair is sent with the server's prompt cache off. With
+    the cache on, the same prompt can be answered differently from one asking
+    to the next, depending on what the server evaluated before it; with it
+    off the answer repeats, so a change between the before and the after is
+    the correction's doing.
+
     Args:
         pair: The misjudged image, its sibling and its controls.
         run_directory: The run of the pair's part.
@@ -613,10 +644,10 @@ def check_pair(
     """
     bench = _Bench(run_directory, specification, client)
     expected_class, expected_clause = _expected(specification, pair)
-    misjudged = bench.judge(pair.misjudged)
+    misjudged = bench.judge(pair.misjudged, cache_prompt=False)
     misjudged_before = _judgement(misjudged, bench.result(pair.misjudged))
-    sibling_before = bench.judged(pair.sibling)
-    controls_before = [bench.judged(image_id) for image_id in pair.controls]
+    sibling_before = bench.judged(pair.sibling, cache_prompt=False)
+    controls_before = [bench.judged(image_id, cache_prompt=False) for image_id in pair.controls]
 
     correction: Correction | None = None
     not_recorded: str | None = None
@@ -640,11 +671,11 @@ def check_pair(
     if correction is not None:
         part = judge_options(store, RecallStrategy.PART)
         answer = judge_options(store, RecallStrategy.ANSWER)
-        by_part = bench.judge(pair.sibling, part)
-        by_answer = bench.judge(pair.sibling, answer)
+        by_part = bench.judge(pair.sibling, part, cache_prompt=False)
+        by_answer = bench.judge(pair.sibling, answer, cache_prompt=False)
         for before in controls_before:
-            with_part = bench.judged(before.image_id, part)
-            with_answer = bench.judged(before.image_id, answer)
+            with_part = bench.judged(before.image_id, part, cache_prompt=False)
+            with_answer = bench.judged(before.image_id, answer, cache_prompt=False)
             controls.append(
                 ControlRecord(
                     before=before,
