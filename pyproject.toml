@@ -33,6 +33,7 @@ spec-to-inspector = "spec_to_inspector.cli:app"
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.13.1",
     "hypothesis>=6.168.5",
     "playwright>=1.63.0",
     "pyright==1.1.414",

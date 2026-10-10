@@ -12,11 +12,12 @@ def _override(**changes: object) -> Override:
         "category": "pcb4",
         "run": "test",
         "image_id": "bad-016",
-        "region": 1,
-        "crop": "/runs/pcb4/test/bad-016/crops/region-001.png",
+        "region_index": 1,
+        "crop_path": "/runs/pcb4/test/bad-016/crops/region-001.png",
         "judged_outcome": Outcome.REJECT,
         "judged_class": "burnt",
         "judged_clause": "5.7",
+        "judged_reason": "A blackened area on the board surface.",
         "corrected_class": "damage",
         "corrected_clause": "5.5",
         "note": "The capacitor is shattered, not charred.",
@@ -65,7 +66,8 @@ def test_a_correction_to_no_defect_names_neither_class_nor_clause() -> None:
         {"corrected_class": "damage", "corrected_clause": None},
         {"corrected_class": None, "corrected_clause": "5.5"},
         {"note": "   "},
-        {"region": 0},
+        {"note": "x" * 301},
+        {"region_index": 0},
         {"image_id": ""},
     ],
 )
@@ -75,6 +77,6 @@ def test_an_incomplete_override_is_refused(changes: dict[str, object]) -> None:
         _override(**changes)
 
 
-def test_the_note_is_kept_without_its_surrounding_space() -> None:
-    """The note is stored as the engineer meant it."""
-    assert _override(note="  Cracked body.\n").note == "Cracked body."
+def test_the_note_is_kept_as_one_line() -> None:
+    """A note typed over several lines is folded, as the corrections store keeps it."""
+    assert _override(note="  Cracked body,\n  not charred.\n").note == "Cracked body, not charred."

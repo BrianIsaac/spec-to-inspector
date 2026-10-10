@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}{{ board_status.label }}: {{ detail.board.image_id }}{% endblock %}
+{% block main %}
+{% set judged = chosen.judged if chosen else none %}
+{% set clause = judged.clause if judged else none %}
+<div class="crumbs">
+  <p class="trail"><a href="{{ grid }}">Batch {{ run.name }}, part {{ run.category }}</a> / <b>Board {{ detail.board.image_id }}</b>{% if position[0] %} ({{ position[0] }} of {{ position[1] }}{% if kept %} {{ kept.label|lower }}{% endif %}){% endif %}</p>
+  <nav class="steps" aria-label="Boards">
+    <a class="button button-quiet" href="{{ previous or '#' }}"{% if not previous %} aria-disabled="true"{% endif %}>Previous board</a>
+    <a class="button button-quiet" href="{{ following or '#' }}"{% if not following %} aria-disabled="true"{% endif %}>Next board</a>
+  </nav>
+</div>
+
+{% if error %}<p class="alert" role="alert">The correction was not recorded: {{ error }}.</p>{% endif %}
+{% if detail.board.problem %}<p class="alert" role="alert">{{ detail.board.problem }}.</p>{% endif %}
+
+<section class="verdict verdict-{{ board_status.value }}" id="verdict">
+  <span class="badge badge-{{ board_status.value }}">{{ board_status.label }}</span>
+  <div class="verdict-text">
+    {% if decision is none %}
+    <h1>This board has not been judged</h1>
+    <p class="reason">The anomaly model scored it {{ "%.3f"|format(result.score) }} against a threshold of {{ "%.3f"|format(result.image_threshold) }}{% if result.predicted_anomalous %} and flagged it; the judge has not been asked yet{% else %} and did not flag it{% endif %}.</p>
+    {% else %}
+    <h1>
+      {% if decision.review_cause %}Referred to an engineer: {{ decision.review_cause.value }}
+      {% elif decision.clause %}Clause {{ decision.clause.id }} {{ decision.clause.title }} <span class="page-ref">page {{ decision.clause.page }} of the specification</span>
+      {% elif decision.regions_found == 0 %}No area of the board was flagged
+      {% else %}Every flagged area was accepted{% endif %}
+    </h1>
+    <p class="reason">{{ decision.reason[:1]|upper }}{{ decision.reason[1:] }}.</p>
+    {% endif %}
+  </div>
+  <div class="flags">
+    {% if overrides %}<span class="badge badge-corrected">Corrected by an engineer</span>{% endif %}
+    {# The Decision's own "corrected" flag (a correction was in the judge's prompt) is drawn here
+       once the corrections loop writes it: see the report's join. #}
+  </div>
+</section>
+
+{% if not chosen %}
+<div class="card card-wide">
+  <section class="panel">
+    <h2>The board</h2>
+    {% if photo %}
+    <div class="frame" style="--w: {{ result.width }}; --h: {{ result.height }}; --tall: 600px">
+      <img src="{{ here }}/board.jpg" alt="The board as photographed">
+    </div>
+    {% else %}<p class="muted">The board's photograph is no longer on disk.</p>{% endif %}
+  </section>
+  <section class="panel">
+    <h2>Anomaly model</h2>
+    <table class="facts-table">
+      <tr><th>Anomaly score</th><td>{{ "%.3f"|format(result.score) }}</td></tr>
+      <tr><th>Threshold</th><td>{{ "%.3f"|format(result.image_threshold) }}</td></tr>
+      <tr><th>Areas flagged</th><td>{{ result.regions|length }}</td></tr>
+    </table>
+    <p class="hint">{% if blocked %}{{ blocked }}{% endif %} A board the anomaly model passes is accepted without asking the judge.</p>
+  </section>
+</div>
+{% else %}
+<div class="card">
+  <div class="stack">
+    <section class="panel">
+      <h2>Flagged area {{ chosen.index }} of {{ cards|length }}{% if chosen.deciding %}: the outcome rests on it{% endif %}</h2>
+      {% if cards|length > 1 %}
+      <nav class="tabs" aria-label="Flagged areas">
+        {% for card in cards %}<a class="tab" href="{{ tabs[card.index] }}"{% if card.index == chosen.index %} aria-current="true"{% endif %}>Area {{ card.index }}{% if card.judged %}: {{ card.judged.outcome.value }}{% else %}: not judged{% endif %}</a>{% endfor %}
+      </nav>
+      {% endif %}
+      {% if chosen.has_crop %}
+      <div class="shots">
+        <figure class="shot">
+          <div class="frame" style="--w: {{ chosen.width }}; --h: {{ chosen.height }}">
+            <img src="{{ here }}/regions/{{ chosen.index }}/crop.png" alt="The crop the judge was shown">
+            {% if chosen.extent %}
+            <svg viewBox="0 0 {{ chosen.width }} {{ chosen.height }}" preserveAspectRatio="none" aria-hidden="true">
+              <polygon class="extent" points="{{ chosen.extent }}"/>
+            </svg>
+            {% endif %}
+          </div>
+          <figcaption>
+            <b>Crop, with the measured extent</b><br>
+            {% if chosen.extent %}The yellow rectangle is the smallest that holds the flagged area: {{ "%.2f"|format(judged.measurement.longest_extent_mm) }} mm by {{ "%.2f"|format(judged.measurement.shortest_extent_mm) }} mm.
+            {% elif chosen.found.from_peak %}This area is the anomaly map's peak patch: a place, not an outline, so no size is drawn.
+            {% else %}No size has been measured for this area yet.{% endif %}
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="frame" style="--w: {{ chosen.width }}; --h: {{ chosen.height }}">
+            <img src="{{ here }}/regions/{{ chosen.index }}/heatmap.png" alt="The anomaly map over the same crop">
+          </div>
+          <figcaption>
+            <b>Anomaly heatmap</b><br>
+            <span class="scale"><span>like a good board</span><span class="scale-bar"></span><span>least like one</span></span>
+            The white line is the threshold, {{ "%.2f"|format(result.region_threshold) }}.
+          </figcaption>
+        </figure>
+      </div>
+      {% else %}
+      <p class="muted">The run holds no crop of this area.</p>
+      {% endif %}
+    </section>
+    <section class="panel">
+      <h2>Where on the board</h2>
+      <div class="where">
+        {% if photo %}
+        <div class="frame" style="--w: {{ result.width }}; --h: {{ result.height }}">
+          <img src="{{ here }}/board.jpg" alt="The whole board, with the crop and the specification's zones marked">
+          <svg viewBox="0 0 {{ result.width }} {{ result.height }}" preserveAspectRatio="none" aria-hidden="true">
+            {% for zone in zones %}
+            <rect class="zone-line" x="{{ zone.x0 * result.width }}" y="{{ zone.y0 * result.height }}" width="{{ (zone.x1 - zone.x0) * result.width }}" height="{{ (zone.y1 - zone.y0) * result.height }}"/>
+            <text class="zone-name" x="{{ zone.x0 * result.width + 14 }}" y="{{ zone.y0 * result.height + 50 }}">{{ zone.name }}</text>
+            {% endfor %}
+            {% if chosen.found.crop_box %}<rect class="crop-line" x="{{ chosen.found.crop_box.x }}" y="{{ chosen.found.crop_box.y }}" width="{{ chosen.found.crop_box.width }}" height="{{ chosen.found.crop_box.height }}"/>{% endif %}
+          </svg>
+        </div>
+        {% else %}
+        <p class="muted small">The board's photograph is no longer on disk; the crop above was cut from it.</p>
+        {% endif %}
+        <table class="facts-table">
+          <tr><th>Anomaly score</th><td>{{ "%.3f"|format(result.score) }} <span class="muted small">threshold {{ "%.3f"|format(result.image_threshold) }}</span></td></tr>
+          <tr><th>Peak in this area</th><td>{{ "%.3f"|format(chosen.found.peak_score) }}</td></tr>
+          <tr><th>Areas flagged</th><td>{{ cards|length }}{% if decision and decision.regions_not_judged %} <span class="muted small">{{ decision.regions_not_judged }} not judged</span>{% endif %}</td></tr>
+          {% if judged and judged.measurement %}
+          <tr><th>Zone</th><td>{% if judged.measurement.zone %}{{ judged.measurement.zone }}{% if judged.measurement.zones|length > 1 %} <span class="muted small">strictest of {{ judged.measurement.zones|map(attribute="zone_id")|join(", ") }}</span>{% endif %}{% else %}outside every zone{% endif %}</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      {% if photo and zones %}<p class="hint">Yellow: the crop. Dashed: the specification's zones for part {{ run.category }}.</p>{% endif %}
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="panel clause-cited">
+      <h2>Clause applied</h2>
+      {% if clause %}
+      <h3>Clause {{ clause.id }} {{ clause.title }}</h3>
+      <p class="page-ref"><a href="/specification?clause={{ clause.id }}#clause-{{ clause.id }}">Page {{ clause.page }} of the specification</a>, quoted as printed:</p>
+      <blockquote class="quote">{{ clause.source_text }}</blockquote>
+      <p class="limit-line">
+        <span>Limit, as printed: <b>{{ clause.limit_text }}</b></span>
+        <span>Zone: <b>{{ clause.zone }}</b></span>
+        <span>Defect class: <b>{{ clause.defect_class }}</b></span>
+      </p>
+      {% elif judged %}
+      <h3>No clause was applied</h3>
+      <p class="page-ref">{{ judged.reason[:1]|upper }}{{ judged.reason[1:] }}.</p>
+      {% else %}
+      <h3>Not judged yet</h3>
+      <p class="page-ref">The judge has not been asked about this area, so no clause is cited.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Measured by code</h2>
+      {% if judged and judged.measurement and not judged.from_peak %}
+      {% set measured = judged.measurement %}
+      {% if judged.rule and judged.rule.measured is not none and judged.rule.limit is not none %}
+      <div class="compare">
+        <div><p class="figure-label">Measured {{ judged.rule.quantity.value }}</p><p class="figure-value">{{ "%.2f"|format(judged.rule.measured) }} <span class="figure-unit">{{ judged.rule.unit }}</span></p></div>
+        <span class="compare-word {{ 'is-over' if judged.rule.outcome.value == 'reject' else 'is-within' }}">{{ "nonconforming" if judged.rule.outcome.value == "reject" else "conforming" }}</span>
+        <div><p class="figure-label">The clause's limit</p><p class="figure-value">{{ "%g"|format(judged.rule.limit) }} <span class="figure-unit">{{ judged.rule.unit }}</span></p></div>
+      </div>
+      {% endif %}
+      <table class="facts-table">
+        <tr><th>Longest extent</th><td>{{ "%.2f"|format(measured.longest_extent_mm) }} mm</td></tr>
+        <tr><th>Shortest extent</th><td>{{ "%.2f"|format(measured.shortest_extent_mm) }} mm</td></tr>
+        <tr><th>Area</th><td>{{ "%.2f"|format(measured.area_mm2) }} mm<sup>2</sup></td></tr>
+        <tr><th>Reaches the image's edge</th><td>{{ "yes: the true extent may be larger" if measured.touches_border else "no" }}</td></tr>
+      </table>
+      <p class="hint">From the anomaly map's mask and the specification's calibration. No figure on this card comes from the language model.</p>
+      {% elif chosen.found.from_peak %}
+      <p>This area is the peak patch of the anomaly map: the model flagged the board without lifting any area above the threshold. It has a place and no outline, so <b>no size was measured</b> and no size limit can be applied to it.</p>
+      {% else %}
+      <p class="muted">Nothing has been measured for this area yet: measurement runs with the judge.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>The model's description</h2>
+      {% if judged and judged.answer %}
+      <p class="model-line">"{{ judged.answer.reason }}"</p>
+      <p class="model-meta">
+        <span>Class named: <b>{{ judged.answer.defect_class or "none" }}</b></span>
+        <span>Clause cited: <b>{{ judged.answer.clause_id or "none" }}</b></span>
+        {% if judged.call %}<span>Answered in <b>{{ "%.1f"|format(judged.call.seconds) }} s</b></span>{% endif %}
+      </p>
+      <p class="hint">Written by {{ decision.judge_model }}. The model names the class and the clause; code measures and decides.</p>
+      {% elif judged and judged.call and judged.call.error %}
+      <p>No valid answer came from the model: {{ judged.call.error }}.</p>
+      {% elif judged %}
+      <p class="muted">The model was not asked about this area.</p>
+      {% else %}
+      <p class="muted">The judge has not been asked about this area.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="stack" id="corrections">
+    <section class="panel">
+      <h2>Engineer's override</h2>
+      {% if blocked %}
+      <p>{{ blocked }}</p>
+      {% if not loaded %}<p class="hint"><a href="/specification">Go to the Specification page</a></p>{% endif %}
+      {% else %}
+      {% set held_clause = typed.get("clause", judged.answer.clause_id if judged.answer else "") or "" %}
+      {% set held_class = typed.get("defect_class", judged.answer.defect_class if judged.answer else "") or "" %}
+      <form class="override" method="post" action="{{ here }}/override">
+        <input type="hidden" name="region" value="{{ chosen.index }}">
+        {% if kept %}<input type="hidden" name="disposition" value="{{ kept.value }}">{% endif %}
+        <div class="field">
+          <label for="clause">Correct clause</label>
+          <select id="clause" name="clause">
+            <option value="" data-class="">Not a defect: no clause applies</option>
+            {% for choice in choices %}<option value="{{ choice.heading_id }}" data-class="{{ choice.defect_class }}"{% if choice.heading_id == held_clause %} selected{% endif %}>{{ choice.heading_id }} {{ choice.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="defect_class">Correct defect class</label>
+          <select id="defect_class" name="defect_class">
+            <option value="">Not a defect</option>
+            {% for name in choices|map(attribute="defect_class")|unique %}<option value="{{ name }}"{% if name == held_class %} selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="note">Why</label>
+          <textarea id="note" name="note" maxlength="300" required placeholder="What the judge got wrong, in a sentence">{{ typed.get("note", "") }}</textarea>
+          <p class="hint">Kept with the correction against the clause, and shown to the judge on later boards.</p>
+        </div>
+        <button type="submit">Record correction</button>
+      </form>
+      {% endif %}
+    </section>
+    {% if overrides %}
+    <section class="panel">
+      <h2>Corrections on this board</h2>
+      <ol class="corrections">
+        {% for override in overrides %}
+        <li>
+          <p class="to">{% if override.says_no_defect %}Not a defect: no clause applies{% else %}{{ override.corrected_clause }} {{ titles.get(override.corrected_clause, "") }} <span class="muted small">class {{ override.corrected_class }}</span>{% endif %}</p>
+          <p class="from">Area {{ override.region_index }}. The judge said {{ override.judged_class or "no class" }}, clause {{ override.judged_clause or "none" }} ({{ override.judged_outcome.value }}).</p>
+          <p class="said">"{{ override.note }}"</p>
+          <time datetime="{{ override.created_at }}">{{ override.created_at|when }}</time>
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+    {% endif %}
+  </div>
+</div>
+<script>
+  // Choosing a clause sets its defect class, and choosing a class the first clause for it;
+  // the server checks the pair either way.
+  const clause = document.getElementById("clause");
+  const defectClass = document.getElementById("defect_class");
+  if (clause && defectClass) {
+    clause.addEventListener("change", () => {
+      defectClass.value = clause.selectedOptions[0].dataset.class;
+    });
+    defectClass.addEventListener("change", () => {
+      const match = [...clause.options].find((option) => option.dataset.class === defectClass.value);
+      if (match) clause.value = match.value;
+    });
+  }
+</script>
+{% endif %}
+{% endblock %}

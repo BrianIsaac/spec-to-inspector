@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% block head %}{% endblock %}
+<title>{% block title %}{% endblock %} | Spec to Inspector</title>
+<link rel="stylesheet" href="/static/console.css">
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="/specification"><span class="brand-mark" aria-hidden="true"></span>Spec to Inspector</a>
+  <nav aria-label="Console">
+    <a href="/specification"{% if nav == "specification" %} aria-current="page"{% endif %}>Specification</a>
+    <a href="/train"{% if nav == "train" %} aria-current="page"{% endif %}>Train</a>
+    <a href="/batch"{% if nav == "batch" %} aria-current="page"{% endif %}>Batch</a>
+  </nav>
+  <p class="bar-spec">
+    {% if loaded %}<span class="bar-label">Specification in force</span>{{ loaded.specification.title }}
+    {% else %}<span class="bar-label">No specification loaded</span>{% endif %}
+  </p>
+</header>
+<main class="page">
+{% block main %}{% endblock %}
+</main>
+</body>
+</html>
