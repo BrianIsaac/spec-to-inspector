@@ -1,0 +1,201 @@
+part,image_id,visa_image,anno_line,visa_types,defects,expected_headings,region1,region1_types,region1_headings
+pcb1,bad-000,pcb1/Data/Images/Anomaly/000.JPG,1006,bent,single,4.4,one type,bent,4.4
+pcb1,bad-001,pcb1/Data/Images/Anomaly/001.JPG,1007,bent,single,4.4,one type,bent,4.4
+pcb1,bad-002,pcb1/Data/Images/Anomaly/002.JPG,1008,bent,single,4.4,one type,bent,4.4
+pcb1,bad-003,pcb1/Data/Images/Anomaly/003.JPG,1009,bent,single,4.4,one type,bent,4.4
+pcb1,bad-004,pcb1/Data/Images/Anomaly/004.JPG,1010,bent,single,4.4,one type,bent,4.4
+pcb1,bad-005,pcb1/Data/Images/Anomaly/005.JPG,1011,bent,single,4.4,one type,bent,4.4
+pcb1,bad-006,pcb1/Data/Images/Anomaly/006.JPG,1012,bent,single,4.4,one type,bent,4.4
+pcb1,bad-007,pcb1/Data/Images/Anomaly/007.JPG,1013,bent,single,4.4,one type,bent,4.4
+pcb1,bad-008,pcb1/Data/Images/Anomaly/008.JPG,1014,bent,single,4.4,one type,bent,4.4
+pcb1,bad-009,pcb1/Data/Images/Anomaly/009.JPG,1015,"bent,melt",multi,"4.4,4.1",several types,"bent,melt","4.4,4.1"
+pcb1,bad-010,pcb1/Data/Images/Anomaly/010.JPG,1016,bent,single,4.4,one type,bent,4.4
+pcb1,bad-011,pcb1/Data/Images/Anomaly/011.JPG,1017,bent,single,4.4,one type,bent,4.4
+pcb1,bad-012,pcb1/Data/Images/Anomaly/012.JPG,1018,bent,single,4.4,one type,bent,4.4
+pcb1,bad-013,pcb1/Data/Images/Anomaly/013.JPG,1019,bent,single,4.4,one type,bent,4.4
+pcb1,bad-014,pcb1/Data/Images/Anomaly/014.JPG,1020,bent,single,4.4,one type,bent,4.4
+pcb1,bad-015,pcb1/Data/Images/Anomaly/015.JPG,1021,melt,single,4.1,off the labelled defect,,
+pcb1,bad-016,pcb1/Data/Images/Anomaly/016.JPG,1022,melt,single,4.1,one type,melt,4.1
+pcb1,bad-017,pcb1/Data/Images/Anomaly/017.JPG,1023,melt,single,4.1,one type,melt,4.1
+pcb1,bad-018,pcb1/Data/Images/Anomaly/018.JPG,1024,melt,single,4.1,off the labelled defect,,
+pcb1,bad-019,pcb1/Data/Images/Anomaly/019.JPG,1025,melt,single,4.1,one type,melt,4.1
+pcb1,bad-020,pcb1/Data/Images/Anomaly/020.JPG,1026,"melt,scratch",multi,"4.1,4.2",no region,,
+pcb1,bad-021,pcb1/Data/Images/Anomaly/021.JPG,1027,melt,single,4.1,one type,melt,4.1
+pcb1,bad-022,pcb1/Data/Images/Anomaly/022.JPG,1028,melt,single,4.1,no region,,
+pcb1,bad-023,pcb1/Data/Images/Anomaly/023.JPG,1029,melt,single,4.1,one type,melt,4.1
+pcb1,bad-024,pcb1/Data/Images/Anomaly/024.JPG,1030,melt,single,4.1,off the labelled defect,,
+pcb1,bad-025,pcb1/Data/Images/Anomaly/025.JPG,1031,melt,single,4.1,no region,,
+pcb1,bad-026,pcb1/Data/Images/Anomaly/026.JPG,1032,melt,single,4.1,one type,melt,4.1
+pcb1,bad-027,pcb1/Data/Images/Anomaly/027.JPG,1033,melt,single,4.1,off the labelled defect,,
+pcb1,bad-028,pcb1/Data/Images/Anomaly/028.JPG,1034,melt,single,4.1,one type,melt,4.1
+pcb1,bad-029,pcb1/Data/Images/Anomaly/029.JPG,1035,melt,single,4.1,no region,,
+pcb1,bad-030,pcb1/Data/Images/Anomaly/030.JPG,1036,melt,single,4.1,one type,melt,4.1
+pcb1,bad-031,pcb1/Data/Images/Anomaly/031.JPG,1037,melt,single,4.1,off the labelled defect,,
+pcb1,bad-032,pcb1/Data/Images/Anomaly/032.JPG,1038,melt,single,4.1,one type,melt,4.1
+pcb1,bad-033,pcb1/Data/Images/Anomaly/033.JPG,1039,melt,single,4.1,off the labelled defect,,
+pcb1,bad-034,pcb1/Data/Images/Anomaly/034.JPG,1040,melt,single,4.1,one type,melt,4.1
+pcb1,bad-035,pcb1/Data/Images/Anomaly/035.JPG,1041,melt,single,4.1,off the labelled defect,,
+pcb1,bad-036,pcb1/Data/Images/Anomaly/036.JPG,1042,melt,single,4.1,one type,melt,4.1
+pcb1,bad-037,pcb1/Data/Images/Anomaly/037.JPG,1043,melt,single,4.1,no region,,
+pcb1,bad-038,pcb1/Data/Images/Anomaly/038.JPG,1044,melt,single,4.1,one type,melt,4.1
+pcb1,bad-039,pcb1/Data/Images/Anomaly/039.JPG,1045,melt,single,4.1,one type,melt,4.1
+pcb1,bad-040,pcb1/Data/Images/Anomaly/040.JPG,1046,"scratch,missing",multi,"4.2,4.3",several types,"scratch,missing","4.2,4.3"
+pcb1,bad-041,pcb1/Data/Images/Anomaly/041.JPG,1047,missing,single,4.3,one type,missing,4.3
+pcb1,bad-042,pcb1/Data/Images/Anomaly/042.JPG,1048,missing,single,4.3,one type,missing,4.3
+pcb1,bad-043,pcb1/Data/Images/Anomaly/043.JPG,1049,missing,single,4.3,one type,missing,4.3
+pcb1,bad-044,pcb1/Data/Images/Anomaly/044.JPG,1050,missing,single,4.3,one type,missing,4.3
+pcb1,bad-045,pcb1/Data/Images/Anomaly/045.JPG,1051,missing,single,4.3,one type,missing,4.3
+pcb1,bad-046,pcb1/Data/Images/Anomaly/046.JPG,1052,missing,single,4.3,one type,missing,4.3
+pcb1,bad-047,pcb1/Data/Images/Anomaly/047.JPG,1053,missing,single,4.3,one type,missing,4.3
+pcb1,bad-048,pcb1/Data/Images/Anomaly/048.JPG,1054,missing,single,4.3,no region,,
+pcb1,bad-049,pcb1/Data/Images/Anomaly/049.JPG,1055,missing,single,4.3,off the labelled defect,,
+pcb1,bad-050,pcb1/Data/Images/Anomaly/050.JPG,1056,missing,single,4.3,one type,missing,4.3
+pcb1,bad-051,pcb1/Data/Images/Anomaly/051.JPG,1057,"melt,missing",multi,"4.1,4.3",one type,missing,4.3
+pcb1,bad-052,pcb1/Data/Images/Anomaly/052.JPG,1058,missing,single,4.3,one type,missing,4.3
+pcb1,bad-053,pcb1/Data/Images/Anomaly/053.JPG,1059,"melt,scratch,missing",multi,"4.1,4.2,4.3",one type,missing,4.3
+pcb1,bad-054,pcb1/Data/Images/Anomaly/054.JPG,1060,missing,single,4.3,one type,missing,4.3
+pcb1,bad-055,pcb1/Data/Images/Anomaly/055.JPG,1061,missing,single,4.3,one type,missing,4.3
+pcb1,bad-056,pcb1/Data/Images/Anomaly/056.JPG,1062,missing,single,4.3,one type,missing,4.3
+pcb1,bad-057,pcb1/Data/Images/Anomaly/057.JPG,1063,missing,single,4.3,off the labelled defect,,
+pcb1,bad-058,pcb1/Data/Images/Anomaly/058.JPG,1064,missing,single,4.3,off the labelled defect,,
+pcb1,bad-059,pcb1/Data/Images/Anomaly/059.JPG,1065,missing,single,4.3,one type,missing,4.3
+pcb1,bad-060,pcb1/Data/Images/Anomaly/060.JPG,1066,melt,single,4.1,no region,,
+pcb1,bad-061,pcb1/Data/Images/Anomaly/061.JPG,1067,melt,single,4.1,off the labelled defect,,
+pcb1,bad-062,pcb1/Data/Images/Anomaly/062.JPG,1068,melt,single,4.1,one type,melt,4.1
+pcb1,bad-063,pcb1/Data/Images/Anomaly/063.JPG,1069,melt,single,4.1,one type,melt,4.1
+pcb1,bad-064,pcb1/Data/Images/Anomaly/064.JPG,1070,melt,single,4.1,one type,melt,4.1
+pcb1,bad-065,pcb1/Data/Images/Anomaly/065.JPG,1071,melt,single,4.1,one type,melt,4.1
+pcb1,bad-066,pcb1/Data/Images/Anomaly/066.JPG,1072,melt,single,4.1,one type,melt,4.1
+pcb1,bad-067,pcb1/Data/Images/Anomaly/067.JPG,1073,melt,single,4.1,one type,melt,4.1
+pcb1,bad-068,pcb1/Data/Images/Anomaly/068.JPG,1074,melt,single,4.1,one type,melt,4.1
+pcb1,bad-069,pcb1/Data/Images/Anomaly/069.JPG,1075,"melt,scratch",multi,"4.1,4.2",one type,melt,4.1
+pcb1,bad-070,pcb1/Data/Images/Anomaly/070.JPG,1076,melt,single,4.1,one type,melt,4.1
+pcb1,bad-071,pcb1/Data/Images/Anomaly/071.JPG,1077,melt,single,4.1,one type,melt,4.1
+pcb1,bad-072,pcb1/Data/Images/Anomaly/072.JPG,1078,melt,single,4.1,one type,melt,4.1
+pcb1,bad-073,pcb1/Data/Images/Anomaly/073.JPG,1079,melt,single,4.1,one type,melt,4.1
+pcb1,bad-074,pcb1/Data/Images/Anomaly/074.JPG,1080,melt,single,4.1,one type,melt,4.1
+pcb1,bad-075,pcb1/Data/Images/Anomaly/075.JPG,1081,melt,single,4.1,off the labelled defect,,
+pcb1,bad-076,pcb1/Data/Images/Anomaly/076.JPG,1082,melt,single,4.1,no region,,
+pcb1,bad-077,pcb1/Data/Images/Anomaly/077.JPG,1083,melt,single,4.1,one type,melt,4.1
+pcb1,bad-078,pcb1/Data/Images/Anomaly/078.JPG,1084,melt,single,4.1,one type,melt,4.1
+pcb1,bad-079,pcb1/Data/Images/Anomaly/079.JPG,1085,melt,single,4.1,one type,melt,4.1
+pcb1,bad-080,pcb1/Data/Images/Anomaly/080.JPG,1086,"melt,scratch",multi,"4.1,4.2",several types,"melt,scratch","4.1,4.2"
+pcb1,bad-081,pcb1/Data/Images/Anomaly/081.JPG,1087,melt,single,4.1,one type,melt,4.1
+pcb1,bad-082,pcb1/Data/Images/Anomaly/082.JPG,1088,melt,single,4.1,one type,melt,4.1
+pcb1,bad-083,pcb1/Data/Images/Anomaly/083.JPG,1089,melt,single,4.1,off the labelled defect,,
+pcb1,bad-084,pcb1/Data/Images/Anomaly/084.JPG,1090,"melt,scratch",multi,"4.1,4.2",one type,melt,4.1
+pcb1,bad-085,pcb1/Data/Images/Anomaly/085.JPG,1091,scratch,single,4.2,off the labelled defect,,
+pcb1,bad-086,pcb1/Data/Images/Anomaly/086.JPG,1092,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-087,pcb1/Data/Images/Anomaly/087.JPG,1093,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-088,pcb1/Data/Images/Anomaly/088.JPG,1094,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-089,pcb1/Data/Images/Anomaly/089.JPG,1095,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-090,pcb1/Data/Images/Anomaly/090.JPG,1096,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-091,pcb1/Data/Images/Anomaly/091.JPG,1097,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-092,pcb1/Data/Images/Anomaly/092.JPG,1098,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-093,pcb1/Data/Images/Anomaly/093.JPG,1099,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-094,pcb1/Data/Images/Anomaly/094.JPG,1100,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-095,pcb1/Data/Images/Anomaly/095.JPG,1101,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-096,pcb1/Data/Images/Anomaly/096.JPG,1102,scratch,single,4.2,no region,,
+pcb1,bad-097,pcb1/Data/Images/Anomaly/097.JPG,1103,"melt,scratch",multi,"4.1,4.2",one type,scratch,4.2
+pcb1,bad-098,pcb1/Data/Images/Anomaly/098.JPG,1104,scratch,single,4.2,one type,scratch,4.2
+pcb1,bad-099,pcb1/Data/Images/Anomaly/099.JPG,1105,scratch,single,4.2,one type,scratch,4.2
+pcb4,bad-000,pcb4/Data/Images/Anomaly/000.JPG,1007,"burnt,scratch,dirt",multi,"5.7,5.6,5.1",one type,burnt,5.7
+pcb4,bad-001,pcb4/Data/Images/Anomaly/001.JPG,1008,"burnt,dirt",multi,"5.7,5.1",one type,burnt,5.7
+pcb4,bad-002,pcb4/Data/Images/Anomaly/002.JPG,1009,"burnt,dirt",multi,"5.7,5.1",one type,dirt,5.1
+pcb4,bad-003,pcb4/Data/Images/Anomaly/003.JPG,1010,"burnt,dirt",multi,"5.7,5.1",one type,burnt,5.7
+pcb4,bad-004,pcb4/Data/Images/Anomaly/004.JPG,1011,"burnt,dirt",multi,"5.7,5.1",one type,dirt,5.1
+pcb4,bad-005,pcb4/Data/Images/Anomaly/005.JPG,1012,damage,single,5.5,off the labelled defect,,
+pcb4,bad-006,pcb4/Data/Images/Anomaly/006.JPG,1013,"damage,dirt",multi,"5.5,5.1",several types,"damage,dirt","5.5,5.1"
+pcb4,bad-007,pcb4/Data/Images/Anomaly/007.JPG,1014,"scratch,damage,extra",multi,"5.6,5.5,5.3",one type,damage,5.5
+pcb4,bad-008,pcb4/Data/Images/Anomaly/008.JPG,1015,burnt,single,5.7,one type,burnt,5.7
+pcb4,bad-009,pcb4/Data/Images/Anomaly/009.JPG,1016,"damage,dirt",multi,"5.5,5.1",one type,damage,5.5
+pcb4,bad-010,pcb4/Data/Images/Anomaly/010.JPG,1017,"scratch,damage,dirt",multi,"5.6,5.5,5.1",several types,"damage,dirt","5.5,5.1"
+pcb4,bad-011,pcb4/Data/Images/Anomaly/011.JPG,1018,damage,single,5.5,one type,damage,5.5
+pcb4,bad-012,pcb4/Data/Images/Anomaly/012.JPG,1019,damage,single,5.5,one type,damage,5.5
+pcb4,bad-013,pcb4/Data/Images/Anomaly/013.JPG,1020,"damage,dirt",multi,"5.5,5.1",several types,"damage,dirt","5.5,5.1"
+pcb4,bad-014,pcb4/Data/Images/Anomaly/014.JPG,1021,"damage,dirt",multi,"5.5,5.1",one type,damage,5.5
+pcb4,bad-015,pcb4/Data/Images/Anomaly/015.JPG,1022,damage,single,5.5,one type,damage,5.5
+pcb4,bad-016,pcb4/Data/Images/Anomaly/016.JPG,1023,"missing,dirt",multi,"5.2,5.1",one type,missing,5.2
+pcb4,bad-017,pcb4/Data/Images/Anomaly/017.JPG,1024,"missing,damage",multi,"5.2,5.5",one type,damage,5.5
+pcb4,bad-018,pcb4/Data/Images/Anomaly/018.JPG,1025,damage,single,5.5,one type,damage,5.5
+pcb4,bad-019,pcb4/Data/Images/Anomaly/019.JPG,1026,"damage,dirt",multi,"5.5,5.1",one type,damage,5.5
+pcb4,bad-020,pcb4/Data/Images/Anomaly/020.JPG,1027,damage,single,5.5,one type,damage,5.5
+pcb4,bad-021,pcb4/Data/Images/Anomaly/021.JPG,1028,"damage,dirt",multi,"5.5,5.1",several types,"damage,dirt","5.5,5.1"
+pcb4,bad-022,pcb4/Data/Images/Anomaly/022.JPG,1029,"scratch,damage",multi,"5.6,5.5",several types,"scratch,damage","5.6,5.5"
+pcb4,bad-023,pcb4/Data/Images/Anomaly/023.JPG,1030,damage,single,5.5,one type,damage,5.5
+pcb4,bad-024,pcb4/Data/Images/Anomaly/024.JPG,1031,"damage,extra",multi,"5.5,5.3",one type,damage,5.5
+pcb4,bad-025,pcb4/Data/Images/Anomaly/025.JPG,1032,extra,single,5.3,one type,extra,5.3
+pcb4,bad-026,pcb4/Data/Images/Anomaly/026.JPG,1033,extra,single,5.3,one type,extra,5.3
+pcb4,bad-027,pcb4/Data/Images/Anomaly/027.JPG,1034,burnt,single,5.7,one type,burnt,5.7
+pcb4,bad-028,pcb4/Data/Images/Anomaly/028.JPG,1035,extra,single,5.3,one type,extra,5.3
+pcb4,bad-029,pcb4/Data/Images/Anomaly/029.JPG,1036,"extra,dirt",multi,"5.3,5.1",several types,"extra,dirt","5.3,5.1"
+pcb4,bad-030,pcb4/Data/Images/Anomaly/030.JPG,1037,"burnt,extra",multi,"5.7,5.3",several types,"burnt,extra","5.7,5.3"
+pcb4,bad-031,pcb4/Data/Images/Anomaly/031.JPG,1038,"extra,dirt",multi,"5.3,5.1",several types,"extra,dirt","5.3,5.1"
+pcb4,bad-032,pcb4/Data/Images/Anomaly/032.JPG,1039,extra,single,5.3,one type,extra,5.3
+pcb4,bad-033,pcb4/Data/Images/Anomaly/033.JPG,1040,"extra,dirt",multi,"5.3,5.1",one type,extra,5.3
+pcb4,bad-034,pcb4/Data/Images/Anomaly/034.JPG,1041,"scratch,extra,dirt",multi,"5.6,5.3,5.1",several types,"extra,dirt","5.3,5.1"
+pcb4,bad-035,pcb4/Data/Images/Anomaly/035.JPG,1042,"extra,dirt",multi,"5.3,5.1",one type,extra,5.3
+pcb4,bad-036,pcb4/Data/Images/Anomaly/036.JPG,1043,"scratch,extra",multi,"5.6,5.3",several types,"scratch,extra","5.6,5.3"
+pcb4,bad-037,pcb4/Data/Images/Anomaly/037.JPG,1044,"extra,dirt",multi,"5.3,5.1",several types,"extra,dirt","5.3,5.1"
+pcb4,bad-038,pcb4/Data/Images/Anomaly/038.JPG,1045,extra,single,5.3,one type,extra,5.3
+pcb4,bad-039,pcb4/Data/Images/Anomaly/039.JPG,1046,"extra,dirt",multi,"5.3,5.1",several types,"extra,dirt","5.3,5.1"
+pcb4,bad-040,pcb4/Data/Images/Anomaly/040.JPG,1047,"extra,dirt",multi,"5.3,5.1",several types,"extra,dirt","5.3,5.1"
+pcb4,bad-041,pcb4/Data/Images/Anomaly/041.JPG,1048,extra,single,5.3,one type,extra,5.3
+pcb4,bad-042,pcb4/Data/Images/Anomaly/042.JPG,1049,"extra,dirt",multi,"5.3,5.1",one type,extra,5.3
+pcb4,bad-043,pcb4/Data/Images/Anomaly/043.JPG,1050,"scratch,extra",multi,"5.6,5.3",one type,extra,5.3
+pcb4,bad-044,pcb4/Data/Images/Anomaly/044.JPG,1051,extra,single,5.3,one type,extra,5.3
+pcb4,bad-045,pcb4/Data/Images/Anomaly/045.JPG,1052,"scratch,missing",multi,"5.6,5.2",several types,"scratch,missing","5.6,5.2"
+pcb4,bad-046,pcb4/Data/Images/Anomaly/046.JPG,1053,missing,single,5.2,no region,,
+pcb4,bad-047,pcb4/Data/Images/Anomaly/047.JPG,1054,"scratch,missing,dirt",multi,"5.6,5.2,5.1",one type,missing,5.2
+pcb4,bad-048,pcb4/Data/Images/Anomaly/048.JPG,1055,missing,single,5.2,one type,missing,5.2
+pcb4,bad-049,pcb4/Data/Images/Anomaly/049.JPG,1056,missing,single,5.2,one type,missing,5.2
+pcb4,bad-050,pcb4/Data/Images/Anomaly/050.JPG,1057,"missing,dirt",multi,"5.2,5.1",one type,missing,5.2
+pcb4,bad-051,pcb4/Data/Images/Anomaly/051.JPG,1058,missing,single,5.2,one type,missing,5.2
+pcb4,bad-052,pcb4/Data/Images/Anomaly/052.JPG,1059,missing,single,5.2,one type,missing,5.2
+pcb4,bad-053,pcb4/Data/Images/Anomaly/053.JPG,1060,missing,single,5.2,one type,missing,5.2
+pcb4,bad-054,pcb4/Data/Images/Anomaly/054.JPG,1061,"missing,damage",multi,"5.2,5.5",several types,"missing,damage","5.2,5.5"
+pcb4,bad-055,pcb4/Data/Images/Anomaly/055.JPG,1062,missing,single,5.2,one type,missing,5.2
+pcb4,bad-056,pcb4/Data/Images/Anomaly/056.JPG,1063,"scratch,missing,dirt",multi,"5.6,5.2,5.1",one type,dirt,5.1
+pcb4,bad-057,pcb4/Data/Images/Anomaly/057.JPG,1064,missing,single,5.2,one type,missing,5.2
+pcb4,bad-058,pcb4/Data/Images/Anomaly/058.JPG,1065,"missing,damage,extra",multi,"5.2,5.5,5.3",off the labelled defect,,
+pcb4,bad-059,pcb4/Data/Images/Anomaly/059.JPG,1066,missing,single,5.2,one type,missing,5.2
+pcb4,bad-060,pcb4/Data/Images/Anomaly/060.JPG,1067,"missing,damage",multi,"5.2,5.5",one type,missing,5.2
+pcb4,bad-061,pcb4/Data/Images/Anomaly/061.JPG,1068,missing,single,5.2,one type,missing,5.2
+pcb4,bad-062,pcb4/Data/Images/Anomaly/062.JPG,1069,missing,single,5.2,one type,missing,5.2
+pcb4,bad-063,pcb4/Data/Images/Anomaly/063.JPG,1070,missing,single,5.2,off the labelled defect,,
+pcb4,bad-064,pcb4/Data/Images/Anomaly/064.JPG,1071,"missing,dirt",multi,"5.2,5.1",one type,missing,5.2
+pcb4,bad-065,pcb4/Data/Images/Anomaly/065.JPG,1072,missing,single,5.2,one type,missing,5.2
+pcb4,bad-066,pcb4/Data/Images/Anomaly/066.JPG,1073,missing,single,5.2,one type,missing,5.2
+pcb4,bad-067,pcb4/Data/Images/Anomaly/067.JPG,1074,missing,single,5.2,one type,missing,5.2
+pcb4,bad-068,pcb4/Data/Images/Anomaly/068.JPG,1075,missing,single,5.2,one type,missing,5.2
+pcb4,bad-069,pcb4/Data/Images/Anomaly/069.JPG,1076,missing,single,5.2,one type,missing,5.2
+pcb4,bad-070,pcb4/Data/Images/Anomaly/070.JPG,1077,"missing,dirt",multi,"5.2,5.1",one type,missing,5.2
+pcb4,bad-071,pcb4/Data/Images/Anomaly/071.JPG,1078,"scratch,missing",multi,"5.6,5.2",one type,missing,5.2
+pcb4,bad-072,pcb4/Data/Images/Anomaly/072.JPG,1079,missing,single,5.2,no region,,
+pcb4,bad-073,pcb4/Data/Images/Anomaly/073.JPG,1080,missing,single,5.2,one type,missing,5.2
+pcb4,bad-074,pcb4/Data/Images/Anomaly/074.JPG,1081,"missing,dirt",multi,"5.2,5.1",one type,missing,5.2
+pcb4,bad-075,pcb4/Data/Images/Anomaly/075.JPG,1082,"scratch,dirt",multi,"5.6,5.1",one type,scratch,5.6
+pcb4,bad-076,pcb4/Data/Images/Anomaly/076.JPG,1083,scratch,single,5.6,one type,scratch,5.6
+pcb4,bad-077,pcb4/Data/Images/Anomaly/077.JPG,1084,scratch,single,5.6,one type,scratch,5.6
+pcb4,bad-078,pcb4/Data/Images/Anomaly/078.JPG,1085,"scratch,dirt",multi,"5.6,5.1",several types,"scratch,dirt","5.6,5.1"
+pcb4,bad-079,pcb4/Data/Images/Anomaly/079.JPG,1086,"scratch,dirt",multi,"5.6,5.1",several types,"scratch,dirt","5.6,5.1"
+pcb4,bad-080,pcb4/Data/Images/Anomaly/080.JPG,1087,"wrong place,dirt",multi,"5.4,5.1",one type,wrong place,5.4
+pcb4,bad-081,pcb4/Data/Images/Anomaly/081.JPG,1088,"wrong place,dirt",multi,"5.4,5.1",no region,,
+pcb4,bad-082,pcb4/Data/Images/Anomaly/082.JPG,1089,"wrong place,dirt",multi,"5.4,5.1",one type,wrong place,5.4
+pcb4,bad-083,pcb4/Data/Images/Anomaly/083.JPG,1090,extra,single,5.3,one type,extra,5.3
+pcb4,bad-084,pcb4/Data/Images/Anomaly/084.JPG,1091,"extra,dirt",multi,"5.3,5.1",one type,extra,5.3
+pcb4,bad-085,pcb4/Data/Images/Anomaly/085.JPG,1092,"wrong place,dirt",multi,"5.4,5.1",one type,wrong place,5.4
+pcb4,bad-086,pcb4/Data/Images/Anomaly/086.JPG,1093,"scratch,extra,wrong place",multi,"5.6,5.3,5.4",several types,"extra,wrong place","5.3,5.4"
+pcb4,bad-087,pcb4/Data/Images/Anomaly/087.JPG,1094,"extra,dirt",multi,"5.3,5.1",one type,extra,5.3
+pcb4,bad-088,pcb4/Data/Images/Anomaly/088.JPG,1095,"wrong place,dirt",multi,"5.4,5.1",one type,wrong place,5.4
+pcb4,bad-089,pcb4/Data/Images/Anomaly/089.JPG,1096,"missing,wrong place",multi,"5.2,5.4",several types,"missing,wrong place","5.2,5.4"
+pcb4,bad-090,pcb4/Data/Images/Anomaly/090.JPG,1097,wrong place,single,5.4,one type,wrong place,5.4
+pcb4,bad-091,pcb4/Data/Images/Anomaly/091.JPG,1098,extra,single,5.3,one type,extra,5.3
+pcb4,bad-092,pcb4/Data/Images/Anomaly/092.JPG,1099,"wrong place,dirt",multi,"5.4,5.1",one type,wrong place,5.4
+pcb4,bad-093,pcb4/Data/Images/Anomaly/093.JPG,1100,extra,single,5.3,one type,extra,5.3
+pcb4,bad-094,pcb4/Data/Images/Anomaly/094.JPG,1101,extra,single,5.3,one type,extra,5.3
+pcb4,bad-095,pcb4/Data/Images/Anomaly/095.JPG,1102,"wrong place,dirt",multi,"5.4,5.1",several types,"wrong place,dirt","5.4,5.1"
+pcb4,bad-096,pcb4/Data/Images/Anomaly/096.JPG,1103,wrong place,single,5.4,one type,wrong place,5.4
+pcb4,bad-097,pcb4/Data/Images/Anomaly/097.JPG,1104,"wrong place,dirt",multi,"5.4,5.1",one type,wrong place,5.4
+pcb4,bad-098,pcb4/Data/Images/Anomaly/098.JPG,1105,"wrong place,dirt",multi,"5.4,5.1",one type,wrong place,5.4
+pcb4,bad-099,pcb4/Data/Images/Anomaly/099.JPG,1106,extra,single,5.3,one type,extra,5.3
