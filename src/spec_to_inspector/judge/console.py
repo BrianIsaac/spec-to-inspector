@@ -49,6 +49,10 @@ def unreachable(decisions: Sequence[Decision]) -> int:
         decisions: The decisions made.
 
     Returns:
-        How many decisions rest on an unreachable or failing server.
+        How many boards have a region the server failed to answer for,
+        whether or not that region is the one the board's outcome rests on.
     """
-    return sum(d.review_cause is Cause.SERVER_UNAVAILABLE for d in decisions)
+    return sum(
+        any(region.review_cause is Cause.SERVER_UNAVAILABLE for region in decision.regions)
+        for decision in decisions
+    )

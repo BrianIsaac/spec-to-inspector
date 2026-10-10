@@ -157,3 +157,9 @@ def test_counts_of_the_wrong_type_are_left_out_not_guessed() -> None:
     assert completion.prompt_tokens is None
     assert completion.completion_tokens is None
     assert completion.tokens_per_second is None
+
+
+def test_an_address_that_is_not_a_url_is_an_error_in_words() -> None:
+    """A mistyped port is reported like any server that cannot be reached, not raised raw."""
+    with ChatClient("http://127.0.0.1:port/v1", "m") as vlm, pytest.raises(VlmError, match="port"):
+        vlm.complete(MESSAGES)

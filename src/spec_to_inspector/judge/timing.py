@@ -48,6 +48,7 @@ from spec_to_inspector.spec.tokens import count_tokens
 
 RESULTS_SCHEMA_VERSION: Final = 1
 DEFAULT_IMAGES: Final = 24
+MIN_IMAGES: Final = 2
 DEFAULT_RESULTS: Final = Path("results/stage1/judge.json")
 _SMI_TIMEOUT_SECONDS: Final = 5.0
 
@@ -640,12 +641,18 @@ def measure(
         The figures.
 
     Raises:
-        TimingError: If the run holds fewer flagged images than asked for, or
-            the judge cannot be asked.
+        TimingError: If fewer than two images are asked for, the run holds
+            fewer flagged images than asked for, or the judge cannot be asked.
     """
+    if images < MIN_IMAGES:
+        msg = (
+            f"at least {MIN_IMAGES} images are needed, so that the cached pass's warm-up is on "
+            f"another image than the one it measures first; got {images}"
+        )
+        raise TimingError(msg)
     index = read_run_index(run_directory)
     flagged = [entry.image_id for entry in index.entries if entry.regions > 0]
-    if len(flagged) < images or images < 1:
+    if len(flagged) < images:
         msg = f"the run {run_directory} has {len(flagged)} flagged images, not the {images} asked"
         raise TimingError(msg)
     chosen = flagged[:images]
@@ -699,7 +706,8 @@ def main(
         str, typer.Option("--category", "-c", help="The part whose run is timed, such as pcb4.")
     ],
     images: Annotated[
-        int, typer.Option("--images", min=1, help="Flagged images to ask, each once per pass.")
+        int,
+        typer.Option("--images", min=MIN_IMAGES, help="Flagged images to ask, each once per pass."),
     ] = DEFAULT_IMAGES,
     run: Annotated[
         Path | None,
@@ -723,6 +731,11 @@ def main(
     settings = Settings()
     run_directory = run if run is not None else settings.runs_dir / category / "test"
     specification = read_clause_table(spec)
+    try:
+        read_results(results)
+    except ValueError as error:
+        typer.echo(f"{results} is not a figures file this command can add to: {error}", err=True)
+        raise typer.Exit(code=1) from error
     with ChatClient(
         settings.vlm_url, settings.vlm_model, timeout_seconds=settings.vlm_timeout_seconds
     ) as client:

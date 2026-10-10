@@ -4,7 +4,10 @@ import json
 from pathlib import Path
 
 import pytest
+import typer
+from typer.testing import CliRunner
 
+from spec_to_inspector.judge import timing as timing_module
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import DECISION_NAME
@@ -24,6 +27,7 @@ from spec_to_inspector.judge.timing import (
     spread,
     update_results,
 )
+from spec_to_inspector.spec.schema import write_clause_table
 from tests.judge.fake_vlm import FakeVlm, Reply
 from tests.judge.run_fakes import write_run
 from tests.spec.spec_fakes import specification
@@ -276,3 +280,69 @@ def test_a_server_without_props_describes_nothing() -> None:
         url = server.url
 
     assert server_facts(url) == {}
+
+
+def test_one_image_cannot_be_timed_cached(run: Path) -> None:
+    """With one image the warm-up would be the measured request itself, cached whole."""
+    with (
+        FakeVlm(default=REPLY) as server,
+        ChatClient(server.url, "fake-vlm") as client,
+        pytest.raises(TimingError, match="at least 2"),
+    ):
+        measure(run, SPEC, client, images=1, sampler=GpuSampler(_no_gpu))
+
+    assert server.requests == []
+
+
+def _command() -> typer.Typer:
+    app = typer.Typer()
+    app.command()(timing_module.main)
+    return app
+
+
+@pytest.fixture
+def timed(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, run: Path) -> list[str]:
+    """Point the settings at the fake run and give the command's arguments.
+
+    Returns:
+        The arguments common to every invocation.
+    """
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_MODEL", "fake-vlm")
+    monkeypatch.setattr(timing_module, "read_nvidia_smi", lambda _pid=None: _no_gpu())
+    write_clause_table(SPEC, tmp_path / "spec.json")
+    return ["--category", "pcb9", "--images", "3", "--run", str(run), "--spec", "spec.json"]
+
+
+def test_the_command_measures_and_writes_the_timing(
+    timed: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """One command leaves the figures file with the timing, its command line and its label."""
+    with FakeVlm(default=REPLY, props={"build_info": "b1-test"}) as server:
+        monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_URL", server.url)
+        result = CliRunner().invoke(
+            _command(), [*timed, "--results", "out/judge.json", "--label", "as shipped"]
+        )
+
+    assert result.exit_code == 0, result.output
+    assert "Cached: p50" in result.output
+    stored = read_results(tmp_path / "out" / "judge.json")
+    assert stored.timing is not None
+    assert stored.timing.images == 3
+    assert stored.timing.label == "as shipped"
+    assert stored.timing.server == {"build_info": "b1-test"}
+    assert stored.timing.command[:3] == ["python", "-m", "spec_to_inspector.judge.timing"]
+
+
+def test_a_figures_file_that_cannot_be_read_stops_the_command_before_it_measures(
+    timed: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A broken figures file is found before two passes of the model are spent."""
+    (tmp_path / "judge.json").write_text('{"schema_version": 99}')
+    with FakeVlm(default=REPLY) as server:
+        monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_URL", server.url)
+        result = CliRunner().invoke(_command(), [*timed, "--results", "judge.json"])
+
+    assert result.exit_code == 1
+    assert "judge.json" in result.output
+    assert server.requests == []

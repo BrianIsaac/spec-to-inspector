@@ -16,6 +16,7 @@ This module reads the anomaly model's files itself and does not import
 Anomalib, so judging an existing run starts in a second or two.
 """
 
+import io
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
@@ -75,19 +76,23 @@ class Asked(NamedTuple):
     cause: Cause | None
 
 
-def _call(completions: Sequence[Completion], error: str | None = None) -> JudgeCall:
+def _call(
+    completions: Sequence[Completion], *, attempts: int, error: str | None = None
+) -> JudgeCall:
     """Summarise the requests made for one question.
 
     Args:
         completions: The completions received, in order.
+        attempts: The requests sent, including one that brought no completion.
         error: Why no valid answer came, if none did.
 
     Returns:
-        The record: the time of all requests, the counts of the last.
+        The record: the time of the requests that were answered, the counts
+        of the last of them.
     """
     last = completions[-1] if completions else None
     return JudgeCall(
-        attempts=max(len(completions), 1),
+        attempts=attempts,
         seconds=sum(completion.seconds for completion in completions),
         prompt_tokens=None if last is None else last.prompt_tokens,
         completion_tokens=None if last is None else last.completion_tokens,
@@ -124,20 +129,20 @@ def ask_judge(
     """
     completions: list[Completion] = []
     conversation = list(messages)
-    refusal: AnswerError | None = None
-    for _attempt in range(2):
+    problem = "no answer"
+    for attempt in (1, 2):
         try:
             completion = client.complete(conversation, schema=schema, cache_prompt=cache_prompt)
         except VlmError as error:
-            return Asked(None, _call(completions, str(error)), Cause.SERVER_UNAVAILABLE)
+            failed = _call(completions, attempts=attempt, error=str(error))
+            return Asked(None, failed, Cause.SERVER_UNAVAILABLE)
         completions.append(completion)
         try:
-            return Asked(parse_answer(completion.text), _call(completions), None)
+            return Asked(parse_answer(completion.text), _call(completions, attempts=attempt), None)
         except AnswerError as error:
-            refusal = error
+            problem = error.problem
             conversation = repair_messages(messages, error)
-    problem = refusal.problem if refusal is not None else "no answer"
-    return Asked(None, _call(completions, problem), Cause.MALFORMED_ANSWER)
+    return Asked(None, _call(completions, attempts=2, error=problem), Cause.MALFORMED_ANSWER)
 
 
 def _refused(index: int, asked: Asked, **context: object) -> RegionDecision:
@@ -196,7 +201,7 @@ def _read_scene(directory: Path, result: ImageResult, specification: Specificati
 
     Raises:
         JoinError: If the specification has no calibration for the part, or
-            the label image cannot be read.
+            the label image or the anomaly map cannot be read.
     """
     calibration = calibration_for(
         specification, result.category, width_px=result.width, height_px=result.height
@@ -207,7 +212,11 @@ def _read_scene(directory: Path, result: ImageResult, specification: Specificati
     if labels is None or labels.ndim != 2:
         msg = f"the label image {directory / result.regions_image} cannot be read"
         raise JoinError(msg)
-    stored = cast("NDArray[np.float32]", np.load(directory / result.anomaly_map))
+    try:
+        stored = cast("NDArray[np.float32]", np.load(directory / result.anomaly_map))
+    except (OSError, ValueError) as error:
+        msg = f"the anomaly map {directory / result.anomaly_map} cannot be read: {error}"
+        raise JoinError(msg) from error
     return _Scene(
         directory=directory,
         result=result,
@@ -252,20 +261,28 @@ def _judge_region(
             reason=f"the flagged area could not be measured: {error}",
             from_peak=region.from_peak,
         )
-    box = region.crop_box
-    if region.crop is None or box is None:
+
+    def not_shown(why: str) -> RegionDecision:
         return refer_region(
             index=region.index,
             cause=Cause.NOT_JUDGED,
-            reason="no crop of the flagged area was written, so the judge was not shown it",
+            reason=f"{why}, so the judge was not shown it",
             measurement=measurement,
             from_peak=region.from_peak,
         )
 
+    box = region.crop_box
+    if region.crop is None or box is None:
+        return not_shown("no crop of the flagged area was written")
     window = (slice(box.y, box.y + box.height), slice(box.x, box.x + box.width))
-    crop_png = (scene.directory / region.crop).read_bytes()
-    with Image.open(scene.directory / region.crop) as opened:
-        crop = np.asarray(opened.convert("RGB"))
+    try:
+        crop_png = (scene.directory / region.crop).read_bytes()
+        with Image.open(io.BytesIO(crop_png)) as opened:
+            crop = np.asarray(opened.convert("RGB"))
+    except OSError:
+        return not_shown("the crop of the flagged area could not be read")
+    if crop.shape[:2] != (box.height, box.width) or scene.scores[window].shape != crop.shape[:2]:
+        return not_shown("the crop of the flagged area is not the rectangle its record names")
     overlay = heatmap_overlay(
         crop,
         scene.scores[window],

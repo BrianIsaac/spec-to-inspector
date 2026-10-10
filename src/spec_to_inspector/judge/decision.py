@@ -85,7 +85,10 @@ class RegionDecision(BaseModel):
             peak score, from 1.
         outcome: Accept, reject or needs review.
         reason: One sentence, written by code; its figures are the
-            measurement's and the clause's.
+            measurement's and the clause's. Where a citation is refused, the
+            sentence quotes the class and the clause number the model cited,
+            which the answer's validation holds to letters and to a clause
+            number.
         review_cause: Why an engineer must decide; None unless the outcome is
             needs review.
         from_peak: Whether the region is the anomaly model's peak-patch

@@ -116,7 +116,9 @@ class ChatClient:
         Args:
             url: The server's base URL, up to and including `/v1`.
             model: The model's name as the server knows it.
-            timeout_seconds: How long one request may take.
+            timeout_seconds: How long the client waits to connect, to send, and
+                for the server's reply to arrive; the reply comes whole, so
+                this bounds the time one answer may take.
         """
         self._url = url.rstrip("/")
         self._model = model
@@ -197,6 +199,8 @@ class ChatClient:
         started = time.perf_counter()
         try:
             response = self._http.post(f"{self._url}/chat/completions", json=body)
+        except httpx.InvalidURL as error:
+            raise VlmError(f"the VLM server's address {self._url} is not a URL: {error}") from error
         except httpx.ConnectError as error:
             raise VlmError(f"cannot reach the VLM server at {self._url}: {error}") from error
         except httpx.TimeoutException as error:

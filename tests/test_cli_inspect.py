@@ -353,3 +353,30 @@ def test_two_images_of_one_name_are_refused(
 
     assert result.exit_code == 1
     assert "board" in result.output
+
+
+def test_a_server_that_dies_after_an_earlier_referral_still_fails_the_command(
+    spec_path: Path, tmp_path: Path
+) -> None:
+    """The board's first referral may be the model's fault; a dead server behind it still counts."""
+    run = write_run(tmp_path / "u2", {"two": "two"})
+    unknown = json.dumps(json.loads(REPLY) | {"clause_id": "9.9"})
+    with FakeVlm([unknown]) as server:
+        result = runner.invoke(
+            app,
+            [
+                "inspect",
+                "-c",
+                "pcb9",
+                "--run",
+                str(run),
+                "--spec",
+                str(spec_path),
+                "--url",
+                server.url,
+            ],
+        )
+
+    assert result.exit_code == 1
+    assert "1 of 1 images could not be put to the judge" in result.stderr
+    assert _lines(result.stdout)[0].startswith("two: needs review: region 1: clause 9.9 is not")

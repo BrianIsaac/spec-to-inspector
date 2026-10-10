@@ -499,3 +499,58 @@ def test_a_directory_that_is_not_a_run_is_an_error(tmp_path: Path) -> None:
         pytest.raises(InspectError, match=r"run\.json"),
     ):
         judge_run(tmp_path, SPEC, client)
+
+
+def test_a_run_whose_anomaly_map_is_gone_is_referred_not_crashed(tmp_path: Path) -> None:
+    """A missing or unreadable file of the anomaly model refers the board, with the cause."""
+    damaged = write_run(tmp_path, {"scratch": "scratch", "speck": "speck"})
+    (damaged / "scratch" / "anomaly_map.npy").unlink()
+    (damaged / "speck" / "regions.png").write_bytes(b"not a png")
+
+    with FakeVlm(default=_reply()) as server:
+        gone = _judge(damaged, "scratch", server)
+        corrupt = _judge(damaged, "speck", server)
+
+    for decision in (gone, corrupt):
+        assert decision.outcome is Outcome.NEEDS_REVIEW
+        assert decision.review_cause is Cause.NOT_MEASURED
+        assert "could not be measured" in decision.reason
+    assert server.requests == []
+
+
+def test_a_crop_that_is_gone_or_not_its_boxs_size_is_referred(tmp_path: Path) -> None:
+    """The judge is only shown a crop that is the rectangle the sidecar says it is."""
+    damaged = write_run(tmp_path, {"scratch": "scratch", "speck": "speck", "two": "two"})
+    (damaged / "scratch" / "crops" / "region-001.png").unlink()
+    (damaged / "speck" / "crops" / "region-001.png").write_bytes(b"not a png")
+    Image.fromarray(np.zeros((10, 10, 3), dtype=np.uint8)).save(
+        damaged / "two" / "crops" / "region-001.png"
+    )
+
+    with FakeVlm(default=_reply()) as server:
+        decisions = [_judge(damaged, name, server) for name in ("scratch", "speck", "two")]
+
+    for decision in decisions:
+        first = decision.regions[0]
+        assert first.outcome is Outcome.NEEDS_REVIEW
+        assert first.review_cause is Cause.NOT_JUDGED
+        assert "crop" in first.reason
+        assert first.call is None
+        assert first.measurement is not None
+    assert decisions[2].outcome is Outcome.REJECT
+    assert decisions[2].deciding_region == 2
+    assert len(server.requests) == 1
+
+
+def test_a_retry_that_the_server_fails_counts_both_requests(run: Path) -> None:
+    """A refused answer and then a failing server is two requests sent, and the server's fault."""
+    failing = Reply(status=500, body='{"error": {"message": "out of memory"}}')
+    with FakeVlm(["not json", failing]) as server:
+        decision = _judge(run, "scratch", server)
+
+    (region,) = decision.regions
+    assert region.review_cause is Cause.SERVER_UNAVAILABLE
+    assert region.call is not None
+    assert region.call.attempts == 2
+    assert region.call.texts == ("not json",)
+    assert len(server.requests) == 2

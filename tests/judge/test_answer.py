@@ -110,6 +110,8 @@ def test_an_unknown_clause_is_still_an_answer() -> None:
         (_answer(reason=""), "reason"),
         (_answer(reason="x" * (MAX_REASON_CHARACTERS + 1)), "reason"),
         (_answer(reason="first line\nsecond line"), "one line"),
+        (_answer(reason="first line\u2028second line"), "one line"),
+        (_answer(reason="first line\x0csecond line"), "one line"),
         (_answer(reason="a scratch about 3 mm long"), "figure"),
         (_answer(reason="a scratch about \uff13 mm long"), "figure"),
         (_answer(reason="half the pad, \u00bd, is bare"), "figure"),

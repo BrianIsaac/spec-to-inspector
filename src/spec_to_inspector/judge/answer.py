@@ -95,7 +95,7 @@ class JudgeAnswer(BaseModel):
         Raises:
             ValueError: If it holds a line break or a numeric character.
         """
-        if any(character in value for character in "\n\r"):
+        if len(value.splitlines()) > 1:
             msg = "the reason must be one line"
             raise ValueError(msg)
         if any(character.isnumeric() for character in value):
