@@ -1,6 +1,7 @@
 """The one entry point: `spec-to-inspector <verb>`."""
 
 import signal
+import sys
 import warnings
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -42,6 +43,10 @@ app.add_typer(data_app, name="data")
 
 out = Console()
 err = Console(stderr=True)
+
+TRAIN_BACKBONE = "wide_resnet50_2"
+"""The product's PatchCore backbone, Anomalib's default; kept here so the anomaly package,
+which takes seconds to import, is loaded by the `train` verb alone."""
 
 
 def _not_built(verb: str, unit: str) -> NoReturn:
@@ -277,10 +282,34 @@ def train(
             "map, the thresholded mask and the region crops.",
         ),
     ] = True,
+    bench: Annotated[
+        bool,
+        typer.Option(
+            "--bench",
+            help="Measure inference images per second and peak GPU memory at batch 1 and "
+            "batch 16 on the test split, into <runs-dir>/<category>/bench.json.",
+        ),
+    ] = False,
+    results_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--results",
+            help="Collect every chosen category's figures from disk into this JSON file, "
+            "such as results/stage1/anomaly.json.",
+        ),
+    ] = None,
     seed: Annotated[
         int,
         typer.Option("--seed", help="The seed for the coreset's random projection and first pick."),
     ] = 0,
+    backbone: Annotated[
+        str,
+        typer.Option(
+            "--backbone",
+            help="The feature extractor, as timm names it. Another than the default is for "
+            "comparison only and needs its own --models-dir.",
+        ),
+    ] = TRAIN_BACKBONE,
 ) -> None:
     """Train the anomaly model on good boards of a category, and score its test split.
 
@@ -301,11 +330,18 @@ def train(
             param_hint="--category",
         )
 
+    if backbone != TRAIN_BACKBONE and models_dir is None:
+        raise typer.BadParameter(
+            f"a backbone other than {TRAIN_BACKBONE} is for comparison: give it its own "
+            "--models-dir, so the product's models are not replaced",
+            param_hint="--backbone",
+        )
+
     # Anomalib takes about ten seconds to import, so it is loaded for this verb only; its
     # dependencies' import-time deprecation notices are not the user's to act on.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", FutureWarning)
-        from spec_to_inspector.anomaly import console, pipeline  # noqa: PLC0415
+        from spec_to_inspector.anomaly import console, pipeline, results  # noqa: PLC0415
 
     settings = Settings()
     models_root = models_dir or settings.models_dir
@@ -329,16 +365,30 @@ def train(
                         runs_dir=runs_root,
                         reuse=reuse,
                         infer=infer,
+                        bench=bench,
                         seed=seed,
+                        backbone=backbone,
                     )
+                )
+            if results_path is not None:
+                results.write_results(
+                    results_path,
+                    results.collect(
+                        chosen,
+                        models_dir=models_root,
+                        runs_dir=runs_root,
+                        written_by=["spec-to-inspector", *sys.argv[1:]],
+                    ),
                 )
     except RuntimeError as error:
         err.print(str(error), markup=False, highlight=False, soft_wrap=True)
         raise typer.Exit(code=1) from error
 
     out.print(console.outcome_table(outcomes))
-    for line in console.outcome_lines(outcomes, models_root):
+    for line in console.outcome_lines(outcomes, models_root, runs_root):
         out.print(line, markup=False, highlight=False, soft_wrap=True)
+    if results_path is not None:
+        out.print(f"Figures: {results_path}", markup=False, highlight=False, soft_wrap=True)
 
 
 @app.command()

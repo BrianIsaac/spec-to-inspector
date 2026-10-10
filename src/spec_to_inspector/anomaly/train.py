@@ -40,6 +40,8 @@ MODEL_NAME: Final = "patchcore"
 CHECKPOINT_NAME: Final = "model.ckpt"
 TRAIN_RECORD_NAME: Final = "train.json"
 DEFAULT_SEED: Final = 0
+DEFAULT_BACKBONE: Final = "wide_resnet50_2"
+"""Anomalib's default backbone for PatchCore, and the product's."""
 IMAGE_SIZE: Final = (256, 256)
 """The model's input as (height, width): Anomalib's default for PatchCore."""
 THRESHOLD_METHOD: Final = "anomalib.metrics.F1AdaptiveThreshold"
@@ -240,6 +242,7 @@ def train_category(
     visa_dir: Path,
     models_dir: Path,
     seed: int = DEFAULT_SEED,
+    backbone: str = DEFAULT_BACKBONE,
     train_batch_size: int = 32,
     eval_batch_size: int = 32,
     num_workers: int = 8,
@@ -256,6 +259,9 @@ def train_category(
         visa_dir: The dataset directory `data fetch` wrote.
         models_dir: The root for trained models.
         seed: The seed for the coreset's random projection and first pick.
+        backbone: The feature extractor, as timm names it. The product's is
+            Anomalib's default; another is for comparison only and belongs
+            under its own `models_dir`.
         train_batch_size: Images per training batch.
         eval_batch_size: Images per validation and test batch.
         num_workers: Data loader workers.
@@ -279,6 +285,7 @@ def train_category(
         seed=seed,
     )
     model = HostBufferedPatchcore(
+        backbone=backbone,
         pre_processor=HostBufferedPatchcore.configure_pre_processor(image_size=IMAGE_SIZE),
         visualizer=False,
     )

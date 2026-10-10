@@ -7,13 +7,21 @@ import torch
 from pydantic import BaseModel, ConfigDict
 
 from spec_to_inspector.anomaly.infer import AnomalyModel, run_dir, run_inference, visa_test_items
-from spec_to_inspector.anomaly.records import InferenceOptions, RunIndex, TrainRecord
+from spec_to_inspector.anomaly.records import (
+    InferenceBench,
+    InferenceOptions,
+    RunIndex,
+    TrainRecord,
+)
+from spec_to_inspector.anomaly.throughput import measure
 from spec_to_inspector.anomaly.train import (
+    DEFAULT_BACKBONE,
     DEFAULT_SEED,
     ModelNotTrainedError,
     load_train_record,
     train_category,
 )
+from spec_to_inspector.device import cuda_device
 
 
 class CategoryOutcome(BaseModel):
@@ -26,6 +34,7 @@ class CategoryOutcome(BaseModel):
         record: The model's training record.
         run: The index of the test split's run; None if inference was left out.
         run_dir: The run's directory; None with `run`.
+        bench: Throughput and inference memory; None if not measured.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -35,6 +44,7 @@ class CategoryOutcome(BaseModel):
     record: TrainRecord
     run: RunIndex | None
     run_dir: Path | None
+    bench: InferenceBench | None = None
 
 
 def _release_gpu() -> None:
@@ -52,7 +62,9 @@ def train_and_score(
     runs_dir: Path,
     reuse: bool = False,
     infer: bool = True,
+    bench: bool = False,
     seed: int = DEFAULT_SEED,
+    backbone: str = DEFAULT_BACKBONE,
     options: InferenceOptions | None = None,
 ) -> CategoryOutcome:
     """Train a category's model, or reuse the one on disk, and score its test split.
@@ -64,11 +76,14 @@ def train_and_score(
         runs_dir: The root for run outputs.
         reuse: Whether to keep a model already on disk instead of training again.
         infer: Whether to score the test split into `run_dir(runs_dir, category)`.
+        bench: Whether to measure throughput on the test split, into
+            `<runs_dir>/<category>/bench.json`.
         seed: The training seed.
+        backbone: The feature extractor to train with.
         options: How to score and crop; the defaults if None.
 
     Returns:
-        The category's record and, if scored, its run.
+        The category's record and, if scored or measured, its run and bench.
 
     Raises:
         RuntimeError: If CUDA is not available.
@@ -82,22 +97,29 @@ def train_and_score(
             record = None
     trained = record is None
     if record is None:
-        record = train_category(category, visa_dir=visa_dir, models_dir=models_dir, seed=seed)
+        record = train_category(
+            category, visa_dir=visa_dir, models_dir=models_dir, seed=seed, backbone=backbone
+        )
         _release_gpu()
 
     run: RunIndex | None = None
     output: Path | None = None
-    if infer:
-        output = run_dir(runs_dir, category)
+    measured: InferenceBench | None = None
+    if infer or bench:
         model = AnomalyModel.load(models_dir, category)
-        run = run_inference(
-            model,
-            visa_test_items(visa_dir, category),
-            output,
-            options=options or InferenceOptions(),
-        )
+        items = visa_test_items(visa_dir, category)
+        if infer:
+            output = run_dir(runs_dir, category)
+            run = run_inference(model, items, output, options=options or InferenceOptions())
+        if bench:
+            measured = measure(model, items, runs_dir / category, device=cuda_device())
         del model
         _release_gpu()
     return CategoryOutcome(
-        category=category, trained=trained, record=record, run=run, run_dir=output
+        category=category,
+        trained=trained,
+        record=record,
+        run=run,
+        run_dir=output,
+        bench=measured,
     )

@@ -1,5 +1,6 @@
 """Tests for the command line entry point."""
 
+import sys
 from functools import partial
 from pathlib import Path
 
@@ -7,13 +8,13 @@ import pytest
 from typer.testing import CliRunner
 
 from spec_to_inspector import cli
-from spec_to_inspector.anomaly import pipeline
+from spec_to_inspector.anomaly import pipeline, results
 from spec_to_inspector.anomaly.pipeline import CategoryOutcome
 from spec_to_inspector.anomaly.records import InferenceOptions
 from spec_to_inspector.anomaly.split import SplitError
 from spec_to_inspector.cli import app
 from spec_to_inspector.datasets.visa import MANIFEST_NAME, fetch_visa
-from tests.anomaly.records_fakes import run_index, train_record
+from tests.anomaly.records_fakes import inference_bench, run_index, train_record
 from tests.datasets.visa_fakes import EXPECTED, NO_WAIT, FakeServer, fake_files, make_tar
 
 runner = CliRunner()
@@ -136,7 +137,9 @@ class _TrainCalls:
         runs_dir: Path,
         reuse: bool,
         infer: bool,
+        bench: bool,
         seed: int,
+        backbone: str,
         options: InferenceOptions | None = None,
     ) -> CategoryOutcome:
         if self.error is not None:
@@ -149,7 +152,9 @@ class _TrainCalls:
                 "runs_dir": runs_dir,
                 "reuse": reuse,
                 "infer": infer,
+                "bench": bench,
                 "seed": seed,
+                "backbone": backbone,
             }
         )
         return CategoryOutcome(
@@ -158,6 +163,7 @@ class _TrainCalls:
             record=train_record(category, image_auroc=self.auroc[category], seed=seed),
             run=run_index(category, image_auroc=self.auroc[category]) if infer else None,
             run_dir=runs_dir / category / "test" if infer else None,
+            bench=inference_bench(category) if bench else None,
         )
 
 
@@ -219,7 +225,9 @@ def test_train_one_category_uses_the_settings_directories(
             "runs_dir": Path("runs"),
             "reuse": False,
             "infer": True,
+            "bench": False,
             "seed": 0,
+            "backbone": "wide_resnet50_2",
         }
     ]
 
@@ -313,3 +321,78 @@ def test_train_fails_with_the_cause(training: _TrainCalls, error: Exception) -> 
 
     assert result.exit_code == 1
     assert str(error).split(":")[0] in result.output
+
+
+def test_train_bench_measures_throughput_and_prints_it(training: _TrainCalls) -> None:
+    """--bench asks for the throughput measurement and reports images per second."""
+    result = runner.invoke(app, ["train", "--category", "pcb4", "--bench"])
+
+    assert result.exit_code == 0, result.output
+    assert training.calls[0]["bench"] is True
+    assert "images/s" in result.output
+    assert "100.5" in result.output
+    assert "40.2" in result.output
+    assert "runs/pcb4/bench.json" in result.output
+
+
+def test_train_results_writes_the_tracked_figures(
+    training: _TrainCalls, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """--results collects the categories' records from disk into the file named."""
+    asked: list[tuple[tuple[str, ...], Path, Path]] = []
+
+    def collect(
+        categories: tuple[str, ...], *, models_dir: Path, runs_dir: Path, written_by: list[str]
+    ) -> results.AnomalyResults:
+        asked.append((tuple(categories), models_dir, runs_dir))
+        return results.AnomalyResults(
+            created_at="2026-10-10T13:00:00+00:00",
+            written_by=written_by,
+            outside_gate=[],
+            thresholds_tuned_on_test=True,
+            categories={},
+        )
+
+    monkeypatch.setattr(results, "collect", collect)
+    target = tmp_path / "results" / "stage1" / "anomaly.json"
+    arguments = ["train", "--all", "--reuse", "--results", str(target)]
+    monkeypatch.setattr(sys, "argv", ["/venv/bin/spec-to-inspector", *arguments])
+
+    result = runner.invoke(app, arguments)
+
+    assert result.exit_code == 0, result.output
+    assert asked == [(("pcb1", "pcb2", "pcb3", "pcb4"), Path("models"), Path("runs"))]
+    written = results.AnomalyResults.model_validate_json(target.read_text())
+    assert written.written_by[0] == "spec-to-inspector"
+    assert written.written_by[1:] == ["train", "--all", "--reuse", "--results", str(target)]
+    assert str(target) in result.output
+
+
+def test_train_another_backbone_needs_its_own_models_directory(
+    training: _TrainCalls, tmp_path: Path
+) -> None:
+    """A backbone other than the product's cannot land where the product's models live."""
+    refused = runner.invoke(app, ["train", "--category", "pcb4", "--backbone", "resnet18"])
+
+    assert refused.exit_code == 2
+    assert "--models-dir" in refused.output
+    assert training.calls == []
+
+    accepted = runner.invoke(
+        app,
+        [
+            "train",
+            "--category",
+            "pcb4",
+            "--backbone",
+            "resnet18",
+            "--models-dir",
+            str(tmp_path / "reference"),
+            "--runs-dir",
+            str(tmp_path / "reference-runs"),
+        ],
+    )
+
+    assert accepted.exit_code == 0, accepted.output
+    assert training.calls[0]["backbone"] == "resnet18"
+    assert training.calls[0]["models_dir"] == tmp_path / "reference"

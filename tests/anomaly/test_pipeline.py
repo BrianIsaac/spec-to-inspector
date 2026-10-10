@@ -5,8 +5,14 @@ from pathlib import Path
 import pytest
 
 from spec_to_inspector.anomaly import pipeline
-from spec_to_inspector.anomaly.records import InferenceOptions, RunIndex, TrainRecord
-from tests.anomaly.records_fakes import run_index, train_record
+from spec_to_inspector.anomaly.records import (
+    InferenceBench,
+    InferenceOptions,
+    RunIndex,
+    TrainRecord,
+)
+from spec_to_inspector.device import CudaDevice
+from tests.anomaly.records_fakes import device, inference_bench, run_index, train_record
 
 
 class _Calls:
@@ -17,14 +23,23 @@ class _Calls:
         self.trained: list[str] = []
         self.loaded: list[str] = []
         self.runs: list[tuple[str, Path, int]] = []
+        self.backbones: list[str] = []
+        self.benched: list[tuple[str, Path, int]] = []
 
     def train_category(
-        self, category: str, *, visa_dir: Path, models_dir: Path, seed: int
+        self, category: str, *, visa_dir: Path, models_dir: Path, seed: int, backbone: str
     ) -> TrainRecord:
         self.trained.append(category)
+        self.backbones.append(backbone)
         assert visa_dir.name == "visa"
         assert models_dir == self.models_dir
         return train_record(category, seed=seed)
+
+    def measure(
+        self, model: str, items: list[str], category_dir: Path, *, device: CudaDevice
+    ) -> InferenceBench:
+        self.benched.append((model, category_dir, len(items)))
+        return inference_bench(model)
 
     def load_train_record(self, models_dir: Path, category: str) -> TrainRecord:
         if category == "pcb2":
@@ -58,6 +73,8 @@ def calls(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> _Calls:
     monkeypatch.setattr(pipeline.AnomalyModel, "load", recorder.load_model)
     monkeypatch.setattr(pipeline, "visa_test_items", recorder.visa_test_items)
     monkeypatch.setattr(pipeline, "run_inference", recorder.run_inference)
+    monkeypatch.setattr(pipeline, "measure", recorder.measure)
+    monkeypatch.setattr(pipeline, "cuda_device", device)
     return recorder
 
 
@@ -67,7 +84,9 @@ def _run(
     *,
     reuse: bool = False,
     infer: bool = True,
+    bench: bool = False,
     seed: int = 0,
+    backbone: str = "wide_resnet50_2",
     options: InferenceOptions | None = None,
 ) -> pipeline.CategoryOutcome:
     return pipeline.train_and_score(
@@ -77,7 +96,9 @@ def _run(
         runs_dir=tmp_path / "runs",
         reuse=reuse,
         infer=infer,
+        bench=bench,
         seed=seed,
+        backbone=backbone,
         options=options,
     )
 
@@ -129,3 +150,31 @@ def test_inference_options_reach_the_run(calls: _Calls, tmp_path: Path) -> None:
     _run(tmp_path, "pcb4", options=InferenceOptions(batch_size=4))
 
     assert calls.runs[0][2] == 4
+
+
+def test_a_bench_is_measured_on_the_test_split_when_asked(calls: _Calls, tmp_path: Path) -> None:
+    """With bench, throughput is measured on the test split into the category's runs directory."""
+    outcome = _run(tmp_path, "pcb4", bench=True)
+
+    assert calls.benched == [("pcb4", tmp_path / "runs" / "pcb4", 2)]
+    assert calls.loaded == ["pcb4"]
+    assert outcome.bench == inference_bench("pcb4")
+    assert _run(tmp_path, "pcb4").bench is None
+
+
+def test_a_bench_does_not_need_the_run(calls: _Calls, tmp_path: Path) -> None:
+    """Throughput can be measured without writing the test split's outputs."""
+    outcome = _run(tmp_path, "pcb4", infer=False, bench=True)
+
+    assert calls.runs == []
+    assert calls.benched == [("pcb4", tmp_path / "runs" / "pcb4", 2)]
+    assert outcome.run is None
+    assert outcome.bench is not None
+
+
+def test_the_backbone_reaches_training(calls: _Calls, tmp_path: Path) -> None:
+    """The backbone asked for is the one trained; the default is Anomalib's."""
+    _run(tmp_path, "pcb4")
+    _run(tmp_path, "pcb4", backbone="resnet18")
+
+    assert calls.backbones == ["wide_resnet50_2", "resnet18"]

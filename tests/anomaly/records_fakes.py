@@ -1,12 +1,14 @@
 """Records with plausible values, for tests that need one without training."""
 
 from spec_to_inspector.anomaly.records import (
+    InferenceBench,
     InferenceOptions,
     Metrics,
     ModelSpec,
     Phase,
     RunIndex,
     Thresholds,
+    Throughput,
     TrainRecord,
 )
 from spec_to_inspector.device import CudaDevice
@@ -127,4 +129,40 @@ def run_index(category: str, *, images: int = 201, image_auroc: float | None = 0
         image_auroc=image_auroc,
         seconds=30.0,
         entries=[],
+    )
+
+
+def inference_bench(category: str) -> InferenceBench:
+    """A bench record for a category: both figures at batch 1 and batch 16.
+
+    Args:
+        category: The category's name.
+
+    Returns:
+        The record.
+    """
+    speeds = {("model", 1): 100.5, ("end_to_end", 1): 40.2, ("model", 16): 310.0}
+    speeds["end_to_end", 16] = 150.0
+    return InferenceBench(
+        category=category,
+        created_at="2026-10-10T13:00:00+00:00",
+        device=device(),
+        images=201,
+        resident_bytes=800_000_000,
+        runs=[
+            Throughput.model_validate(
+                {
+                    "mode": mode,
+                    "batch_size": batch_size,
+                    "images": 201,
+                    "pass_seconds": [201 / speed] * 3,
+                    "seconds": 201 / speed,
+                    "images_per_second": speed,
+                    "peak_allocated_bytes": batch_size * GIB // 8 + GIB,
+                    "peak_reserved_bytes": batch_size * GIB // 8 + 2 * GIB,
+                    "num_workers": None if mode == "model" else 8,
+                }
+            )
+            for (mode, batch_size), speed in speeds.items()
+        ],
     )

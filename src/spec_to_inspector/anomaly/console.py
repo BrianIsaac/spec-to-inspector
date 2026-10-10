@@ -8,6 +8,7 @@ from rich.table import Table
 
 from spec_to_inspector.anomaly.pipeline import CategoryOutcome
 from spec_to_inspector.anomaly.reference import GATE_POINTS, REFERENCE_SOURCE, compare
+from spec_to_inspector.anomaly.throughput import BENCH_NAME
 from spec_to_inspector.anomaly.train import CHECKPOINT_NAME, TRAIN_RECORD_NAME, model_dir
 
 AUROC_TOLERANCE = 1e-4
@@ -61,12 +62,15 @@ def outcome_table(outcomes: Sequence[CategoryOutcome]) -> Table:
     return table
 
 
-def outcome_lines(outcomes: Sequence[CategoryOutcome], models_dir: Path) -> list[str]:
+def outcome_lines(
+    outcomes: Sequence[CategoryOutcome], models_dir: Path, runs_dir: Path
+) -> list[str]:
     """Say in words what the table cannot: the gate, the thresholds' provenance, the files.
 
     Args:
         outcomes: The categories' outcomes.
         models_dir: The root for trained models, as the user gave it.
+        runs_dir: The root for run outputs, as the user gave it.
 
     Returns:
         The lines to print under the table.
@@ -103,6 +107,19 @@ def outcome_lines(outcomes: Sequence[CategoryOutcome], models_dir: Path) -> list
             f"{outcome.category} model: {directory} ({CHECKPOINT_NAME}, {TRAIN_RECORD_NAME})"
             + ("" if outcome.run_dir is None else f"; test split outputs: {outcome.run_dir}")
         )
+        bench = outcome.bench
+        if bench is not None:
+            speeds = "; ".join(
+                f"{run.images_per_second:.1f} at batch {run.batch_size} "
+                f"({'model only' if run.mode == 'model' else 'end to end from disk'}, "
+                f"peak {run.peak_allocated_bytes / 1024**3:.2f} GiB)"
+                for run in bench.runs
+            )
+            lines.append(
+                f"{outcome.category} inference, images/s on {bench.images} test images: {speeds}. "
+                f"Resident model: {bench.resident_bytes / 1024**3:.2f} GiB. "
+                f"Record: {runs_dir / outcome.category / BENCH_NAME}"
+            )
         run = outcome.run
         if (
             run is not None
