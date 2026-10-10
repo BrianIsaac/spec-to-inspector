@@ -226,6 +226,7 @@ def _judge_region(
     *,
     corrections: Sequence[str],
     cache_prompt: bool | None,
+    write: bool,
 ) -> RegionDecision:
     """Measure one region, show it to the judge and decide it.
 
@@ -236,6 +237,7 @@ def _judge_region(
         client: The VLM server's client.
         corrections: The corrections recalled for the part.
         cache_prompt: llama.cpp's per-request prompt-cache switch.
+        write: Whether to keep the overlay as a file beside the crops.
 
     Returns:
         The region's decision.
@@ -273,8 +275,9 @@ def _judge_region(
     )
     overlay_png = encode_png(overlay)
     overlay_name = f"{OVERLAYS_DIR}/region-{region.index:03d}.png"
-    (scene.directory / OVERLAYS_DIR).mkdir(exist_ok=True)
-    (scene.directory / overlay_name).write_bytes(overlay_png)
+    if write:
+        (scene.directory / OVERLAYS_DIR).mkdir(exist_ok=True)
+        (scene.directory / overlay_name).write_bytes(overlay_png)
 
     messages = build_messages(
         specification,
@@ -291,7 +294,11 @@ def _judge_region(
         answer_schema(specification, result.category),
         cache_prompt=cache_prompt,
     )
-    shown: dict[str, object] = {"crop": region.crop, "overlay": overlay_name, "call": asked.call}
+    shown: dict[str, object] = {
+        "crop": region.crop,
+        "overlay": overlay_name if write else None,
+        "call": asked.call,
+    }
     if asked.answer is None:
         return _refused(
             region.index, asked, measurement=measurement, from_peak=region.from_peak, **shown
@@ -316,6 +323,7 @@ def _judge_regions(
     max_regions: int,
     recall: Recall | None,
     cache_prompt: bool | None,
+    write: bool,
 ) -> tuple[Verdict, list[RegionDecision]]:
     """Judge an image's regions in rank order and combine them.
 
@@ -327,6 +335,7 @@ def _judge_regions(
         max_regions: The most regions to put to the judge.
         recall: Recalls the corrections for the part, if a store exists.
         cache_prompt: llama.cpp's per-request prompt-cache switch.
+        write: Whether to keep each overlay as a file.
 
     Returns:
         The board's verdict and the regions judged.
@@ -352,6 +361,7 @@ def _judge_regions(
             client,
             corrections=corrections,
             cache_prompt=cache_prompt,
+            write=write,
         )
         decided.append(decision)
         if decision.outcome is Outcome.REJECT or decision.review_cause is Cause.SERVER_UNAVAILABLE:
@@ -379,6 +389,7 @@ def judge_image(
     max_regions: int = DEFAULT_MAX_REGIONS,
     recall: Recall | None = None,
     cache_prompt: bool | None = None,
+    write: bool = True,
 ) -> Decision:
     """Decide one image of a run, and write the decision beside its result.
 
@@ -397,6 +408,8 @@ def judge_image(
             slot says there are none.
         cache_prompt: llama.cpp's per-request prompt-cache switch; None
             leaves the server's default.
+        write: Whether to write `decision.json` and the overlays; a timing
+            run asks and decides without leaving files.
 
     Returns:
         The decision, as written to `decision.json`.
@@ -426,6 +439,7 @@ def judge_image(
             max_regions=max_regions,
             recall=recall,
             cache_prompt=cache_prompt,
+            write=write,
         )
     elif result.predicted_anomalous:
         verdict = Verdict(
@@ -464,7 +478,8 @@ def judge_image(
         judge_model=client.model,
         created_at=datetime.now(UTC).isoformat(timespec="seconds"),
     )
-    _write_atomically(directory / DECISION_NAME, decision.model_dump_json(indent=2) + "\n")
+    if write:
+        _write_atomically(directory / DECISION_NAME, decision.model_dump_json(indent=2) + "\n")
     return decision
 
 
