@@ -1,8 +1,10 @@
 """The one entry point: `spec-to-inspector <verb>`."""
 
 import signal
+import time
 from collections.abc import Generator
 from contextlib import contextmanager
+from pathlib import Path
 from types import FrameType
 from typing import Annotated, NoReturn
 
@@ -27,6 +29,12 @@ from spec_to_inspector.datasets.visa import (
     fetch_visa,
 )
 from spec_to_inspector.settings import Settings
+from spec_to_inspector.spec.extract import SpecificationError
+from spec_to_inspector.spec.limits import Comparison
+from spec_to_inspector.spec.pdf import PdfError, read_pdf
+from spec_to_inspector.spec.schema import Specification, write_clause_table
+from spec_to_inspector.spec.summary import summarise
+from spec_to_inspector.spec.tokens import TokenizerError
 
 app = typer.Typer(
     name="spec-to-inspector",
@@ -227,10 +235,103 @@ def data_fetch(
     out.print(f"Manifest: {dest / MANIFEST_NAME}", markup=False, highlight=False, soft_wrap=True)
 
 
+def _clause_table(specification: Specification) -> Table:
+    """Lay out the clause table, one row per clause.
+
+    Args:
+        specification: The parsed specification.
+
+    Returns:
+        A table of every clause with its part, class, zone, limit, disposition and page.
+    """
+    table = Table(title=specification.title, box=box.SIMPLE_HEAD)
+    for column in ("Clause", "Title", "Part", "Defect class", "Zone", "Limit", "Disposition"):
+        table.add_column(column)
+    table.add_column("Page", justify="right")
+    for clause in specification.clauses:
+        limit = (
+            "any size"
+            if clause.comparison is Comparison.UNCONDITIONAL
+            else f"{clause.comparison.value} {clause.limit:g} {clause.unit}"
+        )
+        table.add_row(
+            clause.id,
+            clause.title,
+            clause.category,
+            clause.defect_class,
+            clause.zone,
+            limit,
+            clause.disposition.value,
+            str(clause.page),
+        )
+    return table
+
+
 @app.command()
-def parse() -> None:
-    """Parse a specification PDF into its clause table."""
-    _not_built("parse", "U3")
+def parse(
+    pdf: Annotated[Path, typer.Argument(help="The specification, a born-digital PDF.")],
+    out_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--out",
+            help="Where the clause table goes; beside the PDF, as <name>.clauses.json, by default.",
+        ),
+    ] = None,
+    results: Annotated[
+        Path | None,
+        typer.Option(
+            "--results",
+            help="Also write the measured summary (pages, clauses, tokens, parse time) "
+            "to this JSON file.",
+        ),
+    ] = None,
+) -> None:
+    """Parse a specification PDF into its clause table.
+
+    docling reads the PDF on the CPU with heading levels on; the clauses,
+    zones and calibrations are extracted, validated and written as JSON; a
+    summary line gives the pages, the clauses and the document's size in the
+    judge's tokens.
+    """
+    settings = Settings()
+    started = time.perf_counter()
+    try:
+        parsed = read_pdf(pdf, artifacts_dir=settings.docling_artifacts_dir)
+        specification = parsed.specification()
+    except (PdfError, SpecificationError) as error:
+        err.print(str(error), markup=False, highlight=False, soft_wrap=True)
+        raise typer.Exit(code=1) from error
+    seconds = time.perf_counter() - started
+    target = out_path if out_path is not None else pdf.with_suffix(".clauses.json")
+    write_clause_table(specification, target)
+
+    out.print(_clause_table(specification))
+    headings = len({clause.heading_id for clause in specification.clauses})
+    counted = f"{specification.pages} pages, {len(specification.clauses)} clauses under "
+    counted += f"{headings} numbered headings"
+    try:
+        summary = summarise(pdf, parsed, specification, parse_seconds=seconds)
+    except TokenizerError as error:
+        err.print(str(error), markup=False, highlight=False, soft_wrap=True)
+        summary = None
+    tokens = (
+        f"{summary.document_tokens:,} tokens ({summary.tokenizer})"
+        if summary is not None
+        else "tokens not counted"
+    )
+    out.print(
+        f"Parsed {pdf}: {counted}, {tokens}, {seconds:.1f} s on the CPU.",
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+    out.print(f"Clause table: {target}", markup=False, highlight=False, soft_wrap=True)
+    if results is not None:
+        if summary is None:
+            err.print(f"The summary was not written to {results}: tokens could not be counted.")
+            raise typer.Exit(code=1)
+        summary.write(results)
+        out.print(f"Summary: {results}", markup=False, highlight=False, soft_wrap=True)
 
 
 @app.command()

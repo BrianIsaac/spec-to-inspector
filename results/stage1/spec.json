@@ -1,0 +1,35 @@
+{
+  "specification": "specs/pcb-spec.pdf",
+  "pdf_sha256": "2b8749b32fa88b3a3ac15455324cb3a726dffa7e8e94a7acd7b5c39abc6b47bd",
+  "pdf_bytes": 994058,
+  "pages": 6,
+  "clauses": 16,
+  "numbered_clauses": 11,
+  "zones": 5,
+  "parts": {
+    "pcb1": [
+      "melt",
+      "scratch",
+      "missing",
+      "bent"
+    ],
+    "pcb4": [
+      "dirt",
+      "missing",
+      "extra",
+      "wrong place",
+      "damage",
+      "scratch",
+      "burnt"
+    ]
+  },
+  "document_tokens": 2868,
+  "tokens_per_page": 478.0,
+  "clause_table_tokens": 1881,
+  "tokenizer": "Qwen/Qwen3-VL-8B-Instruct",
+  "parse_seconds": 31.834,
+  "parser": "docling 2.135.0",
+  "device": "cpu",
+  "threads": 8,
+  "measured_at": "2026-10-10T11:27:15Z"
+}

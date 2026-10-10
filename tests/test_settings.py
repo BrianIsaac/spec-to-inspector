@@ -16,7 +16,7 @@ def _no_env_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
 def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.MonkeyPatch) -> None:
     """The defaults keep data, weights and runs in the repository's ignored folders."""
-    for name in ("DATA_DIR", "MODELS_DIR", "RUNS_DIR", "VISA_URL"):
+    for name in ("DATA_DIR", "MODELS_DIR", "RUNS_DIR", "VISA_URL", "DOCLING_ARTIFACTS_DIR"):
         monkeypatch.delenv(f"SPEC_TO_INSPECTOR_{name}", raising=False)
 
     settings = Settings()
@@ -26,6 +26,7 @@ def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.Monk
     assert settings.runs_dir == Path("runs")
     assert settings.visa_dir == Path("data/visa")
     assert settings.visa_url == VISA_URL
+    assert settings.docling_artifacts_dir is None
 
 
 def test_environment_overrides_the_defaults(
@@ -34,12 +35,14 @@ def test_environment_overrides_the_defaults(
     """Every setting can be moved with a SPEC_TO_INSPECTOR_ variable."""
     monkeypatch.setenv("SPEC_TO_INSPECTOR_DATA_DIR", str(tmp_path / "d"))
     monkeypatch.setenv("SPEC_TO_INSPECTOR_VISA_URL", "https://mirror.example/VisA.tar")
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DOCLING_ARTIFACTS_DIR", str(tmp_path / "docling"))
 
     settings = Settings()
 
     assert settings.data_dir == tmp_path / "d"
     assert settings.visa_dir == tmp_path / "d" / "visa"
     assert settings.visa_url == "https://mirror.example/VisA.tar"
+    assert settings.docling_artifacts_dir == tmp_path / "docling"
 
 
 def test_a_url_that_is_not_http_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
