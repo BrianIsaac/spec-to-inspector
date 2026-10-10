@@ -49,7 +49,7 @@ from torchvision.transforms.v2 import (  # pyright: ignore[reportMissingTypeStub
 
 from spec_to_inspector.anomaly.atomic import atomic_directory
 from spec_to_inspector.anomaly.metrics import auroc
-from spec_to_inspector.anomaly.model import HostBufferedPatchcore
+from spec_to_inspector.anomaly.model import SingleCopyPatchcore
 from spec_to_inspector.anomaly.records import (
     ImageResult,
     InferenceOptions,
@@ -155,7 +155,7 @@ class AnomalyModel:
     """A trained PatchCore with its thresholds, ready to score images on a device."""
 
     def __init__(
-        self, module: HostBufferedPatchcore, record: TrainRecord, device: torch.device
+        self, module: SingleCopyPatchcore, record: TrainRecord, device: torch.device
     ) -> None:
         """Bind a loaded module to its training record.
 
@@ -200,9 +200,9 @@ class AnomalyModel:
         record = load_train_record(models_dir, category)
         checkpoint = model_dir(models_dir, category) / CHECKPOINT_NAME
         target = torch.device(device)
-        module = HostBufferedPatchcore.load_from_checkpoint(checkpoint, map_location=target)
+        module = SingleCopyPatchcore.load_from_checkpoint(checkpoint, map_location=target)
         post_processor = module.post_processor
-        if not isinstance(module, HostBufferedPatchcore) or post_processor is None:
+        if not isinstance(module, SingleCopyPatchcore) or post_processor is None:
             msg = f"{checkpoint} is not a PatchCore checkpoint with its post-processor"
             raise ValueError(msg)
         module.eval()

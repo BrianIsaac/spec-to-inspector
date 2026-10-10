@@ -31,7 +31,7 @@ from anomalib.engine import Engine
 from lightning.pytorch import Callback, LightningModule, Trainer, seed_everything
 
 from spec_to_inspector.anomaly.atomic import atomic_directory
-from spec_to_inspector.anomaly.model import HostBufferedPatchcore
+from spec_to_inspector.anomaly.model import SingleCopyPatchcore
 from spec_to_inspector.anomaly.records import Metrics, ModelSpec, Phase, Thresholds, TrainRecord
 from spec_to_inspector.anomaly.split import write_split
 from spec_to_inspector.device import cuda_device
@@ -182,7 +182,7 @@ def _image_paths(dataset: AnomalibDataset) -> set[str]:
     return {str(path) for path in samples["image_path"]}
 
 
-def _thresholds(model: HostBufferedPatchcore, datamodule: Visa) -> Thresholds:
+def _thresholds(model: SingleCopyPatchcore, datamodule: Visa) -> Thresholds:
     """Read the thresholds Anomalib chose, and work out which images it chose them on."""
     post_processor = model.post_processor
     values = {
@@ -214,7 +214,7 @@ def _thresholds(model: HostBufferedPatchcore, datamodule: Visa) -> Thresholds:
 
 
 def _model_spec(
-    model: HostBufferedPatchcore, *, seed: int, train_batch_size: int, eval_batch_size: int
+    model: SingleCopyPatchcore, *, seed: int, train_batch_size: int, eval_batch_size: int
 ) -> ModelSpec:
     """Describe the model from the model itself."""
     backbone = model.model.feature_extractor.feature_extractor
@@ -284,11 +284,12 @@ def train_category(
         num_workers=num_workers,
         seed=seed,
     )
-    model = HostBufferedPatchcore(
+    model = SingleCopyPatchcore(
         backbone=backbone,
-        pre_processor=HostBufferedPatchcore.configure_pre_processor(image_size=IMAGE_SIZE),
+        pre_processor=SingleCopyPatchcore.configure_pre_processor(image_size=IMAGE_SIZE),
         visualizer=False,
     )
+    model.expected_images = split.train_good
     clock = _PhaseClock()
 
     with (

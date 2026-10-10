@@ -70,7 +70,7 @@ def train_record(category: str, *, image_auroc: float = 0.986, seed: int = 0) ->
         created_at="2026-10-10T12:00:00+00:00",
         model=ModelSpec(
             name="patchcore",
-            variant="HostBufferedPatchcore",
+            variant="SingleCopyPatchcore",
             backbone="wide_resnet50_2",
             weights="timm/wide_resnet50_2.racm_in1k",
             layers=("layer2", "layer3"),

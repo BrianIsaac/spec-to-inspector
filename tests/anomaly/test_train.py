@@ -51,7 +51,7 @@ def test_training_on_20_images_writes_the_model_and_its_record(tmp_path: Path) -
     assert record.model.backbone == "wide_resnet50_2"
     assert record.model.weights == "timm/wide_resnet50_2.racm_in1k"
     assert record.model.image_size == (256, 256)
-    assert record.model.variant == "HostBufferedPatchcore"
+    assert record.model.variant == "SingleCopyPatchcore"
     assert record.embedding_rows == 20 * 32 * 32
     assert (record.memory_bank_rows, record.memory_bank_dims) == (2048, 1536)
 

@@ -29,7 +29,7 @@ from spec_to_inspector.anomaly.infer import (
     run_inference,
     visa_test_items,
 )
-from spec_to_inspector.anomaly.model import HostBufferedPatchcore
+from spec_to_inspector.anomaly.model import SingleCopyPatchcore
 from spec_to_inspector.anomaly.records import RunIndex, TrainRecord
 from spec_to_inspector.anomaly.train import CHECKPOINT_NAME, model_dir, train_category
 from tests.anomaly.fakes import DEFECT, write_trainable_visa
@@ -174,7 +174,7 @@ def test_scores_and_maps_equal_anomalibs_own_predictions(trained: Trained) -> No
     a normalised score by about 1e-5 otherwise.
     """
     checkpoint = model_dir(trained.models, "pcb1") / CHECKPOINT_NAME
-    module = HostBufferedPatchcore.load_from_checkpoint(checkpoint)
+    module = SingleCopyPatchcore.load_from_checkpoint(checkpoint)
     datamodule = Visa(root=trained.visa, category="pcb1", eval_batch_size=4, num_workers=2)
     engine = Engine(default_root_dir=trained.runs / "engine", accelerator="gpu", devices=1)
 
