@@ -3,7 +3,7 @@
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from pydantic import field_validator
+from pydantic import Field, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from spec_to_inspector.datasets.visa import VISA_URL
@@ -24,6 +24,13 @@ class Settings(BaseSettings):
         docling_artifacts_dir: A directory holding docling's layout and table
             models, for a machine without network; unset, docling fetches
             them into the Hugging Face cache on first use.
+        llama_cpp_dir: The llama.cpp clone and its build, made by
+            `scripts/serve_vlm.sh`; the laptop's VLM server only.
+        vlm_url: The judge's OpenAI-compatible server, up to and including
+            `/v1`: llama.cpp's on the laptop, vLLM's or llm-scaler's on the B70.
+        vlm_model: The model's name as that server knows it.
+        vlm_timeout_seconds: How long one answer may take before the region
+            is referred to an engineer.
     """
 
     model_config = SettingsConfigDict(
@@ -35,26 +42,31 @@ class Settings(BaseSettings):
     runs_dir: Path = Path("runs")
     visa_url: str = VISA_URL
     docling_artifacts_dir: Path | None = None
+    llama_cpp_dir: Path = Path("models/llama.cpp")
+    vlm_url: str = "http://127.0.0.1:8131/v1"
+    vlm_model: str = "qwen3-vl-8b-instruct"
+    vlm_timeout_seconds: float = Field(default=120.0, gt=0)
 
-    @field_validator("visa_url")
+    @field_validator("visa_url", "vlm_url")
     @classmethod
-    def _http_only(cls, value: str) -> str:
-        """Refuse a URL that httpx could not stream.
+    def _http_only(cls, value: str, info: ValidationInfo) -> str:
+        """Refuse a URL that httpx could not reach.
 
         Args:
             value: The configured URL.
+            info: Which field is being validated.
 
         Returns:
-            The URL unchanged.
+            The URL, without a trailing slash for the VLM server's.
 
         Raises:
             ValueError: If the scheme is not http or https, or there is no host.
         """
         parts = urlsplit(value)
-        if parts.scheme not in {"http", "https"} or not parts.netloc:
-            msg = f"visa_url must be an http or https URL, got {value!r}"
+        if parts.scheme not in {"http", "https"} or not parts.hostname:
+            msg = f"{info.field_name} must be an http or https URL, got {value!r}"
             raise ValueError(msg)
-        return value
+        return value.rstrip("/") if info.field_name == "vlm_url" else value
 
     @property
     def visa_dir(self) -> Path:

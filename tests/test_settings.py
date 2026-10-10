@@ -16,7 +16,17 @@ def _no_env_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
 def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.MonkeyPatch) -> None:
     """The defaults keep data, weights and runs in the repository's ignored folders."""
-    for name in ("DATA_DIR", "MODELS_DIR", "RUNS_DIR", "VISA_URL", "DOCLING_ARTIFACTS_DIR"):
+    for name in (
+        "DATA_DIR",
+        "MODELS_DIR",
+        "RUNS_DIR",
+        "VISA_URL",
+        "DOCLING_ARTIFACTS_DIR",
+        "LLAMA_CPP_DIR",
+        "VLM_URL",
+        "VLM_MODEL",
+        "VLM_TIMEOUT_SECONDS",
+    ):
         monkeypatch.delenv(f"SPEC_TO_INSPECTOR_{name}", raising=False)
 
     settings = Settings()
@@ -27,6 +37,10 @@ def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.Monk
     assert settings.visa_dir == Path("data/visa")
     assert settings.visa_url == VISA_URL
     assert settings.docling_artifacts_dir is None
+    assert settings.llama_cpp_dir == Path("models/llama.cpp")
+    assert settings.vlm_url == "http://127.0.0.1:8131/v1"
+    assert settings.vlm_model == "qwen3-vl-8b-instruct"
+    assert settings.vlm_timeout_seconds == 120.0
 
 
 def test_environment_overrides_the_defaults(
@@ -59,3 +73,33 @@ def test_a_dot_env_file_is_read(monkeypatch: pytest.MonkeyPatch, tmp_path: Path)
     (tmp_path / ".env").write_text("SPEC_TO_INSPECTOR_RUNS_DIR=/srv/runs\n")
 
     assert Settings().runs_dir == Path("/srv/runs")
+
+
+def test_the_judge_backend_is_a_url_and_a_model_name(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Another OpenAI-compatible server, such as vLLM on the B70, is two variables away."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_URL", "http://b70.example:8000/v1/")
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_MODEL", "Qwen/Qwen3-VL-8B-Instruct")
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_TIMEOUT_SECONDS", "30")
+
+    settings = Settings()
+
+    assert settings.vlm_url == "http://b70.example:8000/v1"
+    assert settings.vlm_model == "Qwen/Qwen3-VL-8B-Instruct"
+    assert settings.vlm_timeout_seconds == 30.0
+
+
+@pytest.mark.parametrize("url", ["ftp://127.0.0.1/v1", "127.0.0.1:8131", "http:///v1"])
+def test_a_judge_url_that_is_not_http_is_refused(monkeypatch: pytest.MonkeyPatch, url: str) -> None:
+    """A mistyped server address fails at start-up, not at the first board."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_URL", url)
+
+    with pytest.raises(ValueError, match="http"):
+        Settings()
+
+
+def test_a_judge_timeout_must_be_positive(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A timeout of zero would fail every request."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_TIMEOUT_SECONDS", "0")
+
+    with pytest.raises(ValueError, match="greater than 0"):
+        Settings()
