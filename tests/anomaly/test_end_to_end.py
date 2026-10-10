@@ -115,7 +115,13 @@ def test_every_sidecar_agrees_with_its_files(trained: Trained) -> None:
         assert labels is not None
         assert mask.shape == labels.shape == (height, width)
         at_source = load_anomaly_map(directory, result, at_source=True)
-        assert np.array_equal(mask == 255, at_source > result.pixel_threshold)
+        assert result.region_threshold == trained.record.thresholds.image
+        assert result.region_threshold_source == "image"
+        if any(region.from_peak for region in result.regions):
+            assert len(result.regions) == 1
+            assert not (at_source > result.region_threshold).any()
+        else:
+            assert np.array_equal(mask == 255, at_source > result.region_threshold)
         assert np.array_equal(labels > 0, mask == 255)
         assert (
             sorted(np.unique(labels).tolist())
@@ -143,6 +149,7 @@ def test_the_planted_defect_is_found_where_it_was_planted(trained: Trained) -> N
         assert result.ground_truth_mask is not None
         assert Path(result.ground_truth_mask).is_file()
         top = result.regions[0]
+        assert top.on_ground_truth is True
         x, y = top.peak_xy
         assert columns.start - 8 <= x < columns.stop + 8
         assert rows.start - 8 <= y < rows.stop + 8

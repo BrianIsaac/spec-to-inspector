@@ -65,6 +65,11 @@ class RunSummary(BaseModel):
         false_positive: Normal images scored above it.
         regions: Regions found across the run.
         images_with_regions: Images with at least one region.
+        flagged_without_region: Images scored above the threshold that have no region.
+        peak_fallback_images: Images whose one region is the peak-patch fallback.
+        anomalous_with_region: Anomalous images with at least one region.
+        anomalous_top_region_on_defect: Anomalous images whose region 1 touches
+            the ground-truth mask.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -84,6 +89,10 @@ class RunSummary(BaseModel):
     false_positive: int
     regions: int
     images_with_regions: int
+    flagged_without_region: int
+    peak_fallback_images: int
+    anomalous_with_region: int
+    anomalous_top_region_on_defect: int
 
 
 class CategoryFigures(BaseModel):
@@ -160,6 +169,17 @@ def _summarise(index: RunIndex, directory: Path) -> RunSummary:
         false_positive=labelled.count(("good", True)),
         regions=sum(entry.regions for entry in index.entries),
         images_with_regions=sum(entry.regions > 0 for entry in index.entries),
+        flagged_without_region=sum(
+            entry.predicted_anomalous and entry.regions == 0 for entry in index.entries
+        ),
+        peak_fallback_images=sum(entry.peak_fallback for entry in index.entries),
+        anomalous_with_region=sum(
+            entry.label == "bad" and entry.regions > 0 for entry in index.entries
+        ),
+        anomalous_top_region_on_defect=sum(
+            entry.label == "bad" and entry.top_region_on_ground_truth is True
+            for entry in index.entries
+        ),
     )
 
 

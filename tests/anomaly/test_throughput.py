@@ -27,6 +27,7 @@ class _SlowModel:
     category = "pcb4"
     thresholds = thresholds()
     resize = Resize((256, 256), antialias=True)
+    map_cell = (8, 8)
     device = torch.device("cpu")
     resident_bytes = 123
 

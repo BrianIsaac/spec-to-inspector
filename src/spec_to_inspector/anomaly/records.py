@@ -43,6 +43,11 @@ class Region(BaseModel):
         peak_score: The highest raw anomaly-map value inside the region.
         peak_xy: Where that value is, as (x, y).
         mean_score: The mean raw anomaly-map value inside the region.
+        from_peak: Whether the region is the fallback for an image flagged anomalous
+            with nothing above the region threshold: the one patch holding the
+            anomaly map's peak. Its size is the patch's, not a defect's.
+        on_ground_truth: Whether any of its pixels lie on the ground-truth mask;
+            None where the image has no mask.
         crop: The crop's file, relative to the sidecar; None if no crop was written.
         crop_box: The rectangle of the source image the crop holds; None with `crop`.
     """
@@ -56,6 +61,8 @@ class Region(BaseModel):
     peak_score: float
     peak_xy: tuple[int, int]
     mean_score: float
+    from_peak: bool = False
+    on_ground_truth: bool | None = None
     crop: str | None = None
     crop_box: Box | None = None
 
@@ -289,13 +296,16 @@ class ImageResult(BaseModel):
         image_threshold: The raw score above which an image is anomalous.
         score_normalised: The score as Anomalib normalises it: 0.5 at the threshold.
         predicted_anomalous: Whether the score is above the image threshold.
-        pixel_threshold: The raw anomaly-map value above which a pixel is anomalous.
+        pixel_threshold: Anomalib's pixel threshold, the raw anomaly-map value its own
+            masks are cut at; recorded whether or not it is the one applied.
+        region_threshold: The raw anomaly-map value the mask and regions were cut at.
+        region_threshold_source: Which threshold that is: "image" or "pixel".
         map_width: The stored anomaly map's width, the model's input width.
         map_height: The stored anomaly map's height, the model's input height.
         map_max: The highest raw value in the anomaly map.
         anomaly_map: The raw anomaly map, a float32 `.npy` of (map_height, map_width).
         mask: The thresholded mask at the source's size: an 8-bit PNG of 0 and 255,
-            the union of the regions.
+            the union of the regions (so it includes a peak-patch fallback region).
         mask_pixels: Anomalous pixels in the mask.
         regions_image: The label image at the source's size: a 16-bit PNG, 0 for
             background and a region's index for its pixels.
@@ -318,6 +328,8 @@ class ImageResult(BaseModel):
     score_normalised: float
     predicted_anomalous: bool
     pixel_threshold: float
+    region_threshold: float
+    region_threshold_source: Literal["image", "pixel"]
     map_width: int
     map_height: int
     map_max: float
@@ -338,6 +350,9 @@ class RunEntry(BaseModel):
         score: The raw image score.
         predicted_anomalous: Whether the score is above the image threshold.
         regions: How many regions the image has.
+        peak_fallback: Whether its one region is the peak-patch fallback.
+        top_region_on_ground_truth: Whether region 1 touches the ground-truth mask;
+            None where the image has no mask or no region.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -348,6 +363,8 @@ class RunEntry(BaseModel):
     score: float
     predicted_anomalous: bool
     regions: int
+    peak_fallback: bool
+    top_region_on_ground_truth: bool | None
 
 
 class InferenceOptions(BaseModel):
@@ -360,6 +377,11 @@ class InferenceOptions(BaseModel):
         crop_min_side: The least width and height of a crop, in source pixels.
         min_region_area: Regions of fewer source pixels are left out.
         max_crops: At most this many crops per image, taken in rank order; None for all.
+        region_threshold: Which threshold cuts the anomaly map into regions. "image"
+            uses the image threshold, so one level decides both whether a board is
+            anomalous and where; "pixel" uses Anomalib's pixel threshold.
+        peak_fallback: Whether an image flagged anomalous with nothing above the
+            region threshold gets the patch of the map's peak as its region.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -370,6 +392,8 @@ class InferenceOptions(BaseModel):
     crop_min_side: int = Field(default=256, ge=1)
     min_region_area: int = Field(default=1, ge=1)
     max_crops: int | None = Field(default=None, ge=0)
+    region_threshold: Literal["image", "pixel"] = "image"
+    peak_fallback: bool = True
 
 
 class RunIndex(BaseModel):

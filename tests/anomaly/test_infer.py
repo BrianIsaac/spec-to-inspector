@@ -28,7 +28,7 @@ from spec_to_inspector.anomaly.infer import (
     visa_test_items,
     write_image_result,
 )
-from spec_to_inspector.anomaly.records import ImageResult, Thresholds
+from spec_to_inspector.anomaly.records import Box, ImageResult, Thresholds
 from spec_to_inspector.anomaly.regions import upsample
 from spec_to_inspector.anomaly.split import SPLIT_ROOT, write_split
 from tests.anomaly.fakes import write_visa
@@ -77,7 +77,14 @@ def _map(*blobs: tuple[slice, slice, float]) -> np.ndarray:
     return anomaly_map
 
 
-def _write(tmp_path: Path, anomaly_map: np.ndarray, **options: float) -> tuple[ImageResult, Path]:
+def _write(
+    tmp_path: Path,
+    anomaly_map: np.ndarray,
+    *,
+    score: float = 41.5,
+    mask_path: Path | None = None,
+    **options: float | str | bool,
+) -> tuple[ImageResult, Path]:
     source = tmp_path / "source" / "000.png"
     _image(source)
     directory = tmp_path / "out" / "bad-000"
@@ -87,14 +94,16 @@ def _write(tmp_path: Path, anomaly_map: np.ndarray, **options: float) -> tuple[I
             image_id="bad-000",
             path=source,
             label="bad",
+            mask_path=mask_path,
             visa_image="pcb4/Data/Images/Anomaly/000.JPG",
         ),
         category="pcb4",
-        score=41.5,
+        score=score,
         anomaly_map=anomaly_map,
         thresholds=_thresholds(),
         directory=directory,
         options=InferenceOptions.model_validate(options),
+        map_cell=(8, 8),
     )
     return result, directory
 
@@ -119,6 +128,8 @@ def test_the_sidecar_carries_the_score_the_thresholds_and_the_files(tmp_path: Pa
     assert result.score == 41.5
     assert result.image_threshold == 30.0
     assert result.pixel_threshold == 25.0
+    assert result.region_threshold == 30.0
+    assert result.region_threshold_source == "image"
     assert result.predicted_anomalous
     assert result.score_normalised == pytest.approx(0.5 + 11.5 / 50)
     assert (result.anomaly_map, result.mask, result.regions_image) == (
@@ -143,6 +154,7 @@ def test_a_score_at_the_threshold_is_not_anomalous(tmp_path: Path) -> None:
         thresholds=_thresholds(),
         directory=directory,
         options=InferenceOptions(),
+        map_cell=(8, 8),
     )
 
     assert not result.predicted_anomalous
@@ -178,7 +190,7 @@ def test_the_mask_is_in_source_pixels_and_follows_from_the_map(tmp_path: Path) -
     assert mask.dtype == np.uint8
     assert set(np.unique(mask).tolist()) == {0, 255}
     at_source = load_anomaly_map(directory, result, at_source=True)
-    assert np.array_equal(mask == 255, at_source > result.pixel_threshold)
+    assert np.array_equal(mask == 255, at_source > result.region_threshold)
     assert result.mask_pixels == int((mask == 255).sum())
     # The blob covers map rows 100..139 and columns 64..127: about 47 x 100 source pixels.
     region = result.regions[0]
@@ -256,7 +268,7 @@ def test_crops_stop_at_the_limit_but_every_region_is_recorded(tmp_path: Path) ->
 def test_small_regions_can_be_left_out(tmp_path: Path) -> None:
     """With a minimum area, a speck is in neither the regions, the labels nor the mask."""
     anomaly_map = _map(
-        (slice(100, 140), slice(64, 128), 40.0), (slice(20, 21), slice(200, 201), 48.0)
+        (slice(100, 140), slice(64, 128), 40.0), (slice(20, 22), slice(200, 202), 200.0)
     )
     kept, _ = _write(tmp_path / "all", anomaly_map)
     result, directory = _write(tmp_path / "filtered", anomaly_map, min_region_area=50)
@@ -264,6 +276,7 @@ def test_small_regions_can_be_left_out(tmp_path: Path) -> None:
     mask = cv2.imread(str(directory / MASK_NAME), cv2.IMREAD_UNCHANGED)
     assert mask is not None
     assert len(kept.regions) == 2
+    assert kept.regions[0].area_px < 50
     assert len(result.regions) == 1
     assert result.regions[0].peak_score == pytest.approx(40.0)
     assert result.mask_pixels == result.regions[0].area_px == int((mask == 255).sum())
@@ -275,6 +288,7 @@ class _StubModel:
     category = "pcb4"
     thresholds = _thresholds(image=0.5, pixel=25.0)
     resize = Resize((256, 256), antialias=True)
+    map_cell = (8, 8)
 
     def __init__(self) -> None:
         self.batches: list[int] = []
@@ -282,7 +296,7 @@ class _StubModel:
     def score(self, images: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         self.batches.append(images.shape[0])
         assert images.shape[1:] == (3, 256, 256)
-        maps = torch.full((images.shape[0], 256, 256), 5.0)
+        maps = torch.full((images.shape[0], 256, 256), 0.1)
         maps[:, 100:140, 64:128] = 40.0
         return images[:, 0].mean(dim=(1, 2)), maps
 
@@ -325,6 +339,8 @@ def test_a_run_writes_one_directory_per_image_and_an_index(tmp_path: Path) -> No
     assert index.options.batch_size == 3
     assert [e.image_id for e in index.entries] == ["good-000", "bad-001", "bad-002", "good-003"]
     assert [e.predicted_anomalous for e in index.entries] == [False, True, True, False]
+    assert [e.peak_fallback for e in index.entries] == [False] * 4
+    assert [e.top_region_on_ground_truth for e in index.entries] == [None] * 4
     assert [e.result for e in index.entries] == [
         f"{e.image_id}/{RESULT_NAME}" for e in index.entries
     ]
@@ -398,3 +414,101 @@ def test_the_test_splits_items_come_from_the_csv(tmp_path: Path) -> None:
     assert items[2].mask_path == visa / SPLIT_ROOT / "pcb1/ground_truth/bad/000.png"
     assert run_dir(tmp_path / "runs", "pcb1") == tmp_path / "runs" / "pcb1" / "test"
     assert run_dir(tmp_path / "runs", "pcb1", "line-3") == tmp_path / "runs" / "pcb1" / "line-3"
+
+
+def test_the_region_threshold_is_the_image_threshold_unless_asked(tmp_path: Path) -> None:
+    """By default the map is cut at the image threshold; Anomalib's pixel one is an option."""
+    anomaly_map = _map((slice(100, 140), slice(64, 128), 28.0))
+
+    by_image, _ = _write(tmp_path / "image", anomaly_map, peak_fallback=False)
+    by_pixel, directory = _write(
+        tmp_path / "pixel", anomaly_map, region_threshold="pixel", peak_fallback=False
+    )
+
+    assert by_image.region_threshold == by_image.image_threshold == 30.0
+    assert by_image.regions == []
+    assert (by_pixel.region_threshold, by_pixel.region_threshold_source) == (25.0, "pixel")
+    assert len(by_pixel.regions) == 1
+    at_source = load_anomaly_map(directory, by_pixel, at_source=True)
+    mask = cv2.imread(str(directory / MASK_NAME), cv2.IMREAD_UNCHANGED)
+    assert mask is not None
+    assert np.array_equal(mask == 255, at_source > 25.0)
+
+
+def test_a_flagged_image_with_nothing_above_the_threshold_gets_its_peak_patch(
+    tmp_path: Path,
+) -> None:
+    """An anomalous image always has a region: failing all else, the patch of the map's peak."""
+    anomaly_map = _map((slice(100, 140), slice(64, 128), 28.0))
+    anomaly_map[117, 83] = 29.5
+
+    result, directory = _write(tmp_path, anomaly_map)
+
+    assert result.predicted_anomalous
+    assert len(result.regions) == 1
+    region = result.regions[0]
+    assert region.from_peak
+    # The peak is in the map cell of rows 112..119 and columns 80..87; the source is
+    # 400 x 300, so the cell covers columns 125..137 and rows 131..140.
+    assert region.bbox == Box(x=125, y=131, width=13, height=10)
+    assert region.area_px == 130
+    assert region.centroid == (131.0, 135.5)
+    assert region.bbox.x <= region.peak_xy[0] < region.bbox.x + region.bbox.width
+    assert region.bbox.y <= region.peak_xy[1] < region.bbox.y + region.bbox.height
+    assert region.peak_score <= 29.5
+    assert region.crop == f"{CROPS_DIR}/region-001.png"
+    labels = cv2.imread(str(directory / REGIONS_NAME), cv2.IMREAD_UNCHANGED)
+    mask = cv2.imread(str(directory / MASK_NAME), cv2.IMREAD_UNCHANGED)
+    assert labels is not None
+    assert mask is not None
+    assert int((labels == 1).sum()) == 130
+    assert np.array_equal(labels > 0, mask == 255)
+    assert result.mask_pixels == 130
+
+
+def test_the_peak_patch_is_only_for_flagged_images_and_can_be_switched_off(
+    tmp_path: Path,
+) -> None:
+    """An image under the image threshold gets no fallback, and neither does one that opts out."""
+    anomaly_map = _map((slice(100, 140), slice(64, 128), 28.0))
+
+    unflagged, _ = _write(tmp_path / "unflagged", anomaly_map, score=29.0)
+    opted_out, _ = _write(tmp_path / "opted-out", anomaly_map, peak_fallback=False)
+
+    assert unflagged.regions == []
+    assert opted_out.regions == []
+    assert opted_out.predicted_anomalous
+
+
+def test_regions_above_the_threshold_are_not_from_the_peak(tmp_path: Path) -> None:
+    """A region found by the threshold says so."""
+    result, _ = _write(tmp_path, _map((slice(100, 140), slice(64, 128), 40.0)))
+
+    assert [region.from_peak for region in result.regions] == [False]
+
+
+def test_each_region_says_whether_it_touches_the_ground_truth(tmp_path: Path) -> None:
+    """With a ground-truth mask, a region records whether any of its pixels are on a defect."""
+    truth = np.zeros((HEIGHT, WIDTH), dtype=np.uint8)
+    truth[120:160, 100:200] = 255
+    mask_path = tmp_path / "truth.png"
+    assert cv2.imwrite(str(mask_path), truth)
+    anomaly_map = _map(
+        (slice(100, 140), slice(64, 128), 40.0), (slice(20, 30), slice(200, 220), 48.0)
+    )
+
+    result, _ = _write(tmp_path, anomaly_map, mask_path=mask_path)
+    without, _ = _write(tmp_path / "none", anomaly_map)
+
+    assert [region.on_ground_truth for region in result.regions] == [False, True]
+    assert result.ground_truth_mask == str(mask_path)
+    assert [region.on_ground_truth for region in without.regions] == [None, None]
+
+
+def test_a_ground_truth_mask_of_another_size_is_refused(tmp_path: Path) -> None:
+    """A mask that does not fit its image is an error, not a silent mismatch."""
+    mask_path = tmp_path / "truth.png"
+    assert cv2.imwrite(str(mask_path), np.zeros((10, 10), dtype=np.uint8))
+
+    with pytest.raises(ValueError, match=r"truth\.png"):
+        _write(tmp_path, _map((slice(100, 140), slice(64, 128), 40.0)), mask_path=mask_path)

@@ -27,48 +27,34 @@ def _put_model(models: Path, category: str, image_auroc: float) -> None:
     )
 
 
+def _entry(
+    image_id: str,
+    score: float,
+    *,
+    flagged: bool,
+    regions: int,
+    fallback: bool = False,
+    on_defect: bool | None = None,
+) -> RunEntry:
+    return RunEntry(
+        image_id=image_id,
+        result=f"{image_id}/result.json",
+        label="bad" if image_id.startswith("bad") else "good",
+        score=score,
+        predicted_anomalous=flagged,
+        regions=regions,
+        peak_fallback=fallback,
+        top_region_on_ground_truth=on_defect,
+    )
+
+
 def _put_run(runs: Path, category: str) -> None:
     entries = [
-        RunEntry(
-            image_id="good-0",
-            result="good-0/result.json",
-            label="good",
-            score=20.0,
-            predicted_anomalous=False,
-            regions=0,
-        ),
-        RunEntry(
-            image_id="good-1",
-            result="good-1/result.json",
-            label="good",
-            score=31.0,
-            predicted_anomalous=True,
-            regions=2,
-        ),
-        RunEntry(
-            image_id="bad-0",
-            result="bad-0/result.json",
-            label="bad",
-            score=45.0,
-            predicted_anomalous=True,
-            regions=3,
-        ),
-        RunEntry(
-            image_id="bad-1",
-            result="bad-1/result.json",
-            label="bad",
-            score=25.0,
-            predicted_anomalous=False,
-            regions=1,
-        ),
-        RunEntry(
-            image_id="bad-2",
-            result="bad-2/result.json",
-            label="bad",
-            score=50.0,
-            predicted_anomalous=True,
-            regions=1,
-        ),
+        _entry("good-0", 20.0, flagged=False, regions=0),
+        _entry("good-1", 31.0, flagged=True, regions=2),
+        _entry("bad-0", 45.0, flagged=True, regions=3, on_defect=True),
+        _entry("bad-1", 25.0, flagged=False, regions=1, on_defect=False),
+        _entry("bad-2", 50.0, flagged=True, regions=1, fallback=True, on_defect=True),
     ]
     index = run_index(category, images=5).model_copy(
         update={"entries": entries, "labelled_good": 2, "labelled_bad": 3}
@@ -147,6 +133,10 @@ def test_a_run_is_summarised_without_its_per_image_lines(tmp_path: Path) -> None
     assert (run.true_negative, run.false_positive) == (1, 1)
     assert run.regions == 7
     assert run.images_with_regions == 4
+    assert run.flagged_without_region == 0
+    assert run.peak_fallback_images == 1
+    assert run.anomalous_with_region == 3
+    assert run.anomalous_top_region_on_defect == 2
     assert run.directory == str(run_dir(runs, "pcb4"))
     assert "entries" not in run.model_dump()
 

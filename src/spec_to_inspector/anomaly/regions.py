@@ -130,3 +130,53 @@ def crop_box(bbox: Box, *, width: int, height: int, margin: float, min_side: int
         width=crop_width,
         height=crop_height,
     )
+
+
+def peak_patch(
+    anomaly_map: NDArray[np.float32],
+    scores: NDArray[np.float32],
+    *,
+    map_cell: tuple[int, int],
+) -> tuple[NDArray[np.uint16], Region]:
+    """Make a region of the one patch that holds the anomaly map's peak.
+
+    PatchCore scores an image by its most anomalous patch, but the map it
+    returns is blurred, so an image can be flagged while no pixel of its map
+    reaches the threshold. The patch under the peak is then the model's whole
+    answer to "where": a cell of the patch grid, mapped to source pixels.
+
+    Args:
+        anomaly_map: The raw map at the model's resolution, as (rows, columns).
+        scores: The same map stretched to the source image's size.
+        map_cell: The rows and columns of the map that one patch covers.
+
+    Returns:
+        The label image with the patch as region 1, and the region, marked
+        `from_peak`.
+    """
+    map_height, map_width = anomaly_map.shape
+    height, width = scores.shape
+    cell_rows, cell_columns = map_cell
+    row, column = np.unravel_index(int(np.argmax(anomaly_map)), anomaly_map.shape)
+    top = int(row) // cell_rows * cell_rows
+    left = int(column) // cell_columns * cell_columns
+    y0 = top * height // map_height
+    y1 = min(math.ceil((top + cell_rows) * height / map_height), height)
+    x0 = left * width // map_width
+    x1 = min(math.ceil((left + cell_columns) * width / map_width), width)
+
+    labels = np.zeros((height, width), dtype=np.uint16)
+    labels[y0:y1, x0:x1] = 1
+    window = scores[y0:y1, x0:x1]
+    peak_row, peak_column = np.unravel_index(int(np.argmax(window)), window.shape)
+    region = Region(
+        index=1,
+        bbox=Box(x=x0, y=y0, width=x1 - x0, height=y1 - y0),
+        area_px=(x1 - x0) * (y1 - y0),
+        centroid=((x0 + x1 - 1) / 2, (y0 + y1 - 1) / 2),
+        peak_score=float(window[peak_row, peak_column]),
+        peak_xy=(x0 + int(peak_column), y0 + int(peak_row)),
+        mean_score=float(window.mean(dtype=np.float64)),
+        from_peak=True,
+    )
+    return labels, region

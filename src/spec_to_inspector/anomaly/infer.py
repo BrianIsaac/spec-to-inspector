@@ -26,6 +26,7 @@ bilinearly (`regions.upsample`) and thresholded there, so pixel (x, y) of
 orientation not applied, as in Anomalib's own reader).
 """
 
+import math
 import re
 import time
 from collections.abc import Sequence
@@ -58,7 +59,7 @@ from spec_to_inspector.anomaly.records import (
     Thresholds,
     TrainRecord,
 )
-from spec_to_inspector.anomaly.regions import crop_box, find_regions, upsample
+from spec_to_inspector.anomaly.regions import crop_box, find_regions, peak_patch, upsample
 from spec_to_inspector.anomaly.split import split_images
 from spec_to_inspector.anomaly.train import CHECKPOINT_NAME, load_train_record, model_dir
 
@@ -129,6 +130,11 @@ class Scorer(Protocol):
     @property
     def resize(self) -> Transform:
         """The resize applied to each decoded image before it is batched."""
+        ...
+
+    @property
+    def map_cell(self) -> tuple[int, int]:
+        """The rows and columns of the anomaly map that one patch covers."""
         ...
 
     def score(self, images: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -230,6 +236,17 @@ class AnomalyModel:
     def resize(self) -> Transform:
         """The model's own resize, applied to each decoded image before it is batched."""
         return self._resize
+
+    @property
+    def map_cell(self) -> tuple[int, int]:
+        """The rows and columns of the anomaly map that one patch covers.
+
+        The backbone's first extracted layer sets the patch grid: 32 x 32 for a
+        256 x 256 input, so a patch covers 8 x 8 pixels of the map.
+        """
+        height, width = self._record.model.image_size
+        grid = math.isqrt(self._record.embedding_rows // self._record.train_images)
+        return height // grid, width // grid
 
     @property
     def device(self) -> torch.device:
@@ -345,6 +362,7 @@ def write_image_result(
     thresholds: Thresholds,
     directory: Path,
     options: InferenceOptions,
+    map_cell: tuple[int, int],
 ) -> ImageResult:
     """Write one image's map, mask, label image, crops and sidecar.
 
@@ -356,25 +374,39 @@ def write_image_result(
         thresholds: The thresholds to apply.
         directory: The image's output directory, which exists.
         options: The crop and region settings.
+        map_cell: The rows and columns of the map that one patch covers.
 
     Returns:
         The sidecar, as written to `result.json`.
+
+    Raises:
+        ValueError: If the item's ground-truth mask is unreadable or not the image's size.
     """
     with Image.open(item.path) as opened:
         source = np.asarray(opened.convert("RGB"))
     height, width = source.shape[:2]
+    flagged = score > thresholds.image
+    region_threshold = thresholds.image if options.region_threshold == "image" else thresholds.pixel
 
     scores = upsample(anomaly_map, width=width, height=height)
     labels, found = find_regions(
-        scores, threshold=thresholds.pixel, min_area=options.min_region_area
+        scores, threshold=region_threshold, min_area=options.min_region_area
     )
+    if flagged and not found and options.peak_fallback:
+        labels, patch = peak_patch(anomaly_map, scores, map_cell=map_cell)
+        found = [patch]
+    truth = None if item.mask_path is None else _ground_truth(item.mask_path, (height, width))
     mask = np.where(labels > 0, 255, 0).astype(np.uint8)
     np.save(directory / MAP_NAME, anomaly_map)
     _write_png(directory / MASK_NAME, mask)
     _write_png(directory / REGIONS_NAME, labels)
 
     regions: list[Region] = []
-    for region in found:
+    for located in found:
+        region = located
+        if truth is not None:
+            touches = bool(np.any(truth & (labels == region.index)))
+            region = region.model_copy(update={"on_ground_truth": touches})
         if options.max_crops is not None and region.index > options.max_crops:
             regions.append(region)
             continue
@@ -403,8 +435,10 @@ def write_image_result(
         score=score,
         image_threshold=thresholds.image,
         score_normalised=thresholds.normalise_image(score),
-        predicted_anomalous=score > thresholds.image,
+        predicted_anomalous=flagged,
         pixel_threshold=thresholds.pixel,
+        region_threshold=region_threshold,
+        region_threshold_source=options.region_threshold,
         map_width=anomaly_map.shape[1],
         map_height=anomaly_map.shape[0],
         map_max=float(anomaly_map.max()),
@@ -416,6 +450,17 @@ def write_image_result(
     )
     (directory / RESULT_NAME).write_text(result.model_dump_json(indent=2) + "\n", encoding="utf-8")
     return result
+
+
+def _ground_truth(path: Path, shape: tuple[int, int]) -> NDArray[np.bool_]:
+    """Read a ground-truth mask as booleans, checking it fits its image."""
+    mask = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    # OpenCV's stubs promise an array, but an undecodable file yields None.
+    if mask is None or mask.shape != shape:  # pyright: ignore[reportUnnecessaryComparison]
+        found = "unreadable" if mask is None else f"{mask.shape[1]} x {mask.shape[0]}"  # pyright: ignore[reportUnnecessaryComparison]
+        msg = f"the ground-truth mask {path} is {found}, not the image's {shape[1]} x {shape[0]}"
+        raise ValueError(msg)
+    return mask > 0
 
 
 def _write_png(path: Path, image: NDArray[np.uint8] | NDArray[np.uint16]) -> None:
@@ -483,6 +528,7 @@ def run_inference(
                     thresholds=thresholds,
                     directory=directory,
                     options=options,
+                    map_cell=model.map_cell,
                 )
 
         ordered = [results[position] for position in range(len(items))]
@@ -507,6 +553,10 @@ def run_inference(
                     score=result.score,
                     predicted_anomalous=result.predicted_anomalous,
                     regions=len(result.regions),
+                    peak_fallback=any(region.from_peak for region in result.regions),
+                    top_region_on_ground_truth=(
+                        result.regions[0].on_ground_truth if result.regions else None
+                    ),
                 )
                 for result in ordered
             ],
