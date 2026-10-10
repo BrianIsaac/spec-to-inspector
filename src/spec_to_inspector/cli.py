@@ -755,4 +755,11 @@ def serve(
         highlight=False,
         soft_wrap=True,
     )
+    err.print(
+        "Overrides recorded on a card are kept in this process's memory until the corrections "
+        "store is joined.",
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
     uvicorn.run(console, host=host, port=port, log_level="warning")

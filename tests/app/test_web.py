@@ -354,6 +354,20 @@ def test_a_failed_training_shows_its_last_lines(console: Console) -> None:
     assert "CUDA out of memory" in text
 
 
+def test_a_training_that_was_stopped_is_not_called_a_failure_of_its_own(console: Console) -> None:
+    """A job ended by a signal says which, so a stop is not read as a crash."""
+    console.script = "import time; time.sleep(30)"
+    console.client.post("/train", data={"category": CATEGORY, "replace": "yes"})
+    job = console.trainer.latest()
+    assert job is not None
+    job.stop()
+
+    text = console.client.get("/train").text
+
+    assert "Stopped by signal 15" in text
+    assert "exit code" not in text
+
+
 @pytest.mark.parametrize(
     ("data", "words"),
     [

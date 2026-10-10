@@ -28,7 +28,7 @@
   <div class="job-head">
     {% if job.state.value == "running" %}<span class="pulse" aria-hidden="true"></span><h2>Training {{ job.category }}</h2>
     {% elif job.state.value == "finished" %}<h2>Training of {{ job.category }}</h2><span class="badge badge-accept">Finished</span>
-    {% else %}<h2>Training of {{ job.category }}</h2><span class="badge badge-reject">Failed{% if job.returncode is not none %}, exit code {{ job.returncode }}{% endif %}</span>{% endif %}
+    {% else %}<h2>Training of {{ job.category }}</h2><span class="badge badge-reject">{% if job.returncode is not none and job.returncode < 0 %}Stopped by signal {{ -job.returncode }}{% else %}Failed{% if job.returncode is not none %}, exit code {{ job.returncode }}{% endif %}{% endif %}</span>{% endif %}
     <span class="muted small">started {{ job.started_at.isoformat()|when }}</span>
   </div>
   <div class="job-clock">
