@@ -46,13 +46,21 @@ class FakeVlm:
         paths: The path of every request received, in order.
     """
 
-    def __init__(self, replies: Iterable[str | Reply] = (), *, default: str | None = None) -> None:
+    def __init__(
+        self,
+        replies: Iterable[str | Reply] = (),
+        *,
+        default: str | None = None,
+        props: dict[str, Any] | None = None,
+    ) -> None:
         """Set the script.
 
         Args:
             replies: The replies to give, in order; a string is a completion's text.
             default: The completion's text once the script runs out; without
                 one the server then answers HTTP 500.
+            props: What `GET /props` answers, as llama.cpp's server does;
+                without it the path is not found.
         """
         self._replies = [Reply(reply) if isinstance(reply, str) else reply for reply in replies]
         self._default = default
@@ -76,6 +84,15 @@ class FakeVlm:
                     self.wfile.write(payload)
                 except (BrokenPipeError, ConnectionResetError):
                     pass
+
+            def do_GET(self) -> None:
+                found = self.path == "/props" and props is not None
+                payload = json.dumps(props if found else {"error": "not found"}).encode()
+                self.send_response(200 if found else 404)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
 
             def log_message(self, format: str, *args: object) -> None:
                 pass

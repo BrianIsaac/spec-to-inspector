@@ -18,6 +18,7 @@ from spec_to_inspector.judge.timing import (
     measure,
     parse_nvidia_smi,
     read_results,
+    server_facts,
     spread,
     update_results,
 )
@@ -221,3 +222,36 @@ def test_the_figures_file_keeps_each_writers_section(tmp_path: Path, run: Path) 
     assert stored.timing == timing
     assert json.loads(path.read_text())["schema_version"] == 1
     assert "seconds" in stored.notes["units"]
+
+
+def test_the_server_describes_itself_through_its_props() -> None:
+    """llama.cpp's own account of its model, quantisation, context and build goes on record."""
+    props = {
+        "model_alias": "qwen3-vl-8b-instruct",
+        "model_path": "/models/qwen3-vl-8b-instruct-gguf/Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+        "model_ftype": "Q4_K - Medium",
+        "build_info": "b1-d812350",
+        "total_slots": 1,
+        "default_generation_settings": {"n_ctx": 16384, "params": {"temperature": 0.8}},
+        "chat_template": "{%- if tools %}",
+    }
+    with FakeVlm(props=props) as server:
+        facts = server_facts(server.url)
+
+    assert facts == {
+        "model_alias": "qwen3-vl-8b-instruct",
+        "model_file": "Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+        "model_ftype": "Q4_K - Medium",
+        "build_info": "b1-d812350",
+        "total_slots": "1",
+        "n_ctx": "16384",
+    }
+
+
+def test_a_server_without_props_describes_nothing() -> None:
+    """Another backend, or none, leaves the record empty instead of failing the run."""
+    with FakeVlm() as server:
+        assert server_facts(server.url) == {}
+        url = server.url
+
+    assert server_facts(url) == {}

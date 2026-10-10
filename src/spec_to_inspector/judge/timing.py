@@ -28,8 +28,9 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from types import TracebackType
-from typing import Annotated, Final, Literal, NamedTuple, Self
+from typing import Annotated, Final, Literal, NamedTuple, Self, cast
 
+import httpx
 import numpy as np
 import typer
 from pydantic import BaseModel, ConfigDict, Field
@@ -342,6 +343,8 @@ class Timing(BaseModel):
         judge_url: The VLM server asked.
         judge_model: The model's name on that server.
         server: What the server says of itself: its build, its model, its context.
+        label: What the server was started with that it does not report, in
+            the operator's words, such as its image-token floor.
         images: How many images were asked, each once per pass.
         clause_prefix_tokens: The system message (instructions and clause
             table) in the judge's tokenizer; text only, exact.
@@ -367,6 +370,7 @@ class Timing(BaseModel):
     judge_url: str
     judge_model: str
     server: dict[str, str] = Field(default_factory=dict)
+    label: str = ""
     images: int
     clause_prefix_tokens: int
     cold_seconds: Spread
@@ -497,6 +501,41 @@ def update_results(
     return updated
 
 
+def server_facts(url: str) -> dict[str, str]:
+    """Ask a llama.cpp server what it is serving.
+
+    Args:
+        url: The server's base URL, up to and including `/v1`.
+
+    Returns:
+        Its model's alias, file and quantisation, its build, its slots and its
+        context, each as text; empty for a server that has no `/props` or
+        cannot be reached.
+    """
+    try:
+        response = httpx.get(f"{url.removesuffix('/v1')}/props", timeout=_SMI_TIMEOUT_SECONDS)
+        payload: object = response.json() if response.is_success else {}
+    except (httpx.HTTPError, ValueError):
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    props = cast("dict[str, object]", payload)
+    settings = props.get("default_generation_settings")
+    context = (
+        cast("dict[str, object]", settings).get("n_ctx") if isinstance(settings, dict) else None
+    )
+    model_path = props.get("model_path")
+    found: dict[str, object | None] = {
+        "model_alias": props.get("model_alias"),
+        "model_file": Path(model_path).name if isinstance(model_path, str) else None,
+        "model_ftype": props.get("model_ftype"),
+        "build_info": props.get("build_info"),
+        "total_slots": props.get("total_slots"),
+        "n_ctx": context,
+    }
+    return {key: str(value) for key, value in found.items() if value is not None}
+
+
 def _sample(decision: Decision) -> Sample:
     """Take the timing of an image's one question from its decision.
 
@@ -539,6 +578,7 @@ def measure(
     sampler: GpuSampler | None = None,
     command: Sequence[str] = (),
     server: dict[str, str] | None = None,
+    label: str = "",
 ) -> Timing:
     """Time the judge on the first flagged images of a run, cold and cached.
 
@@ -551,6 +591,7 @@ def measure(
             half second if None.
         command: The command line, for the record.
         server: What the server says of itself, for the record.
+        label: What the server was started with that it does not report.
 
     Returns:
         The figures.
@@ -593,6 +634,7 @@ def measure(
         judge_url=client.url,
         judge_model=client.model,
         server=server or {},
+        label=label,
         images=len(chosen),
         clause_prefix_tokens=count_tokens(clause_prefix(specification)),
         cold_seconds=spread([sample.seconds for sample in cold]),
@@ -625,6 +667,13 @@ def main(
     results: Annotated[
         Path, typer.Option("--results", help="The figures file to write the timing into.")
     ] = DEFAULT_RESULTS,
+    label: Annotated[
+        str,
+        typer.Option(
+            "--label",
+            help="What the server was started with that it does not report, for the record.",
+        ),
+    ] = "",
 ) -> None:
     """Measure the judge's answer time, tokens and GPU memory, and record them."""
     settings = Settings()
@@ -640,6 +689,8 @@ def main(
                 client,
                 images=images,
                 command=["python", "-m", "spec_to_inspector.judge.timing", *sys.argv[1:]],
+                server=server_facts(settings.vlm_url),
+                label=label,
             )
         except (TimingError, RuntimeError) as error:
             typer.echo(str(error), err=True)
