@@ -20,40 +20,6 @@ from spec_to_inspector.judge.decision import Decision, RegionDecision
 from spec_to_inspector.spec.schema import Specification
 
 
-@dataclass(frozen=True)
-class CorrectedFlag:
-    """The corrections loop's flag on a decision, as the card and the grid draw it.
-
-    Attributes:
-        in_prompt: Whether an engineer's correction of an earlier board stood
-            in the judge's prompt for this board.
-        overridden: Whether an engineer has overridden the judge on this board.
-    """
-
-    in_prompt: bool = False
-    overridden: bool = False
-
-
-def corrected_flag(decision: Decision | None) -> CorrectedFlag:
-    """Read the corrections loop's flag off a decision, if the decision carries one.
-
-    The flag is the corrections loop's to add to the decision (a `corrected`
-    field holding `in_prompt` and `overridden`); it is read by name, so a
-    decision written before the loop existed simply has neither set.
-
-    Args:
-        decision: The board's decision, or None if it has not been judged.
-
-    Returns:
-        The flag; both false where the decision carries none.
-    """
-    flag = getattr(decision, "corrected", None)
-    return CorrectedFlag(
-        in_prompt=getattr(flag, "in_prompt", False) is True,
-        overridden=getattr(flag, "overridden", False) is True,
-    )
-
-
 def prompt_corrections(judged: RegionDecision | None) -> tuple[str, ...]:
     """Give the engineers' corrections that stood in the prompt for one area.
 
@@ -61,13 +27,10 @@ def prompt_corrections(judged: RegionDecision | None) -> tuple[str, ...]:
         judged: The area's record in the decision.
 
     Returns:
-        Each correction as the judge read it; empty where the record carries
-        none, as every record written before the corrections loop does.
+        Each correction as the judge read it; empty where the area was not
+        judged or was judged with none in view.
     """
-    lines = getattr(judged, "corrections", ())
-    if not isinstance(lines, (tuple, list)):
-        return ()
-    return tuple(line for line in lines if isinstance(line, str))  # pyright: ignore[reportUnknownVariableType]
+    return () if judged is None else judged.corrections
 
 
 def first_answer(judged: RegionDecision | None) -> JudgeAnswer | None:
@@ -77,10 +40,9 @@ def first_answer(judged: RegionDecision | None) -> JudgeAnswer | None:
         judged: The area's record in the decision.
 
     Returns:
-        The first answer, or None where the record carries none.
+        The first answer, or None where the area was asked once or not at all.
     """
-    answer = getattr(judged, "first_answer", None)
-    return answer if isinstance(answer, JudgeAnswer) else None
+    return None if judged is None else judged.first_answer
 
 
 _INDEX_DIGITS: Final = 6

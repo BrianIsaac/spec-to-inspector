@@ -16,18 +16,16 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
-from pydantic import BaseModel
 
 from spec_to_inspector.anomaly.infer import load_result
-from spec_to_inspector.app import runs as runs_module
 from spec_to_inspector.app.sink import InMemorySink, Override
 from spec_to_inspector.app.specs import SpecStore
 from spec_to_inspector.app.training import JobState, TrainJob, TrainRunner
 from spec_to_inspector.app.web import ConsoleConfig, create_app
 from spec_to_inspector.judge.answer import JudgeAnswer
-from spec_to_inspector.judge.decision import Decision, RegionDecision
+from spec_to_inspector.judge.decision import Corrected
 from spec_to_inspector.judge.disposition import Outcome
-from spec_to_inspector.judge.inspect import load_decision
+from spec_to_inspector.judge.inspect import load_decision, write_decision
 from spec_to_inspector.spec.pdf import PdfError
 from spec_to_inspector.spec.schema import Specification
 from tests.app.console_fakes import BATCH, MODEL_SENTENCE, World, write_world
@@ -837,45 +835,35 @@ def test_the_console_writes_to_whatever_sink_it_is_given(world: World, tmp_path:
 # The corrections loop's flag, drawn when the decision carries it.
 
 
-class _Flag(BaseModel):
-    in_prompt: bool = False
-    overridden: bool = False
-
-
-class _RegionWithCorrections(RegionDecision):
-    corrections: tuple[str, ...] = ()
-    first_answer: JudgeAnswer | None = None
-
-
-class _DecisionWithFlag(Decision):
-    corrected: _Flag = _Flag()
-    regions: tuple[_RegionWithCorrections, ...] = ()  # pyright: ignore[reportIncompatibleVariableOverride]
-
-
 def test_the_card_draws_the_corrections_flag_when_the_decision_carries_it(
-    world: World, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    world: World, tmp_path: Path
 ) -> None:
     """A decision the corrections loop wrote shows what the judge was shown, and its first answer.
 
-    The loop adds `corrected` to the decision and `corrections` and
-    `first_answer` to a region; this branch's `Decision` has none of them, so
-    the test reads the file with a model that does, as the merged code will.
+    The loop sets `corrected` on the decision and `corrections` and
+    `first_answer` on a region; a board judged without it shows neither.
     """
     runs = tmp_path / "runs"
     shutil.copytree(world.run, runs / CATEGORY / BATCH)
-    path = runs / CATEGORY / BATCH / "scratch" / "decision.json"
-    written = json.loads(path.read_text(encoding="utf-8"))
-    written["corrected"] = {"in_prompt": True, "overridden": True}
-    written["regions"][0]["corrections"] = [
-        "On a pcb9 board the judge said 'missing'; it is 'scratch'."
-    ]
-    written["regions"][0]["first_answer"] = {
-        "reason": "a pad with nothing on it",
-        "defect_class": "missing",
-        "clause_id": "4.2",
-    }
-    path.write_text(json.dumps(written), encoding="utf-8")
-    monkeypatch.setattr(runs_module, "Decision", _DecisionWithFlag)
+    directory = runs / CATEGORY / BATCH / "scratch"
+    decision = load_decision(directory)
+    region = decision.regions[0].model_copy(
+        update={
+            "corrections": ("On a pcb9 board the judge said 'missing'; it is 'scratch'.",),
+            "first_answer": JudgeAnswer(
+                reason="a pad with nothing on it", defect_class="missing", clause_id="4.2"
+            ),
+        }
+    )
+    write_decision(
+        directory,
+        decision.model_copy(
+            update={
+                "corrected": Corrected(in_prompt=True, overridden=True),
+                "regions": (region, *decision.regions[1:]),
+            }
+        ),
+    )
     moved = World(
         root=world.root,
         runs_dir=runs,

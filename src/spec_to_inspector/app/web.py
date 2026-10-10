@@ -31,7 +31,6 @@ from spec_to_inspector.app.card import (
     check_note,
     choose_region,
     clause_choices,
-    corrected_flag,
     first_answer,
     form_defaults,
     judged_region,
@@ -64,6 +63,7 @@ from spec_to_inspector.app.training import (
     trained_parts,
 )
 from spec_to_inspector.datasets.visa import PUBLISHED_COUNTS
+from spec_to_inspector.judge.decision import Corrected
 
 _PACKAGE: Final = Path(__file__).parent
 _THUMBNAIL_WIDTH: Final = 480
@@ -536,7 +536,7 @@ class _Pages:
             Tile(
                 board=board,
                 line=_tile_line(board),
-                corrected=corrected_flag(board.decision).overridden
+                corrected=(board.decision is not None and board.decision.corrected.overridden)
                 or bool(self.sink.overrides_for(category, run, board.image_id)),
                 url=_url(f"{base}/{board.image_id}", disposition=kept.value if kept else None),
             )
@@ -624,7 +624,7 @@ class _Pages:
             choices=choices,
             blocked=self._blocked(detail, chosen, loaded, bool(choices)),
             overrides=self.sink.overrides_for(category, run, image_id),
-            flag=corrected_flag(detail.decision),
+            flag=detail.decision.corrected if detail.decision else Corrected(),
             shown_corrections=prompt_corrections(chosen.judged if chosen else None),
             before=first_answer(chosen.judged if chosen else None),
             titles={choice.heading_id: choice.title for choice in choices},
