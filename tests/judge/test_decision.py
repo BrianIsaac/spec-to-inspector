@@ -96,13 +96,45 @@ def test_the_zones_row_is_chosen_by_the_measured_zone() -> None:
 
 
 def test_an_unconditional_clause_rejects_whatever_the_size() -> None:
-    """A missing component rejects in any zone."""
-    decision = _decide(_answer("missing", "4.2"), _region(zone=None))
+    """A missing component rejects in any zone of the part."""
+    decision = _decide(_answer("missing", "4.2"), _region(zone="B"))
 
     assert decision.outcome is Outcome.REJECT
     assert decision.reason == "clause 4.2 rejects 'missing' in any zone, whatever its size"
     assert decision.rule is not None
     assert decision.rule.measured is None
+
+
+@pytest.mark.parametrize(("defect_class", "clause_id"), [("missing", "4.2"), ("scratch", "4.1")])
+def test_a_region_outside_every_zone_of_a_zoned_part_is_needs_review(
+    defect_class: str, clause_id: str
+) -> None:
+    """The specification refers a defect outside every zone, whatever clause would cover it."""
+    spec = specification(
+        zones=(specification().zones[0],),
+        clauses=(sized_clause("4.1.1", "A"), unconditional_clause("4.2")),
+    )
+
+    decision = _decide(_answer(defect_class, clause_id), _region(zone=None), spec=spec)
+
+    assert decision.outcome is Outcome.NEEDS_REVIEW
+    assert decision.review_cause is Cause.OUTSIDE_ZONES
+    assert decision.reason == (
+        "the flagged area lies outside every zone of part pcb9, where the specification "
+        "refers a defect for review; an engineer must decide"
+    )
+    assert decision.rule is None
+    assert decision.answer is not None
+    assert decision.answer.clause_id == clause_id
+
+
+def test_a_part_without_zones_has_no_outside() -> None:
+    """Where the specification draws no zones, a clause for any zone applies everywhere."""
+    spec = specification(zones=(), clauses=(unconditional_clause("4.2"),))
+
+    decision = _decide(_answer("missing", "4.2"), _region(zone=None), spec=spec)
+
+    assert decision.outcome is Outcome.REJECT
 
 
 def test_an_unknown_clause_is_needs_review() -> None:
@@ -153,20 +185,6 @@ def test_an_answer_that_cites_nothing_is_needs_review() -> None:
     )
     assert decision.clause is None
     assert decision.rule is None
-
-
-def test_a_sized_clause_outside_every_zone_is_needs_review() -> None:
-    """A limit belongs to a zone; a region in none has no limit to meet."""
-    spec = specification(
-        zones=(specification().zones[0],),
-        clauses=(sized_clause("4.1.1", "A"), unconditional_clause("4.2")),
-    )
-
-    decision = _decide(_answer(), _region(zone=None), spec=spec)
-
-    assert decision.outcome is Outcome.NEEDS_REVIEW
-    assert decision.review_cause is Cause.ZONE_MISMATCH
-    assert "outside every zone" in decision.reason
 
 
 def test_a_row_cited_by_its_own_number_is_held_to_its_zone() -> None:

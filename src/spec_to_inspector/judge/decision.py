@@ -41,6 +41,7 @@ class Cause(StrEnum):
     ZONE_MISMATCH = "zone mismatch"
     UNDEFINED_MEASUREMENT = "undefined measurement"
     NO_CLAUSE_APPLIES = "no clause applies"
+    OUTSIDE_ZONES = "outside every zone"
     CLAUSE_ORDERS_REVIEW = "clause orders review"
     NOT_MEASURED = "not measured"
     MALFORMED_ANSWER = "malformed answer"
@@ -271,15 +272,29 @@ def decide_region(
 
     Returns:
         The region's decision. The outcome is the disposition rule's, except
-        that an answer citing nothing, a size limit on a region with no
-        measured size, and a clause that itself refers for review are
-        referred to an engineer.
+        that an answer citing nothing, a region outside every zone of a part
+        that has zones (the specification's scope refers those), a size limit
+        on a region with no measured size, and a clause that itself refers
+        for review are referred to an engineer.
     """
     if answer.defect_class is None or answer.clause_id is None:
         return refer_region(
             index=index,
             cause=Cause.NO_CLAUSE_APPLIES,
             reason=f"the judge found no clause of part {category} that covers the flagged area",
+            measurement=measurement,
+            from_peak=from_peak,
+            answer=answer,
+        )
+
+    if measurement.zone is None and specification.zones_of(category):
+        return refer_region(
+            index=index,
+            cause=Cause.OUTSIDE_ZONES,
+            reason=(
+                f"the flagged area lies outside every zone of part {category}, where the "
+                "specification refers a defect for review"
+            ),
             measurement=measurement,
             from_peak=from_peak,
             answer=answer,
