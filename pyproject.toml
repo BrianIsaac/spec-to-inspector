@@ -92,11 +92,12 @@ venv = ".venv"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = ["--import-mode=importlib", "-m", "not gpu and not data and not live", "--strict-markers"]
+addopts = ["--import-mode=importlib", "-m", "not gpu and not data and not live and not bench", "--strict-markers"]
 markers = [
     "gpu: needs the CUDA GPU (run with -m gpu)",
     "data: needs the fetched VisA data under data/visa (run with -m data)",
     "live: needs the VLM server up and a scored pcb4 run (scripts/serve_vlm.sh start; run with -m live)",
+    "bench: needs the data, the trained pcb4 model, the GPU and the VLM server up (run with -m bench)",
 ]
 filterwarnings = [
     # Deprecations inside the pinned third-party stack, raised at import or by Anomalib's own calls:
