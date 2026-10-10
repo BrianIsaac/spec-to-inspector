@@ -21,6 +21,9 @@ class Settings(BaseSettings):
         models_dir: Trained models and downloaded weights.
         runs_dir: Outputs of training, inspection and benchmark runs.
         visa_url: The VisA tarball; a mirror may stand in for Amazon's bucket.
+        docling_artifacts_dir: A directory holding docling's layout and table
+            models, for a machine without network; unset, docling fetches
+            them into the Hugging Face cache on first use.
     """
 
     model_config = SettingsConfigDict(
@@ -31,6 +34,7 @@ class Settings(BaseSettings):
     models_dir: Path = Path("models")
     runs_dir: Path = Path("runs")
     visa_url: str = VISA_URL
+    docling_artifacts_dir: Path | None = None
 
     @field_validator("visa_url")
     @classmethod
