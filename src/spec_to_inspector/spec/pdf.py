@@ -16,7 +16,7 @@ no network is given them in a directory and pointed at it with
 
 import os
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from pydantic import BaseModel, ConfigDict
 
@@ -24,11 +24,16 @@ from spec_to_inspector.spec.blocks import Block, Heading, Paragraph, Table
 from spec_to_inspector.spec.extract import extract_specification
 from spec_to_inspector.spec.schema import Specification
 
+if TYPE_CHECKING:
+    from docling.document_converter import DocumentConverter
+
 MAX_THREADS: Final = 8
 
 # What docling labels a page's furniture and a figure's caption: printed, but not the
 # document's running text.
 _NOT_TEXT: Final = frozenset({"caption", "footnote", "page_header", "page_footer"})
+
+_CONVERTERS: Final[dict[Path | None, "DocumentConverter"]] = {}
 
 
 class PdfError(RuntimeError):
@@ -64,6 +69,47 @@ class ParsedPdf(BaseModel):
         return extract_specification(self.blocks, pages=self.pages)
 
 
+def _converter(artifacts_dir: Path | None) -> "DocumentConverter":
+    """Build docling's converter for born-digital PDFs, once per models directory.
+
+    The converter holds the layout and table models, so a process that parses
+    more than one document loads them once.
+
+    Args:
+        artifacts_dir: A directory holding docling's models, or None for the
+            Hugging Face cache.
+
+    Returns:
+        The converter.
+    """
+    if artifacts_dir not in _CONVERTERS:
+        # Imported here: docling pulls in torch, and the command line should start without it.
+        from docling.datamodel.accelerator_options import (  # noqa: PLC0415
+            AcceleratorDevice,
+            AcceleratorOptions,
+        )
+        from docling.datamodel.base_models import InputFormat  # noqa: PLC0415
+        from docling.datamodel.pipeline_options import (  # noqa: PLC0415
+            HeadingHierarchyOptions,
+            PdfPipelineOptions,
+        )
+        from docling.document_converter import DocumentConverter, PdfFormatOption  # noqa: PLC0415
+
+        options = PdfPipelineOptions(
+            artifacts_path=artifacts_dir,
+            do_ocr=False,
+            do_table_structure=True,
+            heading_hierarchy_options=HeadingHierarchyOptions(enabled=True),
+            accelerator_options=AcceleratorOptions(
+                device=AcceleratorDevice.CPU, num_threads=min(os.cpu_count() or 1, MAX_THREADS)
+            ),
+        )
+        _CONVERTERS[artifacts_dir] = DocumentConverter(
+            format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=options)}
+        )
+    return _CONVERTERS[artifacts_dir]
+
+
 def read_pdf(path: Path, *, artifacts_dir: Path | None = None) -> ParsedPdf:
     """Read a born-digital PDF into blocks with docling, on the CPU.
 
@@ -81,34 +127,11 @@ def read_pdf(path: Path, *, artifacts_dir: Path | None = None) -> ParsedPdf:
     """
     if not path.is_file():
         raise PdfError(f"{path} is not a file")
-    # Imported here: docling pulls in torch, and the command line should start without it.
-    from docling.datamodel.accelerator_options import (  # noqa: PLC0415
-        AcceleratorDevice,
-        AcceleratorOptions,
-    )
-    from docling.datamodel.base_models import InputFormat  # noqa: PLC0415
-    from docling.datamodel.pipeline_options import (  # noqa: PLC0415
-        HeadingHierarchyOptions,
-        PdfPipelineOptions,
-    )
-    from docling.document_converter import DocumentConverter, PdfFormatOption  # noqa: PLC0415
     from docling_core.types.doc.items.table.table import TableItem  # noqa: PLC0415
     from docling_core.types.doc.items.text import SectionHeaderItem, TextItem  # noqa: PLC0415
 
-    options = PdfPipelineOptions(
-        artifacts_path=artifacts_dir,
-        do_ocr=False,
-        do_table_structure=True,
-        heading_hierarchy_options=HeadingHierarchyOptions(enabled=True),
-        accelerator_options=AcceleratorOptions(
-            device=AcceleratorDevice.CPU, num_threads=min(os.cpu_count() or 1, MAX_THREADS)
-        ),
-    )
-    converter = DocumentConverter(
-        format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=options)}
-    )
     try:
-        document = converter.convert(path).document
+        document = _converter(artifacts_dir).convert(path).document
     except Exception as error:
         raise PdfError(f"docling could not convert {path}: {error}") from error
 
