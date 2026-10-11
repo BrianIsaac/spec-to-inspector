@@ -56,20 +56,6 @@ TRAIN_BACKBONE = "wide_resnet50_2"
 which takes seconds to import, is loaded by the `train` verb alone."""
 
 
-def _not_built(verb: str, unit: str) -> NoReturn:
-    """Report that a verb is a stub and exit non-zero.
-
-    Args:
-        verb: The verb invoked.
-        unit: The Stage I unit that builds it.
-
-    Raises:
-        typer.Exit: Always, with code 1.
-    """
-    err.print(f"spec-to-inspector {verb}: not built yet; unit {unit} builds it.")
-    raise typer.Exit(code=1)
-
-
 @contextmanager
 def _terminate_cleanly() -> Generator[None]:
     """Turn SIGTERM into SystemExit for the duration, so cleanup code runs on a kill.
@@ -833,9 +819,208 @@ def correct(
 
 
 @app.command()
-def bench() -> None:
-    """Run the pipeline on the labelled set and write the measured figures."""
-    _not_built("bench", "U7")
+def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and its report
+    part: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--part",
+            "-p",
+            help="A part of the labelled set to run: pcb1 or pcb4. May be repeated; both by "
+            "default. Fewer than both is a trial run.",
+        ),
+    ] = None,
+    limit: Annotated[
+        int | None,
+        typer.Option(
+            "--limit",
+            min=1,
+            help="A trial run: only the first so many anomalous and the first so many good "
+            "test images of each part.",
+        ),
+    ] = None,
+    batch: Annotated[
+        str,
+        typer.Option(
+            "--batch",
+            help="The name of the bench's own run directory, <runs-dir>/<part>/<batch>/, "
+            "replaced whole.",
+        ),
+    ] = "bench",
+    pdf: Annotated[
+        Path,
+        typer.Option(
+            "--pdf",
+            help="The specification to parse. Its tracked clause table, <name>.clauses.json "
+            "beside it, is what the parse must give.",
+        ),
+    ] = Path("specs/pcb-spec.pdf"),
+    eval_dir: Annotated[
+        Path,
+        typer.Option(
+            "--eval-dir",
+            help="The directory holding the labelled set, clause_labels.csv, and PROTOCOL.md.",
+        ),
+    ] = Path("eval"),
+    results: Annotated[
+        Path | None,
+        typer.Option(
+            "--results",
+            help="Where the run's record goes; results/stage1/bench.json for a whole run. A "
+            "trial run must name its own.",
+        ),
+    ] = None,
+    readme: Annotated[
+        Path | None,
+        typer.Option(
+            "--readme",
+            help="Where the page of figures goes; README.md beside the default record. A run "
+            "with its own --results writes a page only where this says.",
+        ),
+    ] = None,
+    beside: Annotated[
+        Path | None,
+        typer.Option(
+            "--beside",
+            help="A record of the same command against another server setting, to show beside "
+            "this run on the page; bench-own-image-tokens.json next to the record, if there.",
+        ),
+    ] = None,
+    render_only: Annotated[
+        bool,
+        typer.Option(
+            "--render-only",
+            help="Run nothing: write the page again from the record already on disk.",
+        ),
+    ] = False,
+) -> None:
+    """Run the pipeline on the labelled set and write the measured figures.
+
+    The specification is parsed, each part's test split is scored by its
+    trained anomaly model into a run of the bench's own, and every image is
+    judged with no correction recalled and every question asked cold. The
+    figures of eval/PROTOCOL.md are written as a record and as a page. Needs
+    the data, the trained models, the CUDA GPU and the VLM server up.
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", FutureWarning)
+        from spec_to_inspector.bench import run as benching  # noqa: PLC0415
+        from spec_to_inspector.bench.mapping import PARTS  # noqa: PLC0415
+        from spec_to_inspector.bench.readme import render_readme, summary_lines  # noqa: PLC0415
+        from spec_to_inspector.bench.record import (  # noqa: PLC0415
+            BenchRecord,
+            compare,
+            read_record,
+            same_making,
+            write_record,
+        )
+        from spec_to_inspector.judge.client import ChatClient  # noqa: PLC0415
+
+    parts = tuple(dict.fromkeys(part or PARTS))
+    unknown = [name for name in parts if name not in PARTS]
+    if unknown:
+        raise typer.BadParameter(
+            f"the labelled set has no part {', '.join(unknown)}; its parts are {', '.join(PARTS)}",
+            param_hint="--part",
+        )
+    default_record = Path("results/stage1/bench.json")
+    trial = limit is not None or parts != PARTS
+    if trial and results is None and not render_only:
+        raise typer.BadParameter(
+            f"a trial run must name its own record, so that it cannot replace {default_record}",
+            param_hint="--results",
+        )
+    record_path = results or default_record
+    page_path = readme or (default_record.with_name("README.md") if results is None else None)
+    beside_path = beside or record_path.with_name("bench-own-image-tokens.json")
+
+    def say(line: str) -> None:
+        err.print(line, markup=False, highlight=False, soft_wrap=True)
+
+    def given(flag: str, value: object, default: object) -> tuple[str, ...]:
+        return () if value == default else (flag, str(value))
+
+    def read_or_none(path: Path, what: str) -> BenchRecord | None:
+        if not path.is_file():
+            return None
+        try:
+            return read_record(path)
+        except (OSError, ValueError) as error:
+            say(f"{what} {path} is not a record of the bench and is left out: {error}")
+            return None
+
+    def write_page(record: BenchRecord) -> None:
+        if page_path is None:
+            return
+        other = None if beside_path == record_path else read_or_none(beside_path, "the record")
+        page_path.parent.mkdir(parents=True, exist_ok=True)
+        page_path.write_text(render_readme(record, beside=other), encoding="utf-8")
+        out.print(f"Page: {page_path}", markup=False, highlight=False, soft_wrap=True)
+
+    if render_only:
+        try:
+            record = read_record(record_path)
+        except (OSError, ValueError) as error:
+            say(f"there is no record to render at {record_path}: {error}")
+            raise typer.Exit(code=1) from error
+        write_page(record)
+        return
+
+    settings = Settings()
+    plan = benching.BenchPlan(
+        parts=parts,
+        limit=limit,
+        batch=batch,
+        visa_dir=settings.visa_dir,
+        runs_dir=settings.runs_dir,
+        spec_pdf=pdf,
+        clause_table=pdf.with_suffix(".clauses.json"),
+        labels=eval_dir / "clause_labels.csv",
+        protocol=eval_dir / "PROTOCOL.md",
+        command=(
+            "spec-to-inspector",
+            "bench",
+            *(argument for name in (part or ()) for argument in ("--part", name)),
+            *given("--limit", limit, None),
+            *given("--batch", batch, "bench"),
+            *given("--pdf", pdf, Path("specs/pcb-spec.pdf")),
+            *given("--eval-dir", eval_dir, Path("eval")),
+            *given("--results", results, None),
+            *given("--readme", readme, None),
+            *given("--beside", beside, None),
+        ),
+    )
+    try:
+        with (
+            _terminate_cleanly(),
+            warnings.catch_warnings(),
+            ChatClient(
+                settings.vlm_url, settings.vlm_model, timeout_seconds=settings.vlm_timeout_seconds
+            ) as client,
+        ):
+            warnings.simplefilter("ignore", FutureWarning)
+            record = benching.run_bench(
+                plan, client=client, say=say, **benching.laptop_pipeline(settings)
+            )
+    except benching.BenchError as error:
+        say(str(error))
+        raise typer.Exit(code=1) from error
+
+    previous = read_or_none(record_path, "the earlier record")
+    if previous is not None:
+        differences = same_making(previous, record)
+        if differences:
+            say(
+                f"The record at {record_path} is of another making and is replaced without a "
+                f"comparison ({'; '.join(differences)})"
+            )
+        else:
+            record = record.model_copy(update={"repeat": compare(previous, record)})
+    write_record(record_path, record)
+
+    for line in summary_lines(record):
+        out.print(line, markup=False, highlight=False, soft_wrap=True)
+    out.print(f"Figures: {record_path}", markup=False, highlight=False, soft_wrap=True)
+    write_page(record)
 
 
 @app.command()
