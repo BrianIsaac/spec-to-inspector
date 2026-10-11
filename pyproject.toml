@@ -33,6 +33,7 @@ spec-to-inspector = "spec_to_inspector.cli:app"
 
 [dependency-groups]
 dev = [
+    "faster-whisper>=1.2.1",
     "httpx2>=2.13.1",
     "hypothesis>=6.168.5",
     "matplotlib>=3.11.2",
