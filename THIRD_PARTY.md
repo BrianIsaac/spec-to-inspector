@@ -16,8 +16,10 @@ from the metadata of the version `uv.lock` pins.
   under weak copyleft (MPL-2.0, and LGPL libraries bundled inside four
   wheels), all of which permit commercial use.
 - Nothing third-party is redistributed in this repository except images
-  derived from VisA, with attribution (below). Models and data are
-  downloaded by the documented commands; packages are installed by `uv`.
+  derived from VisA, with attribution (below), and the deck's typefaces
+  under `deck/fonts/`, each with its licence file beside it. Models and
+  data are downloaded by the documented commands; packages are installed
+  by `uv`.
 - Three points a reader should know, each set out under "Notes": Anomalib's
   code describes VisA's licence differently from VisA's owner; the anomaly
   model's backbone was pretrained on ImageNet; and the laptop's CUDA
@@ -103,8 +105,16 @@ declares it today and is read again at the pinned version before use:
 | CPython | 3.12 | Everything | PSF-2.0 | <https://www.python.org/> |
 | uv | 0.7 or later | Installing and running the project | Apache-2.0 OR MIT | <https://github.com/astral-sh/uv> |
 | Liberation Sans | subset, embedded in `specs/pcb-spec.pdf` | The specification's typeface | SIL Open Font License 1.1 | <https://github.com/liberationfonts/liberation-fonts> |
+| IBM Plex Sans | 1.1.0 (release `@ibm/plex-sans@1.1.0`): five WOFF2 files and two TTF files, unmodified, in `deck/fonts/ibm-plex-sans/` | The deck in direction A: titles, body and tables; the TTF files set the charts' labels | SIL Open Font License 1.1 (`deck/fonts/ibm-plex-sans/OFL.txt`) | <https://github.com/IBM/plex> |
+| IBM Plex Mono | 2.5.0 (release `@ibm/plex-mono@2.5.0`): three WOFF2 files, unmodified, in `deck/fonts/ibm-plex-mono/` | The deck in direction A: labels, figures and code; in direction D: code | SIL Open Font License 1.1 (`deck/fonts/ibm-plex-mono/OFL.txt`) | <https://github.com/IBM/plex> |
+| Public Sans | 2.001 (release `v2.001`): four WOFF2 files and two TTF files, unmodified, in `deck/fonts/public-sans/` | The deck in direction D: titles, body and labels; the TTF files set the charts' labels | SIL Open Font License 1.1 (`deck/fonts/public-sans/OFL.txt`) | <https://github.com/uswds/public-sans> |
+| Source Sans 3 | 3.052R (release `3.052R`): three WOFF2 files, unmodified, in `deck/fonts/source-sans-3/` | The deck in direction D: tables and code | SIL Open Font License 1.1 (`deck/fonts/source-sans-3/OFL.txt`, the release's `LICENSE.md`) | <https://github.com/adobe-fonts/source-sans> |
 
-The console ships no fonts: its stylesheet names system fonts.
+The console ships no fonts: its stylesheet names system fonts. The four
+families above are vendored for the deck's two candidate designs
+(`deck/themes/`), fetched from each family's own release on 11 October
+2026 and embedded in the PDFs as subsets; once one design is chosen the
+other's two families can go.
 
 ## Notes
 
