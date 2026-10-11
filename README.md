@@ -148,7 +148,9 @@ is the only labelled data: the anomaly model's thresholds were chosen on
 it, and the judge's prompt was written with sight of some of its images.
 There is one demonstration specification, one model at one quantisation and
 one laptop. The labels are VisA's own defect annotation mapped to clauses
-by a written table (`eval/clause_mapping.md`). The protocol was written
+by a written table (`eval/clause_mapping.md`), 20 spot-checked by hand
+against the image, all 20 agreeing (`eval/spot-check-2026-10-11.md`). The
+protocol was written
 before the run (`eval/PROTOCOL.md`), and `results/stage1/README.md` has
 every figure with its confusion tables.
 
