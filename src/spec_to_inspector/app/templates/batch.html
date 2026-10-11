@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Batch{% endblock %}
+{% block main %}
+{% if unlisted %}
+<p class="note">{{ unlisted|length }} {{ "batch" if unlisted|length == 1 else "batches" }} on disk cannot be opened here, because the console serves names of letters, digits, dots, dashes and underscores only: <span class="mono">{{ unlisted|join(", ") }}</span>. Rename the directory to open it.</p>
+{% endif %}
+{% if not runs %}
+<section class="panel empty">
+  <h1>No batch has been scored yet</h1>
+  <p>A batch appears here once the anomaly model has scored its boards and the judge has decided them:</p>
+  <pre class="mono">uv run spec-to-inspector inspect --category pcb4 board-1.jpg board-2.jpg --batch line-3</pre>
+  <p class="muted small">The console reads batches from <span class="mono">{{ runs_dir }}</span>.</p>
+</section>
+{% else %}
+<div class="batch-head">
+  <div>
+    <h1>Batch {{ run.name }}, part {{ run.category }}</h1>
+    <p class="muted">{{ total }} boards, scored {{ run.index.created_at|when }}. A board above the anomaly threshold {{ "%.3f"|format(run.index.thresholds.image) }} is flagged and put to the judge.</p>
+  </div>
+  <nav class="batches" aria-label="Batches">
+    {% for other in runs %}<a class="pill" href="/batch/{{ other.category }}/{{ other.name }}"{% if other.category == run.category and other.name == run.name %} aria-current="true"{% endif %}>{{ other.category }} / {{ other.name }}</a>{% endfor %}
+  </nav>
+</div>
+<nav class="chips" aria-label="Filter by disposition">
+  <a class="chip chip-all" href="{{ base }}"{% if not kept %} aria-current="true"{% endif %}>All {{ total }}</a>
+  {% for status in statuses %}<a class="chip chip-{{ status.value }}" href="{{ base }}?disposition={{ status.value }}"{% if kept == status %} aria-current="true"{% endif %}>{{ status.label }} {{ counts[status] }}</a>
+  {% endfor %}
+</nav>
+{% if sink_problem %}
+<p class="note" role="alert">Engineers' corrections cannot be marked on this batch: {{ sink_problem }}.</p>
+{% endif %}
+{% if not tiles %}
+<p class="note">{% if kept %}No board of this batch is {{ kept.label|lower }}.{% else %}This batch holds no board.{% endif %}</p>
+{% endif %}
+<div class="grid">
+  {% for tile in tiles %}
+  <a class="tile tile-{{ tile.board.status.value }}{% if tile.corrected %} tile-corrected{% endif %}" href="{{ tile.url }}">
+    <span class="tile-photo"><img loading="lazy" src="{{ base }}/{{ tile.board.image_id }}/thumbnail.jpg" alt=""><span class="badge badge-{{ tile.board.status.value }}">{{ tile.board.status.label }}</span></span>
+    <span class="tile-body">
+      <span class="tile-head"><span class="tile-id">{{ tile.board.image_id }}</span>{% if tile.corrected %}<span class="tile-mark">Corrected</span>{% endif %}</span>
+      <span class="tile-line" title="{{ tile.line }}">{{ tile.line }}</span>
+    </span>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

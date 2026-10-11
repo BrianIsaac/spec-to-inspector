@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Specification{% endblock %}
+{% macro upload_form(large) %}
+<form class="upload{% if large %} upload-large{% endif %}" method="post" action="/specification" enctype="multipart/form-data" data-busy="Parsing the specification">
+  <div class="upload-field">
+    <label for="pdf"{% if not large %} class="upload-label"{% endif %}>{% if large %}The customer's specification, as a PDF{% else %}Replace with another PDF{% endif %}</label>
+    <input id="pdf" type="file" name="pdf" accept="application/pdf,.pdf" required>
+  </div>
+  <button type="submit">Parse specification</button>
+</form>
+{% endmacro %}
+{% block main %}
+{% if error %}<p class="alert" role="alert">The upload was refused: {{ error }}.{% if loaded %} The specification below is still in force.{% endif %}</p>{% endif %}
+{% if not loaded %}
+<section class="panel empty">
+  <h1>No specification is loaded</h1>
+  <p>Upload the customer's workmanship specification. The parser reads it on this machine and
+    turns it into a clause table: each defect class, its zone, its limit with its unit, and
+    the page it is printed on. Every reject then cites one of those clauses.</p>
+  {{ upload_form(true) }}
+</section>
+{% else %}
+<section class="strip">
+  <h1>{{ specification.title }}</h1>
+  {% if specification.notice %}<p class="notice">{{ specification.notice }}</p>{% endif %}
+  <div class="strip-row">
+    <ul class="facts">
+      <li><span class="mono">{{ loaded.source }}</span></li>
+      <li><b>{{ specification.pages }}</b> pages</li>
+      <li><b>{{ specification.clauses|length }} clauses</b> under {{ headings }} numbered headings</li>
+      <li><b>{{ specification.zones|length }} zones</b></li>
+      {% if loaded.parse_seconds is not none %}<li>parsed in <b>{{ "%.1f"|format(loaded.parse_seconds) }} s</b> on the CPU</li>
+      {% else %}<li>clause table as <span class="mono">parse</span> wrote it</li>{% endif %}
+    </ul>
+    {{ upload_form(false) }}
+  </div>
+</section>
+<div class="spec-layout">
+  <figure class="panel sheet">
+    {% if loaded.pdf %}
+    <img src="/specification/pages/{{ shown }}.png" alt="Page {{ shown }} of the specification, as printed">
+    {% else %}
+    <p class="sheet-missing">This clause table was loaded without its PDF, so there is no page to show beside it.</p>
+    {% endif %}
+    <figcaption class="pager">
+      <a class="button button-quiet" href="/specification?page={{ shown - 1 }}"{% if shown <= 1 %} aria-disabled="true"{% endif %}>Previous</a>
+      <span class="pager-at">Page {{ shown }} of {{ specification.pages }}</span>
+      <a class="button button-quiet" href="/specification?page={{ shown + 1 }}"{% if shown >= specification.pages %} aria-disabled="true"{% endif %}>Next</a>
+    </figcaption>
+  </figure>
+  <div>
+    <section class="panel clauses" id="panel-clauses">
+      <h2>Clause table</h2>
+      <table class="clause-table">
+        <thead>
+          <tr>
+            <th>Clause</th><th>Title</th><th>Part</th><th>Defect class</th><th>Zone</th>
+            <th>Limit, as printed</th><th>Parsed</th><th>Disposition</th><th class="num">Page</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for clause in specification.clauses %}
+          {% set chosen = selected and selected.id == clause.id %}
+          <tr id="clause-{{ clause.id }}" class="clause-row{% if chosen %} is-selected{% endif %}">
+            <td class="clause-id"><a href="/specification?clause={{ clause.id }}#clause-{{ clause.id }}">{{ clause.id }}</a></td>
+            <td>{{ clause.title }}</td>
+            <td>{{ clause.category }}</td>
+            <td>{{ clause.defect_class }}</td>
+            <td>{{ clause.zone }}</td>
+            <td>{{ clause.limit_text }}</td>
+            <td class="parsed mono">{% if clause.limit is none %}any size{% else %}{{ clause.comparison.value }} {{ "%g"|format(clause.limit) }} {{ clause.unit.value }}{% endif %}</td>
+            <td>{{ clause.disposition.value }}</td>
+            <td class="num">{{ clause.page }}</td>
+          </tr>
+          {% if chosen %}
+          <tr class="clause-detail">
+            <td colspan="9">
+              <blockquote>{{ clause.source_text }}</blockquote>
+              <p class="printed">Clause {{ clause.id }}, under heading {{ clause.heading_id }} {{ clause.title }}, printed on page {{ clause.page }} of the specification.</p>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    <div class="spec-extra">
+      <section class="panel">
+        <h2>Zones</h2>
+        <table class="plain-table">
+          <thead><tr><th>Part</th><th>Zone</th><th>Covers</th><th class="num">Rank</th><th class="num">Page</th></tr></thead>
+          <tbody>
+            {% for zone in specification.zones %}
+            <tr><td>{{ zone.category }}</td><td><b>{{ zone.name }}</b></td><td>{{ zone.title }}</td><td class="num">{{ zone.rank }}</td><td class="num">{{ zone.page }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+      <section class="panel">
+        <h2>Calibration</h2>
+        <table class="plain-table">
+          <thead><tr><th>Part</th><th class="num">Board width</th><th class="num">Imaged width</th><th class="num">Imaged height</th><th class="num">Page</th></tr></thead>
+          <tbody>
+            {% for calibration in specification.calibrations %}
+            <tr><td>{{ calibration.category }}</td><td class="num">{{ "%g"|format(calibration.board_width_mm) }} mm</td><td class="num">{{ "%g"|format(calibration.image_width_mm) }} mm</td><td class="num">{{ "%g"|format(calibration.image_height_mm) }} mm</td><td class="num">{{ calibration.page }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p class="hint">Sizes on a reject card are measured in millimetres from the imaged width, by code.</p>
+      </section>
+    </div>
+  </div>
+</div>
+{% endif %}
+<script>
+  // A parse takes some seconds: say so on the button while the page waits.
+  for (const form of document.querySelectorAll("form[data-busy]")) {
+    form.addEventListener("submit", () => {
+      const button = form.querySelector("button");
+      button.disabled = true;
+      button.textContent = form.dataset.busy + "...";
+    });
+  }
+</script>
+{% endblock %}

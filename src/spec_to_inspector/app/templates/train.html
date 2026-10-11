@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Train{% endblock %}
+{% block head %}{% if running %}<meta http-equiv="refresh" content="{{ refresh }}">{% endif %}{% endblock %}
+{% block main %}
+{% if error %}<p class="alert" role="alert">Nothing was started: {{ error }}.</p>{% endif %}
+<div class="train-head">
+  <div class="train-intro">
+    <h1>Train the anomaly model</h1>
+    <p>The inspector learns what a good board looks like from good boards alone: PatchCore,
+      through Anomalib, on the part's normal images. No defect example is needed. The
+      threshold it chooses decides which boards are flagged and put to the judge.</p>
+  </div>
+  <form class="panel start" method="post" action="/train">
+    <div class="start-row">
+      <div>
+        <label for="category">Part</label>
+        <select id="category" name="category" required>
+          {% for part in offered %}<option value="{{ part }}"{% if job and job.category == part %} selected{% endif %}>{{ part }}{% if records.get(part) %} (trained){% endif %}</option>{% endfor %}
+        </select>
+      </div>
+      <button type="submit"{% if running %} disabled{% endif %}>Start training</button>
+    </div>
+    <label class="check"><input type="checkbox" name="replace" value="yes"><span>Replace the part's model and its test batch if it is already trained. Training needs the GPU to itself: stop the judge's server first.</span></label>
+  </form>
+</div>
+{% if job %}
+<section class="panel job job-{{ job.state.value }}" id="job">
+  <div class="job-head">
+    {% if job.state.value == "running" %}<span class="pulse" aria-hidden="true"></span><h2>Training {{ job.category }}</h2>
+    {% elif job.state.value == "finished" %}<h2>Training of {{ job.category }}</h2><span class="badge badge-accept">Finished</span>
+    {% else %}<h2>Training of {{ job.category }}</h2><span class="badge badge-reject">{% if job.returncode is not none and job.returncode < 0 %}Stopped by signal {{ -job.returncode }}{% else %}Failed{% if job.returncode is not none %}, exit code {{ job.returncode }}{% endif %}{% endif %}</span>{% endif %}
+    <span class="muted small">started {{ job.started_at.isoformat()|when }}</span>
+  </div>
+  <div class="job-clock">
+    <div><p class="figure-label">Elapsed</p><p class="figure-value">{{ job.elapsed_seconds|duration }}</p></div>
+    {% if last and job.state.value == "running" %}<div><p class="figure-label">This part's last training took</p><p class="figure-value">{{ last.fit_seconds|duration }}</p></div>{% endif %}
+  </div>
+  {% set lines = job.tail(6 if job.state.value == "failed" else 2) %}
+  {% if lines %}<pre class="job-log mono">{{ lines|join("\n") }}</pre>{% endif %}
+  {% if job.state.value == "running" %}<p class="hint">Anomalib's fit reports no percentage, so the page shows elapsed time and the command's last line, and reloads every {{ refresh }} seconds.</p>{% endif %}
+</section>
+{% endif %}
+{% if not parts %}
+<section class="panel empty">
+  <h1>No part has been trained yet</h1>
+  <p>Choose a part and start its training, or run it in a terminal:</p>
+  <pre class="mono">uv run spec-to-inspector train --category pcb4</pre>
+</section>
+{% endif %}
+<div class="parts">
+  {% for part in parts %}
+  {% set record = records[part] %}
+  <section class="panel" id="part-{{ part }}">
+    <div class="part-head">
+      <h2>{{ part }}</h2>
+      {% if record %}<span class="muted small">recorded run, trained {{ record.created_at|when }}</span>
+      {% else %}<span class="badge badge-not-judged">Not trained</span>{% endif %}
+    </div>
+    {% if record %}
+    <div class="part-figures">
+      <div class="threshold"><p class="figure-label">Image threshold</p><p class="figure-value">{{ "%.3f"|format(record.thresholds.image) }}</p></div>
+      <div><p class="figure-label">Image AUROC</p><p class="figure-value">{{ "%.3f"|format(record.metrics.image_auroc) }}</p></div>
+      <div><p class="figure-label">Pixel AUROC</p><p class="figure-value">{{ "%.3f"|format(record.metrics.pixel_auroc) }}</p></div>
+      <div><p class="figure-label">Fit time</p><p class="figure-value">{{ record.fit_seconds|duration }}</p></div>
+    </div>
+    <ul class="part-notes">
+      <li>A board scoring above <b>{{ "%.3f"|format(record.thresholds.image) }}</b> (raw PatchCore distance) is flagged. The threshold is {{ "Anomalib's adaptive F1 threshold" if "F1AdaptiveThreshold" in record.thresholds.method else record.thresholds.method }}, {% if record.thresholds.tuned_on_test %}<b>tuned on the test split</b> ({{ record.thresholds.split_images }} images), which is Anomalib's default{% else %}chosen on {{ record.thresholds.split_images }} validation images{% endif %}.</li>
+      <li>Learned from <b>{{ "{:,}".format(record.train_images) }} good boards</b> and no defect example; tested on {{ record.test_good }} good and {{ record.test_bad }} anomalous boards.</li>
+      <li>{{ "PatchCore" if record.model.name == "patchcore" else record.model.name }} on {{ record.model.backbone }} at {{ record.model.image_size[0] }} px; the memory bank keeps <b>{{ "{:,}".format(record.memory_bank_rows) }}</b> of {{ "{:,}".format(record.embedding_rows) }} patch embeddings.</li>
+      <li>Embedding {{ record.embed.seconds|duration }}, coreset {{ record.coreset.seconds|duration }}, thresholds {{ record.validate_split.seconds|duration }}; peak GPU memory <b>{{ record.peak_allocated_bytes|gib }}</b> on the {{ record.device.name }}.</li>
+    </ul>
+    {% else %}
+    <p class="part-untrained">The specification names this part, and no model has been trained for it. Its boards cannot be scored until one is.</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

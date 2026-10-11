@@ -30,8 +30,11 @@ def _program(directory: Path, body: str) -> str:
 
 LINGER_SECONDS = 1.5
 """How long each forked child of the fork test lives on."""
-FORKING_SECONDS = 1.0
-"""How long the fork test keeps forking."""
+FORKED_CHILDREN = 60
+"""How many children the fork test forks; a count, since a fork's cost grows with the process
+that runs the suite before it, and a second's worth was 41 after the console's tests."""
+FORKING_SECONDS = 10.0
+"""The most the fork test waits to fork them."""
 
 SMI = """case "$1" in
   --query-gpu=memory.used) echo 10813 ;;
@@ -95,7 +98,7 @@ def test_readings_do_not_wait_on_processes_forked_meanwhile(tmp_path: Path) -> N
     reader.start()
     children: list[int] = []
     until = time.perf_counter() + FORKING_SECONDS
-    while time.perf_counter() < until:
+    while len(children) < FORKED_CHILDREN and time.perf_counter() < until:
         child = os.fork()
         if child == 0:  # stands in for a data loader's worker: it holds what it inherited
             time.sleep(LINGER_SECONDS)
@@ -107,6 +110,6 @@ def test_readings_do_not_wait_on_processes_forked_meanwhile(tmp_path: Path) -> N
     for child in children:
         os.waitpid(child, 0)
 
-    assert len(children) > 50
+    assert len(children) == FORKED_CHILDREN
     assert set(readings) == {GpuReading(gpu_used_mib=10813, server_mib=2028)}
     assert max(durations) < LINGER_SECONDS / 2
