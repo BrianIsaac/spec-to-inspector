@@ -2,7 +2,7 @@
 
 **A customer's defect specification becomes an inspector that cites the clause on every reject.**
 
-- Demo video: added before submission.
+- Demo video: <https://youtu.be/1RTXhtMX2sg>.
 - Proposal deck (PDF): [`deck/deck.pdf`](deck/deck.pdf).
 
 An entry to the ASUS UGen AI League Innovation Hackathon 2026: Workplace AI,
@@ -355,8 +355,9 @@ released by Amazon under the Creative Commons Attribution 4.0 licence
 > and Segmentation." ECCV 2022. arXiv:2207.14315.
 
 The dataset is not in this repository; `data fetch` downloads it. The
-pictures in `specs/figures/`, in the specification's PDF and in
-`docs/screens/` are VisA images, cropped, resized or drawn over, and
+pictures in `specs/figures/`, in the specification's PDF, in the
+screenshot above and in the deck's PDF are VisA images, cropped, resized or
+drawn over, and
 `eval/clause_labels.csv` is VisA's defect annotation mapped to clauses.
 
 **The demonstration specification.** `specs/pcb-spec.md` and its PDF were
@@ -382,7 +383,8 @@ specs/             the demonstration specification: Markdown source, PDF, clause
 eval/              the labelled clause set, its mapping table and the protocol
 results/stage1/    the measured figures, as JSON, and the page written from them
 scripts/           the judge's server, the specification's rebuild, the console walk
-docs/              architecture.md, stage2.md, and the console's screenshots
+docs/              architecture.md, stage2.md, and the reject card's screenshot
+deck/deck.pdf      the proposal deck
 ```
 
 ## Licences
