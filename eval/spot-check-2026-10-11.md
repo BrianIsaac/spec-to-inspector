@@ -21,25 +21,25 @@ these rows every time.
 
 | # | Part | Image | VisA type(s) | Expected clause(s) | Agrees | Note |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/032.JPG` | melt | 4.1 Stray or bridging solder |  |  |
-| 2 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/063.JPG` | melt | 4.1 Stray or bridging solder |  |  |
-| 3 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/034.JPG` | melt | 4.1 Stray or bridging solder |  |  |
-| 4 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/026.JPG` | melt | 4.1 Stray or bridging solder |  |  |
-| 5 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/091.JPG` | scratch | 4.2 Scratch |  |  |
-| 6 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/088.JPG` | scratch | 4.2 Scratch |  |  |
-| 7 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/044.JPG` | missing | 4.3 Missing component |  |  |
-| 8 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/010.JPG` | bent | 4.4 Bent header pin |  |  |
-| 9 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/009.JPG` | damage, dirt | 5.5 Damaged component or board; 5.1 Foreign material |  |  |
-| 10 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/002.JPG` | burnt, dirt | 5.7 Burn mark; 5.1 Foreign material |  |  |
-| 11 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/081.JPG` | wrong place, dirt | 5.4 Misplaced component; 5.1 Foreign material |  |  |
-| 12 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/070.JPG` | missing, dirt | 5.2 Missing component; 5.1 Foreign material |  |  |
-| 13 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/054.JPG` | missing, damage | 5.2 Missing component; 5.5 Damaged component or board |  |  |
-| 14 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/032.JPG` | extra | 5.3 Extra component or object |  |  |
-| 15 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/007.JPG` | scratch, damage, extra | 5.6 Scratch; 5.5 Damaged component or board; 5.3 Extra component or object |  |  |
-| 16 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/086.JPG` | scratch, extra, wrong place | 5.6 Scratch; 5.3 Extra component or object; 5.4 Misplaced component |  |  |
-| 17 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/017.JPG` | missing, damage | 5.2 Missing component; 5.5 Damaged component or board |  |  |
-| 18 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/058.JPG` | missing, damage, extra | 5.2 Missing component; 5.5 Damaged component or board; 5.3 Extra component or object |  |  |
-| 19 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/010.JPG` | scratch, damage, dirt | 5.6 Scratch; 5.5 Damaged component or board; 5.1 Foreign material |  |  |
-| 20 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/027.JPG` | burnt | 5.7 Burn mark |  |  |
+| 1 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/032.JPG` | melt | 4.1 Stray or bridging solder | yes | a solder blob on one pin leg, stray rather than bridging; 4.1 covers it |
+| 2 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/063.JPG` | melt | 4.1 Stray or bridging solder | yes | a small smear over the silkscreen lettering, easy to miss; it is there |
+| 3 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/034.JPG` | melt | 4.1 Stray or bridging solder | yes |  |
+| 4 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/026.JPG` | melt | 4.1 Stray or bridging solder | yes |  |
+| 5 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/091.JPG` | scratch | 4.2 Scratch | yes |  |
+| 6 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/088.JPG` | scratch | 4.2 Scratch | yes |  |
+| 7 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/044.JPG` | missing | 4.3 Missing component | yes |  |
+| 8 | pcb1 | `data/visa/pcb1/Data/Images/Anomaly/010.JPG` | bent | 4.4 Bent header pin | yes |  |
+| 9 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/009.JPG` | damage, dirt | 5.5 Damaged component or board; 5.1 Foreign material | yes |  |
+| 10 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/002.JPG` | burnt, dirt | 5.7 Burn mark; 5.1 Foreign material | yes |  |
+| 11 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/081.JPG` | wrong place, dirt | 5.4 Misplaced component; 5.1 Foreign material | yes |  |
+| 12 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/070.JPG` | missing, dirt | 5.2 Missing component; 5.1 Foreign material | yes |  |
+| 13 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/054.JPG` | missing, damage | 5.2 Missing component; 5.5 Damaged component or board | yes |  |
+| 14 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/032.JPG` | extra | 5.3 Extra component or object | yes |  |
+| 15 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/007.JPG` | scratch, damage, extra | 5.6 Scratch; 5.5 Damaged component or board; 5.3 Extra component or object | yes |  |
+| 16 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/086.JPG` | scratch, extra, wrong place | 5.6 Scratch; 5.3 Extra component or object; 5.4 Misplaced component | yes |  |
+| 17 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/017.JPG` | missing, damage | 5.2 Missing component; 5.5 Damaged component or board | yes |  |
+| 18 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/058.JPG` | missing, damage, extra | 5.2 Missing component; 5.5 Damaged component or board; 5.3 Extra component or object | yes |  |
+| 19 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/010.JPG` | scratch, damage, dirt | 5.6 Scratch; 5.5 Damaged component or board; 5.1 Foreign material | yes |  |
+| 20 | pcb4 | `data/visa/pcb4/Data/Images/Anomaly/027.JPG` | burnt | 5.7 Burn mark | yes |  |
 
-Checked by: ______________________  Date: ______________
+Checked by: Brian Isaac Kam  Date: 11 October 2026
