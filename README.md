@@ -3,7 +3,7 @@
 **A customer's defect specification becomes an inspector that cites the clause on every reject.**
 
 - Demo video: added before submission.
-- Proposal deck (PDF): added before submission.
+- Proposal deck (PDF): [`deck/deck.pdf`](deck/deck.pdf).
 
 An entry to the ASUS UGen AI League Innovation Hackathon 2026: Workplace AI,
 Battlefield Thunderstorm (ASUS UGen Intel Arc Pro B70 32GB). This repository
