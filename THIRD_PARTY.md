@@ -16,8 +16,9 @@ from the metadata of the version `uv.lock` pins.
   under weak copyleft (MPL-2.0, and LGPL libraries bundled inside four
   wheels), all of which permit commercial use.
 - Nothing third-party is redistributed in this repository except images
-  derived from VisA, with attribution (below), and the deck's typefaces
-  under `deck/fonts/`, each with its licence file beside it. Models and
+  derived from VisA, with attribution (below), and the deck's typefaces,
+  vendored with the deck's source with their licence files beside them in
+  the full repository and embedded as subsets in `deck/deck.pdf`. Models and
   data are downloaded by the documented commands; packages are installed
   by `uv`.
 - Three points a reader should know, each set out under "Notes": Anomalib's
@@ -43,8 +44,9 @@ What in this repository is derived from VisA, and how it was changed:
 - `specs/figures/*.jpg` and the same pictures inside `specs/pcb-spec.pdf`:
   single images, cropped, resized, and drawn over with zone outlines or a
   defect outline. Each caption names the category and the image number.
-- `docs/screens/*.png`: screenshots of the console showing VisA test
-  images, their crops and anomaly heatmaps.
+- `docs/screens/`: screenshots of the console showing VisA test images,
+  their crops and anomaly heatmaps, in the full repository; the public
+  copy keeps the one the README shows.
 - `eval/clause_labels.csv`: VisA's per-image defect annotation, mapped to
   the demonstration specification's clauses by the table in
   `eval/clause_mapping.md`.
@@ -105,11 +107,11 @@ declares it today and is read again at the pinned version before use:
 | CPython | 3.12 | Everything | PSF-2.0 | <https://www.python.org/> |
 | uv | 0.7 or later | Installing and running the project | Apache-2.0 OR MIT | <https://github.com/astral-sh/uv> |
 | Liberation Sans | subset, embedded in `specs/pcb-spec.pdf` | The specification's typeface | SIL Open Font License 1.1 | <https://github.com/liberationfonts/liberation-fonts> |
-| IBM Plex Sans | 1.1.0 (release `@ibm/plex-sans@1.1.0`): five WOFF2 files and two TTF files, unmodified, in `deck/fonts/ibm-plex-sans/` | The deck's titles, body and tables; the TTF files set the charts' labels | SIL Open Font License 1.1 (`deck/fonts/ibm-plex-sans/OFL.txt`) | <https://github.com/IBM/plex> |
-| IBM Plex Mono | 2.5.0 (release `@ibm/plex-mono@2.5.0`): three WOFF2 files, unmodified, in `deck/fonts/ibm-plex-mono/` | The deck's labels, figures and code | SIL Open Font License 1.1 (`deck/fonts/ibm-plex-mono/OFL.txt`) | <https://github.com/IBM/plex> |
+| IBM Plex Sans | 1.1.0 (release `@ibm/plex-sans@1.1.0`): five WOFF2 files and two TTF files, unmodified, vendored with the deck's source; embedded as subsets in `deck/deck.pdf` | The deck's titles, body and tables; the TTF files set the charts' labels | SIL Open Font License 1.1 (its `OFL.txt` beside the files) | <https://github.com/IBM/plex> |
+| IBM Plex Mono | 2.5.0 (release `@ibm/plex-mono@2.5.0`): three WOFF2 files, unmodified, vendored with the deck's source; embedded as subsets in `deck/deck.pdf` | The deck's labels, figures and code | SIL Open Font License 1.1 (its `OFL.txt` beside the files) | <https://github.com/IBM/plex> |
 
 The console ships no fonts: its stylesheet names system fonts. The two
-IBM Plex families are vendored for the deck's theme (`deck/themes/`),
+IBM Plex families are vendored for the deck's theme in the full repository,
 fetched from the family's own releases on 11 October 2026 and embedded
 in `deck/deck.pdf` as subsets.
 
