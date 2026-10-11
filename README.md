@@ -173,8 +173,9 @@ and judging need an NVIDIA GPU with 12 GB and a driver that supports CUDA
 13 (580 or later); they were run on the laptop named above and nowhere
 else.
 
-**1. Install, and check the build.** About 4 GB of downloads the first
-time, most of it PyTorch.
+**1. Install, and check the build.** With an empty uv cache `uv sync`
+downloads about 4 GB, most of it PyTorch; with a warm one it takes seconds.
+The tests take three to four minutes.
 
 ```bash
 git clone https://github.com/BrianIsaac/spec-to-inspector
@@ -187,18 +188,20 @@ The four commands are the project's gate. The tests that need the GPU, the
 data or the VLM server are marked and left out of it, so it passes on a
 clean clone.
 
-**2. Parse the demonstration specification.** On the CPU. The first run
-downloads docling's layout and table models (about 530 MB) and the judge's
-tokenizer.
+**2. Parse the demonstration specification.** On the CPU, in under a
+minute. The first run on a machine downloads docling's layout and table
+models (about 530 MB) and the judge's tokenizer from Hugging Face. It may
+warn that the requests are unauthenticated; no token is needed.
 
 ```bash
 uv run spec-to-inspector parse specs/pcb-spec.pdf
 ```
 
-It prints the clause table and ends with `Parsed specs/pcb-spec.pdf: 6
-pages, 16 clauses under 11 numbered headings, 2,868 tokens`. It writes
+It prints the clause table, then a line that begins `Parsed
+specs/pcb-spec.pdf: 6 pages, 16 clauses under 11 numbered headings, 2,868
+tokens` and goes on to name the tokenizer and the time taken. It writes
 `specs/pcb-spec.clauses.json`, which is tracked: the file should come out
-unchanged.
+unchanged, so `git status` stays clean.
 
 **3. Open the console.**
 
@@ -206,9 +209,12 @@ unchanged.
 uv run spec-to-inspector serve --spec specs/pcb-spec.clauses.json
 ```
 
-Open <http://127.0.0.1:8130/>. The Specification page shows the PDF beside
-its clause table. Train and Batch are empty until the next steps have run.
-Ctrl-C stops it. The console has no login and listens on this machine only.
+It runs in the foreground and prints its address. Open
+<http://127.0.0.1:8130/>. The Specification page shows the PDF beside its
+clause table, with a form to upload another PDF. The Train page offers to
+start training and has no recorded run to show yet, and the Batch page says
+no batch has been scored: both fill in once the next steps have run. Ctrl-C
+stops the console. It has no login and listens on this machine only.
 
 **4. Fetch the data.** VisA's four PCB categories, streamed from Amazon's
 bucket and verified against the published counts: 1.9 GB read, about 1 GB
