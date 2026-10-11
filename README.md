@@ -174,10 +174,10 @@ and judging need an NVIDIA GPU with 12 GB and a driver that supports CUDA
 else.
 
 **1. Install, and check the build.** With an empty uv cache `uv sync`
-fetches 180 packages, most of the bulk being PyTorch and its CUDA
-libraries, and leaves about 6.3 GB on disk (a little over two minutes on a
-fast connection); with a warm cache it takes seconds. The tests take four
-to five minutes on the laptop above.
+fetches 186 packages, most of the bulk being PyTorch and its CUDA
+libraries, and leaves about 6.8 GB on disk (a little over two minutes on a
+fast connection); with a warm cache it takes seconds. The tests take about
+three minutes on the laptop above.
 
 ```bash
 git clone https://github.com/BrianIsaac/spec-to-inspector
