@@ -174,8 +174,10 @@ and judging need an NVIDIA GPU with 12 GB and a driver that supports CUDA
 else.
 
 **1. Install, and check the build.** With an empty uv cache `uv sync`
-downloads about 4 GB, most of it PyTorch; with a warm one it takes seconds.
-The tests take three to four minutes.
+fetches 180 packages, most of the bulk being PyTorch and its CUDA
+libraries, and leaves about 6.3 GB on disk (a little over two minutes on a
+fast connection); with a warm cache it takes seconds. The tests take four
+to five minutes on the laptop above.
 
 ```bash
 git clone https://github.com/BrianIsaac/spec-to-inspector
@@ -190,8 +192,9 @@ clean clone.
 
 **2. Parse the demonstration specification.** On the CPU, in under a
 minute. The first run on a machine downloads docling's layout and table
-models (about 530 MB) and the judge's tokenizer from Hugging Face. It may
-warn that the requests are unauthenticated; no token is needed.
+models (about 530 MB) and the judge's tokenizer from Hugging Face. It
+shows a `Loading weights` progress bar for docling's models, and may warn
+that the requests are unauthenticated; no token is needed.
 
 ```bash
 uv run spec-to-inspector parse specs/pcb-spec.pdf
