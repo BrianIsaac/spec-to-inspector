@@ -46,6 +46,7 @@ from spec_to_inspector.bench.labels import ClauseLabel, Region1, read_labels, re
 from spec_to_inspector.bench.mapping import mapping_problems
 from spec_to_inspector.bench.observe import Observation, digit_reasons_of, observe
 from spec_to_inspector.bench.record import (
+    BOARDS_NOT_SCORED_BY_THE_BENCH,
     STAGE_II_UNIT,
     UNIT,
     BenchRecord,
@@ -1029,7 +1030,9 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
             with_corrections_in_prompt=sum(o.corrections_in_prompt for o in observations),
         ),
         on_threshold=boards_on_threshold(
-            observations, {part: run.image_threshold for part, run in runs.items()}
+            observations,
+            {part: run.image_threshold for part, run in runs.items()},
+            elsewhere=BOARDS_NOT_SCORED_BY_THE_BENCH if plan.stage == "II" else (),
         ),
         digit_reasons=(
             digit_reasons_of(observations) if plan.reason_rule == "designators" else None

@@ -741,9 +741,16 @@ def _on_threshold_lines(record: BenchRecord) -> list[str]:
         "no `>=` is applied.",
         "",
     ]
-    if found.boards:
+    if not found.boards:
+        lines += [
+            f"None of this run's boards ({', '.join(found.parts)}) sits on its threshold.",
+            "",
+        ]
+    rows = [(board, "yes") for board in found.boards]
+    rows += [(board, "no: week 2's record") for board in found.elsewhere]
+    if rows:
         lines += _table(
-            ["Part", "Board", "Ground truth", "Score", "Threshold", "Strictly above"],
+            ["Part", "Board", "Ground truth", "Score", "Threshold", "Strictly above", "This run"],
             (
                 [
                     board.part,
@@ -752,12 +759,19 @@ def _on_threshold_lines(record: BenchRecord) -> list[str]:
                     f"{board.score:.6f}",
                     f"{board.threshold:.6f}",
                     "yes" if board.above else "no",
+                    scored,
                 ]
-                for board in found.boards
+                for board, scored in rows
             ),
         )
-    else:
-        lines.append(f"None of this run's boards ({', '.join(found.parts)}) sits on its threshold.")
+    if found.elsewhere:
+        parts = ", ".join(dict.fromkeys(board.part for board in found.elsewhere))
+        lines += [
+            "",
+            f"{parts}: the bench does not score them, having no clause to hold them to, so their "
+            "figures are those of the first training on the machine and this run did not measure "
+            "them.",
+        ]
     return lines
 
 

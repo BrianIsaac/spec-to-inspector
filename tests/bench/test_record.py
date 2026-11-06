@@ -1,5 +1,6 @@
 """Tests for the bench's record: its file, and the comparison of a run with the one before."""
 
+import csv
 import json
 from pathlib import Path
 from typing import Any
@@ -10,6 +11,8 @@ from pydantic import ValidationError
 from spec_to_inspector.bench.labels import read_labels
 from spec_to_inspector.bench.observe import Citation, DigitReason, DigitReasons, Observation
 from spec_to_inspector.bench.record import (
+    BOARDS_NOT_SCORED_BY_THE_BENCH,
+    SCORE_TOLERANCE,
     BenchRecord,
     FileRef,
     boards_on_threshold,
@@ -292,3 +295,44 @@ def test_what_a_final_record_lacks_is_said(
     missing = missing_for_final(BenchRecord.model_validate(dumped))
 
     assert any(lacking in reason for reason in missing), missing
+
+
+def test_the_boards_of_the_parts_the_bench_does_not_score_are_week_2s_as_recorded() -> None:
+    """The ruling names four boards and the bench scores two parts: the others are held to file."""
+    week2 = REPOSITORY / "results" / "stage2" / "week2"
+    with (week2 / "boards.csv").open(encoding="utf-8", newline="") as file:
+        rows = {(row["part"], row["image_id"]): row for row in csv.DictReader(file)}
+    trainings = json.loads((week2 / "run-1" / "anomaly.json").read_text(encoding="utf-8"))
+
+    assert [(board.part, board.image_id) for board in BOARDS_NOT_SCORED_BY_THE_BENCH] == [
+        ("pcb2", "bad-060"),
+        ("pcb3", "bad-097"),
+    ]
+    for board in BOARDS_NOT_SCORED_BY_THE_BENCH:
+        row = rows[(board.part, board.image_id)]
+        assert board.score == float(row["xpu_run_1_score"])
+        assert board.above == (row["xpu_run_1_flagged"] == "1")
+        assert board.label == row["label"]
+        assert (
+            board.threshold
+            == (trainings["categories"][board.part]["record"]["thresholds"]["image"])
+        )
+        assert abs(board.score - board.threshold) <= SCORE_TOLERANCE
+
+
+def test_with_the_runs_two_parts_a_stage_two_record_names_the_rulings_four_boards(
+    stage2_record: BenchRecord,
+) -> None:
+    """Those it scored and those it could not, told apart; Stage I's says nothing of the others."""
+    thresholds = {"pcb1": 31.319488525390625, "pcb4": 30.048744201660156}
+    boards = [
+        _board("pcb1", "bad-029", 31.319490432739258),
+        _board("pcb4", "bad-081", 30.048744201660156),
+    ]
+    found = boards_on_threshold(boards, thresholds, elsewhere=BOARDS_NOT_SCORED_BY_THE_BENCH)
+
+    assert [board.image_id for board in found.boards] == ["bad-029", "bad-081"]
+    assert [board.image_id for board in found.elsewhere] == ["bad-060", "bad-097"]
+    assert boards_on_threshold(boards, thresholds).elsewhere == ()
+    assert stage2_record.on_threshold is not None
+    assert stage2_record.on_threshold.elsewhere == BOARDS_NOT_SCORED_BY_THE_BENCH

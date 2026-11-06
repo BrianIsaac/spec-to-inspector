@@ -195,7 +195,19 @@ def test_the_boards_on_the_threshold_have_a_heading_of_their_own(
     page = render_readme(stage2_record.model_copy(update={"on_threshold": found}))
 
     assert "The rule is a strict `>`." in page
-    assert "| pcb1 | `bad-029` | bad | 31.319490 | 31.319489 | yes |" in page
+    assert "| pcb1 | `bad-029` | bad | 31.319490 | 31.319489 | yes | yes |" in page
+
+
+def test_the_boards_the_bench_does_not_score_are_on_the_page_and_say_so(
+    stage2_record: BenchRecord,
+) -> None:
+    """The ruling's other two: never read as this run's own scores, and shown when it has none."""
+    page = render_readme(stage2_record)
+
+    assert "None of this run's boards (pcb1, pcb4) sits on its threshold." in page
+    assert "| pcb2 | `bad-060` | bad | 29.304890 | 29.304890 | no | no: week 2's record |" in page
+    assert "| pcb3 | `bad-097` | bad | 31.543020 | 31.543051 | no | no: week 2's record |" in page
+    assert "the bench does not score them" in page
 
 
 def test_a_stage_two_run_that_lacks_something_says_it_is_not_final(

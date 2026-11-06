@@ -365,13 +365,38 @@ class BoardOnThreshold(BaseModel):
     above: bool
 
 
+BOARDS_NOT_SCORED_BY_THE_BENCH: Final = (
+    BoardOnThreshold(
+        part="pcb2",
+        image_id="bad-060",
+        label="bad",
+        score=29.304889678955078,
+        threshold=29.304889678955078,
+        above=False,
+    ),
+    BoardOnThreshold(
+        part="pcb3",
+        image_id="bad-097",
+        label="bad",
+        score=31.543020248413086,
+        threshold=31.54305076599121,
+        above=False,
+    ),
+)
+"""The owner's ruling names four boards on the threshold, and the bench scores only the two parts of
+the labelled set. These are the other two, as week 2's first training on the machine measured them:
+`results/stage2/week2/boards.csv` and `run-1/anomaly.json`, which a test holds them to."""
+
+
 class OnThreshold(BaseModel):
-    """The boards of a run whose scores sit on their thresholds.
+    """The boards whose scores sit on their thresholds.
 
     Attributes:
         tolerance: How near a score must be to count as on its threshold.
-        parts: The parts this run scored, which are the only ones it can say this of.
-        boards: The boards.
+        parts: The parts this run scored, which are the only ones it measured.
+        boards: The boards of those parts, as this run scored them.
+        elsewhere: Boards on the threshold in parts the bench does not score, from week 2's
+            record; this run did not measure them.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -379,6 +404,7 @@ class OnThreshold(BaseModel):
     tolerance: float
     parts: tuple[str, ...]
     boards: tuple[BoardOnThreshold, ...]
+    elsewhere: tuple[BoardOnThreshold, ...] = ()
 
 
 class JudgeSetup(BaseModel):
@@ -614,16 +640,20 @@ class BenchRecord(BaseModel):
 
 
 def boards_on_threshold(
-    observations: Iterable[Observation], thresholds: dict[str, float]
+    observations: Iterable[Observation],
+    thresholds: dict[str, float],
+    *,
+    elsewhere: tuple[BoardOnThreshold, ...] = (),
 ) -> OnThreshold:
-    """Name the boards of a run whose scores sit on their thresholds.
+    """Name the boards whose scores sit on their thresholds.
 
     Args:
         observations: The run's images.
         thresholds: Each part's image threshold.
+        elsewhere: Such boards of parts the run cannot score, to name beside its own.
 
     Returns:
-        The boards, in the run's order.
+        The boards, the run's in its order.
     """
     return OnThreshold(
         tolerance=SCORE_TOLERANCE,
@@ -640,6 +670,7 @@ def boards_on_threshold(
             for seen in observations
             if abs(seen.score - thresholds[seen.part]) <= SCORE_TOLERANCE
         ),
+        elsewhere=elsewhere,
     )
 
 
