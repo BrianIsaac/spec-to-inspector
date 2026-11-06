@@ -1,9 +1,9 @@
 # Architecture
 
 Two diagrams. The first is the pipeline: what happens to a specification
-once, and to every board after. The second is the deployment: the laptop
-that Stage I was measured on, beside the Intel Arc Pro B70 that Stage II
-targets.
+once, and to every board after. The second is the deployment: the two Intel
+Arc Pro B70s of the organiser's machine, the subject of Stage II, beside the
+laptop that Stage I was measured on.
 
 ## The pipeline
 
@@ -60,7 +60,7 @@ What each stage reads and writes:
 | Decide | `spec_to_inspector.judge` | the answer, the clause's limit, the measurement | `decision.json`: the outcome, the clause applied, the reason in words written by code |
 | Correct | `spec_to_inspector.corrections` | an engineer's override, from the console's form or the `correct` verb | a row in one SQLite file, shown to the judge on later boards of the part |
 | Show | `spec_to_inspector.app` | everything above, from disk | four server-rendered pages: Specification, Train, Batch, and the reject card |
-| Measure the whole | `spec_to_inspector.bench` | the labelled set in `eval/` | `results/stage1/bench.json` and the page beside it |
+| Measure the whole | `spec_to_inspector.bench` | the labelled set in `eval/` | `results/stage1/bench.json` and the page beside it; on the machine, where `eval/PROTOCOL-stage2.md` says |
 
 The clause table comes first in the judge's prompt and is the same for
 every board, so a server with a prefix cache evaluates it once. The
@@ -75,40 +75,48 @@ flowchart LR
         CLIENT["Judge client<br/>OpenAI-compatible HTTP,<br/>JSON-schema answers"]
     end
 
-    subgraph b70["Stage II: one Arc Pro B70"]
-        A2["Anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
-        V2["Judge's server<br/>vLLM XPU or llm-scaler<br/>Qwen3-VL-8B-Instruct<br/>FP16 or FP8"]
-    end
-
     subgraph laptop["Stage I: the laptop"]
         A1["Anomaly model<br/>PatchCore, PyTorch CUDA<br/>RTX 5070 Ti Laptop, 12 GB"]
         V1["Judge's server<br/>llama.cpp llama-server<br/>Qwen3-VL-8B-Instruct<br/>4-bit (Q4_K_M)"]
     end
 
-    CLI -.->|"XPU or OpenVINO:<br/>Stage II work"| A2
-    CLIENT -.->|"the same<br/>two settings"| V2
+    subgraph b70["Stage II: two Arc Pro B70s"]
+        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
+        V2["Card 1: judge's server<br/>llm-scaler vLLM image<br/>tag 0.26.0-b1<br/>Qwen3-VL-8B-Instruct<br/>FP16, with FP8 compared"]
+    end
+
+    CLI -->|"XPU"| A2
+    CLIENT -->|"a URL and<br/>a model name"| V2
     CLI -->|"CUDA"| A1
     CLIENT -->|"a URL and<br/>a model name"| V1
 ```
 
-Solid lines are what runs today and was measured on the laptop. Dotted lines are
-the Stage II plan for one Intel Arc Pro B70 (32 GB) in the organiser's virtual
-machine; nothing has been run on a B70 yet.
+Every line has run. On the machine, two whole Intel Arc Pro B70s of 32,656 MiB
+each in one bare-metal host, that means inference at FP16 and FP32; a real part
+trained on XPU, the OpenVINO export and the judge at FP8 have not
+(`results/stage2/week1/machine.md`).
 
-- **The judge's backend is a setting, today.** The client speaks the
+- **The judge's backend is a setting.** The client speaks the
   OpenAI-compatible chat API over HTTP, so the server behind it is two
   values, `SPEC_TO_INSPECTOR_VLM_URL` and `SPEC_TO_INSPECTOR_VLM_MODEL`.
-  Stage I ran llama.cpp on the laptop. Nothing but llama.cpp has been run:
-  whether vLLM or llm-scaler accepts the same answer schema under its own
-  constrained decoding is the first thing Stage II checks.
-- **The anomaly model's device is CUDA, today.** Training and scoring ask
-  for the CUDA GPU. Moving them to PyTorch XPU, or exporting to OpenVINO, is
-  Stage II's work and is not in this repository yet. Anomalib 2.7.0 has an
-  XPU accelerator and an OpenVINO export; neither has been run here.
+  Stage I ran llama.cpp on the laptop. On the machine it is Intel's llm-scaler
+  vLLM image at a pinned tag, whose container is given only card 1, and it holds
+  to the same answer schema under its own constrained decoding, with one fix:
+  the reason's pattern now bars the double quote and the backslash. The server
+  needs two more settings of its own, asked cold and a small crop's 1,024 tokens,
+  both defaults of `scripts/serve_vlm_xpu.sh`.
+- **The anomaly model's device is a setting.** `SPEC_TO_INSPECTOR_DEVICE` is
+  `cuda` by default, or `xpu` or `cpu`. On the machine scoring has run on PyTorch
+  XPU on card 0, over 401 boards, and training only on 20 images. Anomalib
+  reads `devices=1` as the card numbered 1, so `engine_placement` passes `[0]`, and
+  anomaly work runs under `ZE_AFFINITY_MASK=0`. Training a real part and Anomalib's
+  OpenVINO export are week 2's. One lockfile holds both environments, as two
+  dependency groups, `cuda` by default and `xpu` by `scripts/setup_xpu.sh`.
 - **Everything else is the same code.** Parsing runs on the CPU, measurement
   and the rule are plain Python, the corrections store is one SQLite file,
   and the console is server-rendered with no front-end build, so nothing
-  needs compiling on the VM.
+  needs compiling on the machine.
 
-`docs/stage2.md` has the memory plan per stage on the B70, the assumption
-made about the organiser's VM, and what Stage II will measure.
+`docs/stage2.md` has the memory plan per stage on the machine, what the plan
+assumed about it before it was seen, and what Stage II will measure.
+`eval/PROTOCOL-stage2.md` is how it is measured.

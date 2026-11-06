@@ -6,9 +6,11 @@
 - Proposal deck (PDF): [`deck/deck.pdf`](deck/deck.pdf).
 
 An entry to the ASUS UGen AI League Innovation Hackathon 2026: Workplace AI,
-Battlefield Thunderstorm (ASUS UGen Intel Arc Pro B70 32GB). This repository
-is the Stage I prototype. It was built and measured on a laptop; nothing in
-it has run on a B70 yet, and every B70 figure below is marked as a plan.
+Battlefield Thunderstorm (ASUS UGen Intel Arc Pro B70 32GB). The prototype was
+built and measured on a laptop in Stage I. **Stage II's subject is the
+organiser's machine**, two Intel Arc Pro B70s, where the pipeline has run since
+6 November 2026: its figures so far are a bring-up, and the final figure, under
+`eval/PROTOCOL-stage2.md`, has not been run yet.
 A solo entry by Brian Isaac.
 
 ![The reject card: a damaged component on a PCB4 board, rejected under clause 5.5 of the specification, with the crop, the anomaly heatmap, the measured size and the clause quoted with its page.](docs/screens/page-06-reject-card.png)
@@ -73,10 +75,11 @@ stage's inputs and outputs, and a second diagram of the deployment.
 
 ## Results on the laptop
 
-Measured on one laptop: NVIDIA GeForce RTX 5070 Ti Laptop GPU (12 GB), Intel
-Core Ultra 9 275HX, Ubuntu 24.04, on the PCB categories of the public VisA
-dataset. Every figure is in a tracked file under `results/stage1/`, written
-by the command beside it.
+Stage I's figures, which are history for Stage II: nothing below is set against
+the machine's. Measured on one laptop: NVIDIA GeForce RTX 5070 Ti Laptop GPU
+(12 GB), Intel Core Ultra 9 275HX, Ubuntu 24.04, at 4-bit under llama.cpp, on the
+PCB categories of the public VisA dataset. Every figure is in a tracked file under
+`results/stage1/`, written by the command beside it.
 
 **The headline: on the 135 single-defect VisA test boards of the two parts,
 the prototype cites the right clause on 52 (38.5%; 95% interval 30.7% to
@@ -168,10 +171,10 @@ setup:
 ## Quick start
 
 What you need: Linux on x86-64, [uv](https://docs.astral.sh/uv/) and git.
-uv installs Python 3.12 itself. The first three steps need no GPU. Training
-and judging need an NVIDIA GPU with 12 GB and a driver that supports CUDA
-13 (580 or later); they were run on the laptop named above and nowhere
-else.
+uv installs Python 3.12 itself. The first three steps need no GPU. This quick
+start is the laptop's: training and judging here need an NVIDIA GPU with 12 GB
+and a driver that supports CUDA 13 (580 or later). On the organiser's machine
+they run on its Intel cards instead: see "Stage II on the Intel Arc Pro B70".
 
 **1. Install, and check the build.** With an empty uv cache `uv sync`
 fetches 186 packages, most of the bulk being PyTorch and its CUDA
@@ -280,12 +283,12 @@ environment or in a `.env` file at the repository root.
 
 ## Model information
 
-| Model | Role | Version | Size and precision | Licence | Stage I, the laptop | Stage II, the B70 (planned) |
+| Model | Role | Version | Size and precision | Licence | Stage I, the laptop | Stage II, the machine |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 17.53 GB, or Qwen's FP8, 10.59 GB | Apache-2.0 | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | vLLM's XPU build or Intel's llm-scaler image |
-| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 | PyTorch 2.14.1 CUDA | PyTorch XPU in FP32, or OpenVINO |
+| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, is a declared comparison and has not been run | Apache-2.0 | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context |
+| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: scoring has run, with the laptop's checkpoints. Training on the machine and the OpenVINO export are week 2's |
 | [docling](https://github.com/docling-project/docling)'s layout and table models | The parser: reads the specification PDF | as docling 2.135.0 fetches them: `docling-layout-heron`, `docling-models` v2.3.0 | about 530 MB together | Apache-2.0 and CDLA-Permissive-2.0 (docling itself is MIT) | CPU | CPU |
-| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 | not built | planned, at FP16 |
+| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 | not built | planned, at FP16; not run |
 
 No model is trained or fine-tuned except PatchCore's memory bank, which is
 built from a part's good images in about 12 minutes. `THIRD_PARTY.md` lists
@@ -293,9 +296,11 @@ every model, dataset and library with its licence and source.
 
 ## Stage II on the Intel Arc Pro B70
 
-Stage II has begun on the organiser's machine, and week 1's figures are in
-`results/stage2/week1/`. The plan, corrected to the machine on 7 November
-2026, is in full in `docs/stage2.md`:
+The machine is the subject of Stage II: the organiser's rules ask for operation
+and validation on it, and no comparison with a team's own hardware. Week 1's
+figures are in `results/stage2/week1/`. The protocol is
+`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and the plan, corrected
+to the machine, is in full in `docs/stage2.md`:
 
 ```mermaid
 flowchart LR
@@ -304,14 +309,14 @@ flowchart LR
         CLIENT["Judge client<br/>OpenAI-compatible HTTP,<br/>JSON-schema answers"]
     end
 
-    subgraph b70["Stage II: two Arc Pro B70s"]
-        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
-        V2["Card 1: judge's server<br/>llm-scaler vLLM image<br/>tag 0.26.0-b1<br/>Qwen3-VL-8B-Instruct<br/>FP16 or FP8"]
-    end
-
     subgraph laptop["Stage I: the laptop"]
         A1["Anomaly model<br/>PatchCore, PyTorch CUDA<br/>RTX 5070 Ti Laptop, 12 GB"]
         V1["Judge's server<br/>llama.cpp llama-server<br/>Qwen3-VL-8B-Instruct<br/>4-bit (Q4_K_M)"]
+    end
+
+    subgraph b70["Stage II: two Arc Pro B70s"]
+        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
+        V2["Card 1: judge's server<br/>llm-scaler vLLM image<br/>tag 0.26.0-b1<br/>Qwen3-VL-8B-Instruct<br/>FP16, with FP8 compared"]
     end
 
     CLI -->|"XPU"| A2
@@ -335,26 +340,35 @@ real part trained on XPU, the OpenVINO export and the judge at FP8 have not.
   measurement: about 13 GiB at 90%. The plan had assumed 80% of one shared card
   and about 8 GB of cache at FP16.
 - **The serving stack.** Moving the client from llama.cpp to the llm-scaler vLLM
-  image is two settings. The server needs two more of its own or its figures do
-  not compare with the laptop's: asked cold (`--no-enable-prefix-caching
-  --mm-processor-cache-gb 0`) and the laptop's image size. vLLM accepts the
+  image is two settings. The server needs two more of its own or it is not the
+  pipeline the protocol declares: asked cold (`--no-enable-prefix-caching
+  --mm-processor-cache-gb 0`) and a small crop's 1,024 tokens. vLLM accepts the
   answer schema, with one fix to the schema: the reason's pattern now bars the
   double quote and the backslash. The anomaly model's device is a setting,
   `SPEC_TO_INSPECTOR_DEVICE`, and PatchCore's scores on XPU match CUDA's on all
   401 boards to within 0.00053.
-- **The first bench.** 34.1% strict (46 of 135, 95% interval 26.6% to 42.4%)
-  against the laptop's 38.5% (52 of 135), and lenient 70.8% (46 of 65) against
-  the laptop's 58.5% (38 of 65). The server and the answer pattern differ from
-  the laptop's as well as the precision, so no figure separates them. It is a
-  bring-up figure: `eval/PROTOCOL.md` describes Stage I and is not edited, and a
-  Stage II protocol is drafted and not in force.
-- **What will be measured**, 6 November to 4 December, when the video is due,
-  with the machine's reservation ending 2 December at 11:30, so everything run
-  on it and the recording of the final video come before then: PatchCore's
-  training time, speed and memory on the B70; the judge's answer time and
-  throughput at FP16 and FP8; and clause-citation accuracy on the same 200
-  labelled boards, to see whether full precision, a picture of a good board
-  beside the crop, and the corrections loop move the 38.5%.
+- **Running there.** `scripts/setup_xpu.sh` syncs the `xpu` dependency group, and
+  `scripts/serve_vlm_xpu.sh start` starts the judge's server. Set
+  `SPEC_TO_INSPECTOR_DEVICE=xpu` and run from `.venv/bin/`: a bare `uv run` syncs
+  back to the default groups and swaps in the CUDA wheels.
+- **The first bench.** A bring-up figure, never final: 34.1% strict (46 of 135,
+  95% interval 26.6% to 42.4%) and lenient 70.8% (46 of 65, 58.8% to 80.4%), with
+  the laptop's anomaly checkpoints.
+- **The final figure.** One setting declared in the protocol before the run, FP16,
+  with the anomaly models trained on the machine and an empty corrections store,
+  reported whatever it reads; three runs, the third after a server restart. It has
+  not been run yet. Three comparisons are declared in files of their own: FP8, the
+  model's own image minimum, and designators let through the digit ban, which stays
+  in the final figure. A figure is said to have moved only on a paired, two-sided
+  exact sign test below 0.05 on the 135.
+- **What will be measured**, 6 November to 4 December, when the video is due, with
+  the machine's reservation ending 2 December at 11:30, so everything run on it and
+  the recording of the final video come before then: PatchCore's training time,
+  speed and memory on the B70; the judge's answer time and throughput at FP16 and
+  FP8; and clause-citation accuracy on the 200 labelled boards, to see whether FP8,
+  a picture of a good board beside the crop, and the corrections loop move the
+  machine's own baseline. The last two each get a dated addition to the protocol
+  when built.
 
 ## Data
 
@@ -392,9 +406,11 @@ src/spec_to_inspector/
     cli.py         one entry point: parse, train, inspect, correct, bench, serve
 tests/             mirrors src/
 specs/             the demonstration specification: Markdown source, PDF, clause table
-eval/              the labelled clause set, its mapping table and the protocol
-results/stage1/    the measured figures, as JSON, and the page written from them
-scripts/           the judge's server, the specification's rebuild, the console walk
+eval/              the labelled clause set, its mapping table and the two protocols
+results/stage1/    the laptop's measured figures, as JSON, and the page written from them
+results/stage2/    the machine's: its shape, and week 1's bring-up figures and logs
+scripts/           the judge's two servers, the machine's environment, the
+                   specification's rebuild, the console walk
 docs/              architecture.md, stage2.md, and the reject card's screenshot
 deck/deck.pdf      the proposal deck
 ```
@@ -413,6 +429,6 @@ uv run pytest && uv run ruff check && uv run ruff format --check && uv run pyrig
 ```
 
 Tests that need more than a clean clone are marked and run on request:
-`uv run pytest -m gpu` (the CUDA GPU), `-m data` (the fetched data),
-`-m live` and `-m bench` (the VLM server up), `-m recorded` (trained models
-and scored runs).
+`uv run pytest -m gpu` (the CUDA GPU), `-m xpu` (the Intel Arc cards and the
+`xpu` environment), `-m data` (the fetched data), `-m live` and `-m bench` (the
+VLM server up), `-m recorded` (trained models and scored runs).

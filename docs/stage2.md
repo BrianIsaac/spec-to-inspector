@@ -95,9 +95,8 @@ precision, with a card beside the anomaly model's, is what the machine's
 memory is for. Whether it does so at a useful speed has one first reading,
 with the demonstration specification only: asked cold at FP16 a question takes
 a median of 2.13 s and a 95th percentile of 2.56 s
-(`results/stage2/week1/README.md`). The plan found no
-published measured figure for a vision-language model on a B70, and this page
-quotes none but its own.
+(`results/stage2/week1/README.md`). The plan found no published measured figure
+for a vision-language model on a B70, and this page quotes none but its own.
 
 ## The serving stack
 
@@ -225,7 +224,7 @@ never pooled.
    baseline.
 
 *Corrected 7 November 2026. The plan had set these three against the laptop's
-38.5%, as "the figure Stage II most needs to move", and had called full precision
+headline, as "the figure Stage II most needs to move", and had called full precision
 "the one change the B70's memory buys outright", saying "whether it raises the
 figure is not known". The owner ruled that the machine is the subject, and the
 organiser's rules ask for no comparison with a team's own hardware.*
