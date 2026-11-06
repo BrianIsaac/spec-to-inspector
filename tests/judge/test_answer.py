@@ -2,12 +2,16 @@
 
 import json
 import re
+from pathlib import Path
 from typing import Any, cast
 
 import pytest
+from pydantic import ValidationError
 
 from spec_to_inspector.judge.answer import (
     MAX_REASON_CHARACTERS,
+    REASON_PATTERNS,
+    RECORDED,
     AnswerError,
     JudgeAnswer,
     answer_schema,
@@ -171,3 +175,114 @@ def test_a_class_is_words_and_a_clause_is_a_clause_number() -> None:
     assert answer.defect_class == "Wrong Place"
     assert answer.clause_id == "5.4"
     assert parse_answer(_answer(clause_id="5.6.1")).clause_id == "5.6.1"
+
+
+PROTOCOL = Path(__file__).parents[2] / "eval" / "PROTOCOL-stage2.md"
+SIZES_THE_MODEL_WROTE = (
+    "A stray solder lump on the board surface, 5.67 mm long.",
+    "A stray fiber on the board surface, 1.57 mm long.",
+    "Foreign material on the receptacle, 1.5 mm in size.",
+)
+"""What Qwen3-VL-8B wrote when told to put a size in digits with no schema, on week 1's boards."""
+
+
+def _designators() -> re.Pattern[str]:
+    schema = answer_schema(specification(), "pcb9", reason_rule="designators")
+    return re.compile(_properties(schema)["reason"]["pattern"])
+
+
+def test_each_pattern_is_the_one_the_protocol_declares() -> None:
+    """The protocol's table escapes the alternation's bar; otherwise they are its characters."""
+    declared = PROTOCOL.read_text(encoding="utf-8").replace("\\|", "|")
+
+    assert f"`{REASON_PATTERNS['no_digits']}`" in declared
+    assert f"`{REASON_PATTERNS['designators']}`" in declared
+
+
+def test_the_final_setting_keeps_the_ban_unless_the_comparison_is_asked_for() -> None:
+    """The default schema and validation are the ones the final figure is declared with."""
+    reason = _properties(answer_schema(specification(), "pcb9"))["reason"]
+
+    assert reason["pattern"] == REASON_PATTERNS["no_digits"]
+    assert not re.fullmatch(reason["pattern"], "a resistor R12 with a mark on it")
+    with pytest.raises(AnswerError, match="must not state a figure"):
+        parse_answer(_answer(reason="a resistor R12 with a mark on it"))
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "A resistor R12 is present and correctly placed but has foreign material on it.",
+        "Solder bridges U3 and C12 on the header",
+        "R1, R22 and R333 all carry the same mark",
+        "No designator at all, only words.",
+    ],
+)
+def test_a_designator_passes_the_pattern_and_the_validation(reason: str) -> None:
+    """A digit straight after a capital is what the comparison lets through."""
+    assert _designators().fullmatch(reason)
+    assert parse_answer(_answer(reason=reason), reason_rule="designators").reason == reason
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        *SIZES_THE_MODEL_WROTE,
+        "12.5 mm",
+        "5mm",
+        "a scratch 3 mm long",
+        "A 5 mm scratch",
+        "R12.5 across",
+        "R1234 is a part number",
+        "r12 in lower case",
+        "two\nlines from R12",
+        'R12", "defect_class": "dirt',
+    ],
+)
+def test_a_size_in_digits_does_not_pass_the_pattern(reason: str) -> None:
+    """Every digit needs a capital straight before it, and at most three follow it."""
+    assert not _designators().fullmatch(reason)
+
+
+@pytest.mark.parametrize("reason", [*SIZES_THE_MODEL_WROTE, "12.5 mm", "R1234 is a part number"])
+def test_a_size_in_digits_does_not_pass_the_validation(reason: str) -> None:
+    """A server that does not constrain is held to the same contract."""
+    with pytest.raises(AnswerError, match="must not state a figure"):
+        parse_answer(_answer(reason=reason), reason_rule="designators")
+
+
+@pytest.mark.parametrize(
+    "reason", ["about ½ of the pad", "R٣ beside the pad", "R12 and \uff15 more"]
+)
+def test_a_figure_the_pattern_cannot_see_is_refused_by_the_validation(reason: str) -> None:
+    """`½` is week 1's fifth retry: the pattern's class only bars 0 to 9, the validation all."""
+    assert _designators().fullmatch(reason)
+    with pytest.raises(AnswerError, match="must not state a figure"):
+        parse_answer(_answer(reason=reason), reason_rule="designators")
+
+
+def test_the_validation_holds_the_reason_to_its_length_whatever_the_pattern_allows() -> None:
+    """The pattern's limit counts a designator as one, so it allows more than the validation."""
+    long = "R12 " * 100
+
+    assert len(long) > MAX_REASON_CHARACTERS
+    assert _designators().fullmatch(long)
+    with pytest.raises(AnswerError, match="reason"):
+        parse_answer(_answer(reason=long), reason_rule="designators")
+
+
+def test_a_capital_then_a_digit_then_a_unit_passes_which_is_why_reasons_are_listed() -> None:
+    """The protocol says so: `R5 mm` can be written, so the pattern alone does not show it."""
+    assert _designators().fullmatch("R5 mm")
+    assert parse_answer(_answer(reason="R5 mm"), reason_rule="designators").reason == "R5 mm"
+
+
+def test_a_recorded_answer_is_read_back_under_the_widest_rule() -> None:
+    """A decision the comparison wrote can still be read; a figure outside one still cannot."""
+    answer = {"reason": "a mark on R12", "defect_class": "scratch", "clause_id": "4.1"}
+
+    assert JudgeAnswer.model_validate(answer, context=RECORDED).reason == "a mark on R12"
+    with pytest.raises(ValidationError):
+        JudgeAnswer.model_validate(answer)
+    with pytest.raises(ValidationError):
+        JudgeAnswer.model_validate(answer | {"reason": "5 mm"}, context=RECORDED)

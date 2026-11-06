@@ -12,7 +12,9 @@ the judge asked goes back to the server three more ways:
 
 Run on the machine with the server up, from the repository root:
 
-    UV_NO_SYNC=1 ZE_AFFINITY_MASK=0 uv run python scripts/judge_schema_check.py --out judge.json
+    ZE_AFFINITY_MASK=0 .venv/bin/python scripts/judge_schema_check.py --out judge.json
+
+The protocol's `designators` comparison repeats it with `SPEC_TO_INSPECTOR_REASON_RULE=designators`.
 """
 
 import argparse
@@ -38,7 +40,7 @@ from spec_to_inspector.anomaly.infer import (
 from spec_to_inspector.judge.answer import AnswerError, parse_answer
 from spec_to_inspector.judge.client import SCHEMA_NAME, ChatClient, Completion, Message
 from spec_to_inspector.judge.inspect import judge_image
-from spec_to_inspector.settings import Settings
+from spec_to_inspector.settings import ReasonRule, Settings
 from spec_to_inspector.spec.schema import read_clause_table
 
 BOARDS: Final = (("pcb1", "bad-000"), ("pcb1", "bad-085"), ("pcb4", "bad-005"))
@@ -211,17 +213,18 @@ def first_token(
     }
 
 
-def _judged(text: str) -> dict[str, object]:
+def _judged(text: str, reason_rule: ReasonRule) -> dict[str, object]:
     """Read an answer against the judge's own validation.
 
     Args:
         text: What the model wrote.
+        reason_rule: What the reason may hold.
 
     Returns:
         Whether it is valid, and what is in it or wrong with it.
     """
     try:
-        answer = parse_answer(text)
+        answer = parse_answer(text, reason_rule=reason_rule)
     except AnswerError as error:
         return {"valid": False, "problem": error.problem, "text": text}
     return {
@@ -238,6 +241,7 @@ def _control(
     messages: Sequence[Message],
     instruction: str,
     schema: Mapping[str, object] | None,
+    reason_rule: ReasonRule,
 ) -> dict[str, object]:
     """Put the board's question again with an instruction after it.
 
@@ -246,6 +250,7 @@ def _control(
         messages: The question as the judge asked it.
         instruction: What to tell the model.
         schema: The answer's JSON schema, or None to leave the output free.
+        reason_rule: What the reason may hold.
 
     Returns:
         What came back, read against the judge's validation.
@@ -256,7 +261,7 @@ def _control(
         "constrained": schema is not None,
         "finish_reason": completion.finish_reason,
         "text": completion.text,
-        "read": _judged(completion.text),
+        "read": _judged(completion.text, reason_rule),
     }
 
 
@@ -292,7 +297,8 @@ def check_board(
     """
     specification = read_clause_table(Path("specs/pcb-spec.clauses.json"))
     client.asked.clear()
-    decision = judge_image(directory, specification, client, cache_prompt=False)
+    rule = settings.reason_rule
+    decision = judge_image(directory, specification, client, cache_prompt=False, reason_rule=rule)
     messages, schema = client.asked[0]
     assert schema is not None  # noqa: S101 - the judge always sends its schema
     region = decision.regions[0]
@@ -326,9 +332,9 @@ def check_board(
             "answer": None if answer is None else answer.model_dump(),
         },
         "streamed": streamed,
-        "break_the_schema_constrained": _control(client, messages, BREAK_THE_SCHEMA, schema),
-        "break_the_schema_free": _control(client, messages, BREAK_THE_SCHEMA, None),
-        "nothing_applies_constrained": _control(client, messages, NOTHING_APPLIES, schema),
+        "break_the_schema_constrained": _control(client, messages, BREAK_THE_SCHEMA, schema, rule),
+        "break_the_schema_free": _control(client, messages, BREAK_THE_SCHEMA, None, rule),
+        "nothing_applies_constrained": _control(client, messages, NOTHING_APPLIES, schema, rule),
     }
 
 
@@ -367,6 +373,7 @@ def main() -> None:
         "measured_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "note": arguments.note,
         "server": {"url": settings.vlm_url, "model": settings.vlm_model},
+        "reason_rule": settings.reason_rule,
         "judge_card_memory_mib": {
             "before_the_first_question": idle,
             "peak_while_answering": max(watch.readings, default=None),

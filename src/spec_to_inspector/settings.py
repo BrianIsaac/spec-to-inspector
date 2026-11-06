@@ -12,6 +12,11 @@ from spec_to_inspector.datasets.visa import VISA_URL
 DeviceKind = Literal["cuda", "xpu", "cpu"]
 """What the anomaly model can run on. It lives here because this module does not import PyTorch."""
 
+ReasonRule = Literal["no_digits", "designators"]
+"""What the judge's reason may hold: no digit at all, which is the final figure's rule, or the
+protocol's `designators` comparison, a digit straight after a capital. It lives here for the same
+reason as `DeviceKind`."""
+
 CORRECTIONS_STORE_NAME: Final = "corrections.sqlite3"
 """The corrections store's file under the runs directory, unless `corrections_db` moves it."""
 
@@ -43,6 +48,9 @@ class Settings(BaseSettings):
             address, which `ZE_AFFINITY_MASK` does not renumber.
         vlm_timeout_seconds: How long one answer may take before the region
             is referred to an engineer.
+        reason_rule: What the judge's reason may hold: `no_digits`, or the
+            protocol's `designators` comparison. The rule is the client's: the
+            server is started the same either way.
         corrections_db: The corrections store's SQLite file; unset, it is
             `corrections.sqlite3` under the runs directory.
         corrections_recall: When the store's corrections are put before the
@@ -66,6 +74,7 @@ class Settings(BaseSettings):
     vlm_model: str = "qwen3-vl-8b-instruct"
     vlm_card: str = "0"
     vlm_timeout_seconds: float = Field(default=120.0, gt=0)
+    reason_rule: ReasonRule = "no_digits"
     corrections_db: Path | None = None
     corrections_recall: Literal["part", "answer"] = "part"
 

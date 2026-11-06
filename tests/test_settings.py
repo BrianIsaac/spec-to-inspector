@@ -154,3 +154,15 @@ def test_reading_the_settings_does_not_import_pytorch() -> None:
     """Every verb reads the settings, and PyTorch takes seconds to import."""
     program = "import sys, spec_to_inspector.settings; sys.exit('torch' in sys.modules)"
     assert subprocess.run([sys.executable, "-c", program], check=False).returncode == 0
+
+
+def test_the_reason_rule_is_the_final_figures_unless_the_comparison_names_its_own(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The rule is the client's: one setting, and nothing else it does not name is allowed."""
+    assert Settings().reason_rule == "no_digits"
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_REASON_RULE", "designators")
+    assert Settings().reason_rule == "designators"
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_REASON_RULE", "anything")
+    with pytest.raises(ValueError, match="reason_rule"):
+        Settings()
