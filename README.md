@@ -299,8 +299,9 @@ every model, dataset and library with its licence and source.
 The machine is the subject of Stage II: the organiser's rules ask for operation
 and validation on it, and no comparison with a team's own hardware. Week 1's
 figures are in `results/stage2/week1/` and week 2's in `results/stage2/week2/`.
-The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and the
-plan, corrected to the machine, is in full in `docs/stage2.md`:
+The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, with one
+dated addition so far, and the plan, corrected to the machine, is in full in
+`docs/stage2.md`:
 
 ```mermaid
 flowchart LR
@@ -362,12 +363,15 @@ the final run have not run.
 - **The final figure.** One setting declared in the protocol before the run, FP16,
   with the anomaly models trained on the machine and an empty corrections store,
   reported whatever it reads; three runs, the third after a server restart. It has
-  not been run yet. The bench as it stands stops on those models at PCB1 `bad-029`,
-  the one board of its part that sits on the threshold; how that is settled is open,
-  and `docs/stage2.md` sets it out. Three comparisons are declared in files of their
-  own: FP8, the model's own image minimum, and designators let through the digit ban,
-  which stays in the final figure. A figure is said to have moved only on a paired,
-  two-sided exact sign test below 0.05 on the 135.
+  not been run yet. Before it is, the bench's region columns, made from the laptop's
+  models, are regenerated from the machine's, on which the bench now stops at PCB1
+  `bad-029`; the threshold rule stays a strict `>`, with the four boards that sit on
+  the threshold named in the record. A dated addition to the protocol,
+  `eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`, says both. Three
+  comparisons are declared in files of their own: FP8, the model's own image minimum,
+  and designators let through the digit ban, which stays in the final figure. A figure
+  is said to have moved only on a paired, two-sided exact sign test below 0.05 on the
+  135.
 - **What will be measured**, 6 November to 4 December, when the video is due, with
   the machine's reservation ending 2 December at 11:30, so everything run on it and
   the recording of the final video come before then: the judge's answer time and
@@ -442,7 +446,8 @@ src/spec_to_inspector/
     cli.py         one entry point: parse, train, inspect, correct, bench, serve
 tests/             mirrors src/
 specs/             the demonstration specification: Markdown source, PDF, clause table
-eval/              the labelled clause set, its mapping table and the two protocols
+eval/              the labelled clause set, its mapping table, the two protocols and
+                   the second's dated addition
 results/stage1/    the laptop's measured figures, as JSON, and the page written from them
 results/stage2/    the machine's: its shape, week 1's bring-up figures and logs,
                    week 2's anomaly model

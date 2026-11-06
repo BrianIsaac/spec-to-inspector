@@ -128,4 +128,4 @@ bench on the models trained on the machine and the final run have not run.
 
 `docs/stage2.md` has the memory plan per stage on the machine, what the plan
 assumed about it before it was seen, and what Stage II will measure.
-`eval/PROTOCOL-stage2.md` is how it is measured.
+`eval/PROTOCOL-stage2.md`, with its dated addition, is how it is measured.

@@ -210,15 +210,6 @@ yet known.*
 What is not yet known:
 
 - What the final run reads. It has not been run.
-- How the bench runs on the models trained on the machine. `eval/clause_labels.csv`
-  holds what each board's region 1 lies on, made from the laptop's models, and the
-  bench stops if a model's regions disagree. Checked against each model, the models
-  trained on the machine stop on PCB1 `bad-029`, one of the 135
-  (`results/stage2/week2/label-region-columns.json`). It is the one board of its part
-  that sits on the threshold: Anomalib's adaptive threshold is set at a board's score,
-  the rule is a strict `>`, and floating-point noise decides such a board on any
-  device. One board a part sits there. How this is settled is open, and no final run
-  comes before it is.
 - What FP8 does, and what a specification much longer than the demonstration's
   does, to memory and to speed: week 3.
 - Why OpenVINO holds 18 GiB at batch 16, why it runs at about half PyTorch XPU's speed,
@@ -250,11 +241,26 @@ no machine: what is left of it can only work from what was copied. The weeks are
 not re-planned here; that is the owner's.
 
 **The baseline.** What Stage II rests on is a final run on the machine under
-`eval/PROTOCOL-stage2.md`, in force since 7 November 2026: one setting declared
+`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and its dated addition
+`eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`: one setting declared
 before the run, FP16, with the anomaly models trained on the machine and an empty
 corrections store, reported whatever it reads. Three runs make it final, the third
-after a server restart. It has not been run yet, and "What is not yet known" above
-says what comes first.
+after a server restart. It has not been run yet.
+
+The addition answers two things week 2 found (`results/stage2/week2/README.md`):
+
+- **The region columns.** `eval/clause_labels.csv` holds what each board's region 1
+  lies on, made from the laptop's models, and the bench stops if a model's regions
+  disagree. The models trained on the machine stop on PCB1 `bad-029`, one of the 135
+  (`results/stage2/week2/label-region-columns.json`). So the columns are regenerated
+  from the machine's checkpoints before the final run, with every row that changes
+  recorded. That has not been done yet. The clause each image expects does not change:
+  it comes from VisA's annotation, not from any model.
+- **The board on the threshold.** Anomalib's adaptive threshold is set at a board's
+  score, so one board a part sits on it: PCB1 `bad-029`, PCB2 `bad-060`, PCB3 `bad-097`,
+  PCB4 `bad-081`. Floating-point noise decides such a board on any device. The rule
+  stays a strict `>`, the final run's record names the four with each one's score and
+  threshold, and the figure is read with that known.
 
 Week 1's bench on the machine is a bring-up figure, never final: 34.1% strict (46
 of 135, 95% interval 26.6% to 42.4%) and lenient 70.8% (46 of 65, 58.8% to 80.4%),
