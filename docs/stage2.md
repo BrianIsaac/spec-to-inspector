@@ -194,8 +194,8 @@ Week 1's bench on the machine is a bring-up figure, never final: 34.1% strict (4
 of 135, 95% interval 26.6% to 42.4%) and lenient 70.8% (46 of 65, 58.8% to 80.4%),
 with the laptop's anomaly checkpoints (`results/stage2/week1/README.md`). The
 anomaly model is not what holds it down: on 109 of the 135 the most anomalous area
-lies on the labelled defect. The judge names the wrong defect class, and the same
-crops described freely are described well.
+lies on the labelled defect. The judge names the wrong defect class; asked simply
+to describe four of the crops, on the laptop, it was right about what is in them.
 
 **Stage I is history.** On a laptop, at 4-bit, under another server and an older
 answer pattern, the prototype cited the right clause on 52 of 135 single-defect

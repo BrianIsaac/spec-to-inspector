@@ -3,10 +3,11 @@
 Written on 7 November 2026, after one bring-up bench on this machine and
 before any run this protocol calls final. In force from that day, on the
 owner's rulings of the same day (ruling 13), which are cited below by their
-numbers in the project's decisions log. A final run's record holds this
-file's SHA-256, and its history in git shows when it was written. If a later
-reader finds the protocol wanting, the remedy is a new protocol and a new
-run, both dated, never an edit of this one.
+numbers in the project's decisions log, part of the planning record the public
+copy leaves out; each sentence citing one says what it rules. A final run's
+record holds this file's SHA-256, and its history in git shows when it was
+written. If a later reader finds the protocol wanting, the remedy is a new
+protocol and a new run, both dated, never an edit of this one.
 
 `eval/PROTOCOL.md` is Stage I's. It is not edited, and it stands for what it
 measured.
@@ -70,11 +71,13 @@ for the false alarms.
 One command, `spec-to-inspector bench`, with its defaults but for where it
 writes, started on the machine as
 
-    SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector bench
+    SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector bench \
+        --results results/stage2/final/bench.json --readme results/stage2/final/README.md
 
 with the judge's server up as `scripts/serve_vlm_xpu.sh start` starts it, none
 of the script's settings overridden. Never a bare `uv run` on the machine: it
-syncs back to the default groups and swaps in the CUDA wheels.
+syncs back to the default groups and swaps in the CUDA wheels. Never the bench's
+default paths either: they are `results/stage1/`, which stands as measured.
 
 1. **The specification.** `specs/pcb-spec.pdf` is parsed as the `parse` verb
    parses it. The clause table that comes out must equal the tracked
@@ -83,11 +86,12 @@ syncs back to the default groups and swaps in the CUDA wheels.
 2. **The anomaly model.** The PatchCore model of each part, trained on the
    machine (ruling 10), scores that part's whole test split, anomalous and
    good, into a run directory of the bench's own. Nothing is trained in the
-   run. From week 2's record, `results/stage2/week2/README.md`, this protocol
-   takes for pcb1 and pcb4 the checkpoint, by SHA-256, its thresholds and its
-   fit time; the figures are that record's and are not repeated here. Where
-   that record holds more than one training of a part, the first is the one
-   used, so that no checkpoint is picked by what it scores.
+   run. From week 2's record, `results/stage2/week2/README.md`, not yet in this
+   repository when this was written, this protocol takes for pcb1 and pcb4 the
+   checkpoint, by SHA-256, its thresholds and its fit time; the figures are that
+   record's and are not repeated here. Where that record holds more than one
+   training of a part, the first is the one used, so that no checkpoint is
+   picked by what it scores (ruling 1).
 3. **The judge.** Every image with a flagged area is judged as `inspect`
    judges it, at temperature zero: up to three areas in rank order, most
    anomalous first, stopping at the first reject. Two switches are set, and
@@ -111,7 +115,7 @@ The precision is FP16 (ruling 9). Every other row is what week 1 found
 necessary on this machine, with its measured reason. Stage I's column says
 what the row replaces, not how the two compare.
 
-| | On the machine | In Stage I's protocol | The measured reason | Record |
+| | On the machine | In Stage I | The measured reason | Record |
 | --- | --- | --- | --- | --- |
 | The server | `intel/llm-scaler-vllm:0.26.0-b1`, digest `sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490`, vLLM 0.26.1.dev0 | llama.cpp `v0.6.0`, CUDA | vLLM holds to the schema's `pattern` and nullable `enum` under this tag, with the fix below. Later tags exist (`0.26.0-b2`, `0.31.0-b1-experimental`, `1.5`) and none has been run | `machine.md`, `judge-schema.json` |
 | The weights and the precision | `Qwen/Qwen3-VL-8B-Instruct`, revision `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`, `--dtype=float16` | Qwen's GGUF, Q4_K_M | BF16 on disk; vLLM logs the cast to FP16 and loads 17.34 GiB | `machine.md`, `raw/serve-fp16-util-0.9-cold-final.txt` |
@@ -125,7 +129,8 @@ what the row replaces, not how the two compare.
 
 The prompt, the schema, the clause table and the thresholds do not change
 after this protocol is written. A run is final only if its record also holds
-what the bench did not write on this machine in week 1:
+what the bench did not write on this machine in week 1. None of these is in the
+bench as this protocol is written, and no run is final until they are:
 
 - the memory of figure 9, from `xpu-smi`, where week 1's fields are null;
 - this file's path and SHA-256 under `protocol`;
@@ -138,7 +143,7 @@ what the bench did not write on this machine in week 1:
 - a page of its own that does not call itself the laptop prototype. Week 1's
   page was written by hand for that reason.
 
-The final run's files go to `results/stage2/final/`, with the server's log of
+The final run's files stay in `results/stage2/final/`, with the server's log of
 each run beside them as a `.txt` file, since the void rule above reads it. All
 of it is run and copied off before the reservation ends, 2 December 2026 at
 11:30 as the billing tab prints it, with no time zone shown.
@@ -220,8 +225,8 @@ interval (z = 1.959964, no continuity correction):
    was trained on the machine. Training is not repeated here; the figure says
    so.
 9. **Peak GPU memory by stage**, read from `xpu-smi`: card 0 while the anomaly
-   model scores and card 1 while the judge answers, sampled as the bench
-   samples, every 0.5 s. With a card each, the card stands for the process,
+   model scores and card 1 while the judge answers, sampled by the bench, at the
+   interval its record gives. With a card each, the card stands for the process,
    with 42 MiB on an idle card (`bench/card-memory.txt`). A process's own
    figure is given where the reader returns one, and is null where it does not.
 10. **The paired table, for each comparison below**, over the 135 and over the
@@ -260,10 +265,11 @@ Three runs make a figure final (ruling 4). The command is run twice from the
 same state; the second run records how many of its answers on region 1 (class,
 heading, sentence) and how many board outcomes differ from the first. Then the
 server is stopped and started again, the warm-up is asked, and the command is
-run a third time with `--results` pointed at a copy of the second run's record,
+run a third time with `--results results/stage2/final/after-restart.json`, a copy
+of the second run's record, and `--readme results/stage2/final/after-restart.md`,
 so that the third records the same counts against the second.
 
-The tracked file is the second run's, with the third's kept beside it. If any
+The tracked file is the second run's, `bench.json`, with the third's beside it. If any
 figure of this protocol differs between the runs, every value is reported.
 By the stamps in `bench/bench.json` a run takes about 10 minutes.
 
@@ -272,7 +278,7 @@ By the stamps in `bench/bench.json` a run takes about 10 minutes.
 The same command is run against each of three other settings (rulings 5 and
 7), after the final figure, each from the final setting with one thing changed.
 Each has two runs from the same state, under every rule above but the one it
-changes, and goes into files of its own, under
+changes, and goes into files of its own, `bench.json` and `README.md` under
 `results/stage2/comparison-<name>/`. Each is reported as a comparison and none
 replaces the final figure: the headline is the final setting's whichever is
 higher. A comparison not run by the end of the reservation is reported as not
@@ -288,8 +294,10 @@ run, with the reason. No other comparison is part of this protocol.
 (ruling 5).** 4 of the 5 retries in week 1's bench are a resistor's designator
 and the fifth is `½`, all on PCB4, each padded answer costing about 11 s against
 2 s (`README.md`). Its digit is allowed only directly after a capital letter,
-so `5.67 mm` cannot be written. `R5 mm` can, so the pattern alone does not show
-it. Its files therefore also hold:
+so `5.67 mm` cannot be written. `½` is not a designator, and the answer's
+validation still refuses it, and still holds a reason to 240 characters, however
+many the pattern allows. `R5 mm` can be written, so the pattern alone does not
+show it. Its files therefore also hold:
 
 - every reason in both runs with a digit in it, listed by board, and the count
   of those whose digits are followed by a unit of length;
