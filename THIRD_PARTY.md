@@ -6,7 +6,9 @@ repository's own code and documents are under Apache-2.0 (`LICENSE`).
 
 Read on 11 October 2026: each model's licence from its model card on
 Hugging Face, each project's from its repository, each Python package's
-from the metadata of the version `uv.lock` pins.
+from the metadata of the version `uv.lock` pins. What Stage II uses on the
+organiser's machine, and the packages only its `xpu` group brings, were read the
+same way on 7 November 2026.
 
 ## Summary
 
@@ -14,24 +16,26 @@ from the metadata of the version `uv.lock` pins.
   is Apache-2.0 or CDLA-Permissive-2.0; the dataset is CC BY 4.0; the
   libraries are permissive (MIT, BSD, Apache-2.0, ISC, PSF) with a few
   under weak copyleft (MPL-2.0, and LGPL libraries bundled inside four
-  wheels), all of which permit commercial use.
+  wheels), all of which permit commercial use. On the machine, Intel's runtime
+  packages are under Intel's own licences, which permit business use.
 - Nothing third-party is redistributed in this repository except images
   derived from VisA, with attribution (below), and the deck's typefaces,
   vendored with the deck's source with their licence files beside them in
   the full repository and embedded as subsets in `deck/deck.pdf`. Models and
   data are downloaded by the documented commands; packages are installed
   by `uv`.
-- Three points a reader should know, each set out under "Notes": Anomalib's
+- Four points a reader should know, each set out under "Notes": Anomalib's
   code describes VisA's licence differently from VisA's owner; the anomaly
-  model's backbone was pretrained on ImageNet; and the laptop's CUDA
-  runtime is NVIDIA's proprietary software, which the Stage II target does
-  not use.
+  model's backbone was pretrained on ImageNet; the laptop's CUDA runtime is
+  NVIDIA's proprietary software, which the machine does not use; and the
+  machine's runtime is Intel's proprietary software, which the laptop does not
+  use.
 
 ## Data
 
 | Dataset | Used for | Licence | Source |
 | --- | --- | --- | --- |
-| VisA (Visual Anomaly dataset), the four PCB categories and `split_csv/` of `VisA_20220922.tar` | Training the anomaly model on good boards; the test split behind every figure in `results/stage1/`; the photographs in the demonstration specification | CC BY 4.0 ("The data is released under the CC BY 4.0 license", the owner's README) | <https://github.com/amazon-science/spot-diff> |
+| VisA (Visual Anomaly dataset), the four PCB categories and `split_csv/` of `VisA_20220922.tar` | Training the anomaly model on good boards; the test split behind every figure in `results/stage1/` and `results/stage2/`; the photographs in the demonstration specification | CC BY 4.0 ("The data is released under the CC BY 4.0 license", the owner's README) | <https://github.com/amazon-science/spot-diff> |
 
 Citation, as the owner asks:
 
@@ -82,18 +86,21 @@ The PatchCore memory banks under `models/patchcore/` are built on the
 user's machine by `spec-to-inspector train` from VisA's good images; they
 are not distributed.
 
-Planned for Stage II on the Intel Arc Pro B70 and not used by anything in
-this repository yet (`docs/stage2.md`). Each licence is as its project
-declares it today and is read again at the pinned version before use:
+Used on the organiser's machine in Stage II (`results/stage2/week1/machine.md`):
+
+| Component | Version | Used for | Licence | Source |
+| --- | --- | --- | --- | --- |
+| Qwen3-VL-8B-Instruct at FP16 | revision `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`, pinned in `scripts/serve_vlm_xpu.sh` | The judge at full precision | Apache-2.0, read at that revision | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> |
+| Intel llm-scaler, its vLLM image | `intel/llm-scaler-vllm:0.26.0-b1`, digest in `machine.md` | Serving the judge on card 1; see note 6 | Apache-2.0, the project's `LICENSE` on `main` | <https://github.com/intel/llm-scaler> |
+| vLLM | 0.26.1.dev0, inside that image | Serving the judge | Apache-2.0, the project's `LICENSE` on `main` | <https://github.com/vllm-project/vllm> |
+| OpenVINO | 2026.4.1, in the `xpu` group | The anomaly model's alternative runtime: it sees both cards, and its export is not yet run | Apache-2.0 | <https://github.com/openvinotoolkit/openvino> |
+
+Planned for Stage II and not yet run:
 
 | Component | Planned use | Licence | Source |
 | --- | --- | --- | --- |
-| Qwen3-VL-8B-Instruct at FP16 | The judge at full precision | Apache-2.0 | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> |
-| Qwen3-VL-8B-Instruct-FP8 | The judge at 8-bit, Qwen's own build | Apache-2.0 | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-FP8> |
+| Qwen3-VL-8B-Instruct-FP8, revision `9cdc6310a8cb770ce18efaf4e9935334512aee45` | The judge at 8-bit, Qwen's own build: a comparison declared in `eval/PROTOCOL-stage2.md` | Apache-2.0, read at that revision | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-FP8> |
 | PaddleOCR-VL-1.6 | Scanned specifications | Apache-2.0 | <https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6> |
-| vLLM (the XPU build) | Serving the judge | Apache-2.0 | <https://github.com/vllm-project/vllm> |
-| Intel llm-scaler (its vLLM image) | Serving the judge | Apache-2.0 | <https://github.com/intel/llm-scaler> |
-| OpenVINO | The anomaly model's alternative runtime | Apache-2.0 | <https://github.com/openvinotoolkit/openvino> |
 
 ## Software outside the Python environment
 
@@ -134,20 +141,38 @@ in `deck/deck.pdf` as subsets.
    in fifteen NVIDIA runtime packages (cuBLAS, cuDNN and others) under
    NVIDIA's proprietary licence, which permits commercial use and limits
    redistribution. They are installed by `uv` from the package index and
-   are not in this repository. The Stage II target, an Intel Arc Pro B70,
-   uses PyTorch's XPU build or OpenVINO and none of them.
+   are not in this repository. The organiser's machine, with its two Intel
+   Arc Pro B70s, uses PyTorch's XPU build and none of them.
 4. **Weak copyleft.** `certifi`, `hypothesis` (development only) and
    `tqdm` are MPL-2.0. Four wheels bundle a library under the LGPL or the
    GPL with the GCC runtime exception: `opencv-python-headless` (FFmpeg),
    `shapely` (GEOS), and `numpy` and `scipy` (libgfortran, libquadmath).
-   None is modified, and each permits commercial use.
+   None is modified, and each permits commercial use. A development tool apart
+   from these: `av`, which `faster-whisper` needs for the video's captions,
+   bundles FFmpeg with `libx264` and `libx265`, which are GPL. It is in the `dev`
+   group only and no part of the product or of this repository.
+5. **Intel's runtime.** On the machine, PyTorch's XPU build pulls in Intel's
+   oneAPI runtime packages, marked in the table below. Their metadata names
+   the Intel End User License Agreement for Developer Tools (August 2024, read in
+   `intel-cmplr-lic-rt`), which grants use "for Your personal or business use", or
+   the Intel Simplified Software License (October 2022, read in `onemkl-license`),
+   which grants use and redistribution in binary form. Both forbid reverse
+   engineering. They are installed by `uv` from the package index and are not in
+   this repository.
+6. **The server's image.** The image is pulled by `scripts/serve_vlm_xpu.sh`, and
+   neither it nor anything in it is in this repository. Besides vLLM it holds
+   torch 2.12.0+xpu, transformers 5.8.0, xgrammar 0.2.3 and Intel's oneAPI
+   runtime (`machine.md`). Its contents were not read package by package, and its
+   tag has no matching tag in the project's git repository, so the licence above
+   is the project's on `main`.
 
 ## Python packages
 
 Every package in `uv.lock`, direct and transitive, development tools
 included, at the locked version. The project's own direct dependencies are
 listed in `pyproject.toml`; the rest arrive through them, most through
-Anomalib and docling. Where a package's metadata gives a classifier
+Anomalib and docling. The `cuda` group is the default and the `xpu` group the
+machine's: a package only the `xpu` group brings says so beside its version. Where a package's metadata gives a classifier
 rather than an identifier, the identifier here is its project's stated
 licence.
 
@@ -163,13 +188,15 @@ licence.
 | [antlr4-python3-runtime](https://pypi.org/project/antlr4-python3-runtime/) | 4.9.3 | BSD-3-Clause |
 | [anyio](https://pypi.org/project/anyio/) | 4.15.1 | MIT |
 | [attrs](https://pypi.org/project/attrs/) | 26.1.0 | MIT |
+| [av](https://pypi.org/project/av/) | 19.0.1 | BSD-3-Clause (the wheel bundles FFmpeg with libx264 and libx265, GPL; see note 4) |
 | [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) | 4.15.0 | MIT |
-| [certifi](https://pypi.org/project/certifi/) | 2026.7.22 | MPL-2.0 |
+| [certifi](https://pypi.org/project/certifi/) | 2026.10.19 | MPL-2.0 |
 | [charset-normalizer](https://pypi.org/project/charset-normalizer/) | 3.5.2 | MIT |
 | [click](https://pypi.org/project/click/) | 8.5.0 | BSD-3-Clause |
 | [cloudpickle](https://pypi.org/project/cloudpickle/) | 3.1.2 | BSD-3-Clause |
 | [colorlog](https://pypi.org/project/colorlog/) | 6.12.0 | MIT |
 | [contourpy](https://pypi.org/project/contourpy/) | 1.4.0 | BSD-3-Clause |
+| [ctranslate2](https://pypi.org/project/ctranslate2/) | 4.8.2 | MIT |
 | [cuda-bindings](https://pypi.org/project/cuda-bindings/) | 13.4.3 | Apache-2.0 |
 | [cuda-pathfinder](https://pypi.org/project/cuda-pathfinder/) | 1.8.3 | Apache-2.0 |
 | [cuda-toolkit](https://pypi.org/project/cuda-toolkit/) | 13.0.3.0 | NVIDIA proprietary (NVIDIA Software License Agreement) |
@@ -183,12 +210,15 @@ licence.
 | [docling-parse](https://pypi.org/project/docling-parse/) | 7.22.2 | MIT |
 | [docling-slim](https://pypi.org/project/docling-slim/) | 2.135.0 | MIT |
 | [docstring-parser](https://pypi.org/project/docstring-parser/) | 0.18.0 | MIT |
+| [dpcpp-cpp-rt](https://pypi.org/project/dpcpp-cpp-rt/) | 2026.1.0 (`xpu` group) | Intel End User License Agreement for Developer Tools (proprietary) |
 | [einops](https://pypi.org/project/einops/) | 0.8.2 | MIT |
 | [et-xmlfile](https://pypi.org/project/et-xmlfile/) | 2.0.0 | MIT |
 | [faker](https://pypi.org/project/faker/) | 40.41.0 | MIT |
 | [fastapi](https://pypi.org/project/fastapi/) | 0.143.0 | MIT |
+| [faster-whisper](https://pypi.org/project/faster-whisper/) | 1.2.1 | MIT |
 | [filelock](https://pypi.org/project/filelock/) | 4.0.12 | MIT |
 | [filetype](https://pypi.org/project/filetype/) | 1.2.0 | MIT |
+| [flatbuffers](https://pypi.org/project/flatbuffers/) | 25.12.19 | Apache-2.0 |
 | [fonttools](https://pypi.org/project/fonttools/) | 4.66.1 | MIT |
 | [freia](https://pypi.org/project/freia/) | 0.2 | MIT |
 | [frozenlist](https://pypi.org/project/frozenlist/) | 1.8.0 | Apache-2.0 |
@@ -205,7 +235,15 @@ licence.
 | [idna](https://pypi.org/project/idna/) | 3.20 | BSD-3-Clause |
 | [imagecodecs](https://pypi.org/project/imagecodecs/) | 2026.8.16 | BSD-3-Clause |
 | [imageio](https://pypi.org/project/imageio/) | 2.38.1 | BSD-2-Clause |
+| [impi-rt](https://pypi.org/project/impi-rt/) | 2021.18.1 (`xpu` group) | Intel Simplified Software License (proprietary) |
 | [iniconfig](https://pypi.org/project/iniconfig/) | 2.3.1 | MIT |
+| [intel-cmplr-lib-rt](https://pypi.org/project/intel-cmplr-lib-rt/) | 2026.1.0 (`xpu` group) | Intel End User License Agreement for Developer Tools (proprietary) |
+| [intel-cmplr-lib-ur](https://pypi.org/project/intel-cmplr-lib-ur/) | 2026.1.0 (`xpu` group) | Intel End User License Agreement for Developer Tools (proprietary) |
+| [intel-cmplr-lic-rt](https://pypi.org/project/intel-cmplr-lic-rt/) | 2026.1.0 (`xpu` group) | Intel End User License Agreement for Developer Tools (proprietary) |
+| [intel-opencl-rt](https://pypi.org/project/intel-opencl-rt/) | 2026.1.0 (`xpu` group) | Intel End User License Agreement for Developer Tools (proprietary) |
+| [intel-openmp](https://pypi.org/project/intel-openmp/) | 2026.1.0 (`xpu` group) | Intel End User License Agreement for Developer Tools (proprietary) |
+| [intel-pti](https://pypi.org/project/intel-pti/) | 1.0.1 (`xpu` group) | MIT |
+| [intel-sycl-rt](https://pypi.org/project/intel-sycl-rt/) | 2026.1.0 (`xpu` group) | Intel End User License Agreement for Developer Tools (proprietary) |
 | [jinja2](https://pypi.org/project/jinja2/) | 3.1.6 | BSD-3-Clause |
 | [joblib](https://pypi.org/project/joblib/) | 1.6.0 | BSD-3-Clause |
 | [jsonargparse](https://pypi.org/project/jsonargparse/) | 4.46.0 | MIT |
@@ -227,6 +265,7 @@ licence.
 | [markupsafe](https://pypi.org/project/markupsafe/) | 3.0.4 | BSD-3-Clause |
 | [matplotlib](https://pypi.org/project/matplotlib/) | 3.11.2 | Matplotlib licence (PSF-based, BSD-compatible) |
 | [mdurl](https://pypi.org/project/mdurl/) | 0.1.2 | MIT |
+| [mkl](https://pypi.org/project/mkl/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
 | [mpire](https://pypi.org/project/mpire/) | 2.10.2 | MIT |
 | [mpmath](https://pypi.org/project/mpmath/) | 1.3.0 | BSD-3-Clause |
 | [multidict](https://pypi.org/project/multidict/) | 6.9.1 | Apache-2.0 |
@@ -252,9 +291,20 @@ licence.
 | [nvidia-nvtx](https://pypi.org/project/nvidia-nvtx/) | 13.0.85 | Apache-2.0 |
 | [olefile](https://pypi.org/project/olefile/) | 0.47 | BSD-2-Clause |
 | [omegaconf](https://pypi.org/project/omegaconf/) | 2.3.1 | BSD-3-Clause |
+| [oneccl](https://pypi.org/project/oneccl/) | 2022.1.1 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [oneccl-devel](https://pypi.org/project/oneccl-devel/) | 2022.1.1 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onemkl-license](https://pypi.org/project/onemkl-license/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onemkl-sycl-blas](https://pypi.org/project/onemkl-sycl-blas/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onemkl-sycl-dft](https://pypi.org/project/onemkl-sycl-dft/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onemkl-sycl-lapack](https://pypi.org/project/onemkl-sycl-lapack/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onemkl-sycl-rng](https://pypi.org/project/onemkl-sycl-rng/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onemkl-sycl-sparse](https://pypi.org/project/onemkl-sycl-sparse/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onnxruntime](https://pypi.org/project/onnxruntime/) | 1.31.0 | MIT |
 | [opencv-python-headless](https://pypi.org/project/opencv-python-headless/) | 5.0.0.93 | Apache-2.0 (the wheel bundles FFmpeg under LGPL-2.1-or-later) |
 | [openpyxl](https://pypi.org/project/openpyxl/) | 3.1.5 | MIT |
 | [opentelemetry-api](https://pypi.org/project/opentelemetry-api/) | 1.45.1 | Apache-2.0 |
+| [openvino](https://pypi.org/project/openvino/) | 2026.4.1 (`xpu` group) | Apache-2.0 |
+| [openvino-telemetry](https://pypi.org/project/openvino-telemetry/) | 2025.2.0 (`xpu` group) | Apache-2.0 |
 | [packaging](https://pypi.org/project/packaging/) | 26.3 | Apache-2.0 OR BSD-2-Clause |
 | [pandas](https://pypi.org/project/pandas/) | 3.0.6 | BSD-3-Clause |
 | [pillow](https://pypi.org/project/pillow/) | 12.3.0 | MIT-CMU |
@@ -263,12 +313,14 @@ licence.
 | [pluggy](https://pypi.org/project/pluggy/) | 1.6.0 | MIT |
 | [polyfactory](https://pypi.org/project/polyfactory/) | 3.3.0 | MIT |
 | [propcache](https://pypi.org/project/propcache/) | 0.5.4 | Apache-2.0 |
+| [protobuf](https://pypi.org/project/protobuf/) | 7.36.2 | BSD-3-Clause |
 | [psutil](https://pypi.org/project/psutil/) | 7.2.2 | BSD-3-Clause |
 | [pyclipper](https://pypi.org/project/pyclipper/) | 1.4.0 | MIT |
 | [pydantic](https://pypi.org/project/pydantic/) | 2.14.0 | MIT |
 | [pydantic-core](https://pypi.org/project/pydantic-core/) | 2.50.0 | MIT |
 | [pydantic-settings](https://pypi.org/project/pydantic-settings/) | 2.15.0 | MIT |
 | [pyee](https://pypi.org/project/pyee/) | 13.0.1 | MIT |
+| [pyelftools](https://pypi.org/project/pyelftools/) | 0.33 (`xpu` group) | Public domain |
 | [pygments](https://pypi.org/project/pygments/) | 2.21.0 | BSD-2-Clause |
 | [pylatexenc](https://pypi.org/project/pylatexenc/) | 2.11 | MIT |
 | [pyparsing](https://pypi.org/project/pyparsing/) | 3.3.3 | MIT |
@@ -283,6 +335,7 @@ licence.
 | [python-pptx](https://pypi.org/project/python-pptx/) | 1.0.2 | MIT |
 | [pytorch-lightning](https://pypi.org/project/pytorch-lightning/) | 2.6.6 | Apache-2.0 |
 | [pyyaml](https://pypi.org/project/pyyaml/) | 6.0.3 | MIT |
+| [pyzes](https://pypi.org/project/pyzes/) | 0.1.2 (`xpu` group) | MIT |
 | [rapidocr](https://pypi.org/project/rapidocr/) | 3.10.0 | Apache-2.0 |
 | [referencing](https://pypi.org/project/referencing/) | 0.37.0 | MIT |
 | [regex](https://pypi.org/project/regex/) | 2026.9.29 | Apache-2.0 AND CNRI-Python |
@@ -306,14 +359,16 @@ licence.
 | [starlette](https://pypi.org/project/starlette/) | 1.7.0 | BSD-3-Clause |
 | [sympy](https://pypi.org/project/sympy/) | 1.14.0 | BSD-3-Clause |
 | [tabulate](https://pypi.org/project/tabulate/) | 0.10.0 | MIT |
+| [tbb](https://pypi.org/project/tbb/) | 2023.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [tcmlib](https://pypi.org/project/tcmlib/) | 1.5.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
 | [threadpoolctl](https://pypi.org/project/threadpoolctl/) | 3.7.0 | BSD-3-Clause |
 | [tifffile](https://pypi.org/project/tifffile/) | 2026.9.20 | BSD-3-Clause |
 | [timm](https://pypi.org/project/timm/) | 1.0.30 | Apache-2.0 |
 | [tokenizers](https://pypi.org/project/tokenizers/) | 0.23.2 | Apache-2.0 |
-| [torch](https://pypi.org/project/torch/) | 2.14.1+cu130 | Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND MIT |
-| [torchcodec](https://pypi.org/project/torchcodec/) | 0.17.0+cu130 | BSD-3-Clause |
+| [torch](https://pypi.org/project/torch/) | 2.14.1+cu130; 2.14.1+xpu (`xpu` group) | Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND MIT |
+| [torchcodec](https://pypi.org/project/torchcodec/) | 0.17.0+cu130; 0.17.0+cpu (`xpu` group) | BSD-3-Clause |
 | [torchmetrics](https://pypi.org/project/torchmetrics/) | 1.9.0 | Apache-2.0 |
-| [torchvision](https://pypi.org/project/torchvision/) | 0.29.1+cu130 | BSD-3-Clause |
+| [torchvision](https://pypi.org/project/torchvision/) | 0.29.1+cu130; 0.29.1+xpu (`xpu` group) | BSD-3-Clause |
 | [tqdm](https://pypi.org/project/tqdm/) | 4.70.1 | MPL-2.0 AND MIT |
 | [transformers](https://pypi.org/project/transformers/) | 5.19.0 | Apache-2.0 |
 | [tree-sitter](https://pypi.org/project/tree-sitter/) | 0.26.0 | MIT |
@@ -322,11 +377,13 @@ licence.
 | [tree-sitter-python](https://pypi.org/project/tree-sitter-python/) | 0.25.0 | MIT |
 | [tree-sitter-typescript](https://pypi.org/project/tree-sitter-typescript/) | 0.23.2 | MIT |
 | [triton](https://pypi.org/project/triton/) | 3.8.0 | MIT |
+| [triton-xpu](https://pypi.org/project/triton-xpu/) | 3.8.0 (`xpu` group) | MIT |
 | [truststore](https://pypi.org/project/truststore/) | 0.10.4 | MIT |
 | [typer](https://pypi.org/project/typer/) | 0.26.8 | MIT |
 | [typeshed-client](https://pypi.org/project/typeshed-client/) | 2.13.0 | MIT |
 | [typing-extensions](https://pypi.org/project/typing-extensions/) | 4.16.0 | PSF-2.0 |
 | [typing-inspection](https://pypi.org/project/typing-inspection/) | 0.4.4 | MIT |
+| [umf](https://pypi.org/project/umf/) | 1.1.0 (`xpu` group) | Apache-2.0 WITH LLVM-exception |
 | [urllib3](https://pypi.org/project/urllib3/) | 2.8.0 | MIT |
 | [uvicorn](https://pypi.org/project/uvicorn/) | 0.54.0 | BSD-3-Clause |
 | [websockets](https://pypi.org/project/websockets/) | 16.1.1 | BSD-3-Clause |

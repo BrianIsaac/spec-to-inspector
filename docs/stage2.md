@@ -2,7 +2,9 @@
 
 Stage I was built and measured on a laptop. Stage II moves the same
 pipeline to the contest's platform, the ASUS UGen Intel Arc Pro B70 with
-32 GB, on the bare-metal machine the organiser provides.
+32 GB, on the bare-metal machine the organiser provides. **The machine is the
+subject of Stage II:** every figure the stage rests on is measured there, and is
+read against the machine's own baseline run.
 
 **This plan was written before the machine was seen, and was corrected to it
 on 7 November 2026.** Every figure marked "on the machine" was measured
@@ -92,23 +94,22 @@ specification is longer. Holding the whole of one in context, at full
 precision, with a card beside the anomaly model's, is what the machine's
 memory is for. Whether it does so at a useful speed has one first reading,
 with the demonstration specification only: asked cold at FP16 a question takes
-a median of 2.13 s and a 95th percentile of 2.56 s, against the laptop's 3.33 s
-and 3.84 s at 4-bit (`results/stage2/week1/README.md`). The plan found no
-published measured figure for a vision-language model on a B70, and this page
-quotes none but its own.
+a median of 2.13 s and a 95th percentile of 2.56 s
+(`results/stage2/week1/README.md`). The plan found no published measured figure
+for a vision-language model on a B70, and this page quotes none but its own.
 
 ## The serving stack
 
 | Part | Stage I, the laptop | Stage II, the machine |
 | --- | --- | --- |
-| Anomaly model | PatchCore through Anomalib 2.7.0 on PyTorch 2.14 CUDA, full float32 | PatchCore on PyTorch 2.14.1 XPU in FP32, the laptop's checkpoints, for inference; training is week 2. OpenVINO 2026.4.1 sees both cards, and its export is not yet installed |
+| Anomaly model | PatchCore through Anomalib 2.7.0 on PyTorch 2.14 CUDA, full float32 | PatchCore on PyTorch 2.14.1 XPU in FP32. Week 1 ran the laptop's checkpoints, for inference; the final run uses the models trained on the machine, week 2's. OpenVINO 2026.4.1 sees both cards, and its export is not yet installed |
 | Judge's model | Qwen3-VL-8B-Instruct, Qwen's own 4-bit GGUF with the F16 projector | Qwen3-VL-8B-Instruct at FP16; Qwen's own FP8 build not yet run |
 | Judge's server | llama.cpp `llama-server` at tag `v0.6.0`, OpenAI-compatible | Intel's llm-scaler vLLM image at a pinned tag (`0.26.0-b1`, never `latest`; digest in `machine.md`), vLLM 0.26.1.dev0, on card 1 |
 | Judge's client | one OpenAI-compatible client, answers constrained to a JSON schema | the same client, by two settings, `SPEC_TO_INSPECTOR_VLM_URL` and `SPEC_TO_INSPECTOR_VLM_MODEL`, whose defaults already fit |
 | Parser, measurement, rule, corrections, console | CPU, plain Python, one SQLite file, server-rendered pages | unchanged |
 
-Two settings move the client. The server needs two more of its own, or its
-figures do not compare with the laptop's, and both are defaults of
+Two settings move the client. The server needs two more of its own, or it is not
+the pipeline the protocol declares, and both are defaults of
 `scripts/serve_vlm_xpu.sh`:
 
 - **Asked cold.** vLLM ignores `cache_prompt`, llama.cpp's own switch, and says
@@ -167,13 +168,13 @@ What is not yet known:
 Stage II runs from 6 November to 4 December 2026, when the video is due. The
 machine does not: its reservation ends 2 December 2026 at 11:30, as the billing
 tab prints it, with no time zone shown. Each week ends with figures committed to
-this repository beside the laptop's.
+this repository, measured on the machine.
 
 | Week | Work | Output |
 | --- | --- | --- |
 | 1, 6 to 12 November: bring-up | Read the cards the machine exposes (name, memory, whole card or virtual function). Install the pinned environment. Check PyTorch XPU and OpenVINO. Start the judge's server. | Done on 6 November, `results/stage2/week1/`: the machine's measured shape; the answer schema accepted with one fix |
-| 2, 13 to 19 November: the anomaly model | PatchCore on PyTorch XPU in FP32 and through OpenVINO | Training time, images per second and peak memory, against the laptop's |
-| 3, 20 to 26 November: the judge at full precision | Qwen3-VL-8B-Instruct at FP16 and at FP8, with the whole specification in context | Answer time, throughput, and clause-citation accuracy on the same 200 labelled boards the laptop measured at 4-bit |
+| 2, 13 to 19 November: the anomaly model | PatchCore on PyTorch XPU in FP32 and through OpenVINO | Training time, images per second and peak memory, on the machine |
+| 3, 20 to 26 November: the judge at full precision | Qwen3-VL-8B-Instruct at FP16 and at FP8, with the whole specification in context | Answer time, throughput, and clause-citation accuracy on the 200 labelled boards, under the protocol: FP16 as the final setting, FP8 as a declared comparison |
 | 4, 27 November to 4 December: the full run | A whole batch end to end; memory per stage against the plan above; the corrections loop across the batch | The final video recorded from a session on the machine; the repository with its measured B70 figures |
 
 What the end of the reservation does to week 4: of its eight days, about five
@@ -183,36 +184,50 @@ corrections loop and the recording of the final video all have to be done before
 no machine: what is left of it can only work from what was copied. The weeks are
 not re-planned here; that is the owner's.
 
-The laptop's headline is the figure Stage II most needs to move: the
-prototype cites the right clause on 52 of 135 single-defect boards (38.5%,
-95% interval 30.7% to 46.9%). The anomaly model is not what holds it down:
-on 109 of the 135 the most anomalous area lies on the labelled defect, on the
-laptop and on the machine alike. The judge names the wrong defect class, and the
-same crops described freely are described well.
+**The baseline.** What Stage II rests on is a final run on the machine under
+`eval/PROTOCOL-stage2.md`, in force since 7 November 2026: one setting declared
+before the run, FP16, with the anomaly models trained on the machine and an empty
+corrections store, reported whatever it reads. Three runs make it final, the third
+after a server restart. It has not been run yet.
 
-Stage II tests three things against that figure, on the same boards. They need
-a protocol of their own: `eval/PROTOCOL.md` describes Stage I, one laptop and
-`cache_prompt` false, and by its first paragraph it is not edited. A Stage II
-protocol is drafted at `docs/plans/stage2-protocol-draft-2026-11-07.md` and is
-not in force until it is ruled on, so no Stage II figure is called final yet.
+Week 1's bench on the machine is a bring-up figure, never final: 34.1% strict (46
+of 135, 95% interval 26.6% to 42.4%) and lenient 70.8% (46 of 65, 58.8% to 80.4%),
+with the laptop's anomaly checkpoints (`results/stage2/week1/README.md`). The
+anomaly model is not what holds it down: on 109 of the 135 the most anomalous area
+lies on the labelled defect. The judge names the wrong defect class; asked simply
+to describe four of the crops, on the laptop, it was right about what is in them.
 
-1. **Full precision instead of 4-bit.** The first bench on the machine reads
-   34.1% strict (46 of 135, 95% interval 26.6% to 42.4%) against the laptop's
-   38.5% (52 of 135), and lenient 70.8% (46 of 65, 58.8% to 80.4%) against the
-   laptop's 58.5% (38 of 65, 46.3% to 69.6%). The server and the answer pattern
-   differ from the laptop's as well as the precision, so no figure separates
-   them (`results/stage2/week1/README.md`). *Corrected 7 November 2026. The plan
-   had called this "the one change the B70's memory buys outright" and said
-   "whether it raises the figure is not known".*
+**Stage I is history.** On a laptop, at 4-bit, under another server and an older
+answer pattern, the prototype cited the right clause on 52 of 135 single-defect
+boards (38.5%, 95% interval 30.7% to 46.9%). It is not re-run, nothing here says the
+machine beat it or lost to it, and the experiment that would separate those
+differences is not run, so no figure separates them.
+
+Stage II tests three things on the machine, against the machine's baseline, on the
+same boards. A figure is said to have moved only on a paired, two-sided exact sign
+test below 0.05 on the 135; the lenient figure is reported under its own name and
+never pooled.
+
+1. **Full precision.** The baseline is FP16. FP8, Qwen's own build, is a comparison
+   declared in the protocol, two runs in files of its own, beside two others: the
+   model's own image minimum, and designators let through the digit ban.
 2. **A picture of a good board beside the crop.** The judge sees a defect
    with nothing to compare it against. Showing the same place on a good
    board needs the boards registered first, since they wander in the frame;
-   that is Stage II work.
+   that is Stage II work. It changes the pipeline, so it gets its own dated
+   addition to the protocol when it is built.
 3. **The corrections loop, measured.** On the laptop a single correction
    moved the next similar board to the corrected clause in 7 pairs of 7, and
    also moved 14 of 19 boards that were rightly judged before. Stage II
    measures what a store of corrections does to the whole set, in both
-   directions.
+   directions, by a dated addition of its own; the store stays empty in the
+   baseline.
+
+*Corrected 7 November 2026. The plan had set these three against the laptop's
+headline, as "the figure Stage II most needs to move", and had called full precision
+"the one change the B70's memory buys outright", saying "whether it raises the
+figure is not known". The owner ruled that the machine is the subject, and the
+organiser's rules ask for no comparison with a team's own hardware.*
 
 What the plan asked of the environment, one Arc Pro B70, a Linux or Windows 11
 session and a way to copy files in and out, the machine gives. Intel's user
