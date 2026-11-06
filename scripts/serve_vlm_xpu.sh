@@ -27,6 +27,14 @@ CARD_BDF="${CARD_BDF:-0000:ba:00.0}"
 # 2.97 GiB of cache, which vLLM refuses for a 32K context; at 0.9 it leaves 6.16 GiB (measured).
 GPU_MEMORY_UTIL="${GPU_MEMORY_UTIL:-0.9}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-32768}"
+# The fewest pixels an image is given, as the laptop's --image-min-tokens 1024 gives it: a token is
+# 32 x 32 px. The model's own minimum is 65536 (256 x 256, 64 tokens). Without this a small crop
+# reaches the judge at a sixteenth of the laptop's area, and no figure compares with the laptop's.
+IMAGE_MIN_PIXELS="${IMAGE_MIN_PIXELS:-1048576}"
+IMAGE_MAX_PIXELS=16777216
+# The protocol asks every question cold. vLLM ignores the client's cache_prompt, llama.cpp's own
+# switch, so the cold is the server's: PREFIX_CACHE=on is for comparing, never for a bench.
+PREFIX_CACHE="${PREFIX_CACHE:-off}"
 START_TIMEOUT_SECONDS=900
 
 card_paths() {
@@ -35,7 +43,10 @@ card_paths() {
 }
 
 start() {
-    local card render snapshot started
+    local card render snapshot started cache_flags=""
+    if [[ "$PREFIX_CACHE" == "off" ]]; then
+        cache_flags="--no-enable-prefix-caching --mm-processor-cache-gb 0"
+    fi
     mapfile -t paths < <(card_paths)
     card=${paths[0]}
     render=${paths[1]}
@@ -68,6 +79,8 @@ start() {
             --max-num-batched-tokens=$MAX_MODEL_LEN \
             --block-size 64 \
             --limit-mm-per-prompt '{\"image\": 2}' \
+            --mm-processor-kwargs '{\"size\": {\"shortest_edge\": $IMAGE_MIN_PIXELS, \"longest_edge\": $IMAGE_MAX_PIXELS}}' \
+            $cache_flags \
             -tp=1"
     while ! curl -sf "http://127.0.0.1:$PORT/health" >/dev/null; do
         if [[ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER")" != "true" ]]; then
