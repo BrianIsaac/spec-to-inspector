@@ -157,6 +157,23 @@ class Scorer(Protocol):
         ...
 
 
+def patch_cell(record: TrainRecord) -> tuple[int, int]:
+    """Work out how much of the anomaly map one patch of a trained model covers.
+
+    The backbone's first extracted layer sets the patch grid: 32 x 32 for a
+    256 x 256 input, so a patch covers 8 x 8 pixels of the map.
+
+    Args:
+        record: The record written when the model was trained.
+
+    Returns:
+        The rows and columns of the map that one patch covers.
+    """
+    height, width = record.model.image_size
+    grid = math.isqrt(record.embedding_rows // record.train_images)
+    return height // grid, width // grid
+
+
 class AnomalyModel:
     """A trained PatchCore with its thresholds, ready to score images on a device."""
 
@@ -246,14 +263,8 @@ class AnomalyModel:
 
     @property
     def map_cell(self) -> tuple[int, int]:
-        """The rows and columns of the anomaly map that one patch covers.
-
-        The backbone's first extracted layer sets the patch grid: 32 x 32 for a
-        256 x 256 input, so a patch covers 8 x 8 pixels of the map.
-        """
-        height, width = self._record.model.image_size
-        grid = math.isqrt(self._record.embedding_rows // self._record.train_images)
-        return height // grid, width // grid
+        """The rows and columns of the anomaly map that one patch covers."""
+        return patch_cell(self._record)
 
     @property
     def device(self) -> torch.device:

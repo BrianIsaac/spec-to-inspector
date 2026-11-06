@@ -46,6 +46,9 @@ dev = [
 # The accelerator is a group and not an extra: only a group can be on by default, so `uv sync` and
 # `uv run` stay the laptop's CUDA build with no flags. The B70 machine opts out and in, by
 # `scripts/setup_xpu.sh`; torchcodec has no XPU build, and the XPU index carries its CPU one.
+# onnx and onnxscript are what Anomalib's FP32 and FP16 export to OpenVINO needs beyond OpenVINO.
+# Its `openvino` extra also lists nncf, which only its INT8 compression imports, and is left out:
+# every nncf release caps numpy below 2.5, and the project's numpy, shared with the laptop, is 2.5.3.
 cuda = [
     "anomalib[cu130]==2.7.0",
     "torch==2.14.1",
@@ -53,6 +56,8 @@ cuda = [
     "torchvision==0.29.1",
 ]
 xpu = [
+    "onnx>=1.16.0",
+    "onnxscript>=0.5.0",
     "openvino==2026.4.1",
     "torch==2.14.1",
     "torchcodec==0.17.0",
