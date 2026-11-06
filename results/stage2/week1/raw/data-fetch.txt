@@ -1,0 +1,28 @@
+Streaming https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar through tar into data/visa
+Received 193 of 1,930 MB (10%)
+Received 386 of 1,930 MB (20%)
+Received 579 of 1,930 MB (30%)
+Received 772 of 1,930 MB (40%)
+Received 965 of 1,930 MB (50%)
+Received 1,158 of 1,930 MB (60%)
+Received 1,351 of 1,930 MB (70%)
+Received 1,544 of 1,930 MB (80%)
+Received 1,737 of 1,930 MB (90%)
+Received 1,930 of 1,930 MB (100%)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.9/1.9 GB 49.7 MB/s 0:00:00
+            VisA, verified against the published counts (data/visa)            
+                                                                               
+                                                    Test        Test   Multi-  
+  Category   Normal   Anomalous   Masks   Train   normal   anomalous   defect  
+ ───────────────────────────────────────────────────────────────────────────── 
+  pcb1         1004         100     100     904      100         100        9  
+  pcb2         1001         100     100     901      100         100        9  
+  pcb3         1006         100     100     905      101         100        7  
+  pcb4         1005         100     100     904      101         100       56  
+                                                                               
+pcb1 defect types: melt 54, scratch 21, missing 20, bent 15
+pcb2 defect types: melt 55, scratch 20, missing 19, bent 15
+pcb3 defect types: melt 43, scratch 25, bent 20, missing 20
+pcb4 defect types: dirt 42, missing 33, extra 30, damage 21, scratch 17, wrong place 13, burnt 8
+Streamed: 4823 files, 918 MiB kept from 1,929,840,640 bytes (sha256 2eb8690c803ab37de0324772964100169ec8ba1fa3f7e94291c9ca673f40f362).
+Manifest: data/visa/manifest.json

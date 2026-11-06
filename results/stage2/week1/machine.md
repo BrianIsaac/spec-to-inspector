@@ -1,6 +1,6 @@
 # The Stage II machine, measured
 
-Read on 6 November 2026, 15:05 to 16:00 UTC (23:05 to 00:00 SGT), over `ssh asus-b70`. The whole
+Read on 6 November 2026, 15:05 to 16:15 UTC (23:05 to 00:15 SGT), over `ssh asus-b70`. The whole
 output of every command in the first table is in `raw/shape.txt`, in the order they ran.
 
 ## The shape
@@ -56,14 +56,14 @@ Measured here unless marked. "Plan" is what `docs/stage2.md` says.
 
 | Stage | Card | Plan, on one shared card | With a card each |
 | --- | --- | --- | --- |
-| Parse a born-digital specification | none | 0 GB | 0 GB: docling on the CPU, 13.2 s |
+| Parse a born-digital specification | none | 0 GB | 0 GB: docling on the CPU, 6.9 s and 13.2 s in the two bench runs |
 | Parse a scanned specification | 0, in turn | about 2 GB | not run; still planned |
 | Train the anomaly model | 0 | under 9 GiB, before the judge is loaded, as the laptop's 7.82 GiB allocated | not yet measured, week 2. It need no longer come before the judge: the two never share a card |
-| Score boards | 0 | 6.4 GB set aside | 668 MB resident, 1.17 GiB peak allocated, 1.27 GiB peak reserved at batch 1. The card's 32 GB is far more than it needs |
+| Score boards | 0 | 6.4 GB set aside | 668 MB resident, 1.17 GiB peak allocated, 1.27 GiB peak reserved at batch 1; the card at 2,594 MiB at most while scoring at batch 16. The card's 32 GB is far more than it needs |
 | Judge: the server's share | 1 | 80% of the card, 25.6 GB | **90%**: at 80% vLLM refuses a 32K context (below) |
 | Judge: weights | 1 | FP16 17.53 GB | 17.34 GiB as vLLM loads it; 16.33 GiB on disk |
 | Judge: left for its cache at FP16 | 1 | "about 8 GB", "about 54,000 tokens" at 80% | **2.97 GiB at 80%, 6.16 GiB and 44,800 tokens at 90%** |
-| Judge: the card while answering | 1 | not given | 26,960 MiB once up; at most 28,966 MiB while answering, with 1,024-token images |
+| Judge: the card while answering | 1 | not given | 26,960 MiB once up; at most 29,456 MiB over two bench runs, with 1,024-token images |
 | Judge at FP8 | 1 | 10.59 GB, about 15 GB of cache, three 32K contexts | not run, week 3; see below |
 
 The plan's cost of a token holds: 147,456 bytes at FP16. vLLM asks 4.5 GiB for 32,768 tokens,
@@ -77,11 +77,11 @@ is made of was not measured.
 
 At 80% vLLM says its largest context is 21,568 tokens, which would hold the demonstration
 specification's prompts of about 4,600 tokens. The refusal is in
-`raw/serve-fp16-util-0.8-refused.log`. At 90% it serves 32,768 tokens with 1.37 times that to spare
-(`raw/serve-fp16-util-0.9-prefix-cache-on.log`).
+`raw/serve-fp16-util-0.8-refused.txt`. At 90% it serves 32,768 tokens with 1.37 times that to spare
+(`raw/serve-fp16-util-0.9-prefix-cache-on.txt`).
 
-If the same 5.2 GiB holds at FP8, then FP8's cache at 90% is about 13 GiB, about 2.9 contexts of
-32K and not the plan's three. That is a plan, not a measurement.
+If the same 5.2 GiB holds at FP8, its cache is about 13 GiB at 90%, close to the plan's three 32K
+contexts, and about 10 GiB at the plan's 80%, about two. That is a plan, not a measurement.
 
 ## The environment's pinned parts on the machine
 
@@ -98,7 +98,7 @@ If the same 5.2 GiB holds at FP8, then FP8's cache at 90% is about 13 GiB, about
 | openvino | 2026.4.1 | PyPI; only in the `xpu` group |
 | intel-sycl-rt | 2026.1.0 | PyPI |
 
-193 packages, 8.4 GB in `.venv`.
+193 packages, 8.5 GB in `.venv`.
 
 ## The judge's server
 
