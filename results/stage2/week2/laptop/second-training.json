@@ -1,0 +1,90 @@
+{
+  "pcb1": {
+    "created_at": "2026-10-10T16:13:34+00:00",
+    "fit_seconds": 729.139757330995,
+    "embed_seconds": 4.6903869160450995,
+    "coreset_seconds": 714.1917673770804,
+    "thresholds": {
+      "image": 31.319473266601562,
+      "pixel": 41.46425247192383,
+      "image_min": 24.39255714416504,
+      "image_max": 67.99083709716797,
+      "pixel_min": 9.750436782836914,
+      "pixel_max": 68.58979797363281,
+      "method": "anomalib.metrics.F1AdaptiveThreshold",
+      "val_split_mode": "same_as_test",
+      "split_images": 200,
+      "split_images_in_test": 200,
+      "tuned_on_test": true
+    },
+    "image_auroc": 0.9296999573707581,
+    "peak_allocated_bytes": 8392051200,
+    "peak_reserved_bytes": 9292480512
+  },
+  "pcb2": {
+    "created_at": "2026-11-06T16:58:24+00:00",
+    "fit_seconds": 725.7735679590041,
+    "embed_seconds": 5.253506335997372,
+    "coreset_seconds": 709.8477708179998,
+    "thresholds": {
+      "image": 29.304933547973633,
+      "pixel": 34.74386215209961,
+      "image_min": 23.895116806030273,
+      "image_max": 67.66985321044922,
+      "pixel_min": 11.812572479248047,
+      "pixel_max": 64.81105041503906,
+      "method": "anomalib.metrics.F1AdaptiveThreshold",
+      "val_split_mode": "same_as_test",
+      "split_images": 200,
+      "split_images_in_test": 200,
+      "tuned_on_test": true
+    },
+    "image_auroc": 0.92330002784729,
+    "peak_allocated_bytes": 8364606464,
+    "peak_reserved_bytes": 9265217536
+  },
+  "pcb3": {
+    "created_at": "2026-11-06T17:11:18+00:00",
+    "fit_seconds": 733.588370686004,
+    "embed_seconds": 6.530427759003942,
+    "coreset_seconds": 716.201184218,
+    "thresholds": {
+      "image": 31.54306983947754,
+      "pixel": 45.4342041015625,
+      "image_min": 24.89813804626465,
+      "image_max": 64.24115753173828,
+      "pixel_min": 10.090832710266113,
+      "pixel_max": 62.76778030395508,
+      "method": "anomalib.metrics.F1AdaptiveThreshold",
+      "val_split_mode": "same_as_test",
+      "split_images": 201,
+      "split_images_in_test": 201,
+      "tuned_on_test": true
+    },
+    "image_auroc": 0.9207921028137207,
+    "peak_allocated_bytes": 8399280128,
+    "peak_reserved_bytes": 9302966272
+  },
+  "pcb4": {
+    "created_at": "2026-10-10T16:00:38+00:00",
+    "fit_seconds": 725.8853450100869,
+    "embed_seconds": 4.400936574907973,
+    "coreset_seconds": 710.085120802978,
+    "thresholds": {
+      "image": 30.048791885375977,
+      "pixel": 30.769989013671875,
+      "image_min": 22.67045021057129,
+      "image_max": 54.10724639892578,
+      "pixel_min": 10.1558256149292,
+      "pixel_max": 53.04261016845703,
+      "method": "anomalib.metrics.F1AdaptiveThreshold",
+      "val_split_mode": "same_as_test",
+      "split_images": 201,
+      "split_images_in_test": 201,
+      "tuned_on_test": true
+    },
+    "image_auroc": 0.987128734588623,
+    "peak_allocated_bytes": 8392051200,
+    "peak_reserved_bytes": 9292480512
+  }
+}

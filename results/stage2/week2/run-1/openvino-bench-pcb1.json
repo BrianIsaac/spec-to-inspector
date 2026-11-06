@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "category": "pcb1",
+  "created_at": "2026-11-06T18:08:11+00:00",
+  "device": {
+    "kind": "xpu",
+    "index": 0,
+    "name": "Intel(R) Arc(TM) Pro B70 Graphics (dGPU)",
+    "capability": null,
+    "total_memory_bytes": 0,
+    "torch_version": "2.14.1+xpu",
+    "cuda_version": null,
+    "arch_list": [],
+    "driver_version": null
+  },
+  "images": 200,
+  "resident_bytes": 668490132,
+  "runs": [
+    {
+      "mode": "model",
+      "batch_size": 1,
+      "images": 200,
+      "pass_seconds": [
+        13.037601874035317,
+        13.051575225021224,
+        13.064564569969662
+      ],
+      "seconds": 13.051575225021224,
+      "images_per_second": 15.323820807206417,
+      "peak_allocated_bytes": 0,
+      "peak_reserved_bytes": 0,
+      "num_workers": null
+    },
+    {
+      "mode": "end_to_end",
+      "batch_size": 1,
+      "images": 200,
+      "pass_seconds": [
+        13.968826107971836,
+        13.947954429022502,
+        13.946143903012853
+      ],
+      "seconds": 13.947954429022502,
+      "images_per_second": 14.339020178030246,
+      "peak_allocated_bytes": 0,
+      "peak_reserved_bytes": 0,
+      "num_workers": 8
+    },
+    {
+      "mode": "model",
+      "batch_size": 16,
+      "images": 200,
+      "pass_seconds": [
+        11.40878811100265,
+        11.429198036028538,
+        11.442337366985157
+      ],
+      "seconds": 11.429198036028538,
+      "images_per_second": 17.499040559935626,
+      "peak_allocated_bytes": 0,
+      "peak_reserved_bytes": 0,
+      "num_workers": null
+    },
+    {
+      "mode": "end_to_end",
+      "batch_size": 16,
+      "images": 200,
+      "pass_seconds": [
+        12.173797897994518,
+        12.182677747972775,
+        12.260376112011727
+      ],
+      "seconds": 12.182677747972775,
+      "images_per_second": 16.416752058740162,
+      "peak_allocated_bytes": 0,
+      "peak_reserved_bytes": 0,
+      "num_workers": 8
+    }
+  ]
+}

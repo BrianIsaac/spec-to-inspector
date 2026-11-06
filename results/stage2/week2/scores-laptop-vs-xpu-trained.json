@@ -1,0 +1,220 @@
+{
+  "a": "laptop: trained and scored on CUDA",
+  "b": "trained and scored on B70 XPU, run 1",
+  "command": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "compare",
+    "--a",
+    "/home/devcloud/week2/laptop/runs",
+    "--a-label",
+    "laptop: trained and scored on CUDA",
+    "--b",
+    "/home/devcloud/week2/run-1/runs",
+    "--b-label",
+    "trained and scored on B70 XPU, run 1",
+    "--out",
+    "/home/devcloud/week2/compare/scores-laptop-vs-xpu-trained.json"
+  ],
+  "parts": {
+    "pcb1": {
+      "part": "pcb1",
+      "boards": 200,
+      "flagged_a": 110,
+      "flagged_b": 111,
+      "flag_differs": 1,
+      "flag_differs_boards": [
+        "bad-029"
+      ],
+      "regions_differ": 1,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.000041961669921875,
+        "p95": 0.0030692100524902337,
+        "mean": 0.018571510314941406,
+        "minimum": 0.0,
+        "maximum": 1.0336761474609375
+      },
+      "map_difference_max": 6.894747734069824,
+      "image_threshold_a": 31.319473266601562,
+      "image_threshold_b": 31.319488525390625,
+      "image_auroc_a": 0.9297,
+      "image_auroc_b": 0.9305,
+      "worst": [
+        {
+          "image_id": "good-0402",
+          "score_a": 29.61444664001465,
+          "score_b": 28.58077049255371
+        },
+        {
+          "image_id": "bad-043",
+          "score_a": 67.07662200927734,
+          "score_b": 66.28612518310547
+        },
+        {
+          "image_id": "good-0208",
+          "score_a": 28.85518455505371,
+          "score_b": 28.207448959350586
+        },
+        {
+          "image_id": "bad-086",
+          "score_a": 38.45209503173828,
+          "score_b": 39.06557083129883
+        },
+        {
+          "image_id": "good-0457",
+          "score_a": 27.7684383392334,
+          "score_b": 28.147947311401367
+        }
+      ]
+    },
+    "pcb2": {
+      "part": "pcb2",
+      "boards": 200,
+      "flagged_a": 104,
+      "flagged_b": 104,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.000034332275390625,
+        "p95": 0.00011453628540039059,
+        "mean": 0.00020372390747070313,
+        "minimum": 0.0,
+        "maximum": 0.028558731079101562
+      },
+      "map_difference_max": 4.517536163330078,
+      "image_threshold_a": 29.304933547973633,
+      "image_threshold_b": 29.304889678955078,
+      "image_auroc_a": 0.9233,
+      "image_auroc_b": 0.9232,
+      "worst": [
+        {
+          "image_id": "good-0306",
+          "score_a": 25.804059982299805,
+          "score_b": 25.832618713378906
+        },
+        {
+          "image_id": "good-0469",
+          "score_a": 30.21316146850586,
+          "score_b": 30.21615219116211
+        },
+        {
+          "image_id": "good-0026",
+          "score_a": 28.96878433227539,
+          "score_b": 28.96771240234375
+        },
+        {
+          "image_id": "good-0994",
+          "score_a": 24.559005737304688,
+          "score_b": 24.558706283569336
+        },
+        {
+          "image_id": "bad-038",
+          "score_a": 27.334556579589844,
+          "score_b": 27.334264755249023
+        }
+      ]
+    },
+    "pcb3": {
+      "part": "pcb3",
+      "boards": 201,
+      "flagged_a": 105,
+      "flagged_b": 105,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.000041961669921875,
+        "p95": 0.0001201629638671875,
+        "mean": 0.000048328987994597324,
+        "minimum": 0.0,
+        "maximum": 0.0001811981201171875
+      },
+      "map_difference_max": 0.0005016326904296875,
+      "image_threshold_a": 31.54306983947754,
+      "image_threshold_b": 31.54305076599121,
+      "image_auroc_a": 0.9207920792079208,
+      "image_auroc_b": 0.9207920792079208,
+      "worst": [
+        {
+          "image_id": "good-0100",
+          "score_a": 26.574142456054688,
+          "score_b": 26.57396125793457
+        },
+        {
+          "image_id": "good-0027",
+          "score_a": 33.38593673706055,
+          "score_b": 33.386112213134766
+        },
+        {
+          "image_id": "good-0377",
+          "score_a": 27.377809524536133,
+          "score_b": 27.377962112426758
+        },
+        {
+          "image_id": "good-0208",
+          "score_a": 28.273942947387695,
+          "score_b": 28.2738037109375
+        },
+        {
+          "image_id": "bad-041",
+          "score_a": 30.2222957611084,
+          "score_b": 30.222158432006836
+        }
+      ]
+    },
+    "pcb4": {
+      "part": "pcb4",
+      "boards": 201,
+      "flagged_a": 106,
+      "flagged_b": 106,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.000034332275390625,
+        "p95": 0.0001392364501953125,
+        "mean": 0.00004885089931203358,
+        "minimum": 0.0,
+        "maximum": 0.0005245208740234375
+      },
+      "map_difference_max": 3.84128475189209,
+      "image_threshold_a": 30.048791885375977,
+      "image_threshold_b": 30.048744201660156,
+      "image_auroc_a": 0.9871287128712871,
+      "image_auroc_b": 0.9871287128712871,
+      "worst": [
+        {
+          "image_id": "good-0187",
+          "score_a": 26.855804443359375,
+          "score_b": 26.85527992248535
+        },
+        {
+          "image_id": "good-0520",
+          "score_a": 23.807968139648438,
+          "score_b": 23.80817222595215
+        },
+        {
+          "image_id": "good-0621",
+          "score_a": 24.264307022094727,
+          "score_b": 24.264488220214844
+        },
+        {
+          "image_id": "good-0952",
+          "score_a": 27.679811477661133,
+          "score_b": 27.679636001586914
+        },
+        {
+          "image_id": "good-0172",
+          "score_a": 23.80386734008789,
+          "score_b": 23.80370330810547
+        }
+      ]
+    }
+  }
+}

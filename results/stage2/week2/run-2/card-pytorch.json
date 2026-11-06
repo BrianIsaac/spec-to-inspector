@@ -1,0 +1,159 @@
+{
+  "backend": "pytorch-xpu",
+  "measured_at": "2026-11-06T19:19:35+00:00",
+  "command": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "pytorch",
+    "--root",
+    "/home/devcloud/week2/run-2"
+  ],
+  "warm_up_seconds": [
+    5.338499725970905,
+    2.6577186910435557
+  ],
+  "properties": {},
+  "parts": {
+    "pcb1": [
+      {
+        "name": "train",
+        "seconds": 709.6856710570282,
+        "memory": {
+          "server_peak_mib": 10302,
+          "gpu_peak_mib": 10347,
+          "gpu_before_mib": 2175,
+          "samples": 849,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "score",
+        "seconds": 19.796738547971472,
+        "memory": {
+          "server_peak_mib": 3962,
+          "gpu_peak_mib": 4007,
+          "gpu_before_mib": 2335,
+          "samples": 24,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "bench",
+        "seconds": 102.22415737202391,
+        "memory": {
+          "server_peak_mib": 2857,
+          "gpu_peak_mib": 2901,
+          "gpu_before_mib": 1797,
+          "samples": 122,
+          "interval_seconds": 0.5
+        }
+      }
+    ],
+    "pcb2": [
+      {
+        "name": "train",
+        "seconds": 703.0796164830099,
+        "memory": {
+          "server_peak_mib": 10676,
+          "gpu_peak_mib": 10720,
+          "gpu_before_mib": 1771,
+          "samples": 843,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "score",
+        "seconds": 19.220684153027833,
+        "memory": {
+          "server_peak_mib": 3986,
+          "gpu_peak_mib": 4030,
+          "gpu_before_mib": 2906,
+          "samples": 23,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "bench",
+        "seconds": 101.76525326800765,
+        "memory": {
+          "server_peak_mib": 2880,
+          "gpu_peak_mib": 2924,
+          "gpu_before_mib": 1825,
+          "samples": 121,
+          "interval_seconds": 0.5
+        }
+      }
+    ],
+    "pcb3": [
+      {
+        "name": "train",
+        "seconds": 707.9512610320235,
+        "memory": {
+          "server_peak_mib": 10741,
+          "gpu_peak_mib": 10785,
+          "gpu_before_mib": 1800,
+          "samples": 848,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "score",
+        "seconds": 21.386919264972676,
+        "memory": {
+          "server_peak_mib": 4021,
+          "gpu_peak_mib": 4065,
+          "gpu_before_mib": 2937,
+          "samples": 26,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "bench",
+        "seconds": 101.13874952797778,
+        "memory": {
+          "server_peak_mib": 2915,
+          "gpu_peak_mib": 2959,
+          "gpu_before_mib": 1855,
+          "samples": 121,
+          "interval_seconds": 0.5
+        }
+      }
+    ],
+    "pcb4": [
+      {
+        "name": "train",
+        "seconds": 708.1861426350079,
+        "memory": {
+          "server_peak_mib": 10735,
+          "gpu_peak_mib": 10779,
+          "gpu_before_mib": 1829,
+          "samples": 851,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "score",
+        "seconds": 19.239391963987146,
+        "memory": {
+          "server_peak_mib": 4025,
+          "gpu_peak_mib": 4069,
+          "gpu_before_mib": 2941,
+          "samples": 23,
+          "interval_seconds": 0.5
+        }
+      },
+      {
+        "name": "bench",
+        "seconds": 102.31279300403548,
+        "memory": {
+          "server_peak_mib": 2919,
+          "gpu_peak_mib": 2963,
+          "gpu_before_mib": 1860,
+          "samples": 121,
+          "interval_seconds": 0.5
+        }
+      }
+    ]
+  }
+}

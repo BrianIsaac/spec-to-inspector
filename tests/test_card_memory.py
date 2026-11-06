@@ -12,6 +12,7 @@ import torch
 from spec_to_inspector.bench.gpu import read_gpu_memory
 from spec_to_inspector.bench.run import Probes, device_probes
 from spec_to_inspector.card_memory import GpuReading, read_xpu_memory
+from spec_to_inspector.device import release_memory
 from spec_to_inspector.judge.timing import GpuReading as TimingsReading
 from spec_to_inspector.judge.timing import GpuSampler, device_sampler
 from spec_to_inspector.settings import Settings
@@ -193,15 +194,22 @@ def test_timing_samples_the_servers_card_on_xpu(
 
 @pytest.mark.xpu
 def test_on_the_card_a_tensor_shows_on_the_card_and_on_the_process() -> None:
-    """On the machine, with the real `xpu-smi`: a gibibyte moves both figures by about that."""
+    """On the machine, with the real `xpu-smi`: 8 GiB moves the card and shows on the process.
+
+    What earlier tests in this process freed can stay in the driver's pool (measured at 2.3 GiB
+    after `empty_cache`) and lend the tensor memory the card already counts, so the tensor is much
+    larger than that and the card is held to half of it.
+    """
+    release_memory(torch.device("xpu"))
     before = read_xpu_memory(os.getpid())
-    tensor = torch.empty((1024, 1024, 256), dtype=torch.float32, device="xpu:0").fill_(1.0)
+    tensor = torch.empty((2048, 1024, 1024), dtype=torch.float32, device="xpu:0").fill_(1.0)
     torch.xpu.synchronize()
     during = read_xpu_memory(os.getpid())
     del tensor
+    release_memory(torch.device("xpu"))
 
     assert before.gpu_used_mib is not None
     assert during.gpu_used_mib is not None
-    assert during.gpu_used_mib - before.gpu_used_mib >= 1024
+    assert during.gpu_used_mib - before.gpu_used_mib >= 4096
     assert during.server_mib is not None
-    assert during.server_mib >= 1024
+    assert during.server_mib >= 8192

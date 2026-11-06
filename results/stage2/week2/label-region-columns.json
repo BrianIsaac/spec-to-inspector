@@ -1,0 +1,18 @@
+{
+  "the laptop checkpoints on XPU": {
+    "pcb1": [],
+    "pcb4": []
+  },
+  "XPU-trained, run 1": {
+    "pcb1": [
+      "pcb1 bad-029"
+    ],
+    "pcb4": []
+  },
+  "the XPU-trained model through OpenVINO": {
+    "pcb1": [],
+    "pcb4": [
+      "pcb4 bad-081"
+    ]
+  }
+}

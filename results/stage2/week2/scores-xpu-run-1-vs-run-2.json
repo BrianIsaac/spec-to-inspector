@@ -1,0 +1,218 @@
+{
+  "a": "B70 XPU, run 1",
+  "b": "B70 XPU, run 2",
+  "command": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "compare",
+    "--a",
+    "/home/devcloud/week2/run-1/runs",
+    "--a-label",
+    "B70 XPU, run 1",
+    "--b",
+    "/home/devcloud/week2/run-2/runs",
+    "--b-label",
+    "B70 XPU, run 2",
+    "--out",
+    "/home/devcloud/week2/compare/scores-xpu-run-1-vs-run-2.json"
+  ],
+  "parts": {
+    "pcb1": {
+      "part": "pcb1",
+      "boards": 200,
+      "flagged_a": 111,
+      "flagged_b": 111,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "map_difference_max": 0.0,
+      "image_threshold_a": 31.319488525390625,
+      "image_threshold_b": 31.319488525390625,
+      "image_auroc_a": 0.9305,
+      "image_auroc_b": 0.9305,
+      "worst": [
+        {
+          "image_id": "good-0107",
+          "score_a": 28.125919342041016,
+          "score_b": 28.125919342041016
+        },
+        {
+          "image_id": "good-0484",
+          "score_a": 26.846975326538086,
+          "score_b": 26.846975326538086
+        },
+        {
+          "image_id": "good-0690",
+          "score_a": 29.922090530395508,
+          "score_b": 29.922090530395508
+        },
+        {
+          "image_id": "good-0303",
+          "score_a": 27.021236419677734,
+          "score_b": 27.021236419677734
+        },
+        {
+          "image_id": "good-0237",
+          "score_a": 27.02854347229004,
+          "score_b": 27.02854347229004
+        }
+      ]
+    },
+    "pcb2": {
+      "part": "pcb2",
+      "boards": 200,
+      "flagged_a": 104,
+      "flagged_b": 104,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "map_difference_max": 0.0,
+      "image_threshold_a": 29.304889678955078,
+      "image_threshold_b": 29.304889678955078,
+      "image_auroc_a": 0.9232,
+      "image_auroc_b": 0.9232,
+      "worst": [
+        {
+          "image_id": "good-0107",
+          "score_a": 27.711557388305664,
+          "score_b": 27.711557388305664
+        },
+        {
+          "image_id": "good-0484",
+          "score_a": 27.035003662109375,
+          "score_b": 27.035003662109375
+        },
+        {
+          "image_id": "good-0690",
+          "score_a": 27.466629028320312,
+          "score_b": 27.466629028320312
+        },
+        {
+          "image_id": "good-0303",
+          "score_a": 27.45864486694336,
+          "score_b": 27.45864486694336
+        },
+        {
+          "image_id": "good-0237",
+          "score_a": 30.917682647705078,
+          "score_b": 30.917682647705078
+        }
+      ]
+    },
+    "pcb3": {
+      "part": "pcb3",
+      "boards": 201,
+      "flagged_a": 105,
+      "flagged_b": 105,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "map_difference_max": 0.0,
+      "image_threshold_a": 31.54305076599121,
+      "image_threshold_b": 31.54305076599121,
+      "image_auroc_a": 0.9207920792079208,
+      "image_auroc_b": 0.9207920792079208,
+      "worst": [
+        {
+          "image_id": "good-0107",
+          "score_a": 29.289669036865234,
+          "score_b": 29.289669036865234
+        },
+        {
+          "image_id": "good-0484",
+          "score_a": 29.401161193847656,
+          "score_b": 29.401161193847656
+        },
+        {
+          "image_id": "good-0690",
+          "score_a": 28.176040649414062,
+          "score_b": 28.176040649414062
+        },
+        {
+          "image_id": "good-0303",
+          "score_a": 28.16192054748535,
+          "score_b": 28.16192054748535
+        },
+        {
+          "image_id": "good-0237",
+          "score_a": 30.453439712524414,
+          "score_b": 30.453439712524414
+        }
+      ]
+    },
+    "pcb4": {
+      "part": "pcb4",
+      "boards": 201,
+      "flagged_a": 106,
+      "flagged_b": 106,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "map_difference_max": 0.0,
+      "image_threshold_a": 30.048744201660156,
+      "image_threshold_b": 30.048744201660156,
+      "image_auroc_a": 0.9871287128712871,
+      "image_auroc_b": 0.9871287128712871,
+      "worst": [
+        {
+          "image_id": "good-0107",
+          "score_a": 24.413312911987305,
+          "score_b": 24.413312911987305
+        },
+        {
+          "image_id": "good-0484",
+          "score_a": 23.287858963012695,
+          "score_b": 23.287858963012695
+        },
+        {
+          "image_id": "good-0690",
+          "score_a": 24.57747459411621,
+          "score_b": 24.57747459411621
+        },
+        {
+          "image_id": "good-0303",
+          "score_a": 25.690296173095703,
+          "score_b": 25.690296173095703
+        },
+        {
+          "image_id": "good-0237",
+          "score_a": 28.538494110107422,
+          "score_b": 28.538494110107422
+        }
+      ]
+    }
+  }
+}

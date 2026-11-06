@@ -1,0 +1,82 @@
+{
+  "a": "laptop, CUDA",
+  "b": "B70, XPU, run 1",
+  "command": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "banks",
+    "--a",
+    "/home/devcloud/week2/laptop/models",
+    "--b",
+    "/home/devcloud/week2/run-1/models",
+    "--a-label",
+    "laptop, CUDA",
+    "--b-label",
+    "B70, XPU, run 1",
+    "--out",
+    "/home/devcloud/week2/banks-laptop-vs-xpu.json"
+  ],
+  "parts": {
+    "pcb1": {
+      "rows_a": 92569,
+      "rows_b": 92569,
+      "same_rows": 89182,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92569,
+        "p50": 0.00011013131006620824,
+        "p95": 0.0001643827010411768,
+        "mean": 0.7636940409556395,
+        "minimum": 0.00005968549885437824,
+        "maximum": 25.00349998474121
+      },
+      "picks_in_step": 794
+    },
+    "pcb2": {
+      "rows_a": 92262,
+      "rows_b": 92262,
+      "same_rows": 91984,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92262,
+        "p50": 0.0001059641144820489,
+        "p95": 0.00015614094299962742,
+        "mean": 0.053865827873148385,
+        "minimum": 0.00005165199763723649,
+        "maximum": 23.104833602905273
+      },
+      "picks_in_step": 1101
+    },
+    "pcb3": {
+      "rows_a": 92672,
+      "rows_b": 92672,
+      "same_rows": 92672,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92672,
+        "p50": 0.00012801153206964955,
+        "p95": 0.00022620442832703698,
+        "mean": 0.0001403850034970459,
+        "minimum": 0.0000639726422377862,
+        "maximum": 0.0008785913232713938
+      },
+      "picks_in_step": 814
+    },
+    "pcb4": {
+      "rows_a": 92569,
+      "rows_b": 92569,
+      "same_rows": 92499,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92569,
+        "p50": 0.00011322714271955192,
+        "p95": 0.00020313415152486413,
+        "mean": 0.01346358819205862,
+        "minimum": 0.00006344183202600107,
+        "maximum": 22.435089111328125
+      },
+      "picks_in_step": 1245
+    }
+  }
+}
