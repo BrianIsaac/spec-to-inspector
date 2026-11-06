@@ -8,7 +8,9 @@ Read on 11 October 2026: each model's licence from its model card on
 Hugging Face, each project's from its repository, each Python package's
 from the metadata of the version `uv.lock` pins. What Stage II uses on the
 organiser's machine, and the packages only its `xpu` group brings, were read the
-same way on 7 November 2026.
+same way on 7 November 2026. The four that week 2 added to that group, `ml-dtypes`,
+`onnx`, `onnx-ir` and `onnxscript`, were read that day in the wheels `uv.lock` pins,
+at the hashes it pins, and in each project's repository at the matching tag.
 
 ## Summary
 
@@ -86,14 +88,15 @@ The PatchCore memory banks under `models/patchcore/` are built on the
 user's machine by `spec-to-inspector train` from VisA's good images; they
 are not distributed.
 
-Used on the organiser's machine in Stage II (`results/stage2/week1/machine.md`):
+Used on the organiser's machine in Stage II (`results/stage2/week1/machine.md`,
+`results/stage2/week2/README.md`):
 
 | Component | Version | Used for | Licence | Source |
 | --- | --- | --- | --- | --- |
 | Qwen3-VL-8B-Instruct at FP16 | revision `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`, pinned in `scripts/serve_vlm_xpu.sh` | The judge at full precision | Apache-2.0, read at that revision | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> |
 | Intel llm-scaler, its vLLM image | `intel/llm-scaler-vllm:0.26.0-b1`, digest in `machine.md` | Serving the judge on card 1; see note 6 | Apache-2.0, the project's `LICENSE` on `main` | <https://github.com/intel/llm-scaler> |
 | vLLM | 0.26.1.dev0, inside that image | Serving the judge | Apache-2.0, the project's `LICENSE` on `main` | <https://github.com/vllm-project/vllm> |
-| OpenVINO | 2026.4.1, in the `xpu` group | The anomaly model's alternative runtime: it sees both cards, and its export is not yet run | Apache-2.0 | <https://github.com/openvinotoolkit/openvino> |
+| OpenVINO | 2026.4.1, in the `xpu` group | Measured beside PyTorch XPU: PatchCore through Anomalib's export, on `GPU.0` in FP32, with `onnx` and `onnxscript`. Nothing in the pipeline runs through it | Apache-2.0 | <https://github.com/openvinotoolkit/openvino> |
 
 Planned for Stage II and not yet run:
 
@@ -147,7 +150,10 @@ in `deck/deck.pdf` as subsets.
    `tqdm` are MPL-2.0. Four wheels bundle a library under the LGPL or the
    GPL with the GCC runtime exception: `opencv-python-headless` (FFmpeg),
    `shapely` (GEOS), and `numpy` and `scipy` (libgfortran, libquadmath).
-   None is modified, and each permits commercial use. A development tool apart
+   None is modified, and each permits commercial use. `ml-dtypes`, in the `xpu`
+   group only and through `onnx`, is Apache-2.0, and its README says its pre-compiled
+   wheels are built with Eigen, under MPL-2.0; the wheel carries that licence as
+   `LICENSE.eigen`. A development tool apart
    from these: `av`, which `faster-whisper` needs for the video's captions,
    bundles FFmpeg with `libx264` and `libx265`, which are GPL. It is in the `dev`
    group only and no part of the product or of this repository.
@@ -266,6 +272,7 @@ licence.
 | [matplotlib](https://pypi.org/project/matplotlib/) | 3.11.2 | Matplotlib licence (PSF-based, BSD-compatible) |
 | [mdurl](https://pypi.org/project/mdurl/) | 0.1.2 | MIT |
 | [mkl](https://pypi.org/project/mkl/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [ml-dtypes](https://pypi.org/project/ml-dtypes/) | 0.6.0 (`xpu` group) | Apache-2.0 (the wheel is built with Eigen, MPL-2.0; see note 4) |
 | [mpire](https://pypi.org/project/mpire/) | 2.10.2 | MIT |
 | [mpmath](https://pypi.org/project/mpmath/) | 1.3.0 | BSD-3-Clause |
 | [multidict](https://pypi.org/project/multidict/) | 6.9.1 | Apache-2.0 |
@@ -299,7 +306,10 @@ licence.
 | [onemkl-sycl-lapack](https://pypi.org/project/onemkl-sycl-lapack/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
 | [onemkl-sycl-rng](https://pypi.org/project/onemkl-sycl-rng/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
 | [onemkl-sycl-sparse](https://pypi.org/project/onemkl-sycl-sparse/) | 2026.1.0 (`xpu` group) | Intel Simplified Software License (proprietary) |
+| [onnx](https://pypi.org/project/onnx/) | 1.23.2 (`xpu` group) | Apache-2.0 (the wheel links abseil-cpp, Apache-2.0, and protobuf and nanobind, BSD-3-Clause) |
+| [onnx-ir](https://pypi.org/project/onnx-ir/) | 1.1.0 (`xpu` group) | Apache-2.0 |
 | [onnxruntime](https://pypi.org/project/onnxruntime/) | 1.31.0 | MIT |
+| [onnxscript](https://pypi.org/project/onnxscript/) | 0.7.2 (`xpu` group) | MIT |
 | [opencv-python-headless](https://pypi.org/project/opencv-python-headless/) | 5.0.0.93 | Apache-2.0 (the wheel bundles FFmpeg under LGPL-2.1-or-later) |
 | [openpyxl](https://pypi.org/project/openpyxl/) | 3.1.5 | MIT |
 | [opentelemetry-api](https://pypi.org/project/opentelemetry-api/) | 1.45.1 | Apache-2.0 |
