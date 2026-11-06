@@ -614,6 +614,10 @@ def compare_part(part: str, a: Path, b: Path) -> PartComparison:
 def compare_banks(a: torch.Tensor, b: torch.Tensor) -> BankComparison:
     """Compare two memory banks, finding for each row of one the nearest row of the other.
 
+    `torch.cdist` finds the row, but its distances come from a matrix product whose float32 noise
+    at these magnitudes is about 0.06 even between identical rows (measured: a median of exactly
+    0.0625). So the distance reported is worked directly from the two rows it found.
+
     Args:
         a: The first bank, as (rows, values).
         b: The second bank, on the same device.
@@ -623,15 +627,17 @@ def compare_banks(a: torch.Tensor, b: torch.Tensor) -> BankComparison:
     """
     nearest: list[NDArray[np.float32]] = []
     for start in range(0, a.shape[0], _BANK_CHUNK_ROWS):
-        distances = torch.cdist(a[start : start + _BANK_CHUNK_ROWS], b)
-        nearest.append(cast("NDArray[np.float32]", distances.min(dim=1).values.numpy(force=True)))
-    found = np.concatenate(nearest)
+        rows = a[start : start + _BANK_CHUNK_ROWS]
+        found = b[torch.cdist(rows, b).argmin(dim=1)]
+        distances = (rows - found).pow(2).sum(dim=1).sqrt()
+        nearest.append(cast("NDArray[np.float32]", distances.numpy(force=True)))
+    measured = np.concatenate(nearest)
     return BankComparison(
         rows_a=a.shape[0],
         rows_b=b.shape[0],
-        same_rows=int((found < _SAME_ROW_DISTANCE).sum()),
+        same_rows=int((measured < _SAME_ROW_DISTANCE).sum()),
         same_row_distance=_SAME_ROW_DISTANCE,
-        nearest_distance=spread([float(value) for value in found]),
+        nearest_distance=spread([float(value) for value in measured]),
     )
 
 

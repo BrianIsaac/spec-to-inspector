@@ -123,6 +123,18 @@ def test_banks_are_compared_row_by_row() -> None:
     assert compared.nearest_distance.maximum == pytest.approx(10.0)
 
 
+def test_identical_rows_are_the_same_row_at_a_real_banks_magnitude() -> None:
+    """A matrix product's float32 noise must not read as two patches being different."""
+    torch.manual_seed(0)
+    a = torch.rand(64, 1536) * 30
+    b = a[torch.randperm(64)]
+
+    compared = compare_banks(a, b)
+
+    assert compared.same_rows == 64
+    assert compared.nearest_distance.maximum == 0
+
+
 def test_each_part_goes_through_the_laptops_steps_on_the_card(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
