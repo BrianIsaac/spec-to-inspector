@@ -38,6 +38,9 @@ class Settings(BaseSettings):
         vlm_url: The judge's OpenAI-compatible server, up to and including
             `/v1`: llama.cpp's on the laptop, vLLM's or llm-scaler's on the B70.
         vlm_model: The model's name as that server knows it.
+        vlm_card: The card the judge's server is on, as `xpu-smi` takes it, for
+            reading its memory where `device` is `xpu`: an index, or a PCI
+            address, which `ZE_AFFINITY_MASK` does not renumber.
         vlm_timeout_seconds: How long one answer may take before the region
             is referred to an engineer.
         corrections_db: The corrections store's SQLite file; unset, it is
@@ -61,6 +64,7 @@ class Settings(BaseSettings):
     llama_cpp_dir: Path = Path("models/llama.cpp")
     vlm_url: str = "http://127.0.0.1:8131/v1"
     vlm_model: str = "qwen3-vl-8b-instruct"
+    vlm_card: str = "0"
     vlm_timeout_seconds: float = Field(default=120.0, gt=0)
     corrections_db: Path | None = None
     corrections_recall: Literal["part", "answer"] = "part"

@@ -1,0 +1,220 @@
+{
+  "a": "the laptop checkpoints, scored on B70 XPU",
+  "b": "trained and scored on B70 XPU, run 1",
+  "command": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "compare",
+    "--a",
+    "/home/devcloud/week2/laptop-on-xpu/runs",
+    "--a-label",
+    "the laptop checkpoints, scored on B70 XPU",
+    "--b",
+    "/home/devcloud/week2/run-1/runs",
+    "--b-label",
+    "trained and scored on B70 XPU, run 1",
+    "--out",
+    "/home/devcloud/week2/compare/scores-laptop-checkpoints-on-xpu-vs-xpu-trained.json"
+  ],
+  "parts": {
+    "pcb1": {
+      "part": "pcb1",
+      "boards": 200,
+      "flagged_a": 110,
+      "flagged_b": 111,
+      "flag_differs": 1,
+      "flag_differs_boards": [
+        "bad-029"
+      ],
+      "regions_differ": 1,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.00003814697265625,
+        "p95": 0.0030415534973144516,
+        "mean": 0.01856149673461914,
+        "minimum": 0.0,
+        "maximum": 1.0336742401123047
+      },
+      "map_difference_max": 6.89467716217041,
+      "image_threshold_a": 31.319473266601562,
+      "image_threshold_b": 31.319488525390625,
+      "image_auroc_a": 0.9297,
+      "image_auroc_b": 0.9305,
+      "worst": [
+        {
+          "image_id": "good-0402",
+          "score_a": 29.614444732666016,
+          "score_b": 28.58077049255371
+        },
+        {
+          "image_id": "bad-043",
+          "score_a": 67.07659912109375,
+          "score_b": 66.28612518310547
+        },
+        {
+          "image_id": "good-0208",
+          "score_a": 28.85514259338379,
+          "score_b": 28.207448959350586
+        },
+        {
+          "image_id": "bad-086",
+          "score_a": 38.45212173461914,
+          "score_b": 39.06557083129883
+        },
+        {
+          "image_id": "good-0457",
+          "score_a": 27.76841926574707,
+          "score_b": 28.147947311401367
+        }
+      ]
+    },
+    "pcb2": {
+      "part": "pcb2",
+      "boards": 200,
+      "flagged_a": 104,
+      "flagged_b": 104,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.00002384185791015625,
+        "p95": 0.0000896453857421875,
+        "mean": 0.0001930999755859375,
+        "minimum": 0.0,
+        "maximum": 0.02855682373046875
+      },
+      "map_difference_max": 4.517560958862305,
+      "image_threshold_a": 29.304933547973633,
+      "image_threshold_b": 29.304889678955078,
+      "image_auroc_a": 0.9233,
+      "image_auroc_b": 0.9232,
+      "worst": [
+        {
+          "image_id": "good-0306",
+          "score_a": 25.804061889648438,
+          "score_b": 25.832618713378906
+        },
+        {
+          "image_id": "good-0469",
+          "score_a": 30.213186264038086,
+          "score_b": 30.21615219116211
+        },
+        {
+          "image_id": "good-0026",
+          "score_a": 28.96874237060547,
+          "score_b": 28.96771240234375
+        },
+        {
+          "image_id": "good-0297",
+          "score_a": 27.420949935913086,
+          "score_b": 27.421146392822266
+        },
+        {
+          "image_id": "good-0107",
+          "score_a": 27.71141815185547,
+          "score_b": 27.711557388305664
+        }
+      ]
+    },
+    "pcb3": {
+      "part": "pcb3",
+      "boards": 201,
+      "flagged_a": 105,
+      "flagged_b": 105,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.000034332275390625,
+        "p95": 0.000102996826171875,
+        "mean": 0.00003950394208158426,
+        "minimum": 0.0,
+        "maximum": 0.0001506805419921875
+      },
+      "map_difference_max": 0.000209808349609375,
+      "image_threshold_a": 31.54306983947754,
+      "image_threshold_b": 31.54305076599121,
+      "image_auroc_a": 0.9207920792079208,
+      "image_auroc_b": 0.9207920792079208,
+      "worst": [
+        {
+          "image_id": "good-0755",
+          "score_a": 29.22922706604004,
+          "score_b": 29.229076385498047
+        },
+        {
+          "image_id": "good-0688",
+          "score_a": 30.12031364440918,
+          "score_b": 30.120166778564453
+        },
+        {
+          "image_id": "good-0100",
+          "score_a": 26.57408905029297,
+          "score_b": 26.57396125793457
+        },
+        {
+          "image_id": "good-0178",
+          "score_a": 29.94251823425293,
+          "score_b": 29.94239616394043
+        },
+        {
+          "image_id": "good-0363",
+          "score_a": 33.31406784057617,
+          "score_b": 33.314186096191406
+        }
+      ]
+    },
+    "pcb4": {
+      "part": "pcb4",
+      "boards": 201,
+      "flagged_a": 106,
+      "flagged_b": 106,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.000030517578125,
+        "p95": 0.000091552734375,
+        "mean": 0.00003678051393423508,
+        "minimum": 0.0,
+        "maximum": 0.0001964569091796875
+      },
+      "map_difference_max": 3.841294288635254,
+      "image_threshold_a": 30.048791885375977,
+      "image_threshold_b": 30.048744201660156,
+      "image_auroc_a": 0.9871287128712871,
+      "image_auroc_b": 0.9871287128712871,
+      "worst": [
+        {
+          "image_id": "good-0569",
+          "score_a": 23.65782356262207,
+          "score_b": 23.65762710571289
+        },
+        {
+          "image_id": "good-0952",
+          "score_a": 27.679813385009766,
+          "score_b": 27.679636001586914
+        },
+        {
+          "image_id": "good-0514",
+          "score_a": 22.83582305908203,
+          "score_b": 22.835674285888672
+        },
+        {
+          "image_id": "good-0621",
+          "score_a": 24.264347076416016,
+          "score_b": 24.264488220214844
+        },
+        {
+          "image_id": "good-0196",
+          "score_a": 26.251291275024414,
+          "score_b": 26.251161575317383
+        }
+      ]
+    }
+  }
+}

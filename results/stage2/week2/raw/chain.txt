@@ -1,0 +1,17 @@
+2026-11-06T18:02:31Z start pytest-xpu: .venv/bin/python -m pytest -m xpu -q -p no:cacheprovider tests/test_card_memory.py tests/test_device.py tests/anomaly/test_train.py tests/anomaly/test_ov_model.py tests/anomaly/test_card_run.py
+2026-11-06T18:03:28Z end pytest-xpu exit=0
+2026-11-06T18:03:28Z start run-1-openvino: .venv/bin/python -m spec_to_inspector.anomaly.card_run openvino --root /home/devcloud/week2/run-1
+2026-11-06T18:22:17Z end run-1-openvino exit=0
+2026-11-06T18:22:17Z start laptop-on-xpu: .venv/bin/spec-to-inspector train --all --reuse --models-dir /home/devcloud/week2/laptop/models --runs-dir /home/devcloud/week2/laptop-on-xpu/runs
+2026-11-06T18:23:45Z end laptop-on-xpu exit=0
+2026-11-06T18:23:45Z start banks-laptop-xpu: .venv/bin/python -m spec_to_inspector.anomaly.card_run banks --a /home/devcloud/week2/laptop/models --b /home/devcloud/week2/run-1/models --a-label laptop, CUDA --b-label B70, XPU, run 1 --out /home/devcloud/week2/banks-laptop-vs-xpu.json
+2026-11-06T18:24:05Z end banks-laptop-xpu exit=0
+2026-11-06T18:24:05Z start run-2-pytorch: .venv/bin/python -m spec_to_inspector.anomaly.card_run pytorch --root /home/devcloud/week2/run-2
+2026-11-06T19:19:36Z end run-2-pytorch exit=0
+2026-11-06T19:19:36Z start run-2-openvino: .venv/bin/python -m spec_to_inspector.anomaly.card_run openvino --root /home/devcloud/week2/run-2
+2026-11-06T19:38:22Z end run-2-openvino exit=0
+2026-11-06T19:38:22Z start banks-xpu-xpu: .venv/bin/python -m spec_to_inspector.anomaly.card_run banks --a /home/devcloud/week2/run-1/models --b /home/devcloud/week2/run-2/models --a-label B70, XPU, run 1 --b-label B70, XPU, run 2 --out /home/devcloud/week2/banks-xpu-run-1-vs-run-2.json
+2026-11-06T19:38:42Z end banks-xpu-xpu exit=0
+2026-11-06T19:38:42Z start plain-train-pcb4: .venv/bin/spec-to-inspector train --category pcb4 --bench --models-dir /home/devcloud/week2/plain/models --runs-dir /home/devcloud/week2/plain/runs --results /home/devcloud/week2/plain/anomaly.json
+2026-11-06T19:52:38Z end plain-train-pcb4 exit=0
+2026-11-06T19:52:38Z chain done

@@ -1002,7 +1002,11 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
         ):
             warnings.simplefilter("ignore", FutureWarning)
             record = benching.run_bench(
-                plan, client=client, say=say, **benching.laptop_pipeline(settings)
+                plan,
+                client=client,
+                say=say,
+                probes=benching.device_probes(settings),
+                **benching.laptop_pipeline(settings),
             )
     except benching.BenchError as error:
         say(str(error))

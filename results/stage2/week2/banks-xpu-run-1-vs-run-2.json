@@ -1,0 +1,82 @@
+{
+  "a": "B70, XPU, run 1",
+  "b": "B70, XPU, run 2",
+  "command": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "banks",
+    "--a",
+    "/home/devcloud/week2/run-1/models",
+    "--b",
+    "/home/devcloud/week2/run-2/models",
+    "--a-label",
+    "B70, XPU, run 1",
+    "--b-label",
+    "B70, XPU, run 2",
+    "--out",
+    "/home/devcloud/week2/banks-xpu-run-1-vs-run-2.json"
+  ],
+  "parts": {
+    "pcb1": {
+      "rows_a": 92569,
+      "rows_b": 92569,
+      "same_rows": 92569,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92569,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "picks_in_step": 92569
+    },
+    "pcb2": {
+      "rows_a": 92262,
+      "rows_b": 92262,
+      "same_rows": 92262,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92262,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "picks_in_step": 92262
+    },
+    "pcb3": {
+      "rows_a": 92672,
+      "rows_b": 92672,
+      "same_rows": 92672,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92672,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "picks_in_step": 92672
+    },
+    "pcb4": {
+      "rows_a": 92569,
+      "rows_b": 92569,
+      "same_rows": 92569,
+      "same_row_distance": 0.01,
+      "nearest_distance": {
+        "n": 92569,
+        "p50": 0.0,
+        "p95": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "picks_in_step": 92569
+    }
+  }
+}

@@ -1,6 +1,7 @@
 """Tests for the bench's run: the whole pipeline against a stub model and a fake judge."""
 
 import json
+from dataclasses import replace
 
 import pytest
 
@@ -18,6 +19,7 @@ from spec_to_inspector.bench.run import (
 from spec_to_inspector.judge.decision import Cause
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import load_decision
+from spec_to_inspector.judge.timing import GpuReading
 from tests.bench.bench_fakes import RELEASED, REPLIES, fake_probes, stub_models
 from tests.bench.conftest import run
 from tests.judge.fake_vlm import FakeVlm
@@ -100,6 +102,20 @@ def test_the_stages_are_timed_and_their_memory_read_for_the_process_concerned(
     assert run.memory.process_peak_mib == 1300
     assert record.judge_memory.process_peak_mib == 8700
     assert record.judge_memory.card_peak_mib == 10000
+
+
+def test_the_judges_stage_is_read_from_the_servers_own_card_where_it_has_one(
+    plan: BenchPlan,
+) -> None:
+    """On the B70 machine the judge has a card of its own, and its process cannot be listed."""
+    probes = replace(fake_probes(), read_server_gpu=lambda _pid: GpuReading(29456, None))
+    with FakeVlm(REPLIES) as server:
+        record = run(plan, server, probes=probes)
+
+    assert record.judge_memory.card_peak_mib == 29456
+    assert record.judge_memory.process_peak_mib is None
+    assert record.runs["pcb4"].memory.card_peak_mib == 10000
+    assert record.runs["pcb4"].memory.process_peak_mib == 1300
 
 
 def test_minutes_to_an_inspector_are_this_runs_parse_and_the_recorded_fit(

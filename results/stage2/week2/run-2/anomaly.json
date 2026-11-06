@@ -1,0 +1,894 @@
+{
+  "schema_version": 1,
+  "unit": "U2",
+  "created_at": "2026-11-06T19:19:35+00:00",
+  "written_by": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "pytorch",
+    "--root",
+    "/home/devcloud/week2/run-2"
+  ],
+  "reference_source": "Rolih, Ameln, Vaidya and Akcay, 'Divide and Conquer: High-Resolution Industrial Anomaly Detection via Memory Efficient Tiled Ensemble', arXiv 2403.04932: the table 'VisA results of all 6 setups for Patchcore' (Table 7 in v1 of 7 March 2024, Table 9 in v2 of 8 April 2024), column 'Single model 256' (SM256), detection AUROC; cited as the published reference, not as a current fact",
+  "reference_backbone": "resnet18",
+  "reference_note": "The paper's figures are the mean of 3 runs with a ResNet18 backbone, batch size 8, centre crop disabled. The product's PatchCore uses Anomalib's default wide_resnet50_2, so the comparison is to the published setting at the same resolution, not like for like in backbone. The paper's second figure per cell is AUPRO; it publishes no pixel AUROC. Its SM256 cells for PCB3 and PCB4 are identical (99.0/86.6) in both versions of the PDF.",
+  "gate_points": 3.0,
+  "outside_gate": [
+    "pcb3"
+  ],
+  "thresholds_tuned_on_test": true,
+  "notes": [
+    "AUROC and F1 are fractions of 1; *_points are percentage points (AUROC x 100).",
+    "*_bytes are bytes; *_seconds and seconds are wall-clock seconds.",
+    "Thresholds, scores and anomaly-map values are raw PatchCore distances, not normalised.",
+    "peak_allocated_bytes is torch.cuda.max_memory_allocated; peak_reserved_bytes is torch.cuda.max_memory_reserved, which is what the card actually gives up.",
+    "Where thresholds.tuned_on_test is true, every thresholded figure (F1, the confusion counts, predicted_anomalous) was tuned on the test images; AUROC needs no threshold."
+  ],
+  "categories": {
+    "pcb1": {
+      "category": "pcb1",
+      "comparison": {
+        "category": "pcb1",
+        "measured_points": 93.05000305175781,
+        "reference_points": 94.9,
+        "delta_points": -1.85,
+        "within_gate": true
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb1",
+        "created_at": "2026-11-06T18:36:07+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 904,
+        "test_good": 100,
+        "test_bad": 100,
+        "embedding_rows": 925696,
+        "memory_bank_rows": 92569,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 31.319488525390625,
+          "pixel": 41.46424865722656,
+          "image_min": 24.392316818237305,
+          "image_max": 67.99082946777344,
+          "pixel_min": 11.053874969482422,
+          "pixel_max": 68.58982849121094,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 200,
+          "split_images_in_test": 200,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.9305000305175781,
+          "pixel_auroc": 0.9961318373680115,
+          "image_f1": 0.8666666746139526,
+          "pixel_f1": 0.7694932818412781
+        },
+        "embed": {
+          "seconds": 4.314418772002682,
+          "peak_allocated_bytes": 6319805440,
+          "peak_reserved_bytes": 6996099072
+        },
+        "coreset": {
+          "seconds": 685.6184017750202,
+          "peak_allocated_bytes": 8358496768,
+          "peak_reserved_bytes": 9554624512
+        },
+        "validate_split": {
+          "seconds": 6.379077201010659,
+          "peak_allocated_bytes": 1623132160,
+          "peak_reserved_bytes": 9554624512
+        },
+        "test": {
+          "seconds": 9.161693211004604,
+          "peak_allocated_bytes": 1569649664,
+          "peak_reserved_bytes": 9554624512
+        },
+        "fit_seconds": 698.8520168639952,
+        "peak_allocated_bytes": 8358496768,
+        "peak_reserved_bytes": 9554624512,
+        "gpu_free_bytes_before": 31963475968,
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 668469863,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+xpu",
+          "torchvision": "0.29.1+xpu"
+        }
+      },
+      "run": {
+        "directory": "/home/devcloud/week2/run-2/runs/pcb1/test",
+        "created_at": "2026-11-06T18:36:27+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 200,
+        "labelled_good": 100,
+        "labelled_bad": 100,
+        "image_auroc": 0.9305,
+        "seconds": 17.702661970979534,
+        "predicted_anomalous": 111,
+        "true_positive": 92,
+        "false_negative": 8,
+        "true_negative": 81,
+        "false_positive": 19,
+        "regions": 140,
+        "images_with_regions": 111,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 18,
+        "anomalous_with_region": 92,
+        "anomalous_top_region_on_defect": 78
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb1",
+        "created_at": "2026-11-06T18:38:09+00:00",
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "images": 200,
+        "resident_bytes": 668356981,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              6.742540279054083,
+              6.755394770996645,
+              6.7593484550016
+            ],
+            "seconds": 6.755394770996645,
+            "images_per_second": 29.60596779016859,
+            "peak_allocated_bytes": 1248809472,
+            "peak_reserved_bytes": 1281359872,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              7.608145866019186,
+              7.632127447985113,
+              7.661178125999868
+            ],
+            "seconds": 7.632127447985113,
+            "images_per_second": 26.205013132059285,
+            "peak_allocated_bytes": 1249072128,
+            "peak_reserved_bytes": 1281359872,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              5.765887757006567,
+              5.765616760007106,
+              5.765883321000729
+            ],
+            "seconds": 5.765883321000729,
+            "images_per_second": 34.686792788808624,
+            "peak_allocated_bytes": 1402532352,
+            "peak_reserved_bytes": 1860173824,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              6.650251005019527,
+              6.639173953037243,
+              6.663191889994778
+            ],
+            "seconds": 6.650251005019527,
+            "images_per_second": 30.07405282132095,
+            "peak_allocated_bytes": 1407775744,
+            "peak_reserved_bytes": 1860173824,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    },
+    "pcb2": {
+      "category": "pcb2",
+      "comparison": {
+        "category": "pcb2",
+        "measured_points": 92.3200011253357,
+        "reference_points": 92.4,
+        "delta_points": -0.08,
+        "within_gate": true
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb2",
+        "created_at": "2026-11-06T18:49:53+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 901,
+        "test_good": 100,
+        "test_bad": 100,
+        "embedding_rows": 922624,
+        "memory_bank_rows": 92262,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 29.304889678955078,
+          "pixel": 34.74385070800781,
+          "image_min": 23.895116806030273,
+          "image_max": 67.66984558105469,
+          "pixel_min": 11.80219841003418,
+          "pixel_max": 64.81105041503906,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 200,
+          "split_images_in_test": 200,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.9232000112533569,
+          "pixel_auroc": 0.9817195534706116,
+          "image_f1": 0.8529411554336548,
+          "pixel_f1": 0.17255491018295288
+        },
+        "embed": {
+          "seconds": 4.312024185957853,
+          "peak_allocated_bytes": 6300931072,
+          "peak_reserved_bytes": 6977224704
+        },
+        "coreset": {
+          "seconds": 680.3468530180398,
+          "peak_allocated_bytes": 8331052032,
+          "peak_reserved_bytes": 9527361536
+        },
+        "validate_split": {
+          "seconds": 5.744006400986109,
+          "peak_allocated_bytes": 1619358208,
+          "peak_reserved_bytes": 9527361536
+        },
+        "test": {
+          "seconds": 8.970228478021454,
+          "peak_allocated_bytes": 1565875712,
+          "peak_reserved_bytes": 9527361536
+        },
+        "fit_seconds": 692.6531503190054,
+        "peak_allocated_bytes": 8331052032,
+        "peak_reserved_bytes": 9527361536,
+        "gpu_free_bytes_before": 32387436544,
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 666583655,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+xpu",
+          "torchvision": "0.29.1+xpu"
+        }
+      },
+      "run": {
+        "directory": "/home/devcloud/week2/run-2/runs/pcb2/test",
+        "created_at": "2026-11-06T18:50:12+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 200,
+        "labelled_good": 100,
+        "labelled_bad": 100,
+        "image_auroc": 0.9232,
+        "seconds": 17.145696603984106,
+        "predicted_anomalous": 104,
+        "true_positive": 87,
+        "false_negative": 13,
+        "true_negative": 83,
+        "false_positive": 17,
+        "regions": 118,
+        "images_with_regions": 104,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 18,
+        "anomalous_with_region": 87,
+        "anomalous_top_region_on_defect": 78
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb2",
+        "created_at": "2026-11-06T18:51:54+00:00",
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "images": 200,
+        "resident_bytes": 666470773,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              6.708058123011142,
+              6.723403251031414,
+              6.73627326998394
+            ],
+            "seconds": 6.723403251031414,
+            "images_per_second": 29.746839886380265,
+            "peak_allocated_bytes": 1245035520,
+            "peak_reserved_bytes": 1277165568,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 200,
+            "pass_seconds": [
+              7.7289808740024455,
+              7.706077105016448,
+              7.637643519032281
+            ],
+            "seconds": 7.706077105016448,
+            "images_per_second": 25.953542544987698,
+            "peak_allocated_bytes": 1245298176,
+            "peak_reserved_bytes": 1277165568,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              5.745771831017919,
+              5.745433248986956,
+              5.746975824993569
+            ],
+            "seconds": 5.745771831017919,
+            "images_per_second": 34.80820434259536,
+            "peak_allocated_bytes": 1398758400,
+            "peak_reserved_bytes": 1855979520,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 200,
+            "pass_seconds": [
+              6.775557060027495,
+              6.6910893130116165,
+              6.721737649990246
+            ],
+            "seconds": 6.721737649990246,
+            "images_per_second": 29.75421095173065,
+            "peak_allocated_bytes": 1404001792,
+            "peak_reserved_bytes": 1855979520,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    },
+    "pcb3": {
+      "category": "pcb3",
+      "comparison": {
+        "category": "pcb3",
+        "measured_points": 92.07921028137207,
+        "reference_points": 99.0,
+        "delta_points": -6.92,
+        "within_gate": false
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb3",
+        "created_at": "2026-11-06T19:03:42+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 905,
+        "test_good": 101,
+        "test_bad": 100,
+        "embedding_rows": 926720,
+        "memory_bank_rows": 92672,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 31.54305076599121,
+          "pixel": 45.434200286865234,
+          "image_min": 24.898265838623047,
+          "image_max": 64.24124145507812,
+          "pixel_min": 10.090859413146973,
+          "pixel_max": 62.76780700683594,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 201,
+          "split_images_in_test": 201,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.9207921028137207,
+          "pixel_auroc": 0.9805979132652283,
+          "image_f1": 0.8487805128097534,
+          "pixel_f1": 0.3349737524986267
+        },
+        "embed": {
+          "seconds": 4.288765639998019,
+          "peak_allocated_bytes": 6326096896,
+          "peak_reserved_bytes": 7002390528
+        },
+        "coreset": {
+          "seconds": 684.993053800019,
+          "peak_allocated_bytes": 8365725696,
+          "peak_reserved_bytes": 9565110272
+        },
+        "validate_split": {
+          "seconds": 5.744747228978667,
+          "peak_allocated_bytes": 1624397824,
+          "peak_reserved_bytes": 9565110272
+        },
+        "test": {
+          "seconds": 9.053979807998985,
+          "peak_allocated_bytes": 1570915328,
+          "peak_reserved_bytes": 9565110272
+        },
+        "fit_seconds": 697.454585185973,
+        "peak_allocated_bytes": 8365725696,
+        "peak_reserved_bytes": 9565110272,
+        "gpu_free_bytes_before": 32356655104,
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 669102695,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+xpu",
+          "torchvision": "0.29.1+xpu"
+        }
+      },
+      "run": {
+        "directory": "/home/devcloud/week2/run-2/runs/pcb3/test",
+        "created_at": "2026-11-06T19:04:03+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 201,
+        "labelled_good": 101,
+        "labelled_bad": 100,
+        "image_auroc": 0.9207920792079208,
+        "seconds": 19.38422442600131,
+        "predicted_anomalous": 105,
+        "true_positive": 87,
+        "false_negative": 13,
+        "true_negative": 83,
+        "false_positive": 18,
+        "regions": 174,
+        "images_with_regions": 105,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 11,
+        "anomalous_with_region": 87,
+        "anomalous_top_region_on_defect": 60
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb3",
+        "created_at": "2026-11-06T19:05:45+00:00",
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "images": 201,
+        "resident_bytes": 668989813,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              6.722740455996245,
+              6.738421763991937,
+              6.728709380025975
+            ],
+            "seconds": 6.728709380025975,
+            "images_per_second": 29.871999019108188,
+            "peak_allocated_bytes": 1252172288,
+            "peak_reserved_bytes": 1281359872,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              7.777573393017519,
+              7.724320330016781,
+              7.622878654045053
+            ],
+            "seconds": 7.724320330016781,
+            "images_per_second": 26.021706947977304,
+            "peak_allocated_bytes": 1252434944,
+            "peak_reserved_bytes": 1281359872,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              5.7133726280299015,
+              5.713618280016817,
+              5.714107895037159
+            ],
+            "seconds": 5.713618280016817,
+            "images_per_second": 35.179108955001524,
+            "peak_allocated_bytes": 1405895168,
+            "peak_reserved_bytes": 1860173824,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              6.666684594005346,
+              6.602412740990985,
+              6.606861727021169
+            ],
+            "seconds": 6.606861727021169,
+            "images_per_second": 30.42291609917266,
+            "peak_allocated_bytes": 1411138560,
+            "peak_reserved_bytes": 1860173824,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    },
+    "pcb4": {
+      "category": "pcb4",
+      "comparison": {
+        "category": "pcb4",
+        "measured_points": 98.7128734588623,
+        "reference_points": 99.0,
+        "delta_points": -0.29,
+        "within_gate": true
+      },
+      "record": {
+        "schema_version": 1,
+        "category": "pcb4",
+        "created_at": "2026-11-06T19:17:33+00:00",
+        "model": {
+          "name": "patchcore",
+          "variant": "SingleCopyPatchcore",
+          "backbone": "wide_resnet50_2",
+          "weights": "timm/wide_resnet50_2.racm_in1k",
+          "layers": [
+            "layer2",
+            "layer3"
+          ],
+          "image_size": [
+            256,
+            256
+          ],
+          "coreset_sampling_ratio": 0.1,
+          "num_neighbors": 9,
+          "precision": "float32",
+          "tf32": false,
+          "seed": 0,
+          "train_batch_size": 32,
+          "eval_batch_size": 32
+        },
+        "train_images": 904,
+        "test_good": 101,
+        "test_bad": 100,
+        "embedding_rows": 925696,
+        "memory_bank_rows": 92569,
+        "memory_bank_dims": 1536,
+        "thresholds": {
+          "image": 30.048744201660156,
+          "pixel": 30.769981384277344,
+          "image_min": 22.67057991027832,
+          "image_max": 54.107242584228516,
+          "pixel_min": 10.15583610534668,
+          "pixel_max": 53.042606353759766,
+          "method": "anomalib.metrics.F1AdaptiveThreshold",
+          "val_split_mode": "same_as_test",
+          "split_images": 201,
+          "split_images_in_test": 201,
+          "tuned_on_test": true
+        },
+        "metrics": {
+          "image_auroc": 0.987128734588623,
+          "pixel_auroc": 0.9842018485069275,
+          "image_f1": 0.9417475461959839,
+          "pixel_f1": 0.42386963963508606
+        },
+        "embed": {
+          "seconds": 3.963910784048494,
+          "peak_allocated_bytes": 6319805440,
+          "peak_reserved_bytes": 6996099072
+        },
+        "coreset": {
+          "seconds": 685.4221603189944,
+          "peak_allocated_bytes": 8358496768,
+          "peak_reserved_bytes": 9554624512
+        },
+        "validate_split": {
+          "seconds": 5.797826876980253,
+          "peak_allocated_bytes": 1623132160,
+          "peak_reserved_bytes": 9554624512
+        },
+        "test": {
+          "seconds": 9.116471093031578,
+          "peak_allocated_bytes": 1569649664,
+          "peak_reserved_bytes": 9554624512
+        },
+        "fit_seconds": 697.5982276219875,
+        "peak_allocated_bytes": 8358496768,
+        "peak_reserved_bytes": 9554624512,
+        "gpu_free_bytes_before": 32326270976,
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "checkpoint": "model.ckpt",
+        "checkpoint_bytes": 668469863,
+        "versions": {
+          "anomalib": "2.7.0",
+          "lightning": "2.6.6",
+          "timm": "1.0.30",
+          "torch": "2.14.1+xpu",
+          "torchvision": "0.29.1+xpu"
+        }
+      },
+      "run": {
+        "directory": "/home/devcloud/week2/run-2/runs/pcb4/test",
+        "created_at": "2026-11-06T19:17:53+00:00",
+        "options": {
+          "batch_size": 16,
+          "num_workers": 4,
+          "crop_margin": 0.5,
+          "crop_min_side": 256,
+          "min_region_area": 1,
+          "max_crops": null,
+          "region_threshold": "image",
+          "peak_fallback": true
+        },
+        "images": 201,
+        "labelled_good": 101,
+        "labelled_bad": 100,
+        "image_auroc": 0.9871287128712871,
+        "seconds": 17.32420282502426,
+        "predicted_anomalous": 106,
+        "true_positive": 97,
+        "false_negative": 3,
+        "true_negative": 92,
+        "false_positive": 9,
+        "regions": 150,
+        "images_with_regions": 106,
+        "flagged_without_region": 0,
+        "peak_fallback_images": 4,
+        "anomalous_with_region": 97,
+        "anomalous_top_region_on_defect": 94
+      },
+      "bench": {
+        "schema_version": 1,
+        "category": "pcb4",
+        "created_at": "2026-11-06T19:19:35+00:00",
+        "device": {
+          "kind": "xpu",
+          "index": 0,
+          "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+          "capability": null,
+          "total_memory_bytes": 34242297856,
+          "torch_version": "2.14.1+xpu",
+          "cuda_version": null,
+          "arch_list": [],
+          "driver_version": "1.15.38646+7"
+        },
+        "images": 201,
+        "resident_bytes": 668356981,
+        "runs": [
+          {
+            "mode": "model",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              6.74688067403622,
+              6.773539088957477,
+              6.781288258032873
+            ],
+            "seconds": 6.773539088957477,
+            "images_per_second": 29.67429542522004,
+            "peak_allocated_bytes": 1248809472,
+            "peak_reserved_bytes": 1281359872,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 1,
+            "images": 201,
+            "pass_seconds": [
+              7.727844116976485,
+              7.723381444986444,
+              7.732456147030462
+            ],
+            "seconds": 7.727844116976485,
+            "images_per_second": 26.00984141986564,
+            "peak_allocated_bytes": 1249072128,
+            "peak_reserved_bytes": 1281359872,
+            "num_workers": 8
+          },
+          {
+            "mode": "model",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              5.792511851002928,
+              5.79158571199514,
+              5.794515277026221
+            ],
+            "seconds": 5.792511851002928,
+            "images_per_second": 34.69997216582275,
+            "peak_allocated_bytes": 1402532352,
+            "peak_reserved_bytes": 1860173824,
+            "num_workers": null
+          },
+          {
+            "mode": "end_to_end",
+            "batch_size": 16,
+            "images": 201,
+            "pass_seconds": [
+              6.802174056996591,
+              6.759512645017821,
+              6.712997690017801
+            ],
+            "seconds": 6.759512645017821,
+            "images_per_second": 29.735871586563185,
+            "peak_allocated_bytes": 1407775744,
+            "peak_reserved_bytes": 1860173824,
+            "num_workers": 8
+          }
+        ]
+      },
+      "stale": []
+    }
+  }
+}

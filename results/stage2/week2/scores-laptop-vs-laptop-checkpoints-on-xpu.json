@@ -1,0 +1,218 @@
+{
+  "a": "laptop: trained and scored on CUDA",
+  "b": "the laptop checkpoints, scored on B70 XPU",
+  "command": [
+    "python",
+    "-m",
+    "spec_to_inspector.anomaly.card_run",
+    "compare",
+    "--a",
+    "/home/devcloud/week2/laptop/runs",
+    "--a-label",
+    "laptop: trained and scored on CUDA",
+    "--b",
+    "/home/devcloud/week2/laptop-on-xpu/runs",
+    "--b-label",
+    "the laptop checkpoints, scored on B70 XPU",
+    "--out",
+    "/home/devcloud/week2/compare/scores-laptop-vs-laptop-checkpoints-on-xpu.json"
+  ],
+  "parts": {
+    "pcb1": {
+      "part": "pcb1",
+      "boards": 200,
+      "flagged_a": 110,
+      "flagged_b": 110,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.00002765655517578125,
+        "p95": 0.00010728836059570296,
+        "mean": 0.00003787994384765625,
+        "minimum": 0.0,
+        "maximum": 0.0002346038818359375
+      },
+      "map_difference_max": 0.0004100799560546875,
+      "image_threshold_a": 31.319473266601562,
+      "image_threshold_b": 31.319473266601562,
+      "image_auroc_a": 0.9297,
+      "image_auroc_b": 0.9297,
+      "worst": [
+        {
+          "image_id": "good-1000",
+          "score_a": 28.12957763671875,
+          "score_b": 28.129343032836914
+        },
+        {
+          "image_id": "good-0735",
+          "score_a": 26.951927185058594,
+          "score_b": 26.952091217041016
+        },
+        {
+          "image_id": "good-0871",
+          "score_a": 27.364526748657227,
+          "score_b": 27.36436653137207
+        },
+        {
+          "image_id": "good-0804",
+          "score_a": 28.117868423461914,
+          "score_b": 28.118024826049805
+        },
+        {
+          "image_id": "good-0297",
+          "score_a": 24.39255714416504,
+          "score_b": 24.392417907714844
+        }
+      ]
+    },
+    "pcb2": {
+      "part": "pcb2",
+      "boards": 200,
+      "flagged_a": 104,
+      "flagged_b": 104,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 200,
+        "p50": 0.00002288818359375,
+        "p95": 0.00007829666137695309,
+        "mean": 0.000033893585205078124,
+        "minimum": 0.0,
+        "maximum": 0.0003108978271484375
+      },
+      "map_difference_max": 0.0003757476806640625,
+      "image_threshold_a": 29.304933547973633,
+      "image_threshold_b": 29.304933547973633,
+      "image_auroc_a": 0.9233,
+      "image_auroc_b": 0.9233,
+      "worst": [
+        {
+          "image_id": "good-0994",
+          "score_a": 24.559005737304688,
+          "score_b": 24.55869483947754
+        },
+        {
+          "image_id": "bad-038",
+          "score_a": 27.334556579589844,
+          "score_b": 27.33428955078125
+        },
+        {
+          "image_id": "good-0400",
+          "score_a": 25.744600296020508,
+          "score_b": 25.74441909790039
+        },
+        {
+          "image_id": "good-0297",
+          "score_a": 27.421092987060547,
+          "score_b": 27.420949935913086
+        },
+        {
+          "image_id": "good-0013",
+          "score_a": 29.270402908325195,
+          "score_b": 29.270544052124023
+        }
+      ]
+    },
+    "pcb3": {
+      "part": "pcb3",
+      "boards": 201,
+      "flagged_a": 105,
+      "flagged_b": 105,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.000034332275390625,
+        "p95": 0.0001049041748046875,
+        "mean": 0.00004220839163557214,
+        "minimum": 0.0,
+        "maximum": 0.00020599365234375
+      },
+      "map_difference_max": 0.000499725341796875,
+      "image_threshold_a": 31.54306983947754,
+      "image_threshold_b": 31.54306983947754,
+      "image_auroc_a": 0.9207920792079208,
+      "image_auroc_b": 0.9207920792079208,
+      "worst": [
+        {
+          "image_id": "good-0027",
+          "score_a": 33.38593673706055,
+          "score_b": 33.38614273071289
+        },
+        {
+          "image_id": "good-0994",
+          "score_a": 29.637950897216797,
+          "score_b": 29.638105392456055
+        },
+        {
+          "image_id": "good-0796",
+          "score_a": 33.21133041381836,
+          "score_b": 33.21120071411133
+        },
+        {
+          "image_id": "good-0377",
+          "score_a": 27.377809524536133,
+          "score_b": 27.37793731689453
+        },
+        {
+          "image_id": "good-0172",
+          "score_a": 26.98750114440918,
+          "score_b": 26.987627029418945
+        }
+      ]
+    },
+    "pcb4": {
+      "part": "pcb4",
+      "boards": 201,
+      "flagged_a": 106,
+      "flagged_b": 106,
+      "flag_differs": 0,
+      "flag_differs_boards": [],
+      "regions_differ": 0,
+      "score_difference": {
+        "n": 201,
+        "p50": 0.000030517578125,
+        "p95": 0.0001010894775390625,
+        "mean": 0.0000414492479011194,
+        "minimum": 0.0,
+        "maximum": 0.00052642822265625
+      },
+      "map_difference_max": 0.00048828125,
+      "image_threshold_a": 30.048791885375977,
+      "image_threshold_b": 30.048791885375977,
+      "image_auroc_a": 0.9871287128712871,
+      "image_auroc_b": 0.9871287128712871,
+      "worst": [
+        {
+          "image_id": "good-0187",
+          "score_a": 26.855804443359375,
+          "score_b": 26.85527801513672
+        },
+        {
+          "image_id": "good-0520",
+          "score_a": 23.807968139648438,
+          "score_b": 23.80817413330078
+        },
+        {
+          "image_id": "good-0617",
+          "score_a": 23.382080078125,
+          "score_b": 23.38189125061035
+        },
+        {
+          "image_id": "good-0684",
+          "score_a": 22.67045021057129,
+          "score_b": 22.67059898376465
+        },
+        {
+          "image_id": "good-0869",
+          "score_a": 23.25604248046875,
+          "score_b": 23.255895614624023
+        }
+      ]
+    }
+  }
+}

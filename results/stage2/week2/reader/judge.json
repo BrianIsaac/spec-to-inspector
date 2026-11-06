@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "notes": {
+    "units": "seconds are wall time of one chat-completion request as the client saw it; tokens are the server's own counts, images included; memory is MiB as nvidia-smi reports it",
+    "cold": "the request sent with cache_prompt false: the whole prompt is evaluated, clause table included",
+    "cached": "the request sent with the server's prompt cache on, after one warm-up request on another image: the prefix the images share is not evaluated again",
+    "percentiles": "numpy.percentile, linear interpolation between the ranked values",
+    "one_region": "each image is asked once per pass, about its most anomalous region only",
+    "live": "the answers of the marked live test, uv run pytest -m live: region decisions on real crops, recorded as they came; ground_truth is VisA's defect type under region 1"
+  },
+  "timing": {
+    "measured_at": "2026-11-06T19:55:03+00:00",
+    "command": [
+      "python",
+      "-m",
+      "spec_to_inspector.judge.timing",
+      "--category",
+      "pcb4",
+      "--images",
+      "2",
+      "--run",
+      "/home/devcloud/week2/reader/runs/pcb4/reader",
+      "--results",
+      "/home/devcloud/week2/reader/judge.json",
+      "--label",
+      "reader check"
+    ],
+    "category": "pcb4",
+    "run": "/home/devcloud/week2/reader/runs/pcb4/reader",
+    "specification": "Workmanship acceptance specification: PCB1 and PCB4 assemblies",
+    "judge_url": "http://127.0.0.1:8131/v1",
+    "judge_model": "qwen3-vl-8b-instruct",
+    "server": {},
+    "label": "reader check",
+    "images": 2,
+    "clause_prefix_tokens": 2260,
+    "cold_seconds": {
+      "n": 2,
+      "p50": 2.1399357019981835,
+      "p95": 2.2161382196034536,
+      "mean": 2.1399357019981835,
+      "minimum": 2.0552662379923277,
+      "maximum": 2.2246051660040393
+    },
+    "cached_seconds": {
+      "n": 2,
+      "p50": 2.136025989515474,
+      "p95": 2.2080653703567803,
+      "mean": 2.136025989515474,
+      "minimum": 2.0559822330251336,
+      "maximum": 2.2160697460058145
+    },
+    "warm_up_seconds": 2.0576825810130686,
+    "prompt_tokens": {
+      "n": 2,
+      "p50": 4704.0,
+      "p95": 4704.9,
+      "mean": 4704.0,
+      "minimum": 4703.0,
+      "maximum": 4705.0
+    },
+    "cached_prompt_tokens": null,
+    "completion_tokens": {
+      "n": 2,
+      "p50": 35.5,
+      "p95": 37.75,
+      "mean": 35.5,
+      "minimum": 33.0,
+      "maximum": 38.0
+    },
+    "output_tokens_per_second": null,
+    "gpu": {
+      "server_peak_mib": null,
+      "gpu_peak_mib": 29456,
+      "gpu_before_mib": 29456,
+      "samples": 15,
+      "interval_seconds": 0.5
+    },
+    "cold": [
+      {
+        "image_id": "bad-000",
+        "seconds": 2.2246051660040393,
+        "attempts": 1,
+        "prompt_tokens": 4703,
+        "cached_tokens": null,
+        "completion_tokens": 38,
+        "tokens_per_second": null,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-001",
+        "seconds": 2.0552662379923277,
+        "attempts": 1,
+        "prompt_tokens": 4705,
+        "cached_tokens": null,
+        "completion_tokens": 33,
+        "tokens_per_second": null,
+        "outcome": "reject",
+        "review_cause": null
+      }
+    ],
+    "cached": [
+      {
+        "image_id": "bad-000",
+        "seconds": 2.2160697460058145,
+        "attempts": 1,
+        "prompt_tokens": 4703,
+        "cached_tokens": null,
+        "completion_tokens": 38,
+        "tokens_per_second": null,
+        "outcome": "reject",
+        "review_cause": null
+      },
+      {
+        "image_id": "bad-001",
+        "seconds": 2.0559822330251336,
+        "attempts": 1,
+        "prompt_tokens": 4705,
+        "cached_tokens": null,
+        "completion_tokens": 33,
+        "tokens_per_second": null,
+        "outcome": "reject",
+        "review_cause": null
+      }
+    ]
+  },
+  "live": null
+}

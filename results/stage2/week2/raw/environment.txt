@@ -1,0 +1,31 @@
+Sat Nov  7 04:04:39 AM +08 2026
+uv 0.13.5 (x86_64-unknown-linux-gnu)
+
+uv export --frozen, before this unit's change, from 04147ec:
+a3b1c7760f0f006034b4249b44aaecaf55acfbe6ebdd3b12dd33ba91f955cb7a  export-before.txt
+uv export --frozen, at the tip:
+a3b1c7760f0f006034b4249b44aaecaf55acfbe6ebdd3b12dd33ba91f955cb7a  export-tip.txt
+cmp: byte-identical
+185
+
+the worktree's uv pip freeze against the main checkout's, the project's own path apart:
+157c157
+< -e file:///home/user/.local/share/briain/worktrees/asus-ugen-hack-stage-ii-week-2-the-anom-20261106T163726-339922
+---
+> -e file:///home/user/Documents/personal/asus-ugen-hack
+diff exit 1
+186
+
+uv.lock against 04147ec: lines added, lines removed:
+66	0	uv.lock
+the packages the xpu group gained:
+85a86
+> ml-dtypes==0.6.0
+103a105,106
+> onnx==1.23.2
+> onnx-ir==1.1.0
+104a108
+> onnxscript==0.7.2
+
+what uv says of nncf in the xpu group, when it was asked for:
+nncf>=3.1.0 depends on numpy>=1.24.0,<2.5.0 ... your project depends on numpy>=2.5.3 ... unsatisfiable

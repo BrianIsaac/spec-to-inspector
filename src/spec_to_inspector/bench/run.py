@@ -29,6 +29,7 @@ from collections.abc import Callable, Generator, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, NamedTuple, TypedDict
 
@@ -53,6 +54,7 @@ from spec_to_inspector.bench.record import (
     file_ref,
 )
 from spec_to_inspector.bench.score import score
+from spec_to_inspector.card_memory import read_xpu_memory
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause
 from spec_to_inspector.judge.inspect import DEFAULT_MAX_REGIONS, RESULT_NAME, judge_image
@@ -232,6 +234,8 @@ class Probes:
     Attributes:
         read_gpu: Reads the card's memory in use and one process's, without a
             pipe: the data loader forks while the anomaly model's stage is sampled.
+        read_server_gpu: The same for the card the judge's server is on, where
+            that is not this process's; None where they are one card.
         own_pid: Gives the bench's own process.
         server_pid: Finds the process listening at the judge's URL.
         server_facts: Asks the server what it is serving.
@@ -242,6 +246,7 @@ class Probes:
     """
 
     read_gpu: Callable[[int | None], GpuReading] = read_gpu_memory
+    read_server_gpu: Callable[[int | None], GpuReading] | None = None
     own_pid: Callable[[], int] = os.getpid
     server_pid: Callable[[str], int | None] = listening_pid
     server_facts: Callable[[str], dict[str, str]] = server_facts
@@ -251,20 +256,41 @@ class Probes:
     interval_seconds: float = 0.5
 
 
+def device_probes(settings: Settings) -> Probes:
+    """Give the probes for the configured device.
+
+    Args:
+        settings: The device, and the card the judge's server is on.
+
+    Returns:
+        `xpu-smi`'s readers if the device is `xpu`: this process's first card for the anomaly
+        model and `settings.vlm_card` for the judge. Otherwise the laptop's, whose one card
+        holds both.
+    """
+    if settings.device != "xpu":
+        return Probes()
+    return Probes(
+        read_gpu=read_xpu_memory,
+        read_server_gpu=partial(read_xpu_memory, card=settings.vlm_card),
+    )
+
+
 @contextmanager
-def _sampling(probes: Probes, pid: int | None) -> Generator[GpuSampler]:
+def _sampling(
+    probes: Probes, pid: int | None, *, read: Callable[[int | None], GpuReading] | None = None
+) -> Generator[GpuSampler]:
     """Sample the GPU's memory for one process for the length of a block.
 
     Args:
         probes: How the machine is read.
         pid: The process whose own memory is wanted.
+        read: The reader to use, if not the probes' `read_gpu`.
 
     Yields:
         The sampler; its `memory` holds the peaks once the block has ended.
     """
-    with GpuSampler(
-        lambda: probes.read_gpu(pid), interval_seconds=probes.interval_seconds
-    ) as sampler:
+    reader = read or probes.read_gpu
+    with GpuSampler(lambda: reader(pid), interval_seconds=probes.interval_seconds) as sampler:
         yield sampler
 
 
@@ -689,7 +715,7 @@ def run_bench(
 
     server_pid = probes.server_pid(client.url)
     observations: list[Observation] = []
-    with _sampling(probes, server_pid) as sampler:
+    with _sampling(probes, server_pid, read=probes.read_server_gpu) as sampler:
         for part in plan.parts:
             observations.extend(
                 judge_part(
