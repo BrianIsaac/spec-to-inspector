@@ -121,6 +121,16 @@ def test_banks_are_compared_row_by_row() -> None:
     assert (compared.rows_a, compared.rows_b) == (3, 3)
     assert compared.same_rows == 2
     assert compared.nearest_distance.maximum == pytest.approx(10.0)
+    assert compared.picks_in_step == 0
+
+
+def test_the_picks_in_step_count_up_to_the_first_difference_in_order() -> None:
+    """Rows are in the order the coreset chose them, so the first difference is where it parted."""
+    a = torch.tensor([[1.0, 0.0], [2.0, 0.0], [3.0, 0.0], [4.0, 0.0]])
+    b = torch.tensor([[1.0, 0.0], [2.0, 0.0], [4.0, 0.0], [3.0, 0.0]])
+
+    assert compare_banks(a, b).picks_in_step == 2
+    assert compare_banks(a, a).picks_in_step == 4
 
 
 def test_identical_rows_are_the_same_row_at_a_real_banks_magnitude() -> None:

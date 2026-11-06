@@ -205,6 +205,8 @@ class BankComparison(BaseModel):
         same_rows: Rows of the first with a row of the second within `same_row_distance`.
         same_row_distance: How near counts as the same patch.
         nearest_distance: The distance from each row of the first to the nearest of the second.
+        picks_in_step: A bank's rows are in the order the coreset chose them, so this is how many
+            picks the two made alike before their first difference.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -214,6 +216,7 @@ class BankComparison(BaseModel):
     same_rows: int
     same_row_distance: float
     nearest_distance: Spread
+    picks_in_step: int
 
 
 class BanksRecord(BaseModel):
@@ -632,12 +635,15 @@ def compare_banks(a: torch.Tensor, b: torch.Tensor) -> BankComparison:
         distances = (rows - found).pow(2).sum(dim=1).sqrt()
         nearest.append(cast("NDArray[np.float32]", distances.numpy(force=True)))
     measured = np.concatenate(nearest)
+    shared = min(a.shape[0], b.shape[0])
+    apart = (a[:shared] - b[:shared]).pow(2).sum(dim=1).sqrt() >= _SAME_ROW_DISTANCE
     return BankComparison(
         rows_a=a.shape[0],
         rows_b=b.shape[0],
         same_rows=int((measured < _SAME_ROW_DISTANCE).sum()),
         same_row_distance=_SAME_ROW_DISTANCE,
         nearest_distance=spread([float(value) for value in measured]),
+        picks_in_step=int(apart.int().argmax().item()) if bool(apart.any()) else shared,
     )
 
 
