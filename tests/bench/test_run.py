@@ -12,6 +12,7 @@ import pytest
 import torch
 
 from spec_to_inspector.anomaly.records import RunIndex
+from spec_to_inspector.bench import run as run_module
 from spec_to_inspector.bench.observe import Citation
 from spec_to_inspector.bench.record import BenchRecord
 from spec_to_inspector.bench.run import (
@@ -611,12 +612,17 @@ def test_the_devices_probes_read_the_machine_on_an_intel_card(
 ) -> None:
     """On `xpu` the server is read from its container, and each stage's card is named."""
     monkeypatch.setenv("ZE_AFFINITY_MASK", "0")
+    monkeypatch.setattr(run_module, "read_xpu_address", lambda: "0000:17:00.0")
     probes = device_probes(Settings(device="xpu", vlm_card="0000:ba:00.0"))
 
     assert probes.memory_source == "xpu-smi"
     assert probes.judge_card == "0000:ba:00.0"
-    assert probes.anomaly_card == "0, under ZE_AFFINITY_MASK=0"
+    assert probes.anomaly_card == "0000:17:00.0, under ZE_AFFINITY_MASK=0"
     assert probes.server is not None
     assert probes.server.settle_seconds > 10.0
+    monkeypatch.setattr(run_module, "read_xpu_address", lambda: None)
+    assert device_probes(Settings(device="xpu")).anomaly_card == (
+        "the first visible, under ZE_AFFINITY_MASK=0"
+    )
     assert device_probes(Settings(device="cuda")).server is None
     assert device_probes(Settings(device="cuda")).memory_source == "nvidia-smi"

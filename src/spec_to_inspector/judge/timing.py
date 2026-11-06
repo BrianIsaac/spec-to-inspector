@@ -44,7 +44,8 @@ from spec_to_inspector.judge.decision import Cause, Decision
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import judge_image, read_run_index
 from spec_to_inspector.judge.prompt import clause_prefix
-from spec_to_inspector.settings import Settings
+from spec_to_inspector.judge.vllm_server import read_server
+from spec_to_inspector.settings import DeviceKind, Settings
 from spec_to_inspector.spec.schema import Specification, read_clause_table
 from spec_to_inspector.spec.tokens import count_tokens
 
@@ -74,6 +75,33 @@ NOTES: Final[dict[str, str]] = {
         "crops, recorded as they came; ground_truth is VisA's defect type under region 1"
     ),
 }
+
+XPU_NOTES: Final[dict[str, str]] = {
+    "units": (
+        "seconds are wall time of one chat-completion request as the client saw it; tokens are "
+        "the server's own counts, images included; memory is MiB as xpu-smi reports it"
+    ),
+    "cold": (
+        "the server was started with its prefix cache off, and vLLM ignores the request's "
+        "cache_prompt: the whole prompt is evaluated, clause table included"
+    ),
+    "cached": (
+        "asked again after one warm-up request on another image: with the server's prefix cache "
+        "off nothing is taken from a cache, as cached_prompt_tokens shows"
+    ),
+}
+
+
+def notes_for(device: DeviceKind) -> dict[str, str]:
+    """Write what the figures mean, in the words true of the configured device.
+
+    Args:
+        device: The configured device.
+
+    Returns:
+        The notes.
+    """
+    return {**NOTES, **XPU_NOTES} if device == "xpu" else dict(NOTES)
 
 
 class TimingError(RuntimeError):
@@ -170,7 +198,7 @@ class Sample(BaseModel):
 
 
 class GpuMemory(BaseModel):
-    """What `nvidia-smi` showed while the run went on.
+    """What the card's own tool showed while the run went on: `nvidia-smi` or `xpu-smi`.
 
     Attributes:
         server_peak_mib: The most memory the VLM server's own process held,
@@ -178,7 +206,7 @@ class GpuMemory(BaseModel):
             process is not on this machine's card.
         gpu_peak_mib: The most memory in use on the card, by every process.
         gpu_before_mib: The memory in use on the card at the first sample.
-        samples: How many times `nvidia-smi` was read.
+        samples: How many times the tool was read.
         interval_seconds: The pause between readings.
     """
 
@@ -527,7 +555,11 @@ def read_results(path: Path) -> JudgeResults:
 
 
 def update_results(
-    path: Path, *, timing: Timing | None = None, live: LiveRecord | None = None
+    path: Path,
+    *,
+    timing: Timing | None = None,
+    live: LiveRecord | None = None,
+    notes: dict[str, str] | None = None,
 ) -> JudgeResults:
     """Replace the sections given in the figures file and keep the others.
 
@@ -535,12 +567,14 @@ def update_results(
         path: The file, created with its directory if absent.
         timing: The timing run's figures, if they are to be replaced.
         live: The live test's answers, if they are to be replaced.
+        notes: What the figures mean, if that is to be replaced.
 
     Returns:
         The file's content as written.
     """
     current = read_results(path)
     updated = JudgeResults(
+        notes=notes if notes is not None else current.notes,
         timing=timing if timing is not None else current.timing,
         live=live if live is not None else current.live,
     )
@@ -582,6 +616,20 @@ def server_facts(url: str) -> dict[str, str]:
         "n_ctx": context,
     }
     return {key: str(value) for key, value in found.items() if value is not None}
+
+
+def device_server_facts(settings: Settings) -> dict[str, str]:
+    """Ask the configured server what it is, from where the configured device's server says it.
+
+    Args:
+        settings: The device, the judge's URL and its container.
+
+    Returns:
+        vLLM's facts and its container's if the device is `xpu`; otherwise llama.cpp's own.
+    """
+    if settings.device == "xpu":
+        return read_server(settings.vlm_url, settings.vlm_container).facts
+    return server_facts(settings.vlm_url)
 
 
 def _sample(decision: Decision) -> Sample:
@@ -752,13 +800,13 @@ def main(
                 images=images,
                 sampler=device_sampler(settings),
                 command=["python", "-m", "spec_to_inspector.judge.timing", *sys.argv[1:]],
-                server=server_facts(settings.vlm_url),
+                server=device_server_facts(settings),
                 label=label,
             )
         except (TimingError, RuntimeError) as error:
             typer.echo(str(error), err=True)
             raise typer.Exit(code=1) from error
-    update_results(results, timing=timing)
+    update_results(results, timing=timing, notes=notes_for(settings.device))
     cold, cached = timing.cold_seconds, timing.cached_seconds
     typer.echo(
         f"{timing.images} images of {timing.category}, one question each per pass.\n"

@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from spec_to_inspector.anomaly.infer import RUN_INDEX_NAME, run_dir
-from spec_to_inspector.anomaly.records import InferenceBench, RunEntry, Throughput
+from spec_to_inspector.anomaly.records import InferenceBench, RunEntry, Throughput, TrainRecord
 from spec_to_inspector.anomaly.results import AnomalyResults, collect, write_results
 from spec_to_inspector.anomaly.throughput import BENCH_NAME
 from spec_to_inspector.anomaly.train import (
@@ -224,3 +224,23 @@ def test_fresh_records_are_not_stale(tmp_path: Path) -> None:
     assert figures.run is not None
     assert figures.bench is not None
     assert figures.stale == []
+
+
+def test_the_notes_and_the_unit_are_the_devices_the_models_were_trained_on(tmp_path: Path) -> None:
+    """Models trained through `torch.xpu` are not described as `torch.cuda`, or as unit U2."""
+    models, runs = tmp_path / "models", tmp_path / "runs"
+    _put_model(models, "pcb4", 0.9857)
+
+    laptop = collect(["pcb4"], models_dir=models, runs_dir=runs, written_by=[])
+    assert laptop.unit == "U2"
+    assert any("torch.cuda.max_memory_allocated" in note for note in laptop.notes)
+
+    path = models / "patchcore" / "pcb4" / "train.json"
+    record = TrainRecord.model_validate_json(path.read_text())
+    device = record.device.model_copy(update={"kind": "xpu"})
+    path.write_text(record.model_copy(update={"device": device}).model_dump_json())
+
+    machine = collect(["pcb4"], models_dir=models, runs_dir=runs, written_by=[])
+    assert machine.unit == "stage2"
+    assert any("torch.xpu.max_memory_reserved" in note for note in machine.notes)
+    assert not any("torch.cuda" in note for note in machine.notes)

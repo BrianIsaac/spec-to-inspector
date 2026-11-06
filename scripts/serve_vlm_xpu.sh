@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # The judge's VLM server on the B70 machine: Intel's llm-scaler vLLM image at a pinned tag, serving
-# Qwen3-VL-8B-Instruct at FP16 on one card, OpenAI-compatible. The laptop's server is
-# scripts/serve_vlm.sh; the client is the same, and the server is two settings:
+# Qwen3-VL-8B-Instruct at FP16 on one card, OpenAI-compatible, started as eval/PROTOCOL-stage2.md
+# declares it. The laptop's server is scripts/serve_vlm.sh. The client is the same, and these two
+# settings point it here; what else differs is below, and it is the server's start that holds it:
 #
 #   SPEC_TO_INSPECTOR_VLM_URL=http://127.0.0.1:8131/v1
 #   SPEC_TO_INSPECTOR_VLM_MODEL=qwen3-vl-8b-instruct
@@ -27,9 +28,9 @@ CARD_BDF="${CARD_BDF:-0000:ba:00.0}"
 # 2.97 GiB of cache, which vLLM refuses for a 32K context; at 0.9 it leaves 6.16 GiB (measured).
 GPU_MEMORY_UTIL="${GPU_MEMORY_UTIL:-0.9}"
 MAX_MODEL_LEN="${MAX_MODEL_LEN:-32768}"
-# The fewest pixels an image is given, as the laptop's --image-min-tokens 1024 gives it: a token is
-# 32 x 32 px. The model's own minimum is 65536 (256 x 256, 64 tokens). Without this a small crop
-# reaches the judge at a sixteenth of the laptop's area, and no figure compares with the laptop's.
+# The fewest pixels an image is given: a token is 32 x 32 px, so this gives a small crop 1,024 tokens,
+# the size the pipeline has had since Stage I. The model's own minimum is 65536 (256 x 256, 64
+# tokens), which is the protocol's image-minimum comparison and never the final figure.
 IMAGE_MIN_PIXELS="${IMAGE_MIN_PIXELS:-1048576}"
 IMAGE_MAX_PIXELS=16777216
 # The protocol asks every question cold. vLLM ignores the client's cache_prompt, llama.cpp's own

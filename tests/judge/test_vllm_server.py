@@ -19,6 +19,8 @@ from spec_to_inspector.judge.vllm_server import (
     read_log,
     read_server,
 )
+from spec_to_inspector.settings import Settings
+from tests.bench.bench_fakes import COLD_FLAGS
 from tests.judge.fake_vlm import FakeVlm
 
 DIGEST = "sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490"
@@ -312,3 +314,27 @@ def test_a_docker_that_fails_gives_nothing(tmp_path: Path) -> None:
 
     assert read_log("c", datetime.now(UTC), docker=str(failing)) is None
     assert read_server("http://127.0.0.1:9/v1", "c", docker=str(failing)).facts == {}
+
+
+def test_the_serving_script_starts_what_this_reader_looks_for() -> None:
+    """The container's name and the cold flags are in two places; they must be one."""
+    script = (Path(__file__).parents[2] / "scripts" / "serve_vlm_xpu.sh").read_text(
+        encoding="utf-8"
+    )
+
+    assert f'CONTAINER="{Settings.model_fields["vlm_container"].default}"' in script
+    for flag in COLD_FLAGS:
+        assert flag in script
+    assert "--port $PORT" in script
+    assert "--dtype=float16" in script
+
+
+def test_the_serving_script_no_longer_sets_the_machine_against_the_laptop() -> None:
+    """The two sentences ruling 2 and week 1 made stale."""
+    script = (Path(__file__).parents[2] / "scripts" / "serve_vlm_xpu.sh").read_text(
+        encoding="utf-8"
+    )
+
+    assert "the server is two settings" not in script
+    assert "no figure compares" not in script
+    assert "the laptop's area" not in script

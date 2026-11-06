@@ -910,7 +910,6 @@ def render_stage2_readme(record: BenchRecord) -> str:
         "## 9. Peak GPU memory, by stage",
         "",
         *_memory_table(record),
-        "",
         *_memory_lines(record),
         "",
         "## Repeating it",

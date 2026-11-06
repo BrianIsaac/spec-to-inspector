@@ -155,6 +155,7 @@ def test_the_stage_two_page_shows_each_of_the_six_things(stage2_record: BenchRec
     page = render_readme(stage2_record)
 
     assert "| Judging | not read (the VLM server) | 29,456 MiB | 29,456 MiB |" in page
+    assert "\n\n\nRead from" not in page
     assert "Read from `xpu-smi`" in page
     assert "card 0000:ba:00.0" in page
     assert "xpu-smi ps does not list its process" in page

@@ -10,15 +10,19 @@ Three stages, as a user would go through them:
    correction is recalled (the empty store), and every question is asked
    with the server's prompt cache off (cold), so the answers repeat.
 
-Then the figures of `eval/PROTOCOL.md` are counted. Nothing is trained, and
-nothing is written outside the bench's own run directories. A run in which
-the server could not be asked, a correction reached a prompt, or the labelled
-set's region columns are not what the model's regions give, raises and
-leaves no record.
+Then the figures of the protocol are counted: `eval/PROTOCOL-stage2.md` on the
+machine, `eval/PROTOCOL.md` on the laptop. Nothing is trained, and nothing is
+written outside the bench's own run directories but the server's log, beside
+the record. A run in which the server could not be asked, a correction reached
+a prompt, the labelled set's region columns are not what the model's regions
+give, or the server's prefix cache was hit, raises and leaves no record.
 
-What depends on the machine (the PDF parser, the trained models, `nvidia-smi`,
-the server's process) is passed in, so the run itself is tested whole against
-a stub model and a fake server.
+A Stage II run also reads which server answered, asks one question before the
+judge's clock, and reads the server's prefix-cache hit rate during the run.
+
+What depends on the machine (the PDF parser, the trained models, the card's
+tool, the server's process and its container) is passed in, so the run itself
+is tested whole against a stub model and a fake server.
 """
 
 import os
@@ -64,7 +68,7 @@ from spec_to_inspector.bench.record import (
     protocol_files,
 )
 from spec_to_inspector.bench.score import score
-from spec_to_inspector.card_memory import FIRST_VISIBLE_CARD, read_xpu_memory, read_xpu_name
+from spec_to_inspector.card_memory import read_xpu_address, read_xpu_memory, read_xpu_name
 from spec_to_inspector.judge.answer import REASON_PATTERNS
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause
@@ -340,13 +344,14 @@ def device_probes(settings: Settings) -> Probes:
     if settings.device != "xpu":
         return Probes()
     mask = os.environ.get("ZE_AFFINITY_MASK", "unset")
+    address = read_xpu_address() or "the first visible"
     container = settings.vlm_container
     return Probes(
         read_gpu=read_xpu_memory,
         read_server_gpu=partial(read_xpu_memory, card=settings.vlm_card),
         gpu_name=partial(read_xpu_name, card=settings.vlm_card),
         memory_source="xpu-smi",
-        anomaly_card=f"{FIRST_VISIBLE_CARD}, under ZE_AFFINITY_MASK={mask}",
+        anomaly_card=f"{address}, under ZE_AFFINITY_MASK={mask}",
         judge_card=settings.vlm_card,
         server=ServerProbes(
             read=partial(read_server, container=container),
