@@ -27,6 +27,7 @@ def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.Monk
         "LLAMA_CPP_DIR",
         "VLM_URL",
         "VLM_MODEL",
+        "VLM_CARD",
         "VLM_TIMEOUT_SECONDS",
         "CORRECTIONS_DB",
         "CORRECTIONS_RECALL",
@@ -44,6 +45,7 @@ def test_defaults_are_relative_to_the_working_directory(monkeypatch: pytest.Monk
     assert settings.llama_cpp_dir == Path("models/llama.cpp")
     assert settings.vlm_url == "http://127.0.0.1:8131/v1"
     assert settings.vlm_model == "qwen3-vl-8b-instruct"
+    assert settings.vlm_card == "0"
     assert settings.vlm_timeout_seconds == 120.0
     assert settings.corrections_db is None
     assert settings.corrections_path == Path("runs/corrections.sqlite3")
@@ -86,12 +88,14 @@ def test_the_judge_backend_is_a_url_and_a_model_name(monkeypatch: pytest.MonkeyP
     """Another OpenAI-compatible server, such as vLLM on the B70, is two variables away."""
     monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_URL", "http://b70.example:8000/v1/")
     monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_MODEL", "Qwen/Qwen3-VL-8B-Instruct")
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_CARD", "0000:ba:00.0")
     monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_TIMEOUT_SECONDS", "30")
 
     settings = Settings()
 
     assert settings.vlm_url == "http://b70.example:8000/v1"
     assert settings.vlm_model == "Qwen/Qwen3-VL-8B-Instruct"
+    assert settings.vlm_card == "0000:ba:00.0"
     assert settings.vlm_timeout_seconds == 30.0
 
 

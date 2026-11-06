@@ -16,8 +16,9 @@ most anomalous region only:
   the measured facts and the two pictures are evaluated.
 
 The time is the request's wall time as the client saw it. While the run goes
-on, `nvidia-smi` is sampled for the server process's memory and the card's.
-Nothing is written into the run: no decision, no overlay.
+on, `nvidia-smi` is sampled for the server process's memory and the card's, or
+`xpu-smi` where the configured device is `xpu`. Nothing is written into the
+run: no decision, no overlay.
 """
 
 import re
@@ -29,7 +30,7 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from types import TracebackType
-from typing import Annotated, Final, Literal, NamedTuple, Self, cast
+from typing import Annotated, Final, Literal, Self, cast
 from urllib.parse import urlsplit
 
 import httpx
@@ -37,6 +38,7 @@ import numpy as np
 import typer
 from pydantic import BaseModel, ConfigDict, Field
 
+from spec_to_inspector.card_memory import GpuReading, read_xpu_memory
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause, Decision
 from spec_to_inspector.judge.disposition import Outcome
@@ -189,19 +191,6 @@ class GpuMemory(BaseModel):
     interval_seconds: float
 
 
-class GpuReading(NamedTuple):
-    """One reading of `nvidia-smi`.
-
-    Attributes:
-        gpu_used_mib: Memory in use on the card, or None if unreadable.
-        server_mib: Memory the VLM server's own process holds, or None if
-            the process is not known or not among the card's.
-    """
-
-    gpu_used_mib: int | None
-    server_mib: int | None
-
-
 def _mib(text: str) -> int | None:
     """Read a figure of `nvidia-smi`.
 
@@ -274,6 +263,22 @@ def listening_pid(url: str) -> int | None:
     except (OSError, subprocess.SubprocessError):
         return None
     return parse_listening_pid(done.stdout)
+
+
+def device_sampler(settings: Settings) -> "GpuSampler | None":
+    """Give the sampler the configured device needs in place of `nvidia-smi`'s.
+
+    Args:
+        settings: The device, the judge's URL and the card its server is on.
+
+    Returns:
+        A sampler of `xpu-smi` on the server's card if the device is `xpu`; None otherwise, for
+        `measure`'s own.
+    """
+    if settings.device != "xpu":
+        return None
+    server_pid = listening_pid(settings.vlm_url)
+    return GpuSampler(lambda: read_xpu_memory(server_pid, card=settings.vlm_card))
 
 
 def read_nvidia_smi(server_pid: int | None = None) -> GpuReading:
@@ -745,6 +750,7 @@ def main(
                 specification,
                 client,
                 images=images,
+                sampler=device_sampler(settings),
                 command=["python", "-m", "spec_to_inspector.judge.timing", *sys.argv[1:]],
                 server=server_facts(settings.vlm_url),
                 label=label,
