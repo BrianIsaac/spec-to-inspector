@@ -159,9 +159,10 @@ Choices made with their reasons:
   (`results/stage2/week2/README.md`). Over 401 boards, the laptop's
   checkpoints on XPU against the same checkpoints on CUDA: 0 differ in being
   flagged, 0 in their number of regions, and the largest score difference is
-  0.00053 (`results/stage2/week1/README.md`). That is inference alone. A model
-  trained on the machine is not the laptop's bank for bank, and on a handful of
-  boards its scores move further; week 2's record gives how far, part by part.
+  0.00053 (`results/stage2/week1/README.md`). Week 2 finds the same over all
+  four parts, 802 boards. That is inference alone. A model trained on the machine
+  is not the laptop's bank for bank, and on a handful of boards its scores move
+  further; week 2's record gives how far, part by part.
   On the machine itself the training repeats: two runs give identical banks, and
   scores and maps bit-identical over 802 boards.
 - **A pinned image tag.** A later llm-scaler tag has an open regression with
@@ -196,10 +197,12 @@ on:
   holds 2,700 to 2,943 MiB of the card at batch 1 and 18,153 to 18,400 MiB at batch
   16. Anomalib's `openvino` extra cannot be installed: it lists `nncf`, every release
   of which caps numpy below 2.5, and the project's is 2.5.3. Only its INT8 compression
-  imports `nncf`, and no INT8 figure is measured. Three of its defaults would have
-  given wrong figures or none: the export normalises and clips the score, so it is
-  switched off in the exported copy; its dynamic batch comes out fixed at 2, so there
-  is one graph per batch size; and its downgrade to opset 14 fails, so it stays at 18.
+  imports `nncf`, and no INT8 figure is measured. Four defaults are overridden, the
+  first two of which would have given wrong figures quietly: the plugin infers in FP16
+  unasked, so FP32 is asked for and read back; the export normalises and clips the
+  score, so that is switched off in the exported copy; its dynamic batch comes out
+  fixed at 2, so there is one graph per batch size; and its downgrade to opset 14
+  fails, so it stays at 18.
 - **So PyTorch XPU is the anomaly model's path on this machine.** Nothing in the
   pipeline runs through OpenVINO.
 

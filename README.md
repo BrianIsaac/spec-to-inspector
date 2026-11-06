@@ -351,8 +351,9 @@ the final run have not run.
   answer schema, with one fix to the schema: the reason's pattern now bars the
   double quote and the backslash. The anomaly model's device is a setting,
   `SPEC_TO_INSPECTOR_DEVICE`. With the laptop's checkpoints, PatchCore's scores on
-  XPU match CUDA's on all 401 boards to within 0.00053; that is inference alone, and
-  training on XPU moves a handful of boards further (`results/stage2/week2/README.md`).
+  XPU match CUDA's on all 802 boards of the four parts to within 0.00053; that is
+  inference alone, and training on XPU moves a handful of boards further
+  (`results/stage2/week2/README.md`).
 - **Running there.** `scripts/setup_xpu.sh` syncs the `xpu` dependency group, and
   `scripts/serve_vlm_xpu.sh start` starts the judge's server. Set
   `SPEC_TO_INSPECTOR_DEVICE=xpu` and run from `.venv/bin/`: a bare `uv run` syncs
