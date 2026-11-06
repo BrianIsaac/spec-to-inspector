@@ -81,7 +81,7 @@ flowchart LR
     end
 
     subgraph b70["Stage II: two Arc Pro B70s"]
-        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
+        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32"]
         V2["Card 1: judge's server<br/>llm-scaler vLLM image<br/>tag 0.26.0-b1<br/>Qwen3-VL-8B-Instruct<br/>FP16, with FP8 compared"]
     end
 
@@ -92,9 +92,11 @@ flowchart LR
 ```
 
 Every line has run. On the machine, two whole Intel Arc Pro B70s of 32,656 MiB
-each in one bare-metal host, that means inference at FP16 and FP32; a real part
-trained on XPU, the OpenVINO export and the judge at FP8 have not
-(`results/stage2/week1/machine.md`).
+each in one bare-metal host (`results/stage2/week1/machine.md`), that means the
+judge at FP16, and PatchCore trained and scored on XPU in FP32, on all four parts,
+in two runs (`results/stage2/week2/README.md`). Anomalib's OpenVINO export has run
+too and is measured; nothing in the pipeline runs through it. The judge at FP8, the
+bench on the models trained on the machine and the final run have not run.
 
 - **The judge's backend is a setting.** The client speaks the
   OpenAI-compatible chat API over HTTP, so the server behind it is two
@@ -106,12 +108,19 @@ trained on XPU, the OpenVINO export and the judge at FP8 have not
   needs two more settings of its own, asked cold and a small crop's 1,024 tokens,
   both defaults of `scripts/serve_vlm_xpu.sh`.
 - **The anomaly model's device is a setting.** `SPEC_TO_INSPECTOR_DEVICE` is
-  `cuda` by default, or `xpu` or `cpu`. On the machine scoring has run on PyTorch
-  XPU on card 0, over 401 boards, and training only on 20 images. Anomalib
-  reads `devices=1` as the card numbered 1, so `engine_placement` passes `[0]`, and
-  anomaly work runs under `ZE_AFFINITY_MASK=0`. Training a real part and Anomalib's
-  OpenVINO export are week 2's. One lockfile holds both environments, as two
-  dependency groups, `cuda` by default and `xpu` by `scripts/setup_xpu.sh`.
+  `cuda` by default, or `xpu` or `cpu`. On the machine PatchCore runs on PyTorch
+  XPU on card 0: each of the four parts trained in two runs, and scored over 802
+  boards with scores and maps bit-identical between them. Anomalib reads `devices=1`
+  as the card numbered 1, so `engine_placement` passes `[0]`, and anomaly work runs
+  under `ZE_AFFINITY_MASK=0`. Anomalib's OpenVINO export is in `anomaly/ov_model.py`,
+  on `GPU.0` in FP32, which has to be asked for: the plugin infers in FP16 unasked. It
+  is measured beside PyTorch XPU, at about half the speed and, at batch 16, about six
+  times the memory on the card, and only `anomaly/card_run.py` runs it. Memory is
+  read through `card_memory.py`, from `xpu-smi` on the machine and `nvidia-smi` on the
+  laptop, chosen by the device; `SPEC_TO_INSPECTOR_VLM_CARD` names the judge's card,
+  and the judge's own process stays null on the machine, since `xpu-smi` does not list
+  a process in a container. One lockfile holds both environments, as two dependency
+  groups, `cuda` by default and `xpu` by `scripts/setup_xpu.sh`.
 - **Everything else is the same code.** Parsing runs on the CPU, measurement
   and the rule are plain Python, the corrections store is one SQLite file,
   and the console is server-rendered with no front-end build, so nothing
@@ -119,4 +128,4 @@ trained on XPU, the OpenVINO export and the judge at FP8 have not
 
 `docs/stage2.md` has the memory plan per stage on the machine, what the plan
 assumed about it before it was seen, and what Stage II will measure.
-`eval/PROTOCOL-stage2.md` is how it is measured.
+`eval/PROTOCOL-stage2.md`, with its dated addition, is how it is measured.

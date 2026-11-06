@@ -9,8 +9,8 @@ An entry to the ASUS UGen AI League Innovation Hackathon 2026: Workplace AI,
 Battlefield Thunderstorm (ASUS UGen Intel Arc Pro B70 32GB). The prototype was
 built and measured on a laptop in Stage I. **Stage II's subject is the
 organiser's machine**, two Intel Arc Pro B70s, where the pipeline has run since
-6 November 2026: its figures so far are a bring-up, and the final figure, under
-`eval/PROTOCOL-stage2.md`, has not been run yet.
+6 November 2026: its figures so far are a bring-up and the anomaly model's own,
+and the final figure, under `eval/PROTOCOL-stage2.md`, has not been run yet.
 A solo entry by Brian Isaac.
 
 ![The reject card: a damaged component on a PCB4 board, rejected under clause 5.5 of the specification, with the crop, the anomaly heatmap, the measured size and the clause quoted with its page.](docs/screens/page-06-reject-card.png)
@@ -286,7 +286,7 @@ environment or in a `.env` file at the repository root.
 | Model | Role | Version | Size and precision | Licence | Stage I, the laptop | Stage II, the machine |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, is a declared comparison and has not been run | Apache-2.0 | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context |
-| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: scoring has run, with the laptop's checkpoints. Training on the machine and the OpenVINO export are week 2's |
+| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: 692.7 to 703.5 s to train a part and 10,345 to 10,785 MiB on the card at its peak (8 trainings); 34.69 to 35.22 images a second at batch 16, the model alone. Anomalib's OpenVINO export was measured beside it and is not the path: "Stage II on the Intel Arc Pro B70" has both |
 | [docling](https://github.com/docling-project/docling)'s layout and table models | The parser: reads the specification PDF | as docling 2.135.0 fetches them: `docling-layout-heron`, `docling-models` v2.3.0 | about 530 MB together | Apache-2.0 and CDLA-Permissive-2.0 (docling itself is MIT) | CPU | CPU |
 | [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 | not built | planned, at FP16; not run |
 
@@ -298,9 +298,10 @@ every model, dataset and library with its licence and source.
 
 The machine is the subject of Stage II: the organiser's rules ask for operation
 and validation on it, and no comparison with a team's own hardware. Week 1's
-figures are in `results/stage2/week1/`. The protocol is
-`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and the plan, corrected
-to the machine, is in full in `docs/stage2.md`:
+figures are in `results/stage2/week1/` and week 2's in `results/stage2/week2/`.
+The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, with one
+dated addition so far, and the plan, corrected to the machine, is in full in
+`docs/stage2.md`:
 
 ```mermaid
 flowchart LR
@@ -315,7 +316,7 @@ flowchart LR
     end
 
     subgraph b70["Stage II: two Arc Pro B70s"]
-        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
+        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32"]
         V2["Card 1: judge's server<br/>llm-scaler vLLM image<br/>tag 0.26.0-b1<br/>Qwen3-VL-8B-Instruct<br/>FP16, with FP8 compared"]
     end
 
@@ -325,28 +326,34 @@ flowchart LR
     CLIENT -->|"a URL and<br/>a model name"| V1
 ```
 
-Every line has run. On the machine that means inference at FP16 and FP32; a
-real part trained on XPU, the OpenVINO export and the judge at FP8 have not.
+Every line has run. On the machine that means the judge at FP16, and PatchCore
+trained and scored on XPU in FP32, on all four parts, in two runs. Anomalib's
+OpenVINO export has run too and is measured below; nothing in the pipeline runs
+through it. The judge at FP8, the bench on the models trained on the machine and
+the final run have not run.
 
 - **The machine.** Two whole Arc Pro B70s of 32,656 MiB each in one bare-metal
   host, not a virtual machine, reached over ssh, with outbound HTTPS open
   (`results/stage2/week1/machine.md`). The plan had assumed one whole card in a
   booked remote session.
 - **The memory plan.** A card each, so training need not come before the judge
-  is loaded. The judge's server takes 90% of card 1: at 80% FP16 leaves 2.97 GiB
-  of cache and vLLM refuses a 32K-token context; at 90% it leaves 6.16 GiB,
-  44,800 tokens. The anomaly model peaks at 2,594 MiB of card 0 while scoring;
-  its training is not yet measured. At FP8 the cache is an estimate, not a
-  measurement: about 13 GiB at 90%. The plan had assumed 80% of one shared card
-  and about 8 GB of cache at FP16.
+  is loaded, and week 2 trained with the judge's server up on card 1. The judge's
+  server takes 90% of card 1: at 80% FP16 leaves 2.97 GiB of cache and vLLM refuses
+  a 32K-token context; at 90% it leaves 6.16 GiB, 44,800 tokens. The anomaly model
+  holds 2,899 to 2,963 MiB of card 0 while scoring, 4,069 MiB at most in the process
+  that has just trained, and 10,345 to 10,785 MiB at its peak in training. At FP8
+  the cache is an estimate, not a measurement: about 13 GiB at 90%. The plan had
+  assumed 80% of one shared card and about 8 GB of cache at FP16.
 - **The serving stack.** Moving the client from llama.cpp to the llm-scaler vLLM
   image is two settings. The server needs two more of its own or it is not the
   pipeline the protocol declares: asked cold (`--no-enable-prefix-caching
   --mm-processor-cache-gb 0`) and a small crop's 1,024 tokens. vLLM accepts the
   answer schema, with one fix to the schema: the reason's pattern now bars the
   double quote and the backslash. The anomaly model's device is a setting,
-  `SPEC_TO_INSPECTOR_DEVICE`, and PatchCore's scores on XPU match CUDA's on all
-  401 boards to within 0.00053.
+  `SPEC_TO_INSPECTOR_DEVICE`. With the laptop's checkpoints, PatchCore's scores on
+  XPU match CUDA's on all 802 boards of the four parts to within 0.00053; that is
+  inference alone, and training on XPU moves a handful of boards further
+  (`results/stage2/week2/README.md`).
 - **Running there.** `scripts/setup_xpu.sh` syncs the `xpu` dependency group, and
   `scripts/serve_vlm_xpu.sh start` starts the judge's server. Set
   `SPEC_TO_INSPECTOR_DEVICE=xpu` and run from `.venv/bin/`: a bare `uv run` syncs
@@ -357,18 +364,52 @@ real part trained on XPU, the OpenVINO export and the judge at FP8 have not.
 - **The final figure.** One setting declared in the protocol before the run, FP16,
   with the anomaly models trained on the machine and an empty corrections store,
   reported whatever it reads; three runs, the third after a server restart. It has
-  not been run yet. Three comparisons are declared in files of their own: FP8, the
-  model's own image minimum, and designators let through the digit ban, which stays
-  in the final figure. A figure is said to have moved only on a paired, two-sided
-  exact sign test below 0.05 on the 135.
+  not been run yet. Before it is, the bench's region columns, made from the laptop's
+  models, are regenerated from the machine's, on which the bench now stops at PCB1
+  `bad-029`; the threshold rule stays a strict `>`, with the four boards that sit on
+  the threshold named in the record. A dated addition to the protocol,
+  `eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`, says both. Three
+  comparisons are declared in files of their own: FP8, the model's own image minimum,
+  and designators let through the digit ban, which stays in the final figure. A figure
+  is said to have moved only on a paired, two-sided exact sign test below 0.05 on the
+  135.
 - **What will be measured**, 6 November to 4 December, when the video is due, with
   the machine's reservation ending 2 December at 11:30, so everything run on it and
-  the recording of the final video come before then: PatchCore's training time,
-  speed and memory on the B70; the judge's answer time and throughput at FP16 and
-  FP8; and clause-citation accuracy on the 200 labelled boards, to see whether FP8,
-  a picture of a good board beside the crop, and the corrections loop move the
-  machine's own baseline. The last two each get a dated addition to the protocol
-  when built.
+  the recording of the final video come before then: the judge's answer time and
+  throughput at FP16 and FP8; and clause-citation accuracy on the 200 labelled boards,
+  to see whether FP8, a picture of a good board beside the crop, and the corrections
+  loop move the machine's own baseline. The last two each get a dated addition to the
+  protocol when built.
+
+**The anomaly model on the machine**, measured on card 0 on 6 November 2026 with the
+judge's server up on card 1 (`results/stage2/week2/README.md`, which has every command).
+Stage I's settings: `wide_resnet50_2`, 256 px, 10% coreset, seed 0, FP32. PyTorch XPU is
+the path; OpenVINO is measured beside it and nothing in the pipeline runs through it.
+
+| Figure | PyTorch XPU | OpenVINO on `GPU.0`, FP32 |
+| --- | --- | --- |
+| Training, whole fit | 692.7 to 703.5 s; 8 trainings, each part twice | Not measured: nothing trains through OpenVINO |
+| Export, then compile, batch 16 | | 12.0 to 15.2 s, then 32.7 to 33.8 s; 8 each |
+| Export, then compile, batch 1 | | 10.1 to 10.7 s, then 5.1 to 6.1 s; 8 each |
+| Peak in training, PyTorch's count: allocated, reserved | 7.76 to 7.79 GiB, 8.87 to 8.91 GiB; 8 | Not measured |
+| Peak in training, the whole card | 10,345 to 10,785 MiB; 8 | Not measured |
+| Images a second, the model alone, batch 1 | 29.61 to 30.04; passes 29.59 to 30.10 | 14.28 to 16.22; passes 14.27 to 16.31 |
+| The same, batch 16 | 34.69 to 35.22; passes 34.68 to 35.22 | 16.20 to 18.69; passes 16.18 to 18.75 |
+| Images a second, from the files, batch 1 | 25.93 to 26.36; passes 25.83 to 26.51 | 13.39 to 15.26; passes 13.36 to 15.30 |
+| The same, batch 16 | 29.46 to 30.42; passes 29.40 to 30.44 | 14.99 to 17.26; passes 14.96 to 17.37 |
+| Peak scoring, the whole card | 2,899 to 2,963 MiB over both batches; 4,005 to 4,069 MiB in a scored run, in the process that had just trained; 8 each | Batch 16: 18,153 to 18,400 MiB. Batch 1: 2,700 to 2,943 MiB; 8 each |
+| Flagged boards: PCB1, PCB2, PCB3, PCB4 | 111, 104, 105, 106 | 110, 104, 105, 107 |
+| Image AUROC of the scored run, in points | 93.05, 92.32, 92.08, 98.71 | 93.05, 92.33, 92.08, 98.71 |
+| The same run repeated | Scores and maps bit-identical, memory banks identical, 802 boards | Scores and maps bit-identical, 802 boards |
+
+A range is over the four parts in both runs, and "passes" is every timed pass behind it,
+3 a figure. "The model alone" is not quite the same clock in the two columns: PyTorch's
+batches are on the card before the clock starts and OpenVINO's are copied from the host
+inside it, so "from the files" is the like-for-like row. OpenVINO's scores are within
+0.00041 of PyTorch XPU's. The two differences in the flagged row are one board each, a
+board on its threshold. One machine, one card, one seed, on the VisA test split the
+thresholds were chosen on: nothing here is a general figure for the B70, and none is a
+final figure of the pipeline.
 
 ## Data
 
@@ -406,9 +447,11 @@ src/spec_to_inspector/
     cli.py         one entry point: parse, train, inspect, correct, bench, serve
 tests/             mirrors src/
 specs/             the demonstration specification: Markdown source, PDF, clause table
-eval/              the labelled clause set, its mapping table and the two protocols
+eval/              the labelled clause set, its mapping table, the two protocols and
+                   the second's dated addition
 results/stage1/    the laptop's measured figures, as JSON, and the page written from them
-results/stage2/    the machine's: its shape, and week 1's bring-up figures and logs
+results/stage2/    the machine's: its shape, week 1's bring-up figures and logs,
+                   week 2's anomaly model
 scripts/           the judge's two servers, the machine's environment, the
                    specification's rebuild, the console walk
 docs/              architecture.md, stage2.md, and the reject card's screenshot

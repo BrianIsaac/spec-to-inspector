@@ -8,11 +8,13 @@ read against the machine's own baseline run.
 
 **This plan was written before the machine was seen, and was corrected to it
 on 7 November 2026.** Every figure marked "on the machine" was measured
-there in week 1, on 6 November, and is in `results/stage2/week1/`, whose
-file is cited beside it. Every figure marked "on the laptop" is in
+there on 6 November, in week 1 or week 2. A file named alone is under
+`results/stage2/week1/`; week 2's are given with their whole path, under
+`results/stage2/week2/`. Every figure marked "on the laptop" is in
 `results/stage1/`. A figure marked as a plan or an estimate has not been
-measured. Not yet run on the machine: a real part trained, the OpenVINO
-export, the judge at FP8, a scanned specification.
+measured. Not yet run on the machine: the judge at FP8, a scanned
+specification, the bench on the anomaly models trained there, and the final
+run. Nothing on this page is a final figure.
 
 ## The machine
 
@@ -47,8 +49,8 @@ reconnect.
 | --- | --- | --- | --- |
 | Parse a born-digital specification | none: docling runs on the CPU | 0 GB | 0 GB (`machine.md`) |
 | Parse a scanned specification | 0, in turn | not built in Stage I | a plan, not run: PaddleOCR-VL-1.6, 958.6M parameters at FP16, about 2 GB of weights plus its cache |
-| Train the anomaly model | 0 | 7.82 GiB allocated, 8.66 GiB reserved, for 904 images at 256 px | not yet measured, week 2. Only a 20-image training has run (`raw/pytest-xpu.txt`) |
-| Score boards | 0 | 0.62 GiB resident, 1.34 GiB peak allocated at batch 16 | 668 MB resident, 1.17 GiB peak allocated, 1.27 GiB peak reserved at batch 1 (`checks.json`); the card at 2,594 MiB at most at batch 16 (`bench/card-memory.txt`) |
+| Train the anomaly model | 0 | 7.82 GiB allocated, 8.66 GiB reserved, for 904 images at 256 px | 7.76 to 7.79 GiB allocated, 8.87 to 8.91 GiB reserved by PyTorch's count; 10,345 to 10,785 MiB on the whole card. 8 trainings, each of the four parts twice (`results/stage2/week2/README.md`) |
+| Score boards | 0 | 0.62 GiB resident, 1.34 GiB peak allocated at batch 16 | 666 to 669 MB resident. By PyTorch's count, at batch 1: 1.16 to 1.17 GiB allocated, 1.19 GiB reserved; at batch 16: 1.30 to 1.31 GiB, 1.73 GiB. The whole card: 2,899 to 2,963 MiB over both batches, and 4,005 to 4,069 MiB in a scored run in the process that had just trained; 8 each (`results/stage2/week2/README.md`). Week 1's bench, with the laptop's checkpoints, read 2,594 MiB at most at batch 16 (`bench/card-memory.txt`) |
 | Judge | 1 | 4-bit (Q4_K_M) with a 16K context: 8,780 MiB peak | FP16 with a 32K context: 17.34 GiB of weights as vLLM loads them, 16.33 GiB on disk; the card at 26,960 MiB once up, 29,456 MiB at most over two bench runs (`machine.md`, `bench/card-memory.txt`). FP8: not run |
 
 The configuration this leads to:
@@ -57,7 +59,10 @@ The configuration this leads to:
   judge's container is given only card 1's devices, so it cannot reach card
   0. With the judge on card 1, loading PatchCore on `xpu:0` raised device 0
   from 315 to 1,860 MiB and device 1 did not move (`checks.json`). Training
-  need not come before the judge is loaded: the two never share a card.
+  need not come before the judge is loaded: the two never share a card. Week 2
+  ran that way, with the judge's server up on card 1: from run 1's second part
+  on, card 1 stayed at 29,455.73 to 29,455.77 MiB over 1,830 readings every 5 s
+  (`results/stage2/week2/raw/cards-every-5s.txt`).
 - **The judge's server takes 90% of its card** (`--gpu-memory-util=0.9`). At
   80% FP16 leaves 2.97 GiB of cache and vLLM refuses a 32K context, which
   asks 4.5 GiB; its largest would be 21,568 tokens
@@ -85,6 +90,13 @@ other units) leaving about 8 GB of cache, about 54,000 tokens, one 32K context
 with room to spare; at FP8 about 15 GB, about 100,000 tokens, three 32K
 contexts; the vision encoder's working memory not yet counted.*
 
+*Corrected 7 November 2026, from week 2's record. The plan had said of training
+"the laptop's figure carried over" and "its peak is under 9 GiB", and of scoring
+"6.4 GB set aside, several times the laptop's need". PyTorch's count did carry
+over; the whole card holds up to 10,785 MiB in training, and scoring takes at most
+4,069 MiB on PyTorch XPU. Through OpenVINO at batch 16 it takes 18,153 to 18,400
+MiB, which 6.4 GB would not have held.*
+
 Why this needs the 32 GB: on the laptop's 12 GB the judge fits only at
 4-bit with a 16K context, and training cannot run while it is loaded. The
 demonstration specification is 6 pages and 2,868 tokens, and a prompt with
@@ -102,7 +114,7 @@ for a vision-language model on a B70, and this page quotes none but its own.
 
 | Part | Stage I, the laptop | Stage II, the machine |
 | --- | --- | --- |
-| Anomaly model | PatchCore through Anomalib 2.7.0 on PyTorch 2.14 CUDA, full float32 | PatchCore on PyTorch 2.14.1 XPU in FP32. Week 1 ran the laptop's checkpoints, for inference; the final run uses the models trained on the machine, week 2's. OpenVINO 2026.4.1 sees both cards, and its export is not yet installed |
+| Anomaly model | PatchCore through Anomalib 2.7.0 on PyTorch 2.14 CUDA, full float32 | PatchCore through Anomalib 2.7.0 on PyTorch 2.14.1 XPU in FP32, trained and scored on card 0: the path on this machine (`results/stage2/week2/README.md`). Week 1's bench ran the laptop's checkpoints; the final run uses the models trained on the machine. Through OpenVINO 2026.4.1 it was exported and measured, and nothing in the pipeline runs through it |
 | Judge's model | Qwen3-VL-8B-Instruct, Qwen's own 4-bit GGUF with the F16 projector | Qwen3-VL-8B-Instruct at FP16; Qwen's own FP8 build not yet run |
 | Judge's server | llama.cpp `llama-server` at tag `v0.6.0`, OpenAI-compatible | Intel's llm-scaler vLLM image at a pinned tag (`0.26.0-b1`, never `latest`; digest in `machine.md`), vLLM 0.26.1.dev0, on card 1 |
 | Judge's client | one OpenAI-compatible client, answers constrained to a JSON schema | the same client, by two settings, `SPEC_TO_INSPECTOR_VLM_URL` and `SPEC_TO_INSPECTOR_VLM_MODEL`, whose defaults already fit |
@@ -126,6 +138,12 @@ the pipeline the protocol declares, and both are defaults of
 *Corrected 7 November 2026. The plan had said of the judge's client "the same
 client; the server is two settings".*
 
+*Corrected 7 November 2026, from week 2's record. The plan had given the anomaly
+model as "PatchCore on PyTorch XPU in FP32, or exported to OpenVINO", which reads
+as a free choice. They agree in scores and are not equal in speed or memory:
+OpenVINO, exported and run as week 2 ran it, is at about half PyTorch XPU's speed
+and, at batch 16, about six times its memory on the card.*
+
 Choices made with their reasons:
 
 - **FP16 on llm-scaler.** llm-scaler lists Qwen3-VL-8B-Instruct at FP16, FP8
@@ -135,10 +153,18 @@ Choices made with their reasons:
   (`machine.md`).
 - **FP32 for PatchCore.** Its backbone is convolutions, and there is an open,
   unconfirmed report of half-precision convolutions misbehaving on the B70.
-  FP32 costs little at this model's size. Over 401 boards, the laptop's
+  On PyTorch FP32 costs little at this model's size. Through OpenVINO it has to
+  be asked for: the plugin infers in FP16 unasked, though the weights are FP32,
+  so `anomaly/ov_model.py` asks for FP32, reads it back and refuses otherwise
+  (`results/stage2/week2/README.md`). Over 401 boards, the laptop's
   checkpoints on XPU against the same checkpoints on CUDA: 0 differ in being
   flagged, 0 in their number of regions, and the largest score difference is
-  0.00053 (`results/stage2/week1/README.md`).
+  0.00053 (`results/stage2/week1/README.md`). Week 2 finds the same over all
+  four parts, 802 boards. That is inference alone. A model trained on the machine
+  is not the laptop's bank for bank, and on a handful of boards its scores move
+  further; week 2's record gives how far, part by part.
+  On the machine itself the training repeats: two runs give identical banks, and
+  scores and maps bit-identical over 802 boards.
 - **A pinned image tag.** A later llm-scaler tag has an open regression with
   two cards. The machine has two, the container is given one, and no later
   tag has been run, so the tag stays pinned. *Corrected 7 November 2026. The
@@ -155,13 +181,46 @@ What week 1 answered (`results/stage2/week1/README.md`):
   device is the setting `SPEC_TO_INSPECTOR_DEVICE`, `cuda` by default, `xpu` or
   `cpu`.
 
+What week 2 answered (`results/stage2/week2/README.md`), on card 0, each of the
+four parts in two runs, one seed, on the VisA test split the thresholds were chosen
+on:
+
+- **PatchCore trains on the B70 through PyTorch XPU**, on a whole part: a fit takes
+  692.7 to 703.5 s over 8 trainings, about 98% of it the coreset (680 to 691 s), the
+  embedding 3.96 to 4.37 s.
+- **It scores through PyTorch XPU** at 29.61 to 30.04 images a second at batch 1 and
+  34.69 to 35.22 at batch 16, the model alone; from the files, 25.93 to 26.36 and
+  29.46 to 30.42. Each range is over 8 figures of 3 timed passes.
+- **Anomalib's OpenVINO export runs on the B70, on `GPU.0` in FP32, and not as it
+  comes.** Scores are within 0.00041 of PyTorch XPU's. It runs at 14.28 to 16.22
+  images a second at batch 1 and 16.20 to 18.69 at batch 16, the model alone, and
+  holds 2,700 to 2,943 MiB of the card at batch 1 and 18,153 to 18,400 MiB at batch
+  16. Anomalib's `openvino` extra cannot be installed: it lists `nncf`, every release
+  of which caps numpy below 2.5, and the project's is 2.5.3. Only its INT8 compression
+  imports `nncf`, and no INT8 figure is measured. Four defaults are overridden, the
+  first two of which would have given wrong figures quietly: the plugin infers in FP16
+  unasked, so FP32 is asked for and read back; the export normalises and clips the
+  score, so that is switched off in the exported copy; its dynamic batch comes out
+  fixed at 2, so there is one graph per batch size; and its downgrade to opset 14
+  fails, so it stays at 18.
+- **So PyTorch XPU is the anomaly model's path on this machine.** Nothing in the
+  pipeline runs through OpenVINO.
+
+*Corrected 7 November 2026, from week 2's record. The plan had said "Anomalib 2.7.0
+has the accelerator and an OpenVINO export", and named the export's running as not
+yet known.*
+
 What is not yet known:
 
-- PatchCore's training time and peak memory on a real part: week 2.
-- Whether the OpenVINO export runs. Anomalib 2.7.0 has the export; its notes
-  name Arc A-series cards, not the B70.
+- What the final run reads. It has not been run.
 - What FP8 does, and what a specification much longer than the demonstration's
   does, to memory and to speed: week 3.
+- Why OpenVINO holds 18 GiB at batch 16, why it runs at about half PyTorch XPU's speed,
+  and why its speed differs by part. Each is measured and not explained, and no
+  OpenVINO setting but the precision was tried. The plugin's FP16 and Anomalib's
+  compressions are offered and not measured.
+- What Anomalib's coreset selection costs by synchronising the XPU at every pick, on
+  which most of a training is spent.
 
 ## What Stage II will measure
 
@@ -173,7 +232,7 @@ this repository, measured on the machine.
 | Week | Work | Output |
 | --- | --- | --- |
 | 1, 6 to 12 November: bring-up | Read the cards the machine exposes (name, memory, whole card or virtual function). Install the pinned environment. Check PyTorch XPU and OpenVINO. Start the judge's server. | Done on 6 November, `results/stage2/week1/`: the machine's measured shape; the answer schema accepted with one fix |
-| 2, 13 to 19 November: the anomaly model | PatchCore on PyTorch XPU in FP32 and through OpenVINO | Training time, images per second and peak memory, on the machine |
+| 2, 13 to 19 November: the anomaly model | PatchCore on PyTorch XPU in FP32 and through OpenVINO | Done on 6 November UTC, ahead of its week, `results/stage2/week2/`: training time, images per second and peak memory on the machine, on all four parts, in two runs |
 | 3, 20 to 26 November: the judge at full precision | Qwen3-VL-8B-Instruct at FP16 and at FP8, with the whole specification in context | Answer time, throughput, and clause-citation accuracy on the 200 labelled boards, under the protocol: FP16 as the final setting, FP8 as a declared comparison |
 | 4, 27 November to 4 December: the full run | A whole batch end to end; memory per stage against the plan above; the corrections loop across the batch | The final video recorded from a session on the machine; the repository with its measured B70 figures |
 
@@ -185,10 +244,26 @@ no machine: what is left of it can only work from what was copied. The weeks are
 not re-planned here; that is the owner's.
 
 **The baseline.** What Stage II rests on is a final run on the machine under
-`eval/PROTOCOL-stage2.md`, in force since 7 November 2026: one setting declared
+`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and its dated addition
+`eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`: one setting declared
 before the run, FP16, with the anomaly models trained on the machine and an empty
 corrections store, reported whatever it reads. Three runs make it final, the third
 after a server restart. It has not been run yet.
+
+The addition answers two things week 2 found (`results/stage2/week2/README.md`):
+
+- **The region columns.** `eval/clause_labels.csv` holds what each board's region 1
+  lies on, made from the laptop's models, and the bench stops if a model's regions
+  disagree. The models trained on the machine stop on PCB1 `bad-029`, one of the 135
+  (`results/stage2/week2/label-region-columns.json`). So the columns are regenerated
+  from the machine's checkpoints before the final run, with every row that changes
+  recorded. That has not been done yet. The clause each image expects does not change:
+  it comes from VisA's annotation, not from any model.
+- **The board on the threshold.** Anomalib's adaptive threshold is set at a board's
+  score, so one board a part sits on it: PCB1 `bad-029`, PCB2 `bad-060`, PCB3 `bad-097`,
+  PCB4 `bad-081`. Floating-point noise decides such a board on any device. The rule
+  stays a strict `>`, the final run's record names the four with each one's score and
+  threshold, and the figure is read with that known.
 
 Week 1's bench on the machine is a bring-up figure, never final: 34.1% strict (46
 of 135, 95% interval 26.6% to 42.4%) and lenient 70.8% (46 of 65, 58.8% to 80.4%),
