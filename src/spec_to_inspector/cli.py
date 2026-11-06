@@ -459,6 +459,7 @@ def train(
                         bench=bench,
                         seed=seed,
                         backbone=backbone,
+                        device=settings.device,
                     )
                 )
             if results_path is not None:
@@ -667,7 +668,9 @@ def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its re
                 items = [
                     infer.InferenceItem(image_id=path.stem, path=path) for path in images or ()
                 ]
-                scorer = infer.AnomalyModel.load(settings.models_dir, category)
+                scorer = infer.AnomalyModel.load(
+                    settings.models_dir, category, device=settings.device
+                )
             except ModelNotTrainedError as error:
                 raise judging.InspectError(
                     f"{error}; train it with `spec-to-inspector train --category {category}`"

@@ -63,6 +63,7 @@ from spec_to_inspector.anomaly.records import (
 from spec_to_inspector.anomaly.regions import crop_box, find_regions, peak_patch, upsample
 from spec_to_inspector.anomaly.split import split_images
 from spec_to_inspector.anomaly.train import CHECKPOINT_NAME, load_train_record, model_dir
+from spec_to_inspector.settings import DeviceKind
 
 RESULT_NAME: Final = "result.json"
 RUN_INDEX_NAME: Final = "run.json"
@@ -187,7 +188,7 @@ class AnomalyModel:
         self._resize = resizes[0]
 
     @classmethod
-    def load(cls, models_dir: Path, category: str, *, device: str = "cuda") -> Self:
+    def load(cls, models_dir: Path, category: str, *, device: DeviceKind = "cuda") -> Self:
         """Load a category's trained model.
 
         Args:

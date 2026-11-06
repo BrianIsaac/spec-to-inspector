@@ -21,7 +21,6 @@ the server's process) is passed in, so the run itself is tested whole against
 a stub model and a fake server.
 """
 
-import gc
 import os
 import shutil
 import subprocess
@@ -65,7 +64,7 @@ from spec_to_inspector.judge.timing import (
     server_facts,
     spread,
 )
-from spec_to_inspector.settings import Settings
+from spec_to_inspector.settings import DeviceKind, Settings
 from spec_to_inspector.spec.schema import Specification, read_clause_table
 
 if TYPE_CHECKING:
@@ -750,21 +749,13 @@ def run_bench(
     )
 
 
-def _release_gpu() -> None:
-    """Collect what is no longer referred to and hand PyTorch's cached GPU memory back."""
-    import torch  # noqa: PLC0415
-
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-
-
-def trained_model(models_dir: Path, part: str) -> LoadedModel:
+def trained_model(models_dir: Path, part: str, device: DeviceKind = "cuda") -> LoadedModel:
     """Load a part's trained PatchCore model.
 
     Args:
         models_dir: The root of the trained models.
         part: The part.
+        device: What the model scores on.
 
     Returns:
         The model with what its training recorded.
@@ -773,11 +764,14 @@ def trained_model(models_dir: Path, part: str) -> LoadedModel:
         BenchError: If the part has no trained model there.
     """
     # Anomalib takes about ten seconds to import, so it is loaded where a model is.
+    import torch  # noqa: PLC0415
+
     from spec_to_inspector.anomaly.infer import AnomalyModel  # noqa: PLC0415
     from spec_to_inspector.anomaly.train import ModelNotTrainedError  # noqa: PLC0415
+    from spec_to_inspector.device import release_memory  # noqa: PLC0415
 
     try:
-        model = AnomalyModel.load(models_dir, part)
+        model = AnomalyModel.load(models_dir, part, device=device)
     except ModelNotTrainedError as error:
         msg = f"{error}; train it with `spec-to-inspector train --category {part}`"
         raise BenchError(msg) from error
@@ -787,7 +781,7 @@ def trained_model(models_dir: Path, part: str) -> LoadedModel:
         trained_at=record.created_at,
         fit_seconds=record.fit_seconds,
         train_peak_allocated_bytes=record.peak_allocated_bytes,
-        release=_release_gpu,
+        release=lambda: release_memory(torch.device(device)),
     )
 
 
@@ -824,7 +818,7 @@ def laptop_pipeline(settings: Settings) -> Pipeline:
         return read_pdf(pdf, artifacts_dir=settings.docling_artifacts_dir).specification()
 
     def models(part: str) -> LoadedModel:
-        return trained_model(settings.models_dir, part)
+        return trained_model(settings.models_dir, part, settings.device)
 
     def scoring(scorer: "Scorer", items: Sequence["InferenceItem"], directory: Path) -> RunIndex:
         return run_inference(scorer, items, directory)

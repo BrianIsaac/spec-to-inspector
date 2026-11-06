@@ -1,5 +1,7 @@
 """Tests for the settings read from the environment."""
 
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -129,3 +131,22 @@ def test_the_recall_strategy_is_one_of_two(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setenv("SPEC_TO_INSPECTOR_CORRECTIONS_RECALL", "always")
     with pytest.raises(ValueError, match="corrections_recall"):
         Settings()
+
+
+def test_the_device_is_cuda_unless_chosen(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The laptop needs no setting; the machine says `xpu`; anything else is refused."""
+    assert Settings().device == "cuda"
+
+    for kind in ("xpu", "cpu", "cuda"):
+        monkeypatch.setenv("SPEC_TO_INSPECTOR_DEVICE", kind)
+        assert Settings().device == kind
+
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DEVICE", "gpu")
+    with pytest.raises(ValueError, match="device"):
+        Settings()
+
+
+def test_reading_the_settings_does_not_import_pytorch() -> None:
+    """Every verb reads the settings, and PyTorch takes seconds to import."""
+    program = "import sys, spec_to_inspector.settings; sys.exit('torch' in sys.modules)"
+    assert subprocess.run([sys.executable, "-c", program], check=False).returncode == 0

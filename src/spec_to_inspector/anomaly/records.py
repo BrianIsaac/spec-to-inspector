@@ -8,7 +8,7 @@ from typing import Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from spec_to_inspector.device import CudaDevice
+from spec_to_inspector.device import ComputeDevice
 
 SCHEMA_VERSION: Final = 1
 
@@ -280,7 +280,7 @@ class TrainRecord(BaseModel):
     peak_allocated_bytes: int
     peak_reserved_bytes: int
     gpu_free_bytes_before: int
-    device: CudaDevice
+    device: ComputeDevice
     checkpoint: str
     checkpoint_bytes: int
     versions: dict[str, str]
@@ -496,7 +496,7 @@ class InferenceBench(BaseModel):
     schema_version: int = SCHEMA_VERSION
     category: str
     created_at: str
-    device: CudaDevice
+    device: ComputeDevice
     images: int
     resident_bytes: int
     runs: list[Throughput]

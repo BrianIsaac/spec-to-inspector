@@ -26,7 +26,13 @@ from torch.utils.data import DataLoader
 
 from spec_to_inspector.anomaly.infer import InferenceItem, Scorer, image_dataset
 from spec_to_inspector.anomaly.records import InferenceBench, Throughput
-from spec_to_inspector.device import CudaDevice
+from spec_to_inspector.device import (
+    ComputeDevice,
+    empty_cache,
+    peak_memory,
+    reset_peak_memory,
+    synchronise,
+)
 
 BENCH_NAME: Final = "bench.json"
 BATCH_SIZES: Final = (1, 16)
@@ -46,29 +52,14 @@ class MeasurableScorer(Scorer, Protocol):
         ...
 
 
-def _synchronise(device: torch.device) -> None:
-    """Wait for the GPU's queued work, so a clock reading means what it says."""
-    if device.type == "cuda":
-        torch.cuda.synchronize(device)
-
-
 def _start_peak(device: torch.device) -> None:
     """Return cached blocks to the driver and restart the peak counters.
 
     Without emptying the cache first, the reserved peak would carry blocks an
     earlier measurement left cached.
     """
-    if device.type == "cuda":
-        torch.cuda.empty_cache()
-        torch.cuda.reset_peak_memory_stats(device)
-
-
-def _peak(device: torch.device) -> tuple[int, int]:
-    """The peak allocated and reserved bytes since the last restart; zeros off the GPU."""
-    if device.type != "cuda":
-        return 0, 0
-    _synchronise(device)
-    return torch.cuda.max_memory_allocated(device), torch.cuda.max_memory_reserved(device)
+    empty_cache(device)
+    reset_peak_memory(device)
 
 
 def _throughput(
@@ -106,13 +97,13 @@ def _timed_passes(
     device = model.device
     for batch in (batches * warmup_batches)[:warmup_batches]:
         model.score(batch)
-    _synchronise(device)
+    synchronise(device)
     pass_seconds: list[float] = []
     for _ in range(repeats):
         started = time.perf_counter()
         for batch in batches:
             model.score(batch)
-        _synchronise(device)
+        synchronise(device)
         pass_seconds.append(time.perf_counter() - started)
     return pass_seconds
 
@@ -165,7 +156,7 @@ def measure_model(
         batch_size=batch_size,
         images=images.shape[0],
         pass_seconds=pass_seconds,
-        peak=_peak(device),
+        peak=peak_memory(device),
         num_workers=None,
     )
 
@@ -214,20 +205,20 @@ def measure_end_to_end(
             maps.cpu()
 
     one_pass(limit=warmup_batches)
-    _synchronise(device)
+    synchronise(device)
     _start_peak(device)
     pass_seconds: list[float] = []
     for _ in range(repeats):
         started = time.perf_counter()
         one_pass()
-        _synchronise(device)
+        synchronise(device)
         pass_seconds.append(time.perf_counter() - started)
     return _throughput(
         "end_to_end",
         batch_size=batch_size,
         images=len(items),
         pass_seconds=pass_seconds,
-        peak=_peak(device),
+        peak=peak_memory(device),
         num_workers=num_workers,
     )
 
@@ -237,7 +228,7 @@ def measure(
     items: Sequence[InferenceItem],
     category_dir: Path,
     *,
-    device: CudaDevice,
+    device: ComputeDevice,
     batch_sizes: Sequence[int] = BATCH_SIZES,
     num_workers: int = 8,
     repeats: int = 3,

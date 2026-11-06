@@ -91,11 +91,13 @@ def test_images_are_scored_by_the_anomaly_model_first(
     """Given image files, the verb scores them into a run of its own and judges that."""
     loaded: list[tuple[Path, str]] = []
 
-    def load(models_dir: Path, category: str) -> StubScorer:
+    def load(models_dir: Path, category: str, *, device: str) -> StubScorer:
+        assert device == "cpu"
         loaded.append((models_dir, category))
         return StubScorer()
 
     monkeypatch.setattr(infer.AnomalyModel, "load", load)
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DEVICE", "cpu")
     boards = {"line-3-0001": 140, "line-3-0002": 20}
     paths: list[str] = []
     for name, red in boards.items():
@@ -135,7 +137,7 @@ def test_the_batch_name_places_the_run(
     spec_path: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A batch of images lands in a run directory of the name given."""
-    monkeypatch.setattr(infer.AnomalyModel, "load", lambda *_: StubScorer())
+    monkeypatch.setattr(infer.AnomalyModel, "load", lambda *_, **kwargs: StubScorer())
     colour = np.zeros((800, 1000, 3), dtype=np.uint8)
     Image.fromarray(colour).save(tmp_path / "board.png")
 
@@ -332,7 +334,7 @@ def test_two_images_of_one_name_are_refused(
     spec_path: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Image ids come from the file names, so two files of one name cannot share a run."""
-    monkeypatch.setattr(infer.AnomalyModel, "load", lambda *_: StubScorer())
+    monkeypatch.setattr(infer.AnomalyModel, "load", lambda *_, **kwargs: StubScorer())
     (tmp_path / "a").mkdir()
     (tmp_path / "b").mkdir()
     for folder in ("a", "b"):
