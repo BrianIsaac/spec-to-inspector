@@ -14,11 +14,13 @@ command adds what those cannot give, and what the laptop's run did not need:
     python -m spec_to_inspector.anomaly.card_run openvino --all --root ~/week2/run-1
     python -m spec_to_inspector.anomaly.card_run compare --a runs-a --b runs-b --out scores.json
     python -m spec_to_inspector.anomaly.card_run banks --a models-a --b models-b --out banks.json
+    python -m spec_to_inspector.anomaly.card_run boards --source a=runs/{part}/test --out boards.csv
 
 Nothing here changes what the laptop's commands do, and it runs with `ZE_AFFINITY_MASK` set by the
 caller: nothing here picks a card.
 """
 
+import csv
 import gc
 import os
 import sys
@@ -146,6 +148,7 @@ class PartComparison(BaseModel):
         flagged_a: Boards the first run flagged.
         flagged_b: Boards the second run flagged.
         flag_differs: Boards flagged in one and not in the other.
+        flag_differs_boards: Which they are.
         regions_differ: Boards with another number of regions.
         score_difference: The absolute difference of the raw image scores.
         map_difference_max: The largest absolute difference anywhere in any board's raw anomaly
@@ -164,6 +167,7 @@ class PartComparison(BaseModel):
     flagged_a: int
     flagged_b: int
     flag_differs: int
+    flag_differs_boards: list[str]
     regions_differ: int
     score_difference: Spread
     map_difference_max: float | None
@@ -585,12 +589,14 @@ def compare_part(part: str, a: Path, b: Path) -> PartComparison:
         raise ValueError(msg)
     pairs = [(entry, other[entry.image_id]) for entry in first.entries]
     ranked = sorted(pairs, key=lambda pair: abs(pair[0].score - pair[1].score), reverse=True)
+    flipped = [one for one, two in pairs if one.predicted_anomalous != two.predicted_anomalous]
     return PartComparison(
         part=part,
         boards=len(pairs),
         flagged_a=sum(one.predicted_anomalous for one, _ in pairs),
         flagged_b=sum(two.predicted_anomalous for _, two in pairs),
-        flag_differs=sum(one.predicted_anomalous != two.predicted_anomalous for one, two in pairs),
+        flag_differs=len(flipped),
+        flag_differs_boards=[entry.image_id for entry in flipped],
         regions_differ=sum(one.regions != two.regions for one, two in pairs),
         score_difference=spread([abs(one.score - two.score) for one, two in pairs]),
         map_difference_max=_map_difference(a, b, [one.image_id for one, _ in pairs]),
@@ -627,6 +633,38 @@ def compare_banks(a: torch.Tensor, b: torch.Tensor) -> BankComparison:
         same_row_distance=_SAME_ROW_DISTANCE,
         nearest_distance=spread([float(value) for value in found]),
     )
+
+
+def write_boards(sources: dict[str, Path], parts: tuple[str, ...], out: Path) -> int:
+    """Write every board's score, flag and region count in each run, one line to a board.
+
+    Args:
+        sources: Each column group's name and its run's directory, with `{part}` for the part.
+        parts: The parts.
+        out: The CSV file.
+
+    Returns:
+        How many boards were written.
+    """
+    head = ["part", "image_id", "label"]
+    for name in sources:
+        head += [f"{name}_score", f"{name}_flagged", f"{name}_regions"]
+    rows: list[list[str]] = []
+    for part in parts:
+        indices = [load_run_index(Path(str(path).format(part=part))) for path in sources.values()]
+        lookups = [{entry.image_id: entry for entry in index.entries} for index in indices]
+        for first in indices[0].entries:
+            row = [part, first.image_id, first.label or ""]
+            for lookup in lookups:
+                entry = lookup[first.image_id]
+                row += [repr(entry.score), str(int(entry.predicted_anomalous)), str(entry.regions)]
+            rows.append(row)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.writer(file, lineterminator="\n")
+        writer.writerow(head)
+        writer.writerows(rows)
+    return len(rows)
 
 
 def _bank(models_dir: Path, part: str, device: torch.device) -> torch.Tensor:
@@ -733,6 +771,20 @@ def compare(
             },
         ),
     )
+
+
+@app.command()
+def boards(
+    source: Annotated[
+        list[str],
+        typer.Option(help="name=directory of a run, with {part} for the part. May be repeated."),
+    ],
+    out: Annotated[Path, typer.Option("--out", help="The CSV file.")],
+    part: PartOption = None,
+) -> None:
+    """Write every board's score, flag and region count in each run, to one CSV."""
+    named = dict(item.split("=", 1) for item in source)
+    write_boards({name: Path(path) for name, path in named.items()}, _chosen(part), out)
 
 
 @app.command()

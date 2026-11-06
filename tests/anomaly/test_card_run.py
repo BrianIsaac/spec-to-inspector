@@ -83,6 +83,7 @@ def test_two_runs_are_compared_board_by_board(tmp_path: Path) -> None:
     assert compared.boards == 3
     assert (compared.flagged_a, compared.flagged_b) == (1, 0)
     assert compared.flag_differs == 1
+    assert compared.flag_differs_boards == ["two"]
     assert compared.regions_differ == 1
     assert compared.score_difference.maximum == pytest.approx(0.5)
     assert compared.worst[0].image_id == "one"
@@ -288,6 +289,37 @@ def test_the_compare_command_writes_its_record(tmp_path: Path) -> None:
     assert stored.a == "first"
     assert stored.b == str(b)
     assert stored.parts["pcb1"].score_difference.maximum == pytest.approx(0.25)
+
+
+def test_the_boards_command_writes_one_line_to_a_board_with_each_runs_figures(
+    tmp_path: Path,
+) -> None:
+    """Scores keep every digit they were recorded with, so a difference can be worked again."""
+    a, b = tmp_path / "a", tmp_path / "b"
+    _run(a / "pcb1" / "test", [_entry("one", 1.5, flagged=True, regions=2)])
+    _run(b / "pcb1" / "test", [_entry("one", 1.25)])
+    out = tmp_path / "boards.csv"
+
+    result = CliRunner().invoke(
+        card_run.app,
+        [
+            "boards",
+            "--source",
+            f"a={a}/{{part}}/test",
+            "--source",
+            f"b={b}/{{part}}/test",
+            "--part",
+            "pcb1",
+            "--out",
+            str(out),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert out.read_text(encoding="utf-8").splitlines() == [
+        "part,image_id,label,a_score,a_flagged,a_regions,b_score,b_flagged,b_regions",
+        "pcb1,one,good,1.5,1,2,1.25,0,0",
+    ]
 
 
 @pytest.mark.xpu
