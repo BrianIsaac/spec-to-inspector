@@ -293,7 +293,9 @@ every model, dataset and library with its licence and source.
 
 ## Stage II on the Intel Arc Pro B70
 
-Nothing here has run on a B70. The plan, in full in `docs/stage2.md`:
+Stage II has begun on the organiser's machine, and week 1's figures are in
+`results/stage2/week1/`. The plan, corrected to the machine on 7 November
+2026, is in full in `docs/stage2.md`:
 
 ```mermaid
 flowchart LR
@@ -302,9 +304,9 @@ flowchart LR
         CLIENT["Judge client<br/>OpenAI-compatible HTTP,<br/>JSON-schema answers"]
     end
 
-    subgraph b70["Stage II: one Arc Pro B70"]
-        A2["Anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
-        V2["Judge's server<br/>vLLM XPU or llm-scaler<br/>Qwen3-VL-8B-Instruct<br/>FP16 or FP8"]
+    subgraph b70["Stage II: two Arc Pro B70s"]
+        A2["Card 0: anomaly model<br/>PatchCore, PyTorch XPU<br/>in FP32, or OpenVINO"]
+        V2["Card 1: judge's server<br/>llm-scaler vLLM image<br/>tag 0.26.0-b1<br/>Qwen3-VL-8B-Instruct<br/>FP16 or FP8"]
     end
 
     subgraph laptop["Stage I: the laptop"]
@@ -312,37 +314,47 @@ flowchart LR
         V1["Judge's server<br/>llama.cpp llama-server<br/>Qwen3-VL-8B-Instruct<br/>4-bit (Q4_K_M)"]
     end
 
-    CLI -.->|"XPU or OpenVINO:<br/>Stage II work"| A2
-    CLIENT -.->|"the same<br/>two settings"| V2
+    CLI -->|"XPU"| A2
+    CLIENT -->|"a URL and<br/>a model name"| V2
     CLI -->|"CUDA"| A1
     CLIENT -->|"a URL and<br/>a model name"| V1
 ```
 
-Solid lines run today; dotted lines are the plan.
+Every line has run. On the machine that means inference at FP16 and FP32; a
+real part trained on XPU, the OpenVINO export and the judge at FP8 have not.
 
-- **The assumption about the organiser's VM.** Its specification is not yet
-  published. We plan for one whole Arc Pro B70 (32 GB) reached through a
-  booked remote session, with no camera or USB device and limited outbound
-  network. If the VM gives a share of a card instead, the judge drops to a
-  4-bit build, the stages run strictly in turn, and clauses are retrieved
-  instead of the whole specification being held in context.
-- **The memory plan.** Training runs first and alone (7.82 GiB on the
-  laptop). During a batch the judge's server takes 80% of the card, 25.6
-  GB, and the anomaly model has the remaining 6.4 GB, several times what it
-  needed on the laptop. At FP16 the judge's weights are 17.53 GB, leaving
-  about 8 GB of context cache, enough for one 32K-token context; at FP8,
-  10.59 GB, leaving room for three. These are planned from file sizes and
-  the model's configuration, to be measured on the VM.
-- **The serving stack.** The judge's client already speaks the
-  OpenAI-compatible API, so moving from llama.cpp to vLLM or llm-scaler is
-  two settings. The anomaly code asks for CUDA today; PyTorch XPU or
-  OpenVINO is Stage II work.
-- **What will be measured**, 6 November to 4 December: the VM's real shape;
-  PatchCore's training time, speed and memory on the B70; the judge's answer
-  time and throughput at FP16 and FP8; and clause-citation accuracy on the
-  same 200 labelled boards, by the same protocol, to see whether full
-  precision, a picture of a good board beside the crop, and the corrections
-  loop move the 38.5%.
+- **The machine.** Two whole Arc Pro B70s of 32,656 MiB each in one bare-metal
+  host, not a virtual machine, reached over ssh, with outbound HTTPS open
+  (`results/stage2/week1/machine.md`). The plan had assumed one whole card in a
+  booked remote session.
+- **The memory plan.** A card each, so training need not come before the judge
+  is loaded. The judge's server takes 90% of card 1: at 80% FP16 leaves 2.97 GiB
+  of cache and vLLM refuses a 32K-token context; at 90% it leaves 6.16 GiB,
+  44,800 tokens. The anomaly model peaks at 2,594 MiB of card 0 while scoring;
+  its training is not yet measured. At FP8 the cache is an estimate, not a
+  measurement: about 13 GiB at 90%. The plan had assumed 80% of one shared card
+  and about 8 GB of cache at FP16.
+- **The serving stack.** Moving the client from llama.cpp to the llm-scaler vLLM
+  image is two settings. The server needs two more of its own or its figures do
+  not compare with the laptop's: asked cold (`--no-enable-prefix-caching
+  --mm-processor-cache-gb 0`) and the laptop's image size. vLLM accepts the
+  answer schema, with one fix to the schema: the reason's pattern now bars the
+  double quote and the backslash. The anomaly model's device is a setting,
+  `SPEC_TO_INSPECTOR_DEVICE`, and PatchCore's scores on XPU match CUDA's on all
+  401 boards to within 0.00053.
+- **The first bench.** 34.1% strict (46 of 135, 95% interval 26.6% to 42.4%)
+  against the laptop's 38.5% (52 of 135), and lenient 70.8% (46 of 65) against
+  the laptop's 58.5% (38 of 65). The server and the answer pattern differ from
+  the laptop's as well as the precision, so no figure separates them. It is a
+  bring-up figure: `eval/PROTOCOL.md` describes Stage I and is not edited, and a
+  Stage II protocol is drafted and not in force.
+- **What will be measured**, 6 November to 4 December, when the video is due,
+  with the machine's reservation ending 2 December at 11:30, so everything run
+  on it and the recording of the final video come before then: PatchCore's
+  training time, speed and memory on the B70; the judge's answer time and
+  throughput at FP16 and FP8; and clause-citation accuracy on the same 200
+  labelled boards, to see whether full precision, a picture of a good board
+  beside the crop, and the corrections loop move the 38.5%.
 
 ## Data
 
