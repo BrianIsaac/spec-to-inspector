@@ -1,6 +1,5 @@
 """One category from fetched data to scored test split: what `spec-to-inspector train` runs."""
 
-import gc
 from pathlib import Path
 
 import torch
@@ -21,7 +20,8 @@ from spec_to_inspector.anomaly.train import (
     load_train_record,
     train_category,
 )
-from spec_to_inspector.device import cuda_device
+from spec_to_inspector.device import describe_device, release_memory
+from spec_to_inspector.settings import DeviceKind
 
 
 class CategoryOutcome(BaseModel):
@@ -47,14 +47,7 @@ class CategoryOutcome(BaseModel):
     bench: InferenceBench | None = None
 
 
-def _release_gpu() -> None:
-    """Return freed GPU memory to the driver, so the next category's peak starts clean."""
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-
-
-def train_and_score(
+def train_and_score(  # noqa: PLR0913 - keyword-only, one for each choice the verb offers
     category: str,
     *,
     visa_dir: Path,
@@ -66,6 +59,7 @@ def train_and_score(
     seed: int = DEFAULT_SEED,
     backbone: str = DEFAULT_BACKBONE,
     options: InferenceOptions | None = None,
+    device: DeviceKind = "cuda",
 ) -> CategoryOutcome:
     """Train a category's model, or reuse the one on disk, and score its test split.
 
@@ -81,14 +75,16 @@ def train_and_score(
         seed: The training seed.
         backbone: The feature extractor to train with.
         options: How to score and crop; the defaults if None.
+        device: What to train and score on.
 
     Returns:
         The category's record and, if scored or measured, its run and bench.
 
     Raises:
-        RuntimeError: If CUDA is not available.
+        RuntimeError: If the device is not available.
         SplitError: If the split cannot be written from the fetched tree.
     """
+    target = torch.device(device)
     record: TrainRecord | None = None
     if reuse:
         try:
@@ -98,23 +94,29 @@ def train_and_score(
     trained = record is None
     if record is None:
         record = train_category(
-            category, visa_dir=visa_dir, models_dir=models_dir, seed=seed, backbone=backbone
+            category,
+            visa_dir=visa_dir,
+            models_dir=models_dir,
+            seed=seed,
+            backbone=backbone,
+            device=device,
         )
-        _release_gpu()
+        # So that the next category's peak starts clean.
+        release_memory(target)
 
     run: RunIndex | None = None
     output: Path | None = None
     measured: InferenceBench | None = None
     if infer or bench:
-        model = AnomalyModel.load(models_dir, category)
+        model = AnomalyModel.load(models_dir, category, device=device)
         items = visa_test_items(visa_dir, category)
         if infer:
             output = run_dir(runs_dir, category)
             run = run_inference(model, items, output, options=options or InferenceOptions())
         if bench:
-            measured = measure(model, items, runs_dir / category, device=cuda_device())
+            measured = measure(model, items, runs_dir / category, device=describe_device(device))
         del model
-        _release_gpu()
+        release_memory(target)
     return CategoryOutcome(
         category=category,
         trained=trained,

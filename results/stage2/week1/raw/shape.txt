@@ -1,0 +1,336 @@
+Fri Nov  6 15:05:59 UTC 2026
+
+$ xpu-smi discovery
+                                                                  
+  Device ID     Device Information                                
+  0             Device Name: Intel(R) Arc(TM) Pro B70 Graphics    
+                Device State: normal                              
+                Vendor Name: Intel(R) Corporation                 
+                SOC UUID: 00000000-0000-0017-0000-0000e2238086    
+                PCI BDF Address: 0000:17:00.0                     
+                DRM Device: /dev/dri/card1                        
+                Function Type: physical                           
+                                                                  
+  1             Device Name: Intel(R) Arc(TM) Pro B70 Graphics    
+                Device State: normal                              
+                Vendor Name: Intel(R) Corporation                 
+                SOC UUID: 00000000-0000-00ba-0000-0000e2238086    
+                PCI BDF Address: 0000:ba:00.0                     
+                DRM Device: /dev/dri/card2                        
+                Function Type: physical                           
+                                                                  
+
+$ xpu-smi discovery -d 0
+[Error] DMI reader failed for 0000:17:00.0: Cannot access DMI tables. Ensure you have proper permissions and sysfs support.
+                                                                  
+  Device ID     Device Information                                
+  0             Device Type: GPU                                  
+                Device Name: Intel(R) Arc(TM) Pro B70 Graphics    
+                Device State: normal                              
+                PCI Device ID: 0xe223                             
+                Vendor Name: Intel(R) Corporation                 
+                SOC UUID: 00000000-0000-0017-0000-0000e2238086    
+                Serial Number: unknown                            
+                Core Clock Rate: 2800 MHz                         
+                Stepping: A0                                      
+                SKU Type: Production ES                           
+                                                                  
+                Driver Version: 17012470                          
+                Kernel Version: 7.0.0-34-generic                  
+                GFX Firmware Name: GFX                            
+                GFX Firmware Version:                             
+                GFX Firmware Status: normal                       
+                                                                  
+                PCI BDF Address: 0000:17:00.0                     
+                PCI Slot: N/A                                     
+                PCIe Generation: N/A                              
+                PCIe Max Link Width: N/A                          
+                PCIe Max Bandwidth: N/A                           
+                                                                  
+                Memory Physical Size: 32656.00 MiB                
+                Max Mem Alloc Size: 31023.20 MiB                  
+                ECC State: disabled                               
+                Number of Memory Channels: 4294967295             
+                Memory Bus Width: 4294967295                      
+                Max Hardware Contexts: 65536                      
+                Max Command Queue Priority: 0                     
+                                                                  
+                Number of EUs: 256                                
+                Number of Tiles: 1                                
+                Number of Slices: 8                               
+                Number of Sub Slices per Slice: 4                 
+                Number of Threads per EU: 8                       
+                Physical EU SIMD Width: 16                        
+                Number of Media Engines: 0                        
+                Number of Media Enhancement Engines: 0            
+                                                                  
+
+$ xpu-smi discovery -d 1
+[Error] DMI reader failed for 0000:ba:00.0: Cannot access DMI tables. Ensure you have proper permissions and sysfs support.
+                                                                  
+  Device ID     Device Information                                
+  1             Device Type: GPU                                  
+                Device Name: Intel(R) Arc(TM) Pro B70 Graphics    
+                Device State: normal                              
+                PCI Device ID: 0xe223                             
+                Vendor Name: Intel(R) Corporation                 
+                SOC UUID: 00000000-0000-00ba-0000-0000e2238086    
+                Serial Number: unknown                            
+                Core Clock Rate: 2800 MHz                         
+                Stepping: A0                                      
+                SKU Type: Production ES                           
+                                                                  
+                Driver Version: 17012470                          
+                Kernel Version: 7.0.0-34-generic                  
+                GFX Firmware Name: GFX                            
+                GFX Firmware Version:                             
+                GFX Firmware Status: normal                       
+                                                                  
+                PCI BDF Address: 0000:ba:00.0                     
+                PCI Slot: N/A                                     
+                PCIe Generation: N/A                              
+                PCIe Max Link Width: N/A                          
+                PCIe Max Bandwidth: N/A                           
+                                                                  
+                Memory Physical Size: 32656.00 MiB                
+                Max Mem Alloc Size: 31023.20 MiB                  
+                ECC State: disabled                               
+                Number of Memory Channels: 4294967295             
+                Memory Bus Width: 4294967295                      
+                Max Hardware Contexts: 65536                      
+                Max Command Queue Priority: 0                     
+                                                                  
+                Number of EUs: 256                                
+                Number of Tiles: 1                                
+                Number of Slices: 8                               
+                Number of Sub Slices per Slice: 4                 
+                Number of Threads per EU: 8                       
+                Physical EU SIMD Width: 16                        
+                Number of Media Engines: 0                        
+                Number of Media Enhancement Engines: 0            
+                                                                  
+
+$ uname -a
+Linux 0007e9348921 7.0.0-34-generic #34-Ubuntu SMP PREEMPT_DYNAMIC Wed Sep  2 14:29:37 UTC 2026 x86_64 GNU/Linux
+
+$ cat /etc/os-release
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04.1 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
+LOGO=ubuntu-logo
+
+$ sh -c modinfo xe | head -12
+filename:       /lib/modules/7.0.0-34-generic/kernel/drivers/gpu/drm/xe/xe.ko.zst
+import_ns:      DMA_BUF
+license:        GPL and additional rights
+description:    Intel Xe2 Graphics
+author:         Intel Corporation
+firmware:       i915/mtl_gsc_1.bin
+firmware:       xe/lnl_gsc_1.bin
+firmware:       xe/ptl_gsc_1.bin
+firmware:       i915/tgl_huc.bin
+firmware:       i915/tgl_huc.bin
+firmware:       i915/tgl_huc.bin
+firmware:       i915/tgl_huc.bin
+
+$ sh -c lspci -nnk | grep -A3 -iE "vga|display" 
+17:00.0 VGA compatible controller [0300]: Intel Corporation Battlemage G31 [Intel Graphics] [8086:e223]
+	Subsystem: Intel Corporation Device [8086:1701]
+	Kernel driver in use: xe
+	Kernel modules: xe
+--
+2d:00.0 VGA compatible controller [0300]: ASPEED Technology, Inc. ASPEED Graphics Family [1a03:2000] (rev 52)
+	DeviceName: ASPEED Graphics Family
+	Subsystem: ASPEED Technology, Inc. ASPEED Graphics Family [1a03:2000]
+	Kernel driver in use: ast
+--
+ba:00.0 VGA compatible controller [0300]: Intel Corporation Battlemage G31 [Intel Graphics] [8086:e223]
+	Subsystem: Intel Corporation Device [8086:1701]
+	Kernel driver in use: xe
+	Kernel modules: xe
+
+$ sh -c dpkg -l | grep -E "libze|level-zero|intel-opencl|intel-ocloc|libigc|libigdgmm|xpu|intel-metrics|mesa-|intel-gsc|libva " 
+ii  intel-gsc                                             1.2.0-1~26.04~ppa1                         amd64        Intel(R) Graphics System Controller Firmware Update Library
+ii  intel-metrics-discovery                               1.14.188-1~26.04~ppa1                      amd64        Intel(R) Metrics Discovery Application Programming Interface --
+ii  intel-metrics-library                                 1.0.231-1~26.04~ppa1                       amd64        Intel(R) Metrics Library for MDAPI (Intel(R) Metrics Discovery
+ii  intel-ocloc                                           26.22.38646.7-1~26.04~ppa1                 amd64        Tool for managing Intel Compute GPU device binary format
+ii  intel-opencl-icd                                      26.22.38646.7-1~26.04~ppa1                 amd64        Intel graphics compute runtime for OpenCL
+ii  libgl1-mesa-dri:amd64                                 26.0.8-1ubuntu0.3                          amd64        free implementation of the OpenGL API -- DRI modules
+ii  libigc2                                               2.36.5-1~26.04                             amd64        Core libraries for Intel(R) Graphics Compiler for OpenCL(TM)
+ii  libigdgmm12:amd64                                     22.10.0-1~26.04~ppa1                       amd64        Intel Graphics Memory Management Library -- shared library
+ii  libxpum2                                              2.0.0-1~26.04~ppa1                         amd64        Intel(R) XPU System Management Interface(xpu-smi) is a free and
+ii  libze-dev:amd64                                       1.28.6-1~26.04~ppa1                        amd64        oneAPI Level Zero -- development files
+ii  libze-intel-gpu-raytracing                            1.2.4-1~26.04~ppa3                         amd64        Level Zero Ray Tracing Support library
+ii  libze-intel-gpu1                                      26.22.38646.7-1~26.04~ppa1                 amd64        Intel oneAPI L0 support implementation for Intel GPUs -- shared library
+ii  libze1:amd64                                          1.28.6-1~26.04~ppa1                        amd64        oneAPI Level Zero -- share libraries
+ii  mesa-libgallium:amd64                                 26.0.8-1ubuntu0.3                          amd64        shared infrastructure for Mesa drivers
+ii  mesa-vulkan-drivers:amd64                             26.0.8-1ubuntu0.3                          amd64        Mesa Vulkan graphics drivers
+ii  xpu-smi                                               2.0.0-1~26.04~ppa1                         amd64        Intel(R) XPU System Management Interface(xpu-smi) is a free and
+
+$ sh -c clinfo -l
+Platform #0: Intel(R) OpenCL Graphics
+ +-- Device #0: Intel(R) Arc(TM) Pro B70 Graphics
+ `-- Device #1: Intel(R) Arc(TM) Pro B70 Graphics
+Platform #1: Intel(R) OpenCL
+ `-- Device #0: Intel(R) Xeon(R) 6787P
+
+$ sh -c clinfo | grep -E "Platform Name|Device Name|Driver Version|Device Version|Global memory size|Max memory allocation|Max compute units"
+  Platform Name                                   Intel(R) OpenCL Graphics
+  Platform Name                                   Intel(R) OpenCL
+  Platform Name                                   Intel(R) OpenCL Graphics
+  Device Name                                     Intel(R) Arc(TM) Pro B70 Graphics
+  Device Version                                  OpenCL 3.0 NEO 
+  Driver Version                                  26.22.38646.7
+  Max compute units                               256
+  Global memory size                              32530182144 (30.3GiB)
+  Max memory allocation                           32530182144 (30.3GiB)
+  Device Name                                     Intel(R) Arc(TM) Pro B70 Graphics
+  Device Version                                  OpenCL 3.0 NEO 
+  Driver Version                                  26.22.38646.7
+  Max compute units                               256
+  Global memory size                              32530182144 (30.3GiB)
+  Max memory allocation                           32530182144 (30.3GiB)
+  Platform Name                                   Intel(R) OpenCL
+  Device Name                                     Intel(R) Xeon(R) 6787P
+  Device Version                                  OpenCL 3.0 (Build 0)
+  Driver Version                                  2026.21.6.0.17_160000
+  Max compute units                               344
+  Global memory size                              270014988288 (251.5GiB)
+  Max memory allocation                           135007494144 (125.7GiB)
+    Platform Name                                 Intel(R) OpenCL Graphics
+    Device Name                                   Intel(R) Arc(TM) Pro B70 Graphics
+    Platform Name                                 Intel(R) OpenCL Graphics
+    Device Name                                   Intel(R) Arc(TM) Pro B70 Graphics
+    Device Name                                   Intel(R) Arc(TM) Pro B70 Graphics
+    Platform Name                                 Intel(R) OpenCL Graphics
+    Device Name                                   Intel(R) Arc(TM) Pro B70 Graphics
+    Device Name                                   Intel(R) Arc(TM) Pro B70 Graphics
+
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           251Gi        10Gi       238Gi       8.5Mi       4.0Gi       241Gi
+Swap:             0B          0B          0B
+
+$ df -h /
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p1  867G   48G  819G   6% /
+
+$ lscpu
+Architecture:                            x86_64
+CPU op-mode(s):                          32-bit, 64-bit
+Address sizes:                           52 bits physical, 57 bits virtual
+Byte Order:                              Little Endian
+CPU(s):                                  344
+On-line CPU(s) list:                     0-343
+Vendor ID:                               GenuineIntel
+Model name:                              Intel(R) Xeon(R) 6787P
+CPU family:                              6
+Model:                                   173
+Thread(s) per core:                      2
+Core(s) per socket:                      86
+Socket(s):                               2
+Stepping:                                1
+CPU(s) scaling MHz:                      22%
+CPU max MHz:                             3800.0000
+CPU min MHz:                             800.0000
+BogoMIPS:                                4000.00
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cat_l2 cdp_l3 intel_ppin cdp_l2 ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb intel_pt avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local split_lock_detect user_shstk avx_vnni avx512_bf16 wbnoinvd dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req vnmi avx512vbmi umip pku ospke waitpkg avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq la57 rdpid bus_lock_detect cldemote movdiri movdir64b enqcmd fsrm md_clear serialize tsxldtrk pconfig arch_lbr ibt amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities
+Virtualization:                          VT-x
+L1d cache:                               8.1 MiB (172 instances)
+L1i cache:                               10.8 MiB (172 instances)
+L2 cache:                                344 MiB (172 instances)
+L3 cache:                                672 MiB (2 instances)
+NUMA node(s):                            4
+NUMA node0 CPU(s):                       0-42,172-214
+NUMA node1 CPU(s):                       43-85,215-257
+NUMA node2 CPU(s):                       86-128,258-300
+NUMA node3 CPU(s):                       129-171,301-343
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS Not affected; BHI BHI_DIS_S
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Not affected
+Vulnerability Vmscape:                   Mitigation; IBPB before exit to userspace
+
+$ sh -c ls -la /dev/dri /dev/dri/by-path
+/dev/dri:
+total 0
+drwxr-xr-x  3 root root        160 Nov  2 01:44 .
+drwxr-xr-x 19 root root       5280 Nov  2 01:44 ..
+drwxr-xr-x  2 root root        160 Nov  2 01:44 by-path
+crw-rw----  1 root video  226,   0 Nov  2 01:43 card0
+crw-rw----  1 root video  226,   1 Nov  2 01:44 card1
+crw-rw----  1 root video  226,   2 Nov  2 01:44 card2
+crw-rw----+ 1 root render 226, 128 Nov  2 01:44 renderD128
+crw-rw----+ 1 root render 226, 129 Nov  2 01:44 renderD129
+
+/dev/dri/by-path:
+total 0
+drwxr-xr-x 2 root root 160 Nov  2 01:44 .
+drwxr-xr-x 3 root root 160 Nov  2 01:44 ..
+lrwxrwxrwx 1 root root   8 Nov  2 01:44 pci-0000:17:00.0-card -> ../card1
+lrwxrwxrwx+1 root root  13 Nov  2 01:44 pci-0000:17:00.0-render -> ../renderD128
+lrwxrwxrwx 1 root root   8 Nov  2 01:43 pci-0000:2d:00.0-card -> ../card0
+lrwxrwxrwx 1 root root   8 Nov  2 01:43 pci-0000:2d:00.0-platform-simple-framebuffer.0-card -> ../card0
+lrwxrwxrwx 1 root root   8 Nov  2 01:44 pci-0000:ba:00.0-card -> ../card2
+lrwxrwxrwx+1 root root  13 Nov  2 01:44 pci-0000:ba:00.0-render -> ../renderD129
+
+$ sh -c cat /sys/class/drm/card1/device/uevent; cat /sys/class/drm/card2/device/uevent
+DRIVER=xe
+PCI_CLASS=30000
+PCI_ID=8086:E223
+PCI_SUBSYS_ID=8086:1701
+PCI_SLOT_NAME=0000:17:00.0
+MODALIAS=pci:v00008086d0000E223sv00008086sd00001701bc03sc00i00
+DRIVER=xe
+PCI_CLASS=30000
+PCI_ID=8086:E223
+PCI_SUBSYS_ID=8086:1701
+PCI_SLOT_NAME=0000:ba:00.0
+MODALIAS=pci:v00008086d0000E223sv00008086sd00001701bc03sc00i00
+
+$ sh -c ls /sys/class/drm/card1/device/ | grep -i sriov; cat /sys/class/drm/card1/device/sriov_numvfs /sys/class/drm/card1/device/sriov_totalvfs
+sriov_admin
+sriov_drivers_autoprobe
+sriov_numvfs
+sriov_offset
+sriov_stride
+sriov_totalvfs
+sriov_vf_device
+sriov_vf_total_msix
+0
+4
+
+$ sh -c cat /sys/kernel/debug/dri/*/name 2>/dev/null | head; sudo cat /sys/kernel/debug/dri/0/name 2>/dev/null
+ast dev=0000:2d:00.0 unique=0000:2d:00.0
+
+$ docker --version
+Docker version 29.8.1, build 4a63305
+
+$ sh -c cat /proc/cmdline
+BOOT_IMAGE=/vmlinuz-7.0.0-34-generic root=UUID=b523d72a-8e5b-4872-ad6e-ec6df3c6c65d ro console=tty1 console=ttyS0
+
+$ python3 --version
+Python 3.14.4

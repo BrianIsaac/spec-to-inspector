@@ -112,6 +112,7 @@ class _TrainCalls:
 
     def __init__(self) -> None:
         self.calls: list[dict[str, object]] = []
+        self.devices: list[str] = []
         self.error: Exception | None = None
         self.auroc = {"pcb1": 0.951, "pcb2": 0.93, "pcb3": 0.9, "pcb4": 0.9857}
 
@@ -128,7 +129,9 @@ class _TrainCalls:
         seed: int,
         backbone: str,
         options: InferenceOptions | None = None,
+        device: str = "cuda",
     ) -> CategoryOutcome:
+        self.devices.append(device)
         if self.error is not None:
             raise self.error
         self.calls.append(
@@ -195,6 +198,18 @@ def test_train_refuses_an_unknown_category(training: _TrainCalls) -> None:
     assert "candle" in result.output
     assert "pcb1, pcb2, pcb3, pcb4" in result.output
     assert training.calls == []
+
+
+def test_train_runs_on_the_device_in_the_settings(
+    training: _TrainCalls, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The laptop needs no setting; `SPEC_TO_INSPECTOR_DEVICE` moves training off CUDA."""
+    assert runner.invoke(app, ["train", "--category", "pcb4"]).exit_code == 0
+
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DEVICE", "xpu")
+    assert runner.invoke(app, ["train", "--category", "pcb4"]).exit_code == 0
+
+    assert training.devices == ["cuda", "xpu"]
 
 
 def test_train_one_category_uses_the_settings_directories(

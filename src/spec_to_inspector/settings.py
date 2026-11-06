@@ -9,6 +9,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from spec_to_inspector.datasets.visa import VISA_URL
 
+DeviceKind = Literal["cuda", "xpu", "cpu"]
+"""What the anomaly model can run on. It lives here because this module does not import PyTorch."""
+
 CORRECTIONS_STORE_NAME: Final = "corrections.sqlite3"
 """The corrections store's file under the runs directory, unless `corrections_db` moves it."""
 
@@ -28,6 +31,8 @@ class Settings(BaseSettings):
         docling_artifacts_dir: A directory holding docling's layout and table
             models, for a machine without network; unset, docling fetches
             them into the Hugging Face cache on first use.
+        device: What the anomaly model trains and scores on: `cuda` on the
+            laptop, `xpu` on an Intel Arc card, `cpu` for neither.
         llama_cpp_dir: The llama.cpp clone and its build, made by
             `scripts/serve_vlm.sh`; the laptop's VLM server only.
         vlm_url: The judge's OpenAI-compatible server, up to and including
@@ -52,6 +57,7 @@ class Settings(BaseSettings):
     runs_dir: Path = Path("runs")
     visa_url: str = VISA_URL
     docling_artifacts_dir: Path | None = None
+    device: DeviceKind = "cuda"
     llama_cpp_dir: Path = Path("models/llama.cpp")
     vlm_url: str = "http://127.0.0.1:8131/v1"
     vlm_model: str = "qwen3-vl-8b-instruct"

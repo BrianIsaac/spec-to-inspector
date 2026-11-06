@@ -28,7 +28,7 @@ from typing import Any, Final, cast
 import torch
 from anomalib.callbacks import ModelCheckpoint
 from anomalib.data import AnomalibDataset, Visa
-from anomalib.engine import Engine
+from anomalib.engine import Engine, SingleXPUStrategy, XPUAccelerator
 from lightning.pytorch import Callback, LightningModule, Trainer, seed_everything
 
 from spec_to_inspector.anomaly.atomic import atomic_directory
@@ -36,7 +36,14 @@ from spec_to_inspector.anomaly.model import SingleCopyPatchcore
 from spec_to_inspector.anomaly.precision import full_float32
 from spec_to_inspector.anomaly.records import Metrics, ModelSpec, Phase, Thresholds, TrainRecord
 from spec_to_inspector.anomaly.split import write_split
-from spec_to_inspector.device import cuda_device
+from spec_to_inspector.device import (
+    describe_device,
+    free_memory_bytes,
+    peak_memory,
+    reset_peak_memory,
+    synchronise,
+)
+from spec_to_inspector.settings import DeviceKind
 
 MODEL_NAME: Final = "patchcore"
 CHECKPOINT_NAME: Final = "model.ckpt"
@@ -116,8 +123,13 @@ class _PhaseClock(Callback):
     and the end of validation closes the scoring of the validation split.
     """
 
-    def __init__(self) -> None:
-        """Start with no marks."""
+    def __init__(self, device: torch.device) -> None:
+        """Start with no marks.
+
+        Args:
+            device: The device whose memory is read at each mark.
+        """
+        self._device = device
         self.marks: dict[str, float] = {}
         self.peaks: dict[str, tuple[int, int]] = {}
 
@@ -127,10 +139,10 @@ class _PhaseClock(Callback):
         Args:
             name: The phase that just ended.
         """
-        torch.cuda.synchronize()
+        synchronise(self._device)
         self.marks[name] = time.perf_counter()
-        self.peaks[name] = (torch.cuda.max_memory_allocated(), torch.cuda.max_memory_reserved())
-        torch.cuda.reset_peak_memory_stats()
+        self.peaks[name] = peak_memory(self._device)
+        reset_peak_memory(self._device)
 
     def phase(self, name: str, since: str) -> Phase:
         """Describe a phase from two marks.
@@ -239,6 +251,30 @@ def _model_spec(
     )
 
 
+def engine_placement(device: DeviceKind) -> dict[str, Any]:
+    """Give the arguments that put Anomalib's Engine on a device.
+
+    Args:
+        device: The device to train on.
+
+    Returns:
+        The Engine's keyword arguments. Lightning reads `devices=1` as "one
+        device", but Anomalib's XPU accelerator reads it as the device numbered
+        1, the second card, so on XPU the card is named by a list.
+
+    Raises:
+        MisconfigurationException: From Anomalib, if XPU is asked for and
+            is not available.
+    """
+    if device == "xpu":
+        return {
+            "accelerator": XPUAccelerator(),
+            "strategy": SingleXPUStrategy(),
+            "devices": [0],
+        }
+    return {"accelerator": "gpu" if device == "cuda" else "cpu", "devices": 1}
+
+
 def train_category(
     category: str,
     *,
@@ -249,6 +285,7 @@ def train_category(
     train_batch_size: int = 32,
     eval_batch_size: int = 32,
     num_workers: int = 8,
+    device: DeviceKind = "cuda",
 ) -> TrainRecord:
     """Train PatchCore on one category's normal images and evaluate it on the test split.
 
@@ -268,15 +305,17 @@ def train_category(
         train_batch_size: Images per training batch.
         eval_batch_size: Images per validation and test batch.
         num_workers: Data loader workers.
+        device: What to train on.
 
     Returns:
         The training record, as written to `train.json`.
 
     Raises:
-        RuntimeError: If CUDA is not available.
+        RuntimeError: If the device is not available.
         SplitError: If the split cannot be written from the fetched tree.
     """
-    device = cuda_device()
+    described = describe_device(device)
+    target = torch.device(device)
     split = write_split(visa_dir, [category])[category]
     seed_everything(seed, workers=True)
     datamodule = Visa(
@@ -293,7 +332,7 @@ def train_category(
         visualizer=False,
     )
     model.expected_images = split.train_good
-    clock = _PhaseClock()
+    clock = _PhaseClock(target)
 
     with (
         atomic_directory(model_dir(models_dir, category)) as partial,
@@ -303,16 +342,15 @@ def train_category(
     ):
         engine = Engine(
             default_root_dir=work,
-            accelerator="gpu",
-            devices=1,
+            **engine_placement(device),
             callbacks=[
                 ModelCheckpoint(dirpath=partial, filename=Path(CHECKPOINT_NAME).stem),
                 clock,
             ],
             enable_model_summary=False,
         )
-        gpu_free_bytes, _ = torch.cuda.mem_get_info(device.index)
-        torch.cuda.reset_peak_memory_stats()
+        gpu_free_bytes = free_memory_bytes(target)
+        reset_peak_memory(target)
         started = time.perf_counter()
         engine.fit(model=model, datamodule=datamodule)
         fit_seconds = time.perf_counter() - started
@@ -355,7 +393,7 @@ def train_category(
             peak_allocated_bytes=max(phase.peak_allocated_bytes for phase in phases),
             peak_reserved_bytes=max(phase.peak_reserved_bytes for phase in phases),
             gpu_free_bytes_before=gpu_free_bytes,
-            device=device,
+            device=described,
             checkpoint=CHECKPOINT_NAME,
             checkpoint_bytes=checkpoint.stat().st_size,
             versions={name: version(name) for name in VERSIONED},

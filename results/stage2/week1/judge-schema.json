@@ -1,0 +1,437 @@
+{
+  "measured_at": "2026-11-06T15:48:38+00:00",
+  "note": "FP16, util 0.9, prefix cache off, 1024 tokens per image minimum; the reason pattern bars the double quote and the backslash",
+  "server": {
+    "url": "http://127.0.0.1:8131/v1",
+    "model": "qwen3-vl-8b-instruct"
+  },
+  "judge_card_memory_mib": {
+    "before_the_first_question": 28853,
+    "peak_while_answering": 28853,
+    "readings": 80
+  },
+  "boards": [
+    {
+      "part": "pcb1",
+      "image_id": "bad-000",
+      "score": 36.41635513305664,
+      "image_threshold": 31.319473266601562,
+      "flagged": true,
+      "regions_found": 1,
+      "outcome": "reject",
+      "review_cause": null,
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "pattern": "^[^0-9\\n\\r\"\\\\]{1,240}$"
+          },
+          "defect_class": {
+            "enum": [
+              "melt",
+              "scratch",
+              "missing",
+              "bent",
+              null
+            ]
+          },
+          "clause_id": {
+            "enum": [
+              "4.1",
+              "4.2",
+              "4.3",
+              "4.4",
+              null
+            ]
+          }
+        },
+        "required": [
+          "reason",
+          "defect_class",
+          "clause_id"
+        ],
+        "additionalProperties": false
+      },
+      "allowed_classes": [
+        "melt",
+        "scratch",
+        "missing",
+        "bent",
+        null
+      ],
+      "allowed_clauses": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        null
+      ],
+      "judge": {
+        "attempts": 1,
+        "seconds": 2.8455988480127417,
+        "prompt_tokens": 4591,
+        "completion_tokens": 32,
+        "texts": [
+          "{\"reason\": \"A stray solder lump on the board surface\", \"defect_class\": \"melt\", \"clause_id\": \"4.1\"}"
+        ],
+        "error": null,
+        "answer": {
+          "reason": "A stray solder lump on the board surface",
+          "defect_class": "melt",
+          "clause_id": "4.1"
+        }
+      },
+      "streamed": [
+        {
+          "first_token_seconds": 1.0628571609850042,
+          "whole_answer_seconds": 1.9980333889834583,
+          "text": "{\"reason\": \"A stray solder lump on the board surface\", \"defect_class\": \"melt\", \"clause_id\": \"4.1\"}",
+          "usage": {
+            "prompt_tokens": 4591,
+            "total_tokens": 4623,
+            "completion_tokens": 32
+          }
+        },
+        {
+          "first_token_seconds": 1.0516303569893353,
+          "whole_answer_seconds": 1.9874895740067586,
+          "text": "{\"reason\": \"A stray solder lump on the board surface\", \"defect_class\": \"melt\", \"clause_id\": \"4.1\"}",
+          "usage": {
+            "prompt_tokens": 4591,
+            "total_tokens": 4623,
+            "completion_tokens": 32
+          }
+        },
+        {
+          "first_token_seconds": 1.0478153220028616,
+          "whole_answer_seconds": 1.9829904929501936,
+          "text": "{\"reason\": \"A stray solder lump on the board surface\", \"defect_class\": \"melt\", \"clause_id\": \"4.1\"}",
+          "usage": {
+            "prompt_tokens": 4591,
+            "total_tokens": 4623,
+            "completion_tokens": 32
+          }
+        }
+      ],
+      "break_the_schema_constrained": {
+        "constrained": true,
+        "finish_reason": "length",
+        "text": "{\"reason\": \"A stray solder lump on the board surface,  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  ",
+        "read": {
+          "valid": false,
+          "problem": "not JSON (Unterminated string starting at at character 11)",
+          "text": "{\"reason\": \"A stray solder lump on the board surface,  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  "
+        }
+      },
+      "break_the_schema_free": {
+        "constrained": false,
+        "finish_reason": "stop",
+        "text": "{\"reason\": \"A stray solder lump on the board surface, 5.67 mm long.\", \"defect_class\": \"melt\", \"clause_id\": \"4.1\"}",
+        "read": {
+          "valid": false,
+          "problem": "reason: Value error, the reason must not state a figure: sizes are measured, not judged",
+          "text": "{\"reason\": \"A stray solder lump on the board surface, 5.67 mm long.\", \"defect_class\": \"melt\", \"clause_id\": \"4.1\"}"
+        }
+      },
+      "nothing_applies_constrained": {
+        "constrained": true,
+        "finish_reason": "stop",
+        "text": "{\n  \"reason\": \"A stray solder blob on the board surface near a header pin.\",\n  \"defect_class\": \"melt\",\n  \"clause_id\": \"4.1\"\n}",
+        "read": {
+          "valid": true,
+          "reason": "A stray solder blob on the board surface near a header pin.",
+          "defect_class": "melt",
+          "clause_id": "4.1",
+          "digit_in_reason": false
+        }
+      }
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-085",
+      "score": 32.475345611572266,
+      "image_threshold": 31.319473266601562,
+      "flagged": true,
+      "regions_found": 1,
+      "outcome": "needs review",
+      "review_cause": "outside every zone",
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "pattern": "^[^0-9\\n\\r\"\\\\]{1,240}$"
+          },
+          "defect_class": {
+            "enum": [
+              "melt",
+              "scratch",
+              "missing",
+              "bent",
+              null
+            ]
+          },
+          "clause_id": {
+            "enum": [
+              "4.1",
+              "4.2",
+              "4.3",
+              "4.4",
+              null
+            ]
+          }
+        },
+        "required": [
+          "reason",
+          "defect_class",
+          "clause_id"
+        ],
+        "additionalProperties": false
+      },
+      "allowed_classes": [
+        "melt",
+        "scratch",
+        "missing",
+        "bent",
+        null
+      ],
+      "allowed_clauses": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        null
+      ],
+      "judge": {
+        "attempts": 1,
+        "seconds": 2.0989352270262316,
+        "prompt_tokens": 4579,
+        "completion_tokens": 36,
+        "texts": [
+          "{\"reason\": \"A foreign object, likely a fiber, lying on the board surface.\", \"defect_class\": \"scratch\", \"clause_id\": \"4.2\"}"
+        ],
+        "error": null,
+        "answer": {
+          "reason": "A foreign object, likely a fiber, lying on the board surface.",
+          "defect_class": "scratch",
+          "clause_id": "4.2"
+        }
+      },
+      "streamed": [
+        {
+          "first_token_seconds": 1.052347517979797,
+          "whole_answer_seconds": 2.1103565779631026,
+          "text": "{\"reason\": \"A foreign object, likely a fiber, lying on the board surface.\", \"defect_class\": \"scratch\", \"clause_id\": \"4.2\"}",
+          "usage": {
+            "prompt_tokens": 4579,
+            "total_tokens": 4615,
+            "completion_tokens": 36
+          }
+        },
+        {
+          "first_token_seconds": 1.0564669689629227,
+          "whole_answer_seconds": 2.112442559970077,
+          "text": "{\"reason\": \"A foreign object, likely a fiber, lying on the board surface.\", \"defect_class\": \"scratch\", \"clause_id\": \"4.2\"}",
+          "usage": {
+            "prompt_tokens": 4579,
+            "total_tokens": 4615,
+            "completion_tokens": 36
+          }
+        },
+        {
+          "first_token_seconds": 1.058293236012105,
+          "whole_answer_seconds": 2.1150118410005234,
+          "text": "{\"reason\": \"A foreign object, likely a fiber, lying on the board surface.\", \"defect_class\": \"scratch\", \"clause_id\": \"4.2\"}",
+          "usage": {
+            "prompt_tokens": 4579,
+            "total_tokens": 4615,
+            "completion_tokens": 36
+          }
+        }
+      ],
+      "break_the_schema_constrained": {
+        "constrained": true,
+        "finish_reason": "stop",
+        "text": "{\"reason\": \"A stray fiber on the board surface,   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longestExtent\", \"defect_class\": \"melt\", \"clause_id\": \"4.1\"}",
+        "read": {
+          "valid": true,
+          "reason": "A stray fiber on the board surface,   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longest_extent_mm:   longestExtent",
+          "defect_class": "melt",
+          "clause_id": "4.1",
+          "digit_in_reason": false
+        }
+      },
+      "break_the_schema_free": {
+        "constrained": false,
+        "finish_reason": "stop",
+        "text": "{\"reason\": \"A stray fiber on the board surface, 1.57 mm long.\", \"defect_class\": \"Gremlin\", \"clause_id\": \"99.9\"}",
+        "read": {
+          "valid": false,
+          "problem": "reason: Value error, the reason must not state a figure: sizes are measured, not judged",
+          "text": "{\"reason\": \"A stray fiber on the board surface, 1.57 mm long.\", \"defect_class\": \"Gremlin\", \"clause_id\": \"99.9\"}"
+        }
+      },
+      "nothing_applies_constrained": {
+        "constrained": true,
+        "finish_reason": "stop",
+        "text": "{\n  \"reason\": \"A foreign object, likely a fiber or debris, is present on the board surface.\",\n  \"defect_class\": null,\n  \"clause_id\": null\n}",
+        "read": {
+          "valid": true,
+          "reason": "A foreign object, likely a fiber or debris, is present on the board surface.",
+          "defect_class": null,
+          "clause_id": null,
+          "digit_in_reason": false
+        }
+      }
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-005",
+      "score": 30.844087600708008,
+      "image_threshold": 30.048791885375977,
+      "flagged": true,
+      "regions_found": 1,
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "pattern": "^[^0-9\\n\\r\"\\\\]{1,240}$"
+          },
+          "defect_class": {
+            "enum": [
+              "dirt",
+              "missing",
+              "extra",
+              "wrong place",
+              "damage",
+              "scratch",
+              "burnt",
+              null
+            ]
+          },
+          "clause_id": {
+            "enum": [
+              "5.1",
+              "5.2",
+              "5.3",
+              "5.4",
+              "5.5",
+              "5.6",
+              "5.7",
+              null
+            ]
+          }
+        },
+        "required": [
+          "reason",
+          "defect_class",
+          "clause_id"
+        ],
+        "additionalProperties": false
+      },
+      "allowed_classes": [
+        "dirt",
+        "missing",
+        "extra",
+        "wrong place",
+        "damage",
+        "scratch",
+        "burnt",
+        null
+      ],
+      "allowed_clauses": [
+        "5.1",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "5.6",
+        "5.7",
+        null
+      ],
+      "judge": {
+        "attempts": 1,
+        "seconds": 1.9654930949909613,
+        "prompt_tokens": 4574,
+        "completion_tokens": 31,
+        "texts": [
+          "{\"reason\": \"Foreign material on the receptacle surface\", \"defect_class\": \"dirt\", \"clause_id\": \"5.1\"}"
+        ],
+        "error": null,
+        "answer": {
+          "reason": "Foreign material on the receptacle surface",
+          "defect_class": "dirt",
+          "clause_id": "5.1"
+        }
+      },
+      "streamed": [
+        {
+          "first_token_seconds": 1.0699332930380479,
+          "whole_answer_seconds": 1.9758173280279152,
+          "text": "{\"reason\": \"Foreign material on the receptacle surface\", \"defect_class\": \"dirt\", \"clause_id\": \"5.1\"}",
+          "usage": {
+            "prompt_tokens": 4574,
+            "total_tokens": 4605,
+            "completion_tokens": 31
+          }
+        },
+        {
+          "first_token_seconds": 1.0525126559659839,
+          "whole_answer_seconds": 1.9593208589940332,
+          "text": "{\"reason\": \"Foreign material on the receptacle surface\", \"defect_class\": \"dirt\", \"clause_id\": \"5.1\"}",
+          "usage": {
+            "prompt_tokens": 4574,
+            "total_tokens": 4605,
+            "completion_tokens": 31
+          }
+        },
+        {
+          "first_token_seconds": 1.0699844880145974,
+          "whole_answer_seconds": 1.9752385760075413,
+          "text": "{\"reason\": \"Foreign material on the receptacle surface\", \"defect_class\": \"dirt\", \"clause_id\": \"5.1\"}",
+          "usage": {
+            "prompt_tokens": 4574,
+            "total_tokens": 4605,
+            "completion_tokens": 31
+          }
+        }
+      ],
+      "break_the_schema_constrained": {
+        "constrained": true,
+        "finish_reason": "length",
+        "text": "{\n  \"reason\": \"Foreign material on the receptacle,  size  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336 ",
+        "read": {
+          "valid": false,
+          "problem": "not JSON (Unterminated string starting at at character 14)",
+          "text": "{\n  \"reason\": \"Foreign material on the receptacle,  size  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336  \u0336 "
+        }
+      },
+      "break_the_schema_free": {
+        "constrained": false,
+        "finish_reason": "stop",
+        "text": "{\n  \"reason\": \"Foreign material on the receptacle, 1.5 mm in size.\",\n  \"defect_class\": \"dirt\",\n  \"clause_id\": \"5.1.2\"\n}",
+        "read": {
+          "valid": false,
+          "problem": "reason: Value error, the reason must not state a figure: sizes are measured, not judged",
+          "text": "{\n  \"reason\": \"Foreign material on the receptacle, 1.5 mm in size.\",\n  \"defect_class\": \"dirt\",\n  \"clause_id\": \"5.1.2\"\n}"
+        }
+      },
+      "nothing_applies_constrained": {
+        "constrained": true,
+        "finish_reason": "stop",
+        "text": "{\n  \"reason\": \"The flagged area shows foreign material on the receptacle, which is a component of the pcb-assembly.\",\n  \"defect_class\": \"dirt\",\n  \"clause_id\": \"5.1\"\n}",
+        "read": {
+          "valid": true,
+          "reason": "The flagged area shows foreign material on the receptacle, which is a component of the pcb-assembly.",
+          "defect_class": "dirt",
+          "clause_id": "5.1",
+          "digit_in_reason": false
+        }
+      }
+    }
+  ]
+}

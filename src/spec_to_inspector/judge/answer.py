@@ -10,6 +10,11 @@ The reason is the model's own sentence and may not carry a figure: digits
 and other numeric characters are barred, by the schema's pattern and by the
 validation, so that no number a reader sees on a decision was written by the
 model.
+
+The pattern also bars the double quote and the backslash. It describes the
+string's contents, so with a quote allowed the model can close the sentence
+itself and go on to write the other fields inside the string, free of their
+enums: a server that enforced the schema faithfully did exactly that.
 """
 
 import json
@@ -147,7 +152,7 @@ def answer_schema(specification: Specification, category: str) -> dict[str, obje
         "properties": {
             "reason": {
                 "type": "string",
-                "pattern": f"^[^0-9\\n\\r]{{1,{MAX_REASON_CHARACTERS}}}$",
+                "pattern": f'^[^0-9\\n\\r"\\\\]{{1,{MAX_REASON_CHARACTERS}}}$',
             },
             "defect_class": {"enum": [*classes, None]},
             "clause_id": {"enum": [*headings, None]},

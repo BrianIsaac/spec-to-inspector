@@ -5,7 +5,7 @@ description = "Turns a customer's PCB workmanship specification into a working v
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "anomalib[cu130]==2.7.0",
+    "anomalib==2.7.0",
     "docling==2.135.0",
     "fastapi>=0.143.0",
     "httpx>=0.28.1",
@@ -43,6 +43,22 @@ dev = [
     "ruff==0.16.10",
     "torchmetrics>=1.9.0",
 ]
+# The accelerator is a group and not an extra: only a group can be on by default, so `uv sync` and
+# `uv run` stay the laptop's CUDA build with no flags. The B70 machine opts out and in, by
+# `scripts/setup_xpu.sh`; torchcodec has no XPU build, and the XPU index carries its CPU one.
+cuda = [
+    "anomalib[cu130]==2.7.0",
+    "torch==2.14.1",
+    "torchcodec==0.17.0",
+    "torchvision==0.29.1",
+]
+xpu = [
+    "openvino==2026.4.1",
+    "torch==2.14.1",
+    "torchcodec==0.17.0",
+    "torchvision==0.29.1",
+    "triton-xpu>=3.8.0,<3.9",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -53,6 +69,8 @@ packages = ["src/spec_to_inspector"]
 
 [tool.uv]
 environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+default-groups = ["dev", "cuda"]
+conflicts = [[{ group = "cuda" }, { group = "xpu" }]]
 
 # The laptop's GPU is sm_120 (Blackwell): only the CUDA 13.0 builds carry it.
 # Never cu126.
@@ -61,10 +79,25 @@ name = "pytorch-cu130"
 url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
+[[tool.uv.index]]
+name = "pytorch-xpu"
+url = "https://download.pytorch.org/whl/xpu"
+explicit = true
+
 [tool.uv.sources]
-torch = { index = "pytorch-cu130" }
-torchvision = { index = "pytorch-cu130" }
-torchcodec = { index = "pytorch-cu130" }
+torch = [
+    { index = "pytorch-cu130", group = "cuda" },
+    { index = "pytorch-xpu", group = "xpu" },
+]
+torchvision = [
+    { index = "pytorch-cu130", group = "cuda" },
+    { index = "pytorch-xpu", group = "xpu" },
+]
+torchcodec = [
+    { index = "pytorch-cu130", group = "cuda" },
+    { index = "pytorch-xpu", group = "xpu" },
+]
+triton-xpu = { index = "pytorch-xpu", group = "xpu" }
 
 [tool.ruff]
 line-length = 100
@@ -98,9 +131,10 @@ venv = ".venv"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = ["--import-mode=importlib", "-m", "not gpu and not data and not live and not bench and not recorded", "--strict-markers"]
+addopts = ["--import-mode=importlib", "-m", "not gpu and not xpu and not data and not live and not bench and not recorded", "--strict-markers"]
 markers = [
     "gpu: needs the CUDA GPU (run with -m gpu)",
+    "xpu: needs the Intel Arc cards and the xpu environment (run with -m xpu)",
     "data: needs the fetched VisA data under data/visa (run with -m data)",
     "live: needs the VLM server up and a scored pcb4 run (scripts/serve_vlm.sh start; run with -m live)",
     "bench: needs the data, the trained pcb4 model, the GPU and the VLM server up (run with -m bench)",

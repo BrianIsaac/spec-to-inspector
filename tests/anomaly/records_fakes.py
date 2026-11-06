@@ -11,7 +11,7 @@ from spec_to_inspector.anomaly.records import (
     Throughput,
     TrainRecord,
 )
-from spec_to_inspector.device import CudaDevice
+from spec_to_inspector.device import ComputeDevice
 
 GIB = 1024**3
 
@@ -37,13 +37,13 @@ def thresholds() -> Thresholds:
     )
 
 
-def device() -> CudaDevice:
+def device() -> ComputeDevice:
     """The laptop's GPU.
 
     Returns:
         The device.
     """
-    return CudaDevice(
+    return ComputeDevice(
         index=0,
         name="NVIDIA GeForce RTX 5070 Ti Laptop GPU",
         capability=(12, 0),

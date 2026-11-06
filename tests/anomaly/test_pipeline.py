@@ -11,7 +11,8 @@ from spec_to_inspector.anomaly.records import (
     RunIndex,
     TrainRecord,
 )
-from spec_to_inspector.device import CudaDevice
+from spec_to_inspector.device import ComputeDevice
+from spec_to_inspector.settings import DeviceKind
 from tests.anomaly.records_fakes import device, inference_bench, run_index, train_record
 
 
@@ -20,6 +21,7 @@ class _Calls:
 
     def __init__(self, models_dir: Path) -> None:
         self.models_dir = models_dir
+        self.devices: list[DeviceKind] = []
         self.trained: list[str] = []
         self.loaded: list[str] = []
         self.runs: list[tuple[str, Path, int]] = []
@@ -27,8 +29,16 @@ class _Calls:
         self.benched: list[tuple[str, Path, int]] = []
 
     def train_category(
-        self, category: str, *, visa_dir: Path, models_dir: Path, seed: int, backbone: str
+        self,
+        category: str,
+        *,
+        visa_dir: Path,
+        models_dir: Path,
+        seed: int,
+        backbone: str,
+        device: DeviceKind,
     ) -> TrainRecord:
+        self.devices.append(device)
         self.trained.append(category)
         self.backbones.append(backbone)
         assert visa_dir.name == "visa"
@@ -36,7 +46,7 @@ class _Calls:
         return train_record(category, seed=seed)
 
     def measure(
-        self, model: str, items: list[str], category_dir: Path, *, device: CudaDevice
+        self, model: str, items: list[str], category_dir: Path, *, device: ComputeDevice
     ) -> InferenceBench:
         self.benched.append((model, category_dir, len(items)))
         return inference_bench(model)
@@ -46,7 +56,8 @@ class _Calls:
             return train_record(category, image_auroc=0.5)
         raise pipeline.ModelNotTrainedError(category)
 
-    def load_model(self, models_dir: Path, category: str) -> str:
+    def load_model(self, models_dir: Path, category: str, *, device: DeviceKind) -> str:
+        self.devices.append(device)
         self.loaded.append(category)
         return category
 
@@ -74,7 +85,8 @@ def calls(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> _Calls:
     monkeypatch.setattr(pipeline, "visa_test_items", recorder.visa_test_items)
     monkeypatch.setattr(pipeline, "run_inference", recorder.run_inference)
     monkeypatch.setattr(pipeline, "measure", recorder.measure)
-    monkeypatch.setattr(pipeline, "cuda_device", device)
+    monkeypatch.setattr(pipeline, "describe_device", lambda kind: device())
+    monkeypatch.setattr(pipeline, "release_memory", lambda target: None)
     return recorder
 
 
@@ -88,6 +100,7 @@ def _run(
     seed: int = 0,
     backbone: str = "wide_resnet50_2",
     options: InferenceOptions | None = None,
+    device: DeviceKind = "cuda",
 ) -> pipeline.CategoryOutcome:
     return pipeline.train_and_score(
         category,
@@ -100,7 +113,15 @@ def _run(
         seed=seed,
         backbone=backbone,
         options=options,
+        device=device,
     )
+
+
+def test_the_device_reaches_training_and_scoring(calls: _Calls, tmp_path: Path) -> None:
+    """The device asked for is the one trained on and the one the model is loaded on."""
+    _run(tmp_path, "pcb4", device="xpu")
+
+    assert calls.devices == ["xpu", "xpu"]
 
 
 def test_a_category_is_trained_then_its_test_split_is_scored(calls: _Calls, tmp_path: Path) -> None:

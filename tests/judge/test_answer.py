@@ -56,6 +56,25 @@ def test_the_schema_bars_digits_and_line_breaks_from_the_reason() -> None:
     assert not pattern.fullmatch("x" * (MAX_REASON_CHARACTERS + 1))
 
 
+def test_the_reason_cannot_swallow_the_rest_of_the_answer() -> None:
+    """A quote in the reason would let the model write the other fields inside the string.
+
+    The text is what Qwen3-VL-8B wrote about pcb1's bad-085 under vLLM's constrained decoding, on
+    6 November 2026: a class and a clause the part does not have, then a note, all of it within
+    the reason's pattern, until the length limit forced the closing quote. Only white space was
+    then left to it, up to the token limit.
+    """
+    pattern = re.compile(_properties(answer_schema(specification(), "pcb9"))["reason"]["pattern"])
+
+    swallowed = (
+        'A foreign object, likely a fiber, lying on the board surface.", '
+        '"defect_class": "dirt", "clause_id": "none"}  // Note: No clause covers it'
+    )
+    assert not pattern.fullmatch(swallowed)
+    assert not pattern.fullmatch(r"a mark with a back\\slash")
+    assert pattern.fullmatch("a mark, irregular: dark (charred) - on the board's edge.")
+
+
 def test_the_schema_of_a_part_the_specification_does_not_cover_offers_only_the_way_out() -> None:
     """A board the document says nothing about can only be referred."""
     properties = _properties(answer_schema(specification(), "pcb1"))
