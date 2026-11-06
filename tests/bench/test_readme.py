@@ -1,7 +1,17 @@
 """Tests for the page of figures written from a bench record."""
 
+from pathlib import Path
+
+from spec_to_inspector.bench.observe import DigitReason, DigitReasons
 from spec_to_inspector.bench.readme import render_readme, summary_lines
-from spec_to_inspector.bench.record import BenchRecord, compare
+from spec_to_inspector.bench.record import (
+    BenchRecord,
+    BoardOnThreshold,
+    OnThreshold,
+    compare,
+    read_record,
+)
+from tests.bench.bench_fakes import IMAGE_DIGEST
 
 
 def test_the_page_gives_each_figure_with_its_count_its_n_and_its_interval(
@@ -30,7 +40,7 @@ def test_the_page_says_how_the_run_was_made_and_that_nothing_leaked(record: Benc
     """The protocol by digest, the server's setting, cold asking, the empty store."""
     page = render_readme(record)
 
-    assert f"(SHA-256 `{record.protocol.sha256[:16]}`)" in page
+    assert f"(SHA-256 `{record.protocol[0].sha256[:16]}`)" in page
     assert "image minimum 1024 tokens; GPU Fake GPU; up to 3 areas an image" in page
     assert "Every question asked cold (`cache_prompt` false)" in page
     assert "0 of 7 decisions had a correction in a prompt" in page
@@ -112,3 +122,112 @@ def test_the_terminal_summary_is_the_three_accuracies_and_the_false_rejects(
     assert lines[1].startswith("Lenient, 1 multi-defect images: 0.0% (0 of 1)")
     assert lines[3].startswith("Good boards rejected: 0.0% (0 of 3)")
     assert lines[4] == "Corrections in a prompt: 0 of 7 decisions"
+
+
+REPOSITORY = Path(__file__).parents[2]
+
+
+def test_stage_ones_page_is_the_page_it_has_always_been() -> None:
+    """Every word of the tracked page comes back from the tracked record."""
+    stage1 = REPOSITORY / "results" / "stage1"
+    page = render_readme(
+        read_record(stage1 / "bench.json"),
+        beside=read_record(stage1 / "bench-own-image-tokens.json"),
+    )
+    assert page == (stage1 / "README.md").read_text(encoding="utf-8")
+
+
+def test_a_stage_two_run_has_a_page_of_its_own(stage2_record: BenchRecord) -> None:
+    """It is the machine's: nothing on it calls it the laptop prototype or sets the two together."""
+    page = render_readme(stage2_record)
+
+    assert page.startswith("# Stage II: what the machine measured\n")
+    lowered = page.lower()
+    for word in ("laptop", "prototype", "nvidia", "cuda", "the deck", "llama", "uv run"):
+        assert word not in lowered, word
+    assert "Stage I:" not in page
+    assert "| Clause-citation accuracy, strict, single-defect images | 66.7% (2 of 3) | 3 " in page
+    assert "`cache_prompt` false" not in page
+
+
+def test_the_stage_two_page_shows_each_of_the_six_things(stage2_record: BenchRecord) -> None:
+    """What the protocol asks a final run's record to hold, each where a reader can see it."""
+    page = render_readme(stage2_record)
+
+    assert "| Judging | not read (the VLM server) | 29,456 MiB | 29,456 MiB |" in page
+    assert "Read from `xpu-smi`" in page
+    assert "card 0000:ba:00.0" in page
+    assert "xpu-smi ps does not list its process" in page
+    for file in stage2_record.protocol:
+        assert f"| `{file.path}` | `{file.sha256}` |" in page
+    assert "| image | `intel/llm-scaler-vllm:0.26.0-b1` | docker inspect, Config.Image |" in page
+    assert f"| image_digest | `{IMAGE_DIGEST}` | docker image inspect, RepoDigests |" in page
+    assert "| dtype | `float16` |" in page
+    assert "Intel(R) Arc(TM) Pro B70 Graphics" in page
+    assert "Its image minimum: 1024 tokens" in page
+    assert "`--no-enable-prefix-caching`, `--mm-processor-cache-gb 0`" in page
+    assert "the highest of 2 rates in its log is 0.0%" in page
+    assert "one question before the judge's clock, on pcb1 bad-000" in page
+    checkpoint = stage2_record.runs["pcb4"].checkpoint
+    assert checkpoint is not None
+    assert checkpoint.sha256 in page
+    assert "This run's record holds what the protocol asks of a final run." in page
+
+
+def test_the_boards_on_the_threshold_have_a_heading_of_their_own(
+    stage2_record: BenchRecord,
+) -> None:
+    """Each with its score and threshold, and the rule said; and a run with none says none."""
+    assert "## The boards on the threshold" in render_readme(stage2_record)
+    assert "None of this run's boards (pcb1, pcb4) sits on its threshold." in render_readme(
+        stage2_record
+    )
+    board = BoardOnThreshold(
+        part="pcb1",
+        image_id="bad-029",
+        label="bad",
+        score=31.319490432739258,
+        threshold=31.319488525390625,
+        above=True,
+    )
+    found = OnThreshold(tolerance=1e-3, parts=("pcb1", "pcb4"), boards=(board,))
+    page = render_readme(stage2_record.model_copy(update={"on_threshold": found}))
+
+    assert "The rule is a strict `>`." in page
+    assert "| pcb1 | `bad-029` | bad | 31.319490 | 31.319489 | yes |" in page
+
+
+def test_a_stage_two_run_that_lacks_something_says_it_is_not_final(
+    stage2_record: BenchRecord,
+) -> None:
+    """On the page and in the terminal, each thing by name."""
+    lacking = stage2_record.model_copy(
+        update={"partial": True, "limit": 3, "not_final": ["the warm-up having been asked"]}
+    )
+    page = render_readme(lacking)
+
+    assert "**This run is not final.**" in page
+    assert "- the warm-up having been asked." in page
+    assert "**This is a partial run**" in page
+    assert "Not yet final: the warm-up having been asked" in summary_lines(lacking)
+
+
+def test_only_the_designators_comparison_lists_reasons(stage2_record: BenchRecord) -> None:
+    """Listed for both runs, with the count, and a size marked where one passed."""
+    assert "## The reasons with a digit in them" not in render_readme(stage2_record)
+    size = DigitReason(
+        part="pcb4",
+        image_id="bad-080",
+        area=1,
+        reason="a mark of R5 mm",
+        valid=True,
+        followed_by_a_unit=True,
+    )
+    reasons = DigitReasons(reasons=(size,), followed_by_a_unit=1)
+    earlier = stage2_record.model_copy(update={"digit_reasons": reasons})
+    second = earlier.model_copy(update={"repeat": compare(earlier, earlier)})
+    page = render_readme(second)
+
+    assert "## The reasons with a digit in them" in page
+    assert page.count("1 reasons with a digit, of which 1 have a digit followed by a unit") == 2
+    assert "| pcb4 | `bad-080` | 1 | yes | **yes** | a mark of R5 mm |" in page

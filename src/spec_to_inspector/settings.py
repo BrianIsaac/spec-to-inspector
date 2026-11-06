@@ -46,11 +46,17 @@ class Settings(BaseSettings):
         vlm_card: The card the judge's server is on, as `xpu-smi` takes it, for
             reading its memory where `device` is `xpu`: an index, or a PCI
             address, which `ZE_AFFINITY_MASK` does not renumber.
+        vlm_container: The container the judge's server runs in, where it runs
+            in one: the name `scripts/serve_vlm_xpu.sh` gives it.
         vlm_timeout_seconds: How long one answer may take before the region
             is referred to an engineer.
         reason_rule: What the judge's reason may hold: `no_digits`, or the
             protocol's `designators` comparison. The rule is the client's: the
             server is started the same either way.
+        protocol_file: The protocol a bench's figures follow. Its dated additions
+            sit beside it. Unset, it is the stage's protocol under the bench's
+            evaluation directory: `PROTOCOL-stage2.md` where `device` is `xpu`,
+            `PROTOCOL.md` otherwise.
         corrections_db: The corrections store's SQLite file; unset, it is
             `corrections.sqlite3` under the runs directory.
         corrections_recall: When the store's corrections are put before the
@@ -73,8 +79,10 @@ class Settings(BaseSettings):
     vlm_url: str = "http://127.0.0.1:8131/v1"
     vlm_model: str = "qwen3-vl-8b-instruct"
     vlm_card: str = "0"
+    vlm_container: str = "spec-to-inspector-vlm"
     vlm_timeout_seconds: float = Field(default=120.0, gt=0)
     reason_rule: ReasonRule = "no_digits"
+    protocol_file: Path | None = None
     corrections_db: Path | None = None
     corrections_recall: Literal["part", "answer"] = "part"
 
@@ -98,6 +106,11 @@ class Settings(BaseSettings):
             msg = f"{info.field_name} must be an http or https URL, got {value!r}"
             raise ValueError(msg)
         return value.rstrip("/") if info.field_name == "vlm_url" else value
+
+    @property
+    def stage(self) -> Literal["I", "II"]:
+        """The stage a run on this device follows: Stage II is the machine's, Intel's cards."""
+        return "II" if self.device == "xpu" else "I"
 
     @property
     def visa_dir(self) -> Path:

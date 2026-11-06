@@ -40,21 +40,32 @@ from spec_to_inspector.anomaly.records import ImageResult, RunIndex
 from spec_to_inspector.bench.gpu import read_gpu_memory
 from spec_to_inspector.bench.labels import ClauseLabel, Region1, read_labels, region1_types
 from spec_to_inspector.bench.mapping import mapping_problems
-from spec_to_inspector.bench.observe import Observation, observe
+from spec_to_inspector.bench.observe import Observation, digit_reasons_of, observe
 from spec_to_inspector.bench.record import (
+    STAGE_II_UNIT,
+    UNIT,
     BenchRecord,
+    ColdStart,
+    FileRef,
     InspectorMinutes,
     JudgeSetup,
     LabelledSet,
     Leak,
     PartRun,
     SpecificationStage,
+    Stage,
     StageMemory,
     StageTimes,
+    WarmUp,
+    boards_on_threshold,
     file_ref,
+    missing_for_final,
+    notes_for,
+    protocol_files,
 )
 from spec_to_inspector.bench.score import score
-from spec_to_inspector.card_memory import read_xpu_memory
+from spec_to_inspector.card_memory import FIRST_VISIBLE_CARD, read_xpu_memory, read_xpu_name
+from spec_to_inspector.judge.answer import REASON_PATTERNS
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause
 from spec_to_inspector.judge.inspect import DEFAULT_MAX_REGIONS, RESULT_NAME, judge_image
@@ -66,7 +77,18 @@ from spec_to_inspector.judge.timing import (
     server_facts,
     spread,
 )
-from spec_to_inspector.settings import DeviceKind, Settings
+from spec_to_inspector.judge.vllm_server import (
+    LOG_INTERVAL_SECONDS,
+    OWN_MINIMUM,
+    UNKNOWN,
+    PrefixCacheCounters,
+    ServerReading,
+    log_hit_rates,
+    read_counters,
+    read_log,
+    read_server,
+)
+from spec_to_inspector.settings import DeviceKind, ReasonRule, Settings
 from spec_to_inspector.spec.schema import Specification, read_clause_table
 
 if TYPE_CHECKING:
@@ -74,8 +96,10 @@ if TYPE_CHECKING:
     from spec_to_inspector.anomaly.infer import InferenceItem, Scorer
 
 DEFAULT_BATCH: Final = "bench"
-OWN_MINIMUM: Final = "the model's own minimum"
-UNKNOWN: Final = "unknown"
+JUDGE_PROCESS_NOTE: Final = (
+    "the judge's server runs in a container: xpu-smi ps does not list its process, even under "
+    "sudo, and ss shows no pid, so its own figure is null and its card stands for it"
+)
 _PROBE_TIMEOUT_SECONDS: Final = 5.0
 _MIB: Final = 1024**2
 
@@ -96,6 +120,8 @@ class LoadedModel(NamedTuple):
         release: Gives back to the card what the model held. It is to be
             called once nothing refers to the model any more, so it must not
             refer to the model itself.
+        checkpoint: The model's file, to name by its digest; None for a model
+            that has no file.
     """
 
     scorer: "Scorer"
@@ -103,6 +129,7 @@ class LoadedModel(NamedTuple):
     fit_seconds: float
     train_peak_allocated_bytes: int | None
     release: Callable[[], None]
+    checkpoint: Path | None = None
 
 
 ModelLoader = Callable[[str], LoadedModel]
@@ -128,9 +155,13 @@ class BenchPlan(BaseModel):
         spec_pdf: The specification to parse.
         clause_table: The tracked clause table the parse must equal.
         labels: The labelled set.
-        protocol: The protocol the figures follow; recorded by its digest.
+        protocol: The protocol the figures follow; recorded by its digest,
+            with the dated additions beside it.
         max_regions: The most areas per image to put to the judge.
         command: The command line, for the record.
+        stage: The stage the run follows.
+        reason_rule: What the judge's reason may hold.
+        server_log: Where to keep the server's log of the run; None for no log.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -146,6 +177,19 @@ class BenchPlan(BaseModel):
     protocol: Path
     max_regions: int = DEFAULT_MAX_REGIONS
     command: tuple[str, ...] = ()
+    stage: Stage = "I"
+    reason_rule: ReasonRule = "no_digits"
+    server_log: Path | None = None
+
+    @property
+    def server_script(self) -> str:
+        """The script that starts the judge's server this run expects."""
+        return "scripts/serve_vlm_xpu.sh" if self.stage == "II" else "scripts/serve_vlm.sh"
+
+    @property
+    def python(self) -> str:
+        """How to run this project's Python here: never a bare `uv run` on the machine."""
+        return ".venv/bin/python" if self.stage == "II" else "uv run python"
 
 
 def server_arguments(pid: int | None) -> tuple[str, ...] | None:
@@ -228,6 +272,24 @@ def gpu_name() -> str | None:
 
 
 @dataclass(frozen=True)
+class ServerProbes:
+    """How a run reads a server that keeps its facts in its container; replaced in tests.
+
+    Attributes:
+        read: Reads which server is answering at a URL.
+        counters: Reads its prefix-cache counters.
+        log: Reads its log from a moment on.
+        settle_seconds: How long after the last answer the log may still print that answer's
+            figures; the run waits this long before reading it.
+    """
+
+    read: Callable[[str], ServerReading]
+    counters: Callable[[str], PrefixCacheCounters | None]
+    log: Callable[[datetime], str | None]
+    settle_seconds: float = 0.0
+
+
+@dataclass(frozen=True)
 class Probes:
     """How the run reads the machine it is on; replaced in tests.
 
@@ -243,6 +305,10 @@ class Probes:
         reachable: Tells whether a server answers at a URL.
         gpu_name: Names the card.
         interval_seconds: The pause between memory readings.
+        memory_source: The tool the memory is read from, for the record.
+        anomaly_card: The card the anomaly model's memory is read from; None if there is one card.
+        judge_card: The card the judge's memory is read from; None if there is one card.
+        server: How a server in a container is read; None for one that says all of itself.
     """
 
     read_gpu: Callable[[int | None], GpuReading] = read_gpu_memory
@@ -254,6 +320,10 @@ class Probes:
     reachable: Callable[[str], bool] = reachable
     gpu_name: Callable[[], str | None] = gpu_name
     interval_seconds: float = 0.5
+    memory_source: str = "nvidia-smi"
+    anomaly_card: str | None = None
+    judge_card: str | None = None
+    server: ServerProbes | None = None
 
 
 def device_probes(settings: Settings) -> Probes:
@@ -269,9 +339,21 @@ def device_probes(settings: Settings) -> Probes:
     """
     if settings.device != "xpu":
         return Probes()
+    mask = os.environ.get("ZE_AFFINITY_MASK", "unset")
+    container = settings.vlm_container
     return Probes(
         read_gpu=read_xpu_memory,
         read_server_gpu=partial(read_xpu_memory, card=settings.vlm_card),
+        gpu_name=partial(read_xpu_name, card=settings.vlm_card),
+        memory_source="xpu-smi",
+        anomaly_card=f"{FIRST_VISIBLE_CARD}, under ZE_AFFINITY_MASK={mask}",
+        judge_card=settings.vlm_card,
+        server=ServerProbes(
+            read=partial(read_server, container=container),
+            counters=read_counters,
+            log=partial(read_log, container),
+            settle_seconds=LOG_INTERVAL_SECONDS + 1.0,
+        ),
     )
 
 
@@ -294,11 +376,16 @@ def _sampling(
         yield sampler
 
 
-def _memory(sampler: GpuSampler) -> StageMemory:
+def _memory(
+    sampler: GpuSampler, probes: Probes, *, card: str | None, process_note: str | None = None
+) -> StageMemory:
     """Lay a sampler's peaks out as a stage's memory.
 
     Args:
         sampler: The sampler, after its block.
+        probes: How the machine was read.
+        card: The card that was read.
+        process_note: Why the process's own figure is null, if it is and that is known.
 
     Returns:
         The stage's memory.
@@ -310,6 +397,9 @@ def _memory(sampler: GpuSampler) -> StageMemory:
         card_before_mib=read.gpu_before_mib,
         samples=read.samples,
         interval_seconds=read.interval_seconds,
+        source=probes.memory_source,
+        card=card,
+        process_note=process_note if read.server_peak_mib is None else None,
     )
 
 
@@ -477,7 +567,7 @@ def score_part(
     started = time.perf_counter()
     loaded = models(part)
     load_seconds = time.perf_counter() - started
-    trained_at, fit_seconds, peak, release = loaded[1:]
+    trained_at, fit_seconds, peak, release, checkpoint = loaded[1:]
     try:
         with _sampling(probes, probes.own_pid()) as sampler:
             index = scoring(loaded.scorer, items, directory)
@@ -493,7 +583,7 @@ def score_part(
         msg = (
             f"the labelled set's region columns are not what the {part} model's regions give "
             f"for {len(stale)} image(s) ({', '.join(stale[:5])}{'...' if len(stale) > 5 else ''}): "
-            f"rebuild it with `uv run python -m spec_to_inspector.bench.labels --run {plan.batch}`"
+            f"rebuild it with `{plan.python} -m spec_to_inspector.bench.labels --run {plan.batch}`"
         )
         raise BenchError(msg)
     flagged = [entry for entry in index.entries if entry.regions > 0]
@@ -514,7 +604,8 @@ def score_part(
         model_trained_at=trained_at,
         fit_seconds=fit_seconds,
         train_peak_allocated_mib=None if peak is None else peak / _MIB,
-        memory=_memory(sampler),
+        memory=_memory(sampler, probes, card=probes.anomaly_card),
+        checkpoint=None if checkpoint is None else file_ref(checkpoint),
     )
     return _Scored(run, directory, results)
 
@@ -525,6 +616,8 @@ def judge_part(
     client: ChatClient,
     *,
     max_regions: int,
+    reason_rule: ReasonRule = "no_digits",
+    server_script: str = "scripts/serve_vlm.sh",
     on_image: Callable[[Observation], None] | None = None,
 ) -> Iterator[Observation]:
     """Judge every image of one part's run, cold and with no correction recalled.
@@ -534,6 +627,8 @@ def judge_part(
         specification: The parsed specification.
         client: The VLM server's client.
         max_regions: The most areas per image to put to the judge.
+        reason_rule: What the judge's reason may hold.
+        server_script: The script that starts the judge's server, to name if it is lost.
         on_image: Called with each image's observation as it is made.
 
     Yields:
@@ -551,6 +646,7 @@ def judge_part(
             client,
             max_regions=max_regions,
             cache_prompt=False,
+            reason_rule=reason_rule,
         )
         seconds = time.perf_counter() - started
         unasked = next(
@@ -560,7 +656,7 @@ def judge_part(
             msg = (
                 f"the judge at {client.url} could not be asked about {result.category} "
                 f"{image_id}: {unasked.reason}. The run is void and nothing is written; start "
-                "the server with scripts/serve_vlm.sh start and run the bench again"
+                f"the server with {server_script} start and run the bench again"
             )
             raise BenchError(msg)
         observation = observe(decision, result, judge_seconds=seconds)
@@ -613,6 +709,131 @@ def stage_times(
     )
 
 
+def ask_warm_up(
+    plan: BenchPlan,
+    scored: dict[str, _Scored],
+    specification: Specification,
+    client: ChatClient,
+) -> WarmUp:
+    """Ask the one question that comes before the judge's clock, and keep nothing of its answer.
+
+    The first question after a server starts compiles a kernel: 6.29 s against about 2 s, measured.
+    So the first flagged image's region 1 is put to the judge exactly as the run will put it, and
+    only that it was asked is recorded. Asked at every run, it also comes after every start.
+
+    Args:
+        plan: The run's plan.
+        scored: The anomaly model's stage, per part.
+        specification: The parsed specification.
+        client: The VLM server's client.
+
+    Returns:
+        That it was asked, or that no image was flagged for it to be asked about.
+
+    Raises:
+        BenchError: If the server could not be asked.
+    """
+    for part in plan.parts:
+        for image_id, result in scored[part].results.items():
+            if not result.regions:
+                continue
+            started = time.perf_counter()
+            decision = judge_image(
+                scored[part].directory / image_id,
+                specification,
+                client,
+                max_regions=1,
+                cache_prompt=False,
+                reason_rule=plan.reason_rule,
+                write=False,
+            )
+            if decision.regions[0].review_cause is Cause.SERVER_UNAVAILABLE:
+                msg = (
+                    f"the judge at {client.url} could not be asked the warm-up question: "
+                    f"{decision.regions[0].reason}. Nothing is written; start the server with "
+                    f"{plan.server_script} start and run the bench again"
+                )
+                raise BenchError(msg)
+            return WarmUp(
+                asked=True, image=f"{part} {image_id}", seconds=time.perf_counter() - started
+            )
+    return WarmUp(asked=False)
+
+
+def _difference(
+    after: PrefixCacheCounters | None, before: PrefixCacheCounters | None
+) -> PrefixCacheCounters | None:
+    """Give what the prefix-cache counters added during the run.
+
+    Args:
+        after: The counters at the end.
+        before: The counters at the start.
+
+    Returns:
+        The difference, or None if either could not be read.
+    """
+    if after is None or before is None:
+        return None
+    return PrefixCacheCounters(after.hits - before.hits, after.queries - before.queries)
+
+
+def read_cold(
+    plan: BenchPlan,
+    reading: ServerReading,
+    probes: ServerProbes,
+    url: str,
+    *,
+    before: PrefixCacheCounters | None,
+    since: datetime,
+) -> ColdStart:
+    """Read that the run was asked cold, keep the server's log, and void a run that was not.
+
+    Args:
+        plan: The run's plan, which says where the log goes.
+        reading: Which server answered.
+        probes: How the server is read.
+        url: The judge's base URL.
+        before: The prefix-cache counters before the run's first question.
+        since: The moment before the run's first question.
+
+    Returns:
+        Where the cold came from, with the hit rate read.
+
+    Raises:
+        BenchError: If the server's prefix cache was hit during the run, by its log or by its
+            counters. The log is kept all the same, since it is what says so.
+    """
+    time.sleep(probes.settle_seconds)
+    counted = _difference(probes.counters(url), before)
+    log = probes.log(since)
+    kept: FileRef | None = None
+    if log is not None and plan.server_log is not None:
+        plan.server_log.parent.mkdir(parents=True, exist_ok=True)
+        plan.server_log.write_text(log, encoding="utf-8")
+        kept = file_ref(plan.server_log)
+    rates = log_hit_rates(log or "")
+    highest = max(rates, default=None)
+    if (highest is not None and highest > 0.0) or (counted is not None and counted.hits > 0):
+        msg = (
+            f"the server's prefix cache was hit during the run: its log's highest hit rate is "
+            f"{highest}%, and its counters added {None if counted is None else counted.hits} "
+            "tokens of hits. The protocol voids such a run and nothing is written"
+            + ("" if plan.server_log is None else f" but the log, {plan.server_log}")
+            + f"; start the server with {plan.server_script} start, its settings not overridden"
+        )
+        raise BenchError(msg)
+    return ColdStart(
+        server_flags=reading.cold_flags,
+        engine_prefix_caching=reading.engine_prefix_caching,
+        server_started_at=reading.started_at,
+        prefix_cache_hits=None if counted is None else counted.hits,
+        prefix_cache_queries=None if counted is None else counted.queries,
+        hit_rate_percent=highest,
+        hit_rate_readings=len(rates),
+        server_log=kept,
+    )
+
+
 def _say_nothing(_line: str) -> None:
     """Take a line of progress and drop it.
 
@@ -621,7 +842,7 @@ def _say_nothing(_line: str) -> None:
     """
 
 
-def run_bench(
+def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each one leaves
     plan: BenchPlan,
     *,
     parse: Parser,
@@ -655,14 +876,15 @@ def run_bench(
     tell = say or _say_nothing
     if not probes.reachable(client.url):
         msg = (
-            f"the judge at {client.url} cannot be reached: start it with scripts/serve_vlm.sh start"
+            f"the judge at {client.url} cannot be reached: start it with {plan.server_script} start"
         )
         raise BenchError(msg)
     try:
         labels = read_labels(plan.labels)
-        protocol = file_ref(plan.protocol)
+        protocol = [file_ref(path) for path in protocol_files(plan.protocol)]
     except (OSError, ValueError) as error:
         raise BenchError(str(error)) from error
+    reading = None if probes.server is None else probes.server.read(client.url)
 
     specification, parsed = parse_specification(plan, parse)
     tell(
@@ -701,6 +923,12 @@ def run_bench(
             f"{run.flagged_good} of {run.good} good boards flagged"
         )
 
+    since = datetime.now(UTC)
+    counters_before = None if probes.server is None else probes.server.counters(client.url)
+    warm_up = ask_warm_up(plan, scored, specification, client) if plan.stage == "II" else None
+    if warm_up is not None and warm_up.asked:
+        tell(f"Asked the warm-up question on {warm_up.image} in {warm_up.seconds:.1f} s")
+
     to_judge = sum(s.run.flagged_anomalous + s.run.flagged_good for s in scored.values())
     judged = 0
     started = time.perf_counter()
@@ -723,16 +951,27 @@ def run_bench(
                     specification,
                     client,
                     max_regions=plan.max_regions,
+                    reason_rule=plan.reason_rule,
+                    server_script=plan.server_script,
                     on_image=progress,
                 )
             )
     judge_stage_seconds = time.perf_counter() - started
+    cold = (
+        None
+        if probes.server is None or reading is None
+        else read_cold(
+            plan, reading, probes.server, client.url, before=counters_before, since=since
+        )
+    )
 
     runs = {part: scored[part].run for part in plan.parts}
     fit = {part: run.fit_seconds for part, run in runs.items()}
     now = datetime.now(UTC)
     whole = plan.limit is None and len(run_labels) == len(labels)
-    return BenchRecord(
+    record = BenchRecord(
+        unit=STAGE_II_UNIT if plan.stage == "II" else UNIT,
+        stage=plan.stage,
         measured_at=now.isoformat(timespec="seconds"),
         measured_on=now.astimezone().date().isoformat(),
         command=list(plan.command),
@@ -750,15 +989,28 @@ def run_bench(
         judge=JudgeSetup(
             url=client.url,
             model=client.model,
-            server=probes.server_facts(client.url),
-            image_min_tokens=image_min_tokens(probes.server_arguments(server_pid)),
+            server=probes.server_facts(client.url) if reading is None else reading.facts,
+            server_sources={} if reading is None else reading.sources,
+            image_min_tokens=(
+                image_min_tokens(probes.server_arguments(server_pid))
+                if reading is None
+                else reading.image_min_tokens
+            ),
             gpu=probes.gpu_name(),
+            cold=cold,
+            warm_up=warm_up,
+            reason_pattern=REASON_PATTERNS[plan.reason_rule],
             max_regions=plan.max_regions,
         ),
         runs=runs,
         scores=score(run_labels, observations),
         times=stage_times(parsed.parse_seconds, runs, observations, judge_stage_seconds),
-        judge_memory=_memory(sampler),
+        judge_memory=_memory(
+            sampler,
+            probes,
+            card=probes.judge_card,
+            process_note=JUDGE_PROCESS_NOTE if probes.server is not None else None,
+        ),
         inspector=InspectorMinutes(
             parse_seconds=parsed.parse_seconds,
             fit_seconds=fit,
@@ -771,8 +1023,18 @@ def run_bench(
             decisions=len(observations),
             with_corrections_in_prompt=sum(o.corrections_in_prompt for o in observations),
         ),
+        on_threshold=boards_on_threshold(
+            observations, {part: run.image_threshold for part, run in runs.items()}
+        ),
+        digit_reasons=(
+            digit_reasons_of(observations) if plan.reason_rule == "designators" else None
+        ),
+        notes=notes_for(plan.stage, protocol),
         observations=observations,
     )
+    if plan.stage == "II":
+        return record.model_copy(update={"not_final": missing_for_final(record)})
+    return record
 
 
 def trained_model(models_dir: Path, part: str, device: DeviceKind = "cuda") -> LoadedModel:
@@ -793,7 +1055,11 @@ def trained_model(models_dir: Path, part: str, device: DeviceKind = "cuda") -> L
     import torch  # noqa: PLC0415
 
     from spec_to_inspector.anomaly.infer import AnomalyModel  # noqa: PLC0415
-    from spec_to_inspector.anomaly.train import ModelNotTrainedError  # noqa: PLC0415
+    from spec_to_inspector.anomaly.train import (  # noqa: PLC0415
+        CHECKPOINT_NAME,
+        ModelNotTrainedError,
+        model_dir,
+    )
     from spec_to_inspector.device import release_memory  # noqa: PLC0415
 
     try:
@@ -808,6 +1074,7 @@ def trained_model(models_dir: Path, part: str, device: DeviceKind = "cuda") -> L
         fit_seconds=record.fit_seconds,
         train_peak_allocated_bytes=record.peak_allocated_bytes,
         release=lambda: release_memory(torch.device(device)),
+        checkpoint=model_dir(models_dir, part) / CHECKPOINT_NAME,
     )
 
 

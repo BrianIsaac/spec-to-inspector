@@ -11,7 +11,7 @@ import torch
 
 from spec_to_inspector.bench.gpu import read_gpu_memory
 from spec_to_inspector.bench.run import Probes, device_probes
-from spec_to_inspector.card_memory import GpuReading, read_xpu_memory
+from spec_to_inspector.card_memory import GpuReading, read_xpu_memory, read_xpu_name
 from spec_to_inspector.device import release_memory
 from spec_to_inspector.judge.timing import GpuReading as TimingsReading
 from spec_to_inspector.judge.timing import GpuSampler, device_sampler
@@ -213,3 +213,21 @@ def test_on_the_card_a_tensor_shows_on_the_card_and_on_the_process() -> None:
     assert during.gpu_used_mib - before.gpu_used_mib >= 4096
     assert during.server_mib is not None
     assert during.server_mib >= 8192
+
+
+def test_a_cards_name_is_read_by_its_pci_address(tmp_path: Path) -> None:
+    """What `xpu-smi --query-gpu=name --id=0000:ba:00.0 --format=csv,noheader` printed."""
+    program = _program(
+        tmp_path,
+        'test "$2" = "--id=0000:ba:00.0" && echo "Intel(R) Arc(TM) Pro B70 Graphics"',
+    )
+    assert read_xpu_name(card="0000:ba:00.0", program=program) == (
+        "Intel(R) Arc(TM) Pro B70 Graphics"
+    )
+    assert read_xpu_name(card="1", program=program) is None
+
+
+def test_no_name_is_read_without_the_program_or_from_its_silence(tmp_path: Path) -> None:
+    """Null, for the record to say so."""
+    assert read_xpu_name(program=None) is None
+    assert read_xpu_name(program=_program(tmp_path, "exit 0")) is None

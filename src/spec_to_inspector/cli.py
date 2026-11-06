@@ -6,6 +6,7 @@ import time
 import warnings
 from collections.abc import Generator
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 from types import FrameType
 from typing import Annotated, NoReturn
@@ -861,15 +862,16 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
         Path,
         typer.Option(
             "--eval-dir",
-            help="The directory holding the labelled set, clause_labels.csv, and PROTOCOL.md.",
+            help="The directory holding the labelled set, clause_labels.csv, and the stage's "
+            "protocol: PROTOCOL-stage2.md on an Intel card, PROTOCOL.md otherwise.",
         ),
     ] = Path("eval"),
     results: Annotated[
         Path | None,
         typer.Option(
             "--results",
-            help="Where the run's record goes; results/stage1/bench.json for a whole run. A "
-            "trial run must name its own.",
+            help="Where the run's record goes; results/stage1/bench.json for a whole run on the "
+            "laptop. A trial run and a run on an Intel card must name their own.",
         ),
     ] = None,
     readme: Annotated[
@@ -901,8 +903,9 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
     The specification is parsed, each part's test split is scored by its
     trained anomaly model into a run of the bench's own, and every image is
     judged with no correction recalled and every question asked cold. The
-    figures of eval/PROTOCOL.md are written as a record and as a page. Needs
-    the data, the trained models, the CUDA GPU and the VLM server up.
+    figures of the stage's protocol are written as a record and as a page: on
+    an Intel card eval/PROTOCOL-stage2.md, otherwise eval/PROTOCOL.md. Needs
+    the data, the trained models, the GPU and the VLM server up.
     """
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", FutureWarning)
@@ -925,7 +928,20 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             f"the labelled set has no part {', '.join(unknown)}; its parts are {', '.join(PARTS)}",
             param_hint="--part",
         )
+    settings = Settings()
     default_record = Path("results/stage1/bench.json")
+    if settings.stage == "II" and not render_only:
+        if results is None:
+            raise typer.BadParameter(
+                f"a run on this device must name its own record: {default_record} is Stage I's, "
+                "which stands as measured",
+                param_hint="--results",
+            )
+        if beside is not None:
+            raise typer.BadParameter(
+                "a Stage II comparison goes into files of its own, not beside the run",
+                param_hint="--beside",
+            )
     trial = limit is not None or parts != PARTS
     if trial and results is None and not render_only:
         raise typer.BadParameter(
@@ -954,7 +970,11 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
     def write_page(record: BenchRecord) -> None:
         if page_path is None:
             return
-        other = None if beside_path == record_path else read_or_none(beside_path, "the record")
+        other = (
+            None
+            if beside_path == record_path or record.stage == "II"
+            else read_or_none(beside_path, "the record")
+        )
         page_path.parent.mkdir(parents=True, exist_ok=True)
         page_path.write_text(render_readme(record, beside=other), encoding="utf-8")
         out.print(f"Page: {page_path}", markup=False, highlight=False, soft_wrap=True)
@@ -968,7 +988,8 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
         write_page(record)
         return
 
-    settings = Settings()
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    default_protocol = "PROTOCOL-stage2.md" if settings.stage == "II" else "PROTOCOL.md"
     plan = benching.BenchPlan(
         parts=parts,
         limit=limit,
@@ -978,7 +999,14 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
         spec_pdf=pdf,
         clause_table=pdf.with_suffix(".clauses.json"),
         labels=eval_dir / "clause_labels.csv",
-        protocol=eval_dir / "PROTOCOL.md",
+        protocol=settings.protocol_file or eval_dir / default_protocol,
+        stage=settings.stage,
+        reason_rule=settings.reason_rule,
+        server_log=(
+            record_path.with_name(f"{record_path.stem}.server-log.{stamp}.txt")
+            if settings.stage == "II"
+            else None
+        ),
         command=(
             "spec-to-inspector",
             "bench",

@@ -129,6 +129,31 @@ def _process_mib(text: str, pid: int) -> int | None:
     return None
 
 
+def read_xpu_name(
+    *,
+    card: str = FIRST_VISIBLE_CARD,
+    program: str | None = shutil.which("xpu-smi"),
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+) -> str | None:
+    """Read an Intel card's name.
+
+    Args:
+        card: The card, as `xpu-smi` takes it: an index among the cards this process can see, or
+            a PCI address.
+        program: The path of `xpu-smi`; None where there is none.
+        timeout_seconds: How long the query may take.
+
+    Returns:
+        The name, or None if the program is absent, fails or prints nothing.
+    """
+    if program is None:
+        return None
+    printed = output_without_pipe(
+        [program, "--query-gpu=name", f"--id={card}", "--format=csv,noheader"], timeout_seconds
+    )
+    return (printed or "").strip() or None
+
+
 def read_xpu_memory(
     pid: int | None,
     *,
