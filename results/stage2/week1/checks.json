@@ -1,0 +1,81 @@
+{
+  "measured_at": "2026-11-06T15:36:28+00:00",
+  "torch": "2.14.1+xpu",
+  "xpu_available": true,
+  "xpu_device_count": 2,
+  "cards": [
+    {
+      "device": {
+        "kind": "xpu",
+        "index": 0,
+        "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+        "capability": null,
+        "total_memory_bytes": 34242297856,
+        "torch_version": "2.14.1+xpu",
+        "cuda_version": null,
+        "arch_list": [],
+        "driver_version": "1.15.38646+7"
+      },
+      "matmul": {
+        "side": 2048,
+        "dtype": "float32",
+        "landed_on": "xpu:0",
+        "seconds": 0.10048224899219349,
+        "worst_relative_difference_from_cpu": 2.1767466478195274e-06
+      }
+    },
+    {
+      "device": {
+        "kind": "xpu",
+        "index": 1,
+        "name": "Intel(R) Arc(TM) Pro B70 Graphics",
+        "capability": null,
+        "total_memory_bytes": 34242297856,
+        "torch_version": "2.14.1+xpu",
+        "cuda_version": null,
+        "arch_list": [],
+        "driver_version": "1.15.38646+7"
+      },
+      "matmul": {
+        "side": 2048,
+        "dtype": "float32",
+        "landed_on": "xpu:1",
+        "seconds": 0.06888339295983315,
+        "worst_relative_difference_from_cpu": 2.1767466478195274e-06
+      }
+    }
+  ],
+  "openvino": {
+    "version": "2026.4.1-22982-e213a147257-releases/2026/4",
+    "devices": {
+      "CPU": "Intel(R) Xeon(R) 6787P",
+      "GPU.0": "Intel(R) Arc(TM) Pro B70 Graphics (dGPU)",
+      "GPU.1": "Intel(R) Arc(TM) Pro B70 Graphics (dGPU)"
+    }
+  },
+  "patchcore": {
+    "part": "pcb4",
+    "board": "bad-005",
+    "model_device": "xpu:0",
+    "score": 30.844087600708008,
+    "image_threshold": 30.048791885375977,
+    "map_shape": [
+      1,
+      256,
+      256
+    ],
+    "first_pass_seconds": 1.6697386280284263,
+    "second_pass_seconds": 0.031846427998971194,
+    "peak_allocated_bytes": 1252217856,
+    "peak_reserved_bytes": 1361051648,
+    "resident_bytes": 668356981,
+    "card_memory_mib_before": {
+      "0": 315,
+      "1": 27233
+    },
+    "card_memory_mib_with_the_model": {
+      "0": 1860,
+      "1": 27233
+    }
+  }
+}
