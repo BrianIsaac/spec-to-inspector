@@ -1,0 +1,16 @@
+Loading weights:   0%|          | 0/770 [00:00<?, ?it/s]Loading weights: 100%|██████████| 770/770 [00:00<00:00, 13782.04it/s]
+Parsed specs/pcb-spec.pdf in 6.0 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb1: scored 40 images in 6.5 s into /home/devcloud/one-card/warm/runs/pcb1/one-card; 20 of 20 anomalous and 1 of 20 good boards flagged
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+pcb4: scored 40 images in 3.9 s into /home/devcloud/one-card/warm/runs/pcb4/one-card; 20 of 20 anomalous and 1 of 20 good boards flagged
+Asked the warm-up question on pcb1 good-0214 in 2.0 s
+Judged 25 of 42 flagged images, 57 s
+Judged 42 of 42 flagged images, 94 s
+Partial run, not the protocol's figures. Clause-citation accuracy, strict, 25 single-defect images: 52.0% (13 of 25), 95% interval 33.5% to 70.0%
+Lenient, 15 multi-defect images: 80.0% (12 of 15), 95% interval 54.8% to 93.0%
+Per region, one defect type under region 1: 54.5% (18 of 33), 95% interval 38.0% to 70.2%
+Good boards rejected: 5.0% (2 of 40), 95% interval 1.4% to 16.5%; flagged by the anomaly model: 5.0% (2 of 40)
+Corrections in a prompt: 0 of 80 decisions
+Not yet final: the whole labelled set: this is a partial run
+Figures: /home/devcloud/one-card/warm/beside-warm.json
+Page: /home/devcloud/one-card/warm/beside-warm.md

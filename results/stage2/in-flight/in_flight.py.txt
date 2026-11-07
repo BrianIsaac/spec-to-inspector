@@ -1,0 +1,149 @@
+"""More than one question in flight: the deck's call I, measured on the machine.
+
+One-off evidence, kept as text so that the gate does not lint it as code. The bench asks one question
+at a time. This asks the same flagged boards of one part through the bench's own `judge_image` and
+one `ChatClient`, first one at a time and then two at once, in the final's setting: an empty store,
+cold, nothing written into the run. It reads the answer time and whether the answers are the final's.
+
+Run on the machine, from `~/spec-to-inspector`, on a run the bench has scored:
+
+    .venv/bin/python in_flight.py.txt --run runs/pcb1/corrections --part pcb1 --out in-flight.json
+"""
+
+import argparse
+import json
+import subprocess
+import time
+from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
+from pathlib import Path
+
+from spec_to_inspector.bench.record import read_record
+from spec_to_inspector.judge.client import ChatClient
+from spec_to_inspector.judge.decision import Cause, Decision
+from spec_to_inspector.judge.inspect import judge_image
+from spec_to_inspector.judge.timing import spread
+from spec_to_inspector.settings import Settings
+from spec_to_inspector.spec.schema import read_clause_table
+
+FINAL = Path("results/stage2/final/bench.json")
+CLAUSES = Path("specs/pcb-spec.clauses.json")
+CONTAINER = "spec-to-inspector-vlm"
+
+
+def one_pass(
+    boards: list[str], run: Path, workers: int, client: ChatClient, max_regions: int
+) -> tuple[float, dict[str, Decision]]:
+    """Ask every board once, at most so many at a time."""
+    specification = read_clause_table(CLAUSES)
+
+    def ask(board: str) -> Decision:
+        return judge_image(
+            run / board,
+            specification,
+            client,
+            max_regions=max_regions,
+            cache_prompt=False,
+            write=False,
+        )
+
+    started = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        decisions = list(pool.map(ask, boards))
+    return time.perf_counter() - started, dict(zip(boards, decisions, strict=True))
+
+
+def summary(wall: float, decisions: dict[str, Decision], final: dict[str, object]) -> dict[str, object]:
+    """Read one pass: its time, and how its answers stand against the final's."""
+    calls = [
+        region.call
+        for decision in decisions.values()
+        for region in decision.regions
+        if region.call is not None
+    ]
+    unavailable = sum(
+        region.review_cause is Cause.SERVER_UNAVAILABLE
+        for decision in decisions.values()
+        for region in decision.regions
+    )
+    differs = {"heading": [], "class": [], "sentence": [], "outcome": []}
+    for board, decision in decisions.items():
+        line = final[board]
+        answer = decision.regions[0].answer if decision.regions else None
+        if (None if answer is None else answer.clause_id) != line.cited_heading:
+            differs["heading"].append(board)
+        if (None if answer is None else answer.defect_class) != line.cited_class:
+            differs["class"].append(board)
+        if (None if answer is None else answer.reason) != line.sentence:
+            differs["sentence"].append(board)
+        if decision.outcome != line.outcome:
+            differs["outcome"].append(board)
+    return {
+        "boards": len(decisions),
+        "areas_asked": len(calls),
+        "server_unavailable": unavailable,
+        "wall_seconds": wall,
+        "boards_a_minute": 60 * len(decisions) / wall,
+        "seconds_per_area": spread([call.seconds for call in calls]).model_dump(),
+        "differs_from_the_final": differs,
+    }
+
+
+def main() -> None:
+    """Run the two passes and write the record, and the server's log of them beside it."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--run", type=Path, required=True)
+    parser.add_argument("--part", required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    arguments = parser.parse_args()
+
+    settings = Settings()
+    record = read_record(FINAL)
+    final = {line.image_id: line for line in record.observations if line.part == arguments.part}
+    boards = [image for image, line in final.items() if line.flagged]
+    since = datetime.now(UTC).isoformat(timespec="seconds")
+    passes = {}
+    with ChatClient(
+        settings.vlm_url, settings.vlm_model, timeout_seconds=settings.vlm_timeout_seconds
+    ) as client:
+        for name, workers in (("one_at_a_time", 1), ("two_at_once", 2)):
+            passes[name] = summary(
+                *one_pass(boards, arguments.run, workers, client, record.judge.max_regions), final
+            )
+            print(name, passes[name]["wall_seconds"], flush=True)
+
+    log = subprocess.run(
+        ["docker", "logs", "--since", since, CONTAINER],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    text = log.stdout + log.stderr
+    log_path = arguments.out.with_suffix(".server-log.txt")
+    log_path.write_text(text, encoding="utf-8")
+    readings = [line for line in text.splitlines() if "Running:" in line]
+    running = [int(line.split("Running: ")[1].split(" ")[0]) for line in readings]
+    waiting = [int(line.split("Waiting: ")[1].split(" ")[0]) for line in readings]
+    arguments.out.write_text(
+        json.dumps(
+            {
+                "measured_at": datetime.now(UTC).isoformat(timespec="seconds"),
+                "part": arguments.part,
+                "run": arguments.run.as_posix(),
+                "against": FINAL.as_posix(),
+                "setting": "the final's: empty store, cold, the same prompt and pattern, nothing written",
+                "max_regions": record.judge.max_regions,
+                "passes": passes,
+                "server_log_readings": len(readings),
+                "server_running_highest": max(running),
+                "server_waiting_highest": max(waiting),
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+if __name__ == "__main__":
+    main()

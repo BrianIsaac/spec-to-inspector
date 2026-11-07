@@ -42,7 +42,7 @@ Run 1 is `first-run.json`, `first-run.md`, `first-run.paired.json`, run 2 `bench
 
 `first-run.paired.json` holds the digest of run 1's record, `first-run.json`, under the path it was written at, `bench.json`. Its two tables equal run 2's.
 
-`raw/trial/` is a trial before run 1, 3 anomalous and 3 good boards of each part with its own runs directory: 13 questions more of the server, and no figure of anything.
+`raw/trial/` is a trial before run 1, 3 anomalous and 3 good boards of each part with its own runs directory: 7 questions more of the server, the warm-up among them, and no figure of anything.
 
 ## What the page cannot say
 

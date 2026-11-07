@@ -1,0 +1,62 @@
+{
+  "measured_at": "2026-11-07T15:14:58+00:00",
+  "part": "pcb1",
+  "run": "runs/pcb1/corrections",
+  "against": "results/stage2/final/bench.json",
+  "setting": "the final's: empty store, cold, the same prompt and pattern, nothing written",
+  "max_regions": 3,
+  "passes": {
+    "one_at_a_time": {
+      "boards": 111,
+      "areas_asked": 111,
+      "server_unavailable": 0,
+      "wall_seconds": 251.70276358100818,
+      "boards_a_minute": 26.45978099424618,
+      "seconds_per_area": {
+        "n": 111,
+        "p50": 2.135127942019608,
+        "p95": 2.5732083934999537,
+        "mean": 2.1821952313992306,
+        "minimum": 1.849181970988866,
+        "maximum": 2.9773310509626754
+      },
+      "differs_from_the_final": {
+        "heading": [],
+        "class": [],
+        "sentence": [],
+        "outcome": []
+      }
+    },
+    "two_at_once": {
+      "boards": 111,
+      "areas_asked": 111,
+      "server_unavailable": 0,
+      "wall_seconds": 180.19952543702675,
+      "boards_a_minute": 36.95903185010013,
+      "seconds_per_area": {
+        "n": 111,
+        "p50": 3.116113336000126,
+        "p95": 4.166387916018721,
+        "mean": 3.1396910957467683,
+        "minimum": 1.9669562140479684,
+        "maximum": 4.590896272973623
+      },
+      "differs_from_the_final": {
+        "heading": [
+          "bad-041"
+        ],
+        "class": [
+          "bad-041"
+        ],
+        "sentence": [
+          "bad-003",
+          "bad-041"
+        ],
+        "outcome": []
+      }
+    }
+  },
+  "server_log_readings": 43,
+  "server_running_highest": 2,
+  "server_waiting_highest": 0
+}
