@@ -66,3 +66,20 @@ on the laptop before the machine, as the pages fix was.
 
 The final figure, its three runs, the three comparisons of 7 November, the
 whole batch. The good board's picture keeps its own addition, when built.
+
+## Refuted before the first run
+
+*7 November 2026, 21:44 SGT, by the pane that runs it; its reasons are first in
+`docs/plans/progress/stage2-corrections-2026-11-07-handover.md`. The words above stand as written.*
+"The store holds one correction for each" cannot be met on the twenty the rule draws, a new
+`random.Random(20261107)` for each part. **Three of pcb1's ten the final run already answered as the
+label does** (`bad-021`, `bad-029`, `bad-078`), so there is nothing to correct and the store refuses
+such an override. **Three more have empty region columns** (`bad-033`, `bad-061`, `bad-085`): region 1
+lies off the labelled defect, so the label names no class and no clause to correct to. So the store
+holds 14 corrections, pcb1 4 and pcb4 10, and nothing is written by hand to fill it. **The draw stands
+and nothing is redrawn: the twenty stay excluded, so the 115 and the 65 stand.** Two things the text
+leaves open are settled here: a part's rows go in in the order of the draw, so that the limit of three
+recalls that part's last three of them (pcb1 `bad-042`, `bad-004`, `bad-052`; pcb4 `bad-015`, `bad-038`,
+`bad-044`), the same three in every prompt of the part; and "every figure" takes in figure 7, so its
+time is counted without the twenty beside a time for the final on the same boards. Memory is the
+card's and has no boards to exclude.
