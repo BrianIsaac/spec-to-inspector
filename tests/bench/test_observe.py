@@ -114,6 +114,20 @@ def test_a_digit_followed_by_a_unit_of_length_is_counted(reason: str) -> None:
 
 @pytest.mark.parametrize(
     "reason",
+    [
+        "larger than the ½ mm limit for foreign material in zone A",
+        "about ¾mm across",
+        "٣ mm long",
+        "a stray mark of \uff15 mm",
+    ],
+)
+def test_a_numeric_character_that_is_no_digit_followed_by_a_unit_is_counted(reason: str) -> None:
+    """`½ mm` is what the model wrote on `bad-094`: a size, whatever the character it used."""
+    assert _listed(_text(reason)) == [(reason, False, True)]
+
+
+@pytest.mark.parametrize(
+    "reason",
     ["R5 in the corner", "R5 mounted crooked", "C12 missing", "U3 marked", "R5, mm scale"],
 )
 def test_a_word_that_only_starts_like_a_unit_is_not_counted(reason: str) -> None:

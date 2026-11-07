@@ -12,7 +12,9 @@ from typer.testing import CliRunner
 from spec_to_inspector.anomaly.records import Box, ImageResult, Region
 from spec_to_inspector.bench import labels as labels_module
 from spec_to_inspector.bench.labels import (
+    DEFAULT_RUN,
     LABEL_COLUMNS,
+    REGION_COLUMNS,
     ClauseLabel,
     LabelError,
     Region1,
@@ -243,14 +245,30 @@ def test_every_tracked_row_traces_to_its_annotation_line() -> None:
 
 
 @pytest.mark.data
-def test_the_tracked_set_is_what_the_data_and_the_test_runs_derive() -> None:
-    """Rebuilding from the fetched data and the anomaly model's test runs changes nothing."""
+def test_the_tracked_labels_are_what_the_data_derive_on_any_machine() -> None:
+    """The columns that come from VisA through the mapping table, which no model decides."""
     settings = Settings()
+    no_regions = dict.fromkeys(f"bad-{number:03d}" for number in range(100))
+    derived = [row for part in PARTS for row in derive_labels(settings.visa_dir, part, no_regions)]
+    tracked = read_labels(TRACKED)
+
+    kept = [column for column in LABEL_COLUMNS if column not in REGION_COLUMNS]
+    assert [[getattr(row, column) for column in kept] for row in derived] == [
+        [getattr(row, column) for column in kept] for row in tracked
+    ]
+
+
+@pytest.mark.data
+def test_the_tracked_columns_are_what_the_benchs_runs_on_the_named_checkpoints_derive() -> None:
+    """On the machine, from a whole run of each part as the bench batches it, nothing changes."""
+    settings = Settings()
+    if settings.stage != "II":
+        pytest.skip("the region columns are of the machine's checkpoints, and this is not it")
     rebuilt: list[ClauseLabel] = []
     for part in PARTS:
-        run = settings.runs_dir / part / "test"
+        run = settings.runs_dir / part / DEFAULT_RUN
         if not run.is_dir():
-            pytest.skip(f"the anomaly model's test run {run} is not on this machine")
+            pytest.skip(f"the bench's whole run {run} is not on this machine")
         ids = [f"bad-{number:03d}" for number in range(100)]
         rebuilt.extend(derive_labels(settings.visa_dir, part, read_region_truth(run, ids)))
     assert rebuilt == read_labels(TRACKED)

@@ -28,8 +28,8 @@ from spec_to_inspector.judge.decision import Cause, Decision, RegionDecision
 from spec_to_inspector.judge.disposition import Outcome
 
 # A bare "in" is left out: "R5 in the corner" is a designator and no size.
-_FOLLOWED_BY_A_UNIT: Final = re.compile(
-    r"[0-9]\s*(?:mm|cm|nm|um|\u00b5m|\u03bcm|m|inch(?:es)?|mils?|thou|microns?"
+_UNIT_OF_LENGTH: Final = re.compile(
+    r"\s*(?:mm|cm|nm|um|\u00b5m|\u03bcm|m|inch(?:es)?|mils?|thou|microns?"
     r"|(?:milli|centi|micro)?met(?:re|er)s?)(?![A-Za-z])",
     re.IGNORECASE,
 )
@@ -83,7 +83,7 @@ class DigitReason(BaseModel):
         area: The area's rank, from 1.
         reason: The reason as written.
         valid: Whether it stood as the answer; false for one the validation refused.
-        followed_by_a_unit: Whether a digit in it is followed by a unit of length.
+        followed_by_a_unit: Whether a numeric character in it is followed by a unit of length.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -254,6 +254,24 @@ def _reason_in(text: str) -> str | None:
     return reason.strip() if isinstance(reason, str) else None
 
 
+def _states_a_size(reason: str) -> bool:
+    """Say whether a numeric character in a reason is followed by a unit of length.
+
+    Any numeric character counts, as it does for the listing itself: on `bad-094` the model wrote
+    `½ mm`, which the pattern's class lets through and the validation refuses, and it is a size.
+
+    Args:
+        reason: The reason.
+
+    Returns:
+        True if a unit follows one.
+    """
+    return any(
+        character.isnumeric() and _UNIT_OF_LENGTH.match(reason, position + 1) is not None
+        for position, character in enumerate(reason)
+    )
+
+
 def _digit_reasons(part: str, image_id: str, region: RegionDecision) -> list[DigitReason]:
     """List the reasons with a numeric character the model wrote about one area.
 
@@ -279,7 +297,7 @@ def _digit_reasons(part: str, image_id: str, region: RegionDecision) -> list[Dig
                     area=region.index,
                     reason=reason,
                     valid=reason == stood,
-                    followed_by_a_unit=_FOLLOWED_BY_A_UNIT.search(reason) is not None,
+                    followed_by_a_unit=_states_a_size(reason),
                 )
             )
     return listed
