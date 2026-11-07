@@ -7,6 +7,10 @@ every image, so that any figure can be counted again from the file alone.
 The protocol's `designators` comparison also needs every reason with a digit in it, since a
 capital and a digit can be followed by a unit: `R5 mm` passes both the pattern and the validation.
 So a reason is listed from every answer the model gave about an area, refused ones too.
+
+Every refused answer is kept as well, by its kind. The comparison's pattern cannot close a string at
+the 240 characters the validation holds, so a padded answer runs to the token limit and is refused
+as not JSON, and the record counts those on their own.
 """
 
 import json
@@ -19,6 +23,7 @@ from pydantic import BaseModel, ConfigDict
 
 from spec_to_inspector.anomaly.records import ImageResult
 from spec_to_inspector.bench.labels import region1_types
+from spec_to_inspector.judge.answer import RefusalKind
 from spec_to_inspector.judge.decision import Cause, Decision, RegionDecision
 from spec_to_inspector.judge.disposition import Outcome
 
@@ -108,6 +113,44 @@ class DigitReasons(BaseModel):
     followed_by_a_unit: int
 
 
+class RefusedAnswer(BaseModel):
+    """An answer the validation refused.
+
+    Attributes:
+        part: The part.
+        image_id: The image.
+        area: The area's rank, from 1.
+        attempt: The asking it answered, from 1.
+        kind: What kind of refusal it is.
+        problem: What was wrong with it, in the words sent back to the model.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    part: str
+    image_id: str
+    area: int
+    attempt: int
+    kind: RefusalKind
+    problem: str
+
+
+class RefusedAnswers(BaseModel):
+    """Every answer of a run the validation refused, by kind.
+
+    Attributes:
+        answers: The answers, board by board.
+        by_kind: How many of each kind, every kind named.
+        padded: How many ran to the token limit and were refused as not JSON.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    answers: tuple[RefusedAnswer, ...]
+    by_kind: dict[str, int]
+    padded: int
+
+
 class Observation(BaseModel):
     """One image of a bench run, as the scorer needs it.
 
@@ -134,6 +177,7 @@ class Observation(BaseModel):
             drawing its areas, the VLM's answers, and writing the decision.
         digit_reasons: Every reason the model wrote about the image with a
             numeric character in it.
+        refused: Every answer about the image the validation refused.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -156,6 +200,7 @@ class Observation(BaseModel):
     corrections_in_prompt: bool
     judge_seconds: float
     digit_reasons: tuple[DigitReason, ...] = ()
+    refused: tuple[RefusedAnswer, ...] = ()
 
     @property
     def key(self) -> tuple[str, str]:
@@ -256,6 +301,48 @@ def digit_reasons_of(observations: Iterable[Observation]) -> DigitReasons:
     )
 
 
+def _refused_answers(part: str, image_id: str, region: RegionDecision) -> list[RefusedAnswer]:
+    """List the answers about one area the validation refused.
+
+    Args:
+        part: The part.
+        image_id: The image.
+        region: The area's decision.
+
+    Returns:
+        One per refused answer, in the order they were given.
+    """
+    if region.call is None:
+        return []
+    return [
+        RefusedAnswer(
+            part=part,
+            image_id=image_id,
+            area=region.index,
+            attempt=refusal.attempt,
+            kind=refusal.kind,
+            problem=refusal.problem,
+        )
+        for refusal in region.call.refusals
+    ]
+
+
+def refused_answers_of(observations: Iterable[Observation]) -> RefusedAnswers:
+    """Count a run's refused answers.
+
+    Args:
+        observations: The run's images.
+
+    Returns:
+        Every refused answer, with how many of each kind and how many were padded.
+    """
+    answers = tuple(answer for seen in observations for answer in seen.refused)
+    by_kind = {kind.value: sum(a.kind is kind for a in answers) for kind in RefusalKind}
+    return RefusedAnswers(
+        answers=answers, by_kind=by_kind, padded=by_kind[RefusalKind.PADDED.value]
+    )
+
+
 def _citation(first: RegionDecision | None) -> Citation:
     """Say whether region 1's decision holds a citation.
 
@@ -323,5 +410,10 @@ def observe(decision: Decision, result: ImageResult, *, judge_seconds: float) ->
             reason
             for region in decision.regions
             for reason in _digit_reasons(result.category, result.image_id, region)
+        ),
+        refused=tuple(
+            answer
+            for region in decision.regions
+            for answer in _refused_answers(result.category, result.image_id, region)
         ),
     )

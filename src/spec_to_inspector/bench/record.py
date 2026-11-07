@@ -20,7 +20,7 @@ from typing import Final, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from spec_to_inspector.bench.observe import DigitReasons, Observation
+from spec_to_inspector.bench.observe import DigitReasons, Observation, RefusedAnswers
 from spec_to_inspector.bench.score import Scores
 from spec_to_inspector.judge.timing import Spread
 
@@ -589,6 +589,9 @@ class BenchRecord(BaseModel):
             a record from before they were written down.
         digit_reasons: Every reason with a digit in it, under the `designators`
             comparison; None under any other rule.
+        refused_answers: Every answer of a Stage II run the validation refused,
+            by kind; None in Stage I's record, and in one from before it was
+            written down.
         not_final: What this run's record lacks of what the Stage II protocol
             asks of a final run, in words; empty if it lacks nothing.
         repeat: The comparison with the run before, where there was one of
@@ -620,6 +623,7 @@ class BenchRecord(BaseModel):
     leak: Leak
     on_threshold: OnThreshold | None = None
     digit_reasons: DigitReasons | None = None
+    refused_answers: RefusedAnswers | None = None
     not_final: list[str] = Field(default_factory=list)
     repeat: Repeat | None = None
     notes: dict[str, str] = Field(default_factory=lambda: dict(NOTES))

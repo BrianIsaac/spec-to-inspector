@@ -26,6 +26,7 @@ class Reply:
         delay_seconds: How long to wait before answering.
         usage: The `usage` object of the completion.
         timings: llama.cpp's `timings` object, if the fake plays that server.
+        finish_reason: Why generation stopped, as the server names it.
     """
 
     content: str = ""
@@ -36,6 +37,7 @@ class Reply:
         default_factory=lambda: {"prompt_tokens": 2100, "completion_tokens": 30}
     )
     timings: dict[str, Any] | None = None
+    finish_reason: str = "stop"
 
 
 class FakeVlm:
@@ -146,7 +148,7 @@ class FakeVlm:
             "choices": [
                 {
                     "index": 0,
-                    "finish_reason": "stop",
+                    "finish_reason": reply.finish_reason,
                     "message": {"role": "assistant", "content": reply.content},
                 }
             ],

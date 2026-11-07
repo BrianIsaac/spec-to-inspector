@@ -2,7 +2,12 @@
 
 from pathlib import Path
 
-from spec_to_inspector.bench.observe import DigitReason, DigitReasons
+from spec_to_inspector.bench.observe import (
+    DigitReason,
+    DigitReasons,
+    RefusedAnswer,
+    RefusedAnswers,
+)
 from spec_to_inspector.bench.readme import render_readme, summary_lines
 from spec_to_inspector.bench.record import (
     BenchRecord,
@@ -11,6 +16,7 @@ from spec_to_inspector.bench.record import (
     compare,
     read_record,
 )
+from spec_to_inspector.judge.answer import RefusalKind
 from tests.bench.bench_fakes import IMAGE_DIGEST
 
 
@@ -223,6 +229,45 @@ def test_a_stage_two_run_that_lacks_something_says_it_is_not_final(
     assert "- the warm-up having been asked." in page
     assert "**This is a partial run**" in page
     assert "Not yet final: the warm-up having been asked" in summary_lines(lacking)
+
+
+def test_the_stage_two_page_counts_the_refused_answers_with_the_padded_under_their_own_heading(
+    stage2_record: BenchRecord,
+) -> None:
+    """Every refusal counted, and the padded ones named by board."""
+    answer = RefusedAnswer(
+        part="pcb4",
+        image_id="bad-080",
+        area=1,
+        attempt=2,
+        kind=RefusalKind.PADDED,
+        problem="not JSON (Unterminated string)",
+    )
+    padded = stage2_record.model_copy(
+        update={
+            "refused_answers": RefusedAnswers(
+                answers=(answer,),
+                by_kind={kind.value: int(kind is RefusalKind.PADDED) for kind in RefusalKind},
+                padded=1,
+            )
+        }
+    )
+    page = render_readme(padded)
+
+    assert "## The refused answers" in page
+    assert "### Padded to the token limit" in page
+    assert "| padded to the token limit | 1 |" in page
+    assert "| pcb4 | `bad-080` | 1 | 2 | padded to the token limit |" in page
+
+
+def test_a_run_with_no_refusal_says_so_rather_than_saying_nothing(
+    stage2_record: BenchRecord,
+) -> None:
+    """A nought is a count: the heading stands whatever the run did."""
+    page = render_readme(stage2_record)
+
+    assert "## The refused answers" in page
+    assert "### Padded to the token limit\n\nNo answer ran to the token limit." in page
 
 
 def test_only_the_designators_comparison_lists_reasons(stage2_record: BenchRecord) -> None:

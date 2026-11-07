@@ -1,9 +1,10 @@
 """Tests for the judge's answer: its JSON schema and its validation."""
 
+import itertools
 import json
 import re
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 import pytest
 from pydantic import ValidationError
@@ -14,6 +15,7 @@ from spec_to_inspector.judge.answer import (
     RECORDED,
     AnswerError,
     JudgeAnswer,
+    RefusalKind,
     answer_schema,
     parse_answer,
 )
@@ -177,7 +179,11 @@ def test_a_class_is_words_and_a_clause_is_a_clause_number() -> None:
     assert parse_answer(_answer(clause_id="5.6.1")).clause_id == "5.6.1"
 
 
-PROTOCOL = Path(__file__).parents[2] / "eval" / "PROTOCOL-stage2.md"
+EVAL = Path(__file__).parents[2] / "eval"
+PROTOCOL = EVAL / "PROTOCOL-stage2.md"
+PATTERN_ADDITION = EVAL / "PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md"
+COUNTED = r'^(?:[^0-9\n\r"\\]|[A-Z][0-9]{1,3}){1,240}$'
+"""The pattern the protocol first declared, whose strings the addition's must be exactly."""
 SIZES_THE_MODEL_WROTE = (
     "A stray solder lump on the board surface, 5.67 mm long.",
     "A stray fiber on the board surface, 1.57 mm long.",
@@ -191,12 +197,47 @@ def _designators() -> re.Pattern[str]:
     return re.compile(_properties(schema)["reason"]["pattern"])
 
 
-def test_each_pattern_is_the_one_the_protocol_declares() -> None:
-    """The protocol's table escapes the alternation's bar; otherwise they are its characters."""
-    declared = PROTOCOL.read_text(encoding="utf-8").replace("\\|", "|")
+def test_the_final_pattern_is_the_one_the_protocol_declares() -> None:
+    """The protocol's table is the final setting's word, and the addition does not touch it."""
+    assert f"`{REASON_PATTERNS['no_digits']}`" in PROTOCOL.read_text(encoding="utf-8")
 
-    assert f"`{REASON_PATTERNS['no_digits']}`" in declared
-    assert f"`{REASON_PATTERNS['designators']}`" in declared
+
+def test_the_designators_pattern_is_the_one_the_addition_rules() -> None:
+    """The addition's text, its character count gone: `+` in place of `{1,240}`."""
+    ruling = PATTERN_ADDITION.read_text(encoding="utf-8")
+
+    assert f"`{REASON_PATTERNS['designators']}`" in ruling
+    assert REASON_PATTERNS["designators"].endswith(")+$")
+    assert "240" not in REASON_PATTERNS["designators"]
+    assert f"`{COUNTED}`" in ruling
+
+
+def test_the_uncounted_pattern_accepts_exactly_the_protocols_strings() -> None:
+    """Every string of up to six characters over an alphabet that reaches each branch."""
+    counted, uncounted = re.compile(COUNTED), _designators()
+    alphabet = 'aR1.\n"\\½'
+    strings = (
+        "".join(characters)
+        for length in range(7)
+        for characters in itertools.product(alphabet, repeat=length)
+    )
+
+    differing = [s for s in strings if bool(counted.fullmatch(s)) != bool(uncounted.fullmatch(s))]
+    assert differing == []
+
+
+@pytest.mark.parametrize("unit", ["a", "R12", "R123"])
+def test_the_two_patterns_part_only_past_the_count_the_validation_holds_anyway(unit: str) -> None:
+    """At 240 repeats both accept; past them only the uncounted, and the validation refuses it."""
+    counted, uncounted = re.compile(COUNTED), _designators()
+
+    assert counted.fullmatch(unit * 240)
+    assert uncounted.fullmatch(unit * 240)
+    assert not counted.fullmatch(unit * 241)
+    assert uncounted.fullmatch(unit * 241)
+    with pytest.raises(AnswerError, match="reason") as refused:
+        parse_answer(_answer(reason=unit * 241), reason_rule="designators")
+    assert refused.value.kind is RefusalKind.OVER_LENGTH
 
 
 def test_the_final_setting_keeps_the_ban_unless_the_comparison_is_asked_for() -> None:
@@ -262,7 +303,7 @@ def test_a_figure_the_pattern_cannot_see_is_refused_by_the_validation(reason: st
 
 
 def test_the_validation_holds_the_reason_to_its_length_whatever_the_pattern_allows() -> None:
-    """The pattern's limit counts a designator as one, so it allows more than the validation."""
+    """The pattern has no limit, so 240 characters are the validation's alone to hold."""
     long = "R12 " * 100
 
     assert len(long) > MAX_REASON_CHARACTERS
@@ -286,3 +327,27 @@ def test_a_recorded_answer_is_read_back_under_the_widest_rule() -> None:
         JudgeAnswer.model_validate(answer)
     with pytest.raises(ValidationError):
         JudgeAnswer.model_validate(answer | {"reason": "5 mm"}, context=RECORDED)
+
+
+@pytest.mark.parametrize(
+    ("text", "rule", "kind"),
+    [
+        ('{"reason": "a stray mark on the pad a a a a', "designators", RefusalKind.NOT_JSON),
+        ("not an object at all", "no_digits", RefusalKind.NOT_JSON),
+        ("[1, 2]", "no_digits", RefusalKind.OTHER),
+        (_answer(reason="a scratch 5 mm long"), "designators", RefusalKind.FIGURE),
+        (_answer(reason="a mark on R12"), "no_digits", RefusalKind.FIGURE),
+        (_answer(reason="two\nlines"), "no_digits", RefusalKind.OTHER),
+        (_answer(reason="a" * 241), "designators", RefusalKind.OVER_LENGTH),
+        (_answer(reason="a" * 241), "no_digits", RefusalKind.OVER_LENGTH),
+        (_answer(clause_id=None), "no_digits", RefusalKind.OTHER),
+    ],
+)
+def test_a_refused_answer_says_what_kind_of_refusal_it_is(
+    text: str, rule: Literal["no_digits", "designators"], kind: RefusalKind
+) -> None:
+    """The record counts each kind under its own heading, so the kind is the validation's word."""
+    with pytest.raises(AnswerError) as refused:
+        parse_answer(text, reason_rule=rule)
+
+    assert refused.value.kind is kind

@@ -16,7 +16,7 @@ import pytest
 from PIL import Image
 
 from spec_to_inspector.anomaly.infer import load_result
-from spec_to_inspector.judge.answer import REASON_PATTERNS, JudgeAnswer
+from spec_to_inspector.judge.answer import REASON_PATTERNS, JudgeAnswer, RefusalKind
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause, Decision
 from spec_to_inspector.judge.disposition import Outcome
@@ -753,6 +753,68 @@ def test_the_comparisons_rule_reaches_the_schema_the_validation_and_the_decision
     assert decision.regions[0].call is not None
     assert decision.regions[0].call.attempts == 1
     assert load_decision(run / "scratch").regions[0].answer == decision.regions[0].answer
+
+
+def test_an_answer_padded_to_the_token_limit_is_refused_under_its_own_kind(run: Path) -> None:
+    """The uncounted pattern cannot close a string at 240: cut off, it is not JSON, and padded."""
+    padded = Reply('{"reason": "' + "a mark " * 40, finish_reason="length")
+    with (
+        FakeVlm([padded, _reply()]) as server,
+        ChatClient(server.url, "fake", timeout_seconds=5) as client,
+    ):
+        decision = judge_image(run / "scratch", SPEC, client, reason_rule="designators")
+
+    call = decision.regions[0].call
+    assert call is not None
+    assert call.attempts == 2
+    assert [(refusal.attempt, refusal.kind) for refusal in call.refusals] == [
+        (1, RefusalKind.PADDED)
+    ]
+    assert call.refusals[0].problem.startswith("not JSON")
+    assert decision.regions[0].answer is not None
+
+
+def test_an_answer_that_is_not_json_for_another_reason_is_not_called_padded(run: Path) -> None:
+    """Only the server's own word that it stopped at the limit makes an answer padded."""
+    with (
+        FakeVlm(["a sentence and no object", _reply()]) as server,
+        ChatClient(server.url, "fake", timeout_seconds=5) as client,
+    ):
+        decision = judge_image(run / "scratch", SPEC, client)
+
+    call = decision.regions[0].call
+    assert call is not None
+    assert [refusal.kind for refusal in call.refusals] == [RefusalKind.NOT_JSON]
+
+
+def test_every_refused_answer_of_a_question_is_kept_in_the_order_given(run: Path) -> None:
+    """Refused twice, the region is referred, and both refusals stand in its record."""
+    figure = json.dumps(
+        {"reason": "a scratch 5 mm long", "defect_class": "scratch", "clause_id": "4.1"}
+    )
+    with (
+        FakeVlm([figure, Reply("cut off", finish_reason="length")]) as server,
+        ChatClient(server.url, "fake", timeout_seconds=5) as client,
+    ):
+        decision = judge_image(run / "scratch", SPEC, client)
+
+    call = decision.regions[0].call
+    assert call is not None
+    assert [(refusal.attempt, refusal.kind) for refusal in call.refusals] == [
+        (1, RefusalKind.FIGURE),
+        (2, RefusalKind.PADDED),
+    ]
+    assert load_decision(run / "scratch").regions[0].call == call
+
+
+def test_an_answer_taken_at_the_first_asking_has_no_refusal(run: Path) -> None:
+    """Nothing refused, nothing counted."""
+    with FakeVlm([_reply()]) as server, ChatClient(server.url, "fake", timeout_seconds=5) as client:
+        decision = judge_image(run / "scratch", SPEC, client)
+
+    call = decision.regions[0].call
+    assert call is not None
+    assert call.refusals == ()
 
 
 def test_without_the_comparisons_rule_a_designator_is_refused_and_retried(run: Path) -> None:

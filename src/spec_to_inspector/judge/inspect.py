@@ -41,15 +41,23 @@ from spec_to_inspector.judge.answer import (
     RECORDED,
     AnswerError,
     JudgeAnswer,
+    RefusalKind,
     answer_schema,
     parse_answer,
 )
-from spec_to_inspector.judge.client import ChatClient, Completion, Message, VlmError
+from spec_to_inspector.judge.client import (
+    STOPPED_AT_MAX_LENGTH,
+    ChatClient,
+    Completion,
+    Message,
+    VlmError,
+)
 from spec_to_inspector.judge.decision import (
     Cause,
     Corrected,
     Decision,
     JudgeCall,
+    Refusal,
     RegionDecision,
     Verdict,
     combine_regions,
@@ -99,7 +107,11 @@ class Asked(NamedTuple):
 
 
 def _call(
-    completions: Sequence[Completion], *, attempts: int, error: str | None = None
+    completions: Sequence[Completion],
+    *,
+    attempts: int,
+    error: str | None = None,
+    refusals: Sequence[Refusal] = (),
 ) -> JudgeCall:
     """Summarise the requests made for one question.
 
@@ -107,6 +119,7 @@ def _call(
         completions: The completions received, in order.
         attempts: The requests sent, including one that brought no completion.
         error: Why no valid answer came, if none did.
+        refusals: The answers the validation refused, in order.
 
     Returns:
         The record: the time of the requests that were answered, the counts
@@ -122,6 +135,7 @@ def _call(
         tokens_per_second=None if last is None else last.tokens_per_second,
         texts=tuple(completion.text for completion in completions),
         error=error,
+        refusals=tuple(refusals),
     )
 
 
@@ -152,22 +166,27 @@ def ask_judge(
         the requests either way.
     """
     completions: list[Completion] = []
+    refusals: list[Refusal] = []
     conversation = list(messages)
     problem = "no answer"
     for attempt in (1, 2):
         try:
             completion = client.complete(conversation, schema=schema, cache_prompt=cache_prompt)
         except VlmError as error:
-            failed = _call(completions, attempts=attempt, error=str(error))
+            failed = _call(completions, attempts=attempt, error=str(error), refusals=refusals)
             return Asked(None, failed, Cause.SERVER_UNAVAILABLE)
         completions.append(completion)
         try:
             answer = parse_answer(completion.text, reason_rule=reason_rule)
-            return Asked(answer, _call(completions, attempts=attempt), None)
+            return Asked(answer, _call(completions, attempts=attempt, refusals=refusals), None)
         except AnswerError as error:
             problem = error.problem
+            padded = completion.finish_reason == STOPPED_AT_MAX_LENGTH
+            kind = RefusalKind.PADDED if padded else error.kind
+            refusals.append(Refusal(attempt=attempt, kind=kind, problem=problem))
             conversation = repair_messages(messages, error)
-    return Asked(None, _call(completions, attempts=2, error=problem), Cause.MALFORMED_ANSWER)
+    failed = _call(completions, attempts=2, error=problem, refusals=refusals)
+    return Asked(None, failed, Cause.MALFORMED_ANSWER)
 
 
 def _refused(index: int, asked: Asked, **context: object) -> RegionDecision:

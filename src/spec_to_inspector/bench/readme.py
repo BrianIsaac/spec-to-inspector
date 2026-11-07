@@ -13,10 +13,16 @@ says what the protocol asks that record to hold.
 from collections.abc import Iterable, Mapping, Sequence
 
 from spec_to_inspector.bench.mapping import CLAUSE_MAPPING
-from spec_to_inspector.bench.observe import Citation, DigitReasons
+from spec_to_inspector.bench.observe import (
+    Citation,
+    DigitReasons,
+    RefusedAnswer,
+    RefusedAnswers,
+)
 from spec_to_inspector.bench.record import BenchRecord, ColdStart, Repeat, StageMemory
 from spec_to_inspector.bench.score import Accuracy, Confusion, Dispositions, FalseAlarms
 from spec_to_inspector.bench.wilson import Proportion
+from spec_to_inspector.judge.answer import RefusalKind
 from spec_to_inspector.judge.timing import Spread
 
 _NO_CITATION = tuple(state.value for state in Citation if state is not Citation.CITED)
@@ -822,6 +828,50 @@ def _digit_reason_lines(reasons: DigitReasons, previous: DigitReasons | None) ->
     ]
 
 
+def _refusal_table(answers: Sequence[RefusedAnswer]) -> list[str]:
+    """Lay some refused answers out board by board.
+
+    Args:
+        answers: The answers.
+
+    Returns:
+        The table's lines with a blank line after them; none if there are no answers.
+    """
+    if not answers:
+        return []
+    rows = ([a.part, f"`{a.image_id}`", str(a.area), str(a.attempt), a.kind.value] for a in answers)
+    return [*_table(["Part", "Board", "Area", "Asking", "Kind"], rows), ""]
+
+
+def _refused_answer_lines(refused: RefusedAnswers) -> list[str]:
+    """Lay out the refused answers, those padded to the token limit under their own heading.
+
+    Args:
+        refused: The run's.
+
+    Returns:
+        The section's lines.
+    """
+    padded = [answer for answer in refused.answers if answer.kind is RefusalKind.PADDED]
+    others = [answer for answer in refused.answers if answer.kind is not RefusalKind.PADDED]
+    return [
+        f"{len(refused.answers)} answers were refused. Each is sent back once with what was wrong "
+        "with it; a second refusal refers the area to an engineer.",
+        "",
+        *_table(["Kind", "Answers"], ([kind, str(n)] for kind, n in refused.by_kind.items())),
+        "",
+        "### Padded to the token limit",
+        "",
+        f"{refused.padded} answers ran to the token limit with the string unclosed, and were "
+        "refused as not JSON."
+        if refused.padded
+        else "No answer ran to the token limit.",
+        "",
+        *_refusal_table(padded),
+        *(["### The other refusals", "", *_refusal_table(others)] if others else []),
+    ]
+
+
 def render_stage2_readme(record: BenchRecord) -> str:
     """Write a Stage II run's page.
 
@@ -945,6 +995,8 @@ def render_stage2_readme(record: BenchRecord) -> str:
             "",
             *_digit_reason_lines(record.digit_reasons, previous),
         ]
+    if record.refused_answers is not None:
+        lines += ["## The refused answers", "", *_refused_answer_lines(record.refused_answers)]
     lines += [
         "## What these figures are not",
         "",

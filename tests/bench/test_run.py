@@ -27,7 +27,7 @@ from spec_to_inspector.bench.run import (
     image_min_tokens,
 )
 from spec_to_inspector.card_memory import read_xpu_memory
-from spec_to_inspector.judge.answer import REASON_PATTERNS
+from spec_to_inspector.judge.answer import REASON_PATTERNS, RefusalKind
 from spec_to_inspector.judge.decision import Cause
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import load_decision
@@ -46,7 +46,7 @@ from tests.bench.bench_fakes import (
     stub_models,
 )
 from tests.bench.conftest import ROOT, WARM_UP, run
-from tests.judge.fake_vlm import FakeVlm
+from tests.judge.fake_vlm import FakeVlm, Reply
 from tests.spec.spec_fakes import specification
 
 
@@ -588,6 +588,35 @@ def test_the_designators_comparison_lists_every_reason_with_a_digit(
     ]
     assert listed.followed_by_a_unit == 1
     assert any("designators" in reason for reason in record.not_final)
+
+
+def test_a_refused_padded_answer_is_counted_under_its_own_heading(
+    stage2_plan: BenchPlan, machine_models: ModelLoader
+) -> None:
+    """The addition: it runs to the token limit, is refused as not JSON, and the record says so."""
+    padded = Reply('{"reason": "' + "a mark " * 40, finish_reason="length")
+    replies = [WARM_UP, padded, *REPLIES]
+    plan = stage2_plan.model_copy(update={"reason_rule": "designators"})
+
+    with FakeVlm(replies) as server:
+        record = run(plan, server, probes=machine_probes(), models=machine_models)
+
+    refused = record.refused_answers
+    assert refused is not None
+    assert refused.padded == 1
+    assert refused.by_kind["padded to the token limit"] == 1
+    assert [(r.part, r.image_id, r.area, r.attempt, r.kind) for r in refused.answers] == [
+        ("pcb1", "bad-000", 1, 1, RefusalKind.PADDED)
+    ]
+
+
+def test_stage_two_counts_refusals_under_every_rule_and_stage_one_does_not(
+    stage2_record: BenchRecord, record: BenchRecord
+) -> None:
+    """The final setting has padded answers too; Stage I's record stays as it was."""
+    assert stage2_record.refused_answers is not None
+    assert stage2_record.refused_answers.answers == ()
+    assert record.refused_answers is None
 
 
 def test_a_stage_two_run_with_everything_read_lacks_nothing_for_a_final(

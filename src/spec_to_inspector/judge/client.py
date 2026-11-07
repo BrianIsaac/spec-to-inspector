@@ -20,6 +20,8 @@ Message = Mapping[str, object]
 
 SCHEMA_NAME: Final = "judge_answer"
 DEFAULT_MAX_TOKENS: Final = 256
+STOPPED_AT_MAX_LENGTH: Final = "length"
+"""The `finish_reason` of a completion the server stopped at `max_tokens`."""
 _ERROR_BODY_CHARACTERS: Final = 300
 
 

@@ -18,7 +18,7 @@ from typing import Final, Literal, NamedTuple
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from spec_to_inspector.judge.answer import JudgeAnswer
+from spec_to_inspector.judge.answer import JudgeAnswer, RefusalKind
 from spec_to_inspector.judge.disposition import Disposition, Outcome, dispose
 from spec_to_inspector.judge.join import rule_clause
 from spec_to_inspector.measure import MeasuredRegion
@@ -49,6 +49,22 @@ class Cause(StrEnum):
     NOT_JUDGED = "not judged"
 
 
+class Refusal(BaseModel):
+    """One answer the validation refused.
+
+    Attributes:
+        attempt: The asking it answered, from 1.
+        kind: What kind of refusal it is.
+        problem: What was wrong with it, in the words sent back to the model.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    attempt: int = Field(ge=1)
+    kind: RefusalKind
+    problem: str
+
+
 class JudgeCall(BaseModel):
     """What asking the judge about one region cost and returned.
 
@@ -63,6 +79,7 @@ class JudgeCall(BaseModel):
             None if the server does not say.
         texts: The model's text of each attempt, as written.
         error: Why no valid answer came, in words; None when one did.
+        refusals: Each answer the validation refused, in the order given.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -75,6 +92,7 @@ class JudgeCall(BaseModel):
     tokens_per_second: float | None = None
     texts: tuple[str, ...] = ()
     error: str | None = None
+    refusals: tuple[Refusal, ...] = ()
 
 
 class RegionDecision(BaseModel):

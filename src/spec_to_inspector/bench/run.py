@@ -44,7 +44,12 @@ from spec_to_inspector.anomaly.records import ImageResult, RunIndex
 from spec_to_inspector.bench.gpu import read_gpu_memory
 from spec_to_inspector.bench.labels import ClauseLabel, Region1, read_labels, region1_types
 from spec_to_inspector.bench.mapping import mapping_problems
-from spec_to_inspector.bench.observe import Observation, digit_reasons_of, observe
+from spec_to_inspector.bench.observe import (
+    Observation,
+    digit_reasons_of,
+    observe,
+    refused_answers_of,
+)
 from spec_to_inspector.bench.record import (
     BOARDS_NOT_SCORED_BY_THE_BENCH,
     STAGE_II_UNIT,
@@ -1037,6 +1042,7 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
         digit_reasons=(
             digit_reasons_of(observations) if plan.reason_rule == "designators" else None
         ),
+        refused_answers=refused_answers_of(observations) if plan.stage == "II" else None,
         notes=notes_for(plan.stage, protocol),
         observations=observations,
     )
