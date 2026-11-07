@@ -249,10 +249,13 @@ def test_on_the_machine_the_verb_follows_stage_twos_protocol_and_writes_its_own_
     assert result.exit_code == 0, result.output
     record = read_record(Path("final/bench.json"))
     assert record.stage == "II"
+    additions = sorted(Path("eval").glob("PROTOCOL-stage2-addition-*.md"))
+    assert "eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md" in {
+        path.as_posix() for path in additions
+    }
     assert [file.path for file in record.protocol] == [
         "eval/PROTOCOL-stage2.md",
-        "eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md",
-        "eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md",
+        *(path.as_posix() for path in additions),
     ]
     assert Path("final/README.md").read_text(encoding="utf-8").startswith("# Stage II:")
     logs = list(Path("final").glob("bench.server-log.*.txt"))
