@@ -251,6 +251,7 @@ def test_on_the_machine_the_verb_follows_stage_twos_protocol_and_writes_its_own_
     assert record.stage == "II"
     assert [file.path for file in record.protocol] == [
         "eval/PROTOCOL-stage2.md",
+        "eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md",
         "eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md",
         "eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md",
         "eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md",
