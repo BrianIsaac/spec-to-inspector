@@ -1,0 +1,6486 @@
+{
+  "schema_version": 2,
+  "unit": "stage2",
+  "stage": "II",
+  "measured_at": "2026-11-07T04:25:41+00:00",
+  "measured_on": "2026-11-07",
+  "command": [
+    "spec-to-inspector",
+    "bench",
+    "--part",
+    "pcb4",
+    "--batch",
+    "whole-pcb4",
+    "--results",
+    "/home/devcloud/before-final/whole-pcb4/bench.json",
+    "--readme",
+    "/home/devcloud/before-final/whole-pcb4/README.md"
+  ],
+  "parts": [
+    "pcb4"
+  ],
+  "limit": null,
+  "partial": true,
+  "protocol": [
+    {
+      "path": "eval/PROTOCOL-stage2.md",
+      "sha256": "ebbd8cc1cb25172f7d74cddf8190e0826204eb6b3c8cc7e1da83a565ead4e3f6"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md",
+      "sha256": "84c8d198200b11a45e4eac8735611c20681cf5a9db5f0d4a2063330ac4f7c65b"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md",
+      "sha256": "8d8d4ef19e95354a4a1ab220e6eb9dc51865c87b2ae6e9f9da1464bdd4c5b1b1"
+    }
+  ],
+  "labels": {
+    "file": {
+      "path": "eval/clause_labels.csv",
+      "sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337"
+    },
+    "images": 100,
+    "single_defect": 44,
+    "multi_defect": 56
+  },
+  "specification": {
+    "pdf": {
+      "path": "specs/pcb-spec.pdf",
+      "sha256": "2b8749b32fa88b3a3ac15455324cb3a726dffa7e8e94a7acd7b5c39abc6b47bd"
+    },
+    "clause_table": {
+      "path": "specs/pcb-spec.clauses.json",
+      "sha256": "510ca4c1735b1e5ad0f525380d1414fd6943fa40a09195006251380b114ad661"
+    },
+    "title": "Workmanship acceptance specification: PCB1 and PCB4 assemblies",
+    "pages": 6,
+    "clauses": 16,
+    "headings": 11,
+    "parse_seconds": 6.5036698739859276,
+    "equals_tracked_clause_table": true
+  },
+  "judge": {
+    "url": "http://127.0.0.1:8131/v1",
+    "model": "qwen3-vl-8b-instruct",
+    "server": {
+      "vllm_version": "0.26.1.dev0+g568afb3a1.d20260831",
+      "served_model": "qwen3-vl-8b-instruct",
+      "weights_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+      "max_model_len": "32768",
+      "image": "intel/llm-scaler-vllm:0.26.0-b1",
+      "image_digest": "sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490",
+      "image_label_version": "20260608",
+      "image_label_revision": "ac12083301cbdbe06135882d401f7877b0b512db",
+      "command": "-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt '{\"image\": 2}' --mm-processor-kwargs '{\"size\": {\"shortest_edge\": 1048576, \"longest_edge\": 16777216}}' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1",
+      "dtype": "float16"
+    },
+    "server_sources": {
+      "vllm_version": "GET /version",
+      "served_model": "GET /v1/models",
+      "weights_revision": "GET /v1/models",
+      "max_model_len": "GET /v1/models",
+      "image": "docker inspect, Config.Image",
+      "image_digest": "docker image inspect, RepoDigests",
+      "image_label_version": "container label org.opencontainers.image.version",
+      "image_label_revision": "container label org.opencontainers.image.revision",
+      "command": "docker inspect, Args",
+      "dtype": "the server's log, the engine's line, dtype=torch.*"
+    },
+    "image_min_tokens": "1024",
+    "gpu": "Intel(R) Arc(TM) Pro B70 Graphics",
+    "cache_prompt": false,
+    "cold": {
+      "server_flags": [
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb 0"
+      ],
+      "engine_prefix_caching": false,
+      "server_started_at": "2026-11-06T15:40:16.517468169Z",
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "hit_rate_percent": 0.0,
+      "hit_rate_readings": 29,
+      "server_log": {
+        "path": "/home/devcloud/before-final/whole-pcb4/bench.server-log.20261107T042019Z.txt",
+        "sha256": "c602031032a9c8fca326e9b6daad7859c1a8b50011be8236b40e77841dc704b0"
+      }
+    },
+    "warm_up": {
+      "asked": true,
+      "image": "pcb4 good-0990",
+      "seconds": 2.245027752011083
+    },
+    "reason_pattern": "^[^0-9\\n\\r\"\\\\]{1,240}$",
+    "max_regions": 3,
+    "corrections": "none recalled"
+  },
+  "runs": {
+    "pcb4": {
+      "part": "pcb4",
+      "run_directory": "/home/devcloud/before-final/runs/pcb4/whole-pcb4",
+      "images": 201,
+      "good": 101,
+      "anomalous": 100,
+      "flagged_good": 9,
+      "flagged_anomalous": 97,
+      "image_threshold": 30.048744201660156,
+      "thresholds_tuned_on_test": true,
+      "batch_size": 16,
+      "load_seconds": 2.4621670310152695,
+      "inference_seconds": 19.823000361968298,
+      "seconds_per_image": 0.09862189234810098,
+      "model_trained_at": "2026-11-06T17:59:34+00:00",
+      "fit_seconds": 700.7897639329894,
+      "train_peak_allocated_mib": 7971.28369140625,
+      "memory": {
+        "process_peak_mib": 2552,
+        "card_peak_mib": 2594,
+        "card_before_mib": 1592,
+        "samples": 24,
+        "interval_seconds": 0.5,
+        "source": "xpu-smi",
+        "card": "0000:17:00.0, under ZE_AFFINITY_MASK=0",
+        "process_note": null
+      },
+      "checkpoint": {
+        "path": "/home/devcloud/week2/run-1/models/patchcore/pcb4/model.ckpt",
+        "sha256": "cc571d9a4c56ee791888a2f6ce73e7db2f7f46b57c7aeb683ce7ba447f03ccb4"
+      }
+    }
+  },
+  "scores": {
+    "headline": {
+      "strict": {
+        "all": {
+          "count": 5,
+          "n": 44,
+          "rate": 0.11363636363636363,
+          "low": 0.04952780569751397,
+          "high": 0.2397915253797293
+        },
+        "by_part": {
+          "pcb4": {
+            "count": 5,
+            "n": 44,
+            "rate": 0.11363636363636363,
+            "low": 0.04952780569751397,
+            "high": 0.2397915253797293
+          }
+        }
+      },
+      "flagged": {
+        "all": {
+          "count": 42,
+          "n": 44,
+          "rate": 0.9545454545454546,
+          "low": 0.8486500144514563,
+          "high": 0.9874448901635516
+        },
+        "by_part": {
+          "pcb4": {
+            "count": 42,
+            "n": 44,
+            "rate": 0.9545454545454546,
+            "low": 0.8486500144514563,
+            "high": 0.9874448901635516
+          }
+        }
+      },
+      "on_defect": {
+        "all": {
+          "count": 40,
+          "n": 44,
+          "rate": 0.9090909090909091,
+          "low": 0.7884076071311003,
+          "high": 0.9640778070224066
+        },
+        "by_part": {
+          "pcb4": {
+            "count": 40,
+            "n": 44,
+            "rate": 0.9090909090909091,
+            "low": 0.7884076071311003,
+            "high": 0.9640778070224066
+          }
+        }
+      },
+      "strict_given_flagged": {
+        "all": {
+          "count": 5,
+          "n": 42,
+          "rate": 0.11904761904761904,
+          "low": 0.051938032948927404,
+          "high": 0.2500039038715764
+        },
+        "by_part": {
+          "pcb4": {
+            "count": 5,
+            "n": 42,
+            "rate": 0.11904761904761904,
+            "low": 0.051938032948927404,
+            "high": 0.2500039038715764
+          }
+        }
+      },
+      "strict_given_on_defect": {
+        "all": {
+          "count": 5,
+          "n": 40,
+          "rate": 0.125,
+          "low": 0.05459500216399486,
+          "high": 0.26112119967985287
+        },
+        "by_part": {
+          "pcb4": {
+            "count": 5,
+            "n": 40,
+            "rate": 0.125,
+            "low": 0.05459500216399486,
+            "high": 0.26112119967985287
+          }
+        }
+      },
+      "rows_applied": {
+        "5.5": 2,
+        "5.2": 2,
+        "5.3": 1
+      },
+      "region1_outcomes": {
+        "reject": 5
+      }
+    },
+    "lenient": {
+      "all": {
+        "count": 38,
+        "n": 56,
+        "rate": 0.6785714285714286,
+        "low": 0.5482263980424662,
+        "high": 0.7859900527909407
+      },
+      "by_part": {
+        "pcb4": {
+          "count": 38,
+          "n": 56,
+          "rate": 0.6785714285714286,
+          "low": 0.5482263980424662,
+          "high": 0.7859900527909407
+        }
+      }
+    },
+    "per_region": {
+      "all": {
+        "count": 15,
+        "n": 74,
+        "rate": 0.20270270270270271,
+        "low": 0.12687074756447328,
+        "high": 0.307877770354524
+      },
+      "by_part": {
+        "pcb4": {
+          "count": 15,
+          "n": 74,
+          "rate": 0.20270270270270271,
+          "low": 0.12687074756447328,
+          "high": 0.307877770354524
+        }
+      }
+    },
+    "confusion_single": {
+      "pcb4": {
+        "damage": {
+          "dirt": 4,
+          "damage": 2,
+          "extra": 1
+        },
+        "burnt": {
+          "dirt": 2
+        },
+        "extra": {
+          "dirt": 7,
+          "burnt": 2,
+          "damage": 1,
+          "missing": 1,
+          "extra": 1
+        },
+        "missing": {
+          "dirt": 13,
+          "not flagged": 2,
+          "missing": 2,
+          "extra": 1,
+          "scratch": 1
+        },
+        "scratch": {
+          "missing": 1,
+          "dirt": 1
+        },
+        "wrong place": {
+          "dirt": 2
+        }
+      }
+    },
+    "confusion_region": {
+      "pcb4": {
+        "burnt": {
+          "burnt": 2,
+          "dirt": 2,
+          "damage": 1
+        },
+        "dirt": {
+          "dirt": 3
+        },
+        "damage": {
+          "dirt": 5,
+          "damage": 4,
+          "burnt": 2,
+          "extra": 1
+        },
+        "missing": {
+          "dirt": 19,
+          "missing": 4,
+          "extra": 1
+        },
+        "extra": {
+          "dirt": 10,
+          "burnt": 3,
+          "missing": 2,
+          "extra": 2,
+          "damage": 1
+        },
+        "scratch": {
+          "dirt": 2,
+          "missing": 1
+        },
+        "wrong place": {
+          "dirt": 9
+        }
+      }
+    },
+    "class_not_of_heading": 0,
+    "anomalous": {
+      "boards": 100,
+      "not_flagged": 3,
+      "board_outcomes": {
+        "reject": 93,
+        "needs review": 4
+      },
+      "board_review_causes": {
+        "not measured": 3,
+        "outside every zone": 1
+      },
+      "board_needs_review": {
+        "count": 4,
+        "n": 100,
+        "rate": 0.04,
+        "low": 0.01566330388275538,
+        "high": 0.09837071498472119
+      },
+      "areas": 97,
+      "area_outcomes": {
+        "reject": 93,
+        "needs review": 4
+      },
+      "area_review_causes": {
+        "not measured": 3,
+        "outside every zone": 1
+      },
+      "area_needs_review": {
+        "count": 4,
+        "n": 97,
+        "rate": 0.041237113402061855,
+        "low": 0.016151236473979716,
+        "high": 0.10127525668331379
+      }
+    },
+    "good": {
+      "all": {
+        "flagged": {
+          "count": 9,
+          "n": 101,
+          "rate": 0.0891089108910891,
+          "low": 0.04758923754044453,
+          "high": 0.16073921490912904
+        },
+        "rejected": {
+          "count": 6,
+          "n": 101,
+          "rate": 0.0594059405940594,
+          "low": 0.02750812735295155,
+          "high": 0.12359105659900085
+        },
+        "referred": {
+          "count": 3,
+          "n": 101,
+          "rate": 0.0297029702970297,
+          "low": 0.01015248057162274,
+          "high": 0.08371743488270848
+        },
+        "accepted_after_judging": {
+          "count": 0,
+          "n": 101,
+          "rate": 0.0,
+          "low": 0.0,
+          "high": 0.03664064695671004
+        },
+        "citations": {
+          "5.1": 7,
+          "5.2": 1,
+          "5.3": 1
+        },
+        "dispositions": {
+          "boards": 101,
+          "not_flagged": 92,
+          "board_outcomes": {
+            "reject": 6,
+            "needs review": 3
+          },
+          "board_review_causes": {
+            "outside every zone": 3
+          },
+          "board_needs_review": {
+            "count": 3,
+            "n": 101,
+            "rate": 0.0297029702970297,
+            "low": 0.01015248057162274,
+            "high": 0.08371743488270848
+          },
+          "areas": 9,
+          "area_outcomes": {
+            "reject": 6,
+            "needs review": 3
+          },
+          "area_review_causes": {
+            "outside every zone": 3
+          },
+          "area_needs_review": {
+            "count": 3,
+            "n": 9,
+            "rate": 0.3333333333333333,
+            "low": 0.12058381743407343,
+            "high": 0.6457978664749412
+          }
+        }
+      },
+      "by_part": {
+        "pcb4": {
+          "flagged": {
+            "count": 9,
+            "n": 101,
+            "rate": 0.0891089108910891,
+            "low": 0.04758923754044453,
+            "high": 0.16073921490912904
+          },
+          "rejected": {
+            "count": 6,
+            "n": 101,
+            "rate": 0.0594059405940594,
+            "low": 0.02750812735295155,
+            "high": 0.12359105659900085
+          },
+          "referred": {
+            "count": 3,
+            "n": 101,
+            "rate": 0.0297029702970297,
+            "low": 0.01015248057162274,
+            "high": 0.08371743488270848
+          },
+          "accepted_after_judging": {
+            "count": 0,
+            "n": 101,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.03664064695671004
+          },
+          "citations": {
+            "5.1": 7,
+            "5.2": 1,
+            "5.3": 1
+          },
+          "dispositions": {
+            "boards": 101,
+            "not_flagged": 92,
+            "board_outcomes": {
+              "reject": 6,
+              "needs review": 3
+            },
+            "board_review_causes": {
+              "outside every zone": 3
+            },
+            "board_needs_review": {
+              "count": 3,
+              "n": 101,
+              "rate": 0.0297029702970297,
+              "low": 0.01015248057162274,
+              "high": 0.08371743488270848
+            },
+            "areas": 9,
+            "area_outcomes": {
+              "reject": 6,
+              "needs review": 3
+            },
+            "area_review_causes": {
+              "outside every zone": 3
+            },
+            "area_needs_review": {
+              "count": 3,
+              "n": 9,
+              "rate": 0.3333333333333333,
+              "low": 0.12058381743407343,
+              "high": 0.6457978664749412
+            }
+          }
+        }
+      }
+    },
+    "stale_region_truth": []
+  },
+  "times": {
+    "parse_seconds": 6.5036698739859276,
+    "anomaly_seconds_per_image": {
+      "pcb4": 0.09862189234810098
+    },
+    "flagged_images": 106,
+    "areas_asked": 106,
+    "areas_per_flagged_image": 1.0,
+    "measure_and_draw_seconds": {
+      "n": 106,
+      "p50": 0.07017125652055256,
+      "p95": 0.2580715007497929,
+      "mean": 0.09463849702777499,
+      "minimum": 0.0424250039504841,
+      "maximum": 0.31575638405047357
+    },
+    "vlm_seconds_per_area": {
+      "n": 106,
+      "p50": 2.1237523465242703,
+      "p95": 2.4426906262669945,
+      "mean": 2.5006024756991603,
+      "minimum": 1.9454513099626638,
+      "maximum": 11.014358940068632
+    },
+    "vlm_seconds_per_flagged_image": {
+      "n": 106,
+      "p50": 2.1237523465242703,
+      "p95": 2.4426906262669945,
+      "mean": 2.5006024756991603,
+      "minimum": 1.9454513099626638,
+      "maximum": 11.014358940068632
+    },
+    "flagged_image_seconds": {
+      "n": 106,
+      "p50": 2.3427530198369,
+      "p95": 2.69221004062093,
+      "mean": 2.6938628650750354,
+      "minimum": 2.098224179308099,
+      "maximum": 11.192075588345697
+    },
+    "judge_stage_seconds": 275.33215151604963,
+    "prompt_tokens": {
+      "n": 106,
+      "p50": 4708.0,
+      "p95": 4807.0,
+      "mean": 4723.933962264151,
+      "minimum": 4550.0,
+      "maximum": 5028.0
+    },
+    "completion_tokens": {
+      "n": 106,
+      "p50": 34.0,
+      "p95": 42.5,
+      "mean": 35.43396226415094,
+      "minimum": 29.0,
+      "maximum": 46.0
+    },
+    "output_tokens_per_second": null
+  },
+  "judge_memory": {
+    "process_peak_mib": null,
+    "card_peak_mib": 29471,
+    "card_before_mib": 29471,
+    "samples": 360,
+    "interval_seconds": 0.5,
+    "source": "xpu-smi",
+    "card": "0000:ba:00.0",
+    "process_note": "the judge's server runs in a container: xpu-smi ps does not list its process, even under sudo, and ss shows no pid, so its own figure is null and its card stands for it"
+  },
+  "inspector": {
+    "parse_seconds": 6.5036698739859276,
+    "fit_seconds": {
+      "pcb4": 700.7897639329894
+    },
+    "minutes_by_part": {
+      "pcb4": 11.788223896782922
+    },
+    "minutes_all_parts": 11.788223896782922
+  },
+  "leak": {
+    "decisions": 201,
+    "with_corrections_in_prompt": 0
+  },
+  "on_threshold": {
+    "tolerance": 0.001,
+    "parts": [
+      "pcb4"
+    ],
+    "boards": [
+      {
+        "part": "pcb4",
+        "image_id": "bad-081",
+        "label": "bad",
+        "score": 30.048744201660156,
+        "threshold": 30.048744201660156,
+        "above": false
+      }
+    ],
+    "elsewhere": [
+      {
+        "part": "pcb2",
+        "image_id": "bad-060",
+        "label": "bad",
+        "score": 29.304889678955078,
+        "threshold": 29.304889678955078,
+        "above": false
+      },
+      {
+        "part": "pcb3",
+        "image_id": "bad-097",
+        "label": "bad",
+        "score": 31.543020248413086,
+        "threshold": 31.54305076599121,
+        "above": false
+      }
+    ]
+  },
+  "checkpoints_held_to": {
+    "path": "results/stage2/checkpoints.json",
+    "sha256": "af420d92ee128a051f2d779b6f731b81a6e433d5168b142e52ee559cf2779815"
+  },
+  "digit_reasons": null,
+  "refused_answers": {
+    "answers": [
+      {
+        "part": "pcb4",
+        "image_id": "bad-080",
+        "area": 1,
+        "attempt": 1,
+        "kind": "padded to the token limit",
+        "problem": "not JSON (Unterminated string starting at at character 11)"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-085",
+        "area": 1,
+        "attempt": 1,
+        "kind": "padded to the token limit",
+        "problem": "not JSON (Unterminated string starting at at character 11)"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-094",
+        "area": 1,
+        "attempt": 1,
+        "kind": "reason states a figure",
+        "problem": "reason: Value error, the reason must not state a figure: sizes are measured, not judged"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-095",
+        "area": 1,
+        "attempt": 1,
+        "kind": "padded to the token limit",
+        "problem": "not JSON (Unterminated string starting at at character 11)"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-096",
+        "area": 1,
+        "attempt": 1,
+        "kind": "padded to the token limit",
+        "problem": "not JSON (Unterminated string starting at at character 11)"
+      }
+    ],
+    "by_kind": {
+      "padded to the token limit": 4,
+      "not JSON": 0,
+      "reason over the character limit": 0,
+      "reason states a figure": 1,
+      "otherwise invalid": 0
+    },
+    "padded": 4
+  },
+  "not_final": [
+    "the whole labelled set: this is a partial run"
+  ],
+  "repeat": null,
+  "notes": {
+    "protocol": "every figure is defined in eval/PROTOCOL-stage2.md, written before the run, with what eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md, eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md adds to it; each file's digest at the time of the run is under `protocol`",
+    "proportions": "count of n; rate, low and high are fractions of 1; low and high are the 95% Wilson score interval, z = 1.959964, no continuity correction",
+    "citation": "the heading id in the judge's validated answer about region 1, the most anomalous area; an image with no citation counts as wrong",
+    "units": "*_seconds and seconds are wall-clock seconds; *_mib is MiB as xpu-smi reports it; minutes are seconds / 60; anomaly scores and thresholds are raw PatchCore distances",
+    "percentiles": "numpy.percentile, linear interpolation between the ranked values",
+    "cold": "the cold comes from the server's start: vLLM ignores the request's cache_prompt and says nothing, so the server is started with its prefix cache off; judge.cold holds the flags as its container's command line gives them, the engine's own word, and the hit rate read from its log during the run, which above 0.0% voids the run",
+    "corrections": "no correction was recalled into any prompt; `leak` counts the decisions and how many of them had a correction in a prompt, which must be none",
+    "not_held_out": "the anomaly model's thresholds were chosen on the same test split, and the judge's prompt was written with sight of some of its images: see eval/PROTOCOL-stage2.md",
+    "inspector": "parse time is measured in this run and includes loading the parser's models; fit time is the one recorded when each part's model was trained, not repeated here",
+    "memory": "the anomaly model's card and the judge's are read from xpu-smi, each stage's under `memory` with the card it read; the judge's own process stays null in its container, where xpu-smi ps does not list it, and the card stands for it, 42 MiB on an idle card",
+    "warm_up": "one question before the judge's clock, as judged on the first flagged image and not recorded; judge.warm_up says it was asked and how long it took, not what it answered",
+    "on_threshold": "the rule is a strict >, so float noise decides a board whose score sits on its threshold: those of this run's boards are under `on_threshold` and the figure is read with them known"
+  },
+  "observations": [
+    {
+      "part": "pcb4",
+      "image_id": "good-0107",
+      "label": "good",
+      "score": 24.413312911987305,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0009226689580827951,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0484",
+      "label": "good",
+      "score": 23.287858963012695,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00047495902981609106,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0690",
+      "label": "good",
+      "score": 24.57747459411621,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00041562801925465465,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0303",
+      "label": "good",
+      "score": 25.690296173095703,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0014843099634163082,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0237",
+      "label": "good",
+      "score": 28.538494110107422,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003316570073366165,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0394",
+      "label": "good",
+      "score": 24.907840728759766,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00032306701177731156,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0214",
+      "label": "good",
+      "score": 27.644119262695312,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002933249925263226,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0990",
+      "label": "good",
+      "score": 32.052982330322266,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder on the board surface near a header pin",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.174637665040791,
+          "attempts": 1,
+          "prompt_tokens": 4645,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.229037756973412,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0657",
+      "label": "good",
+      "score": 29.222549438476562,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0006006020121276379,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0377",
+      "label": "good",
+      "score": 25.56505584716797,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00039343303069472313,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0659",
+      "label": "good",
+      "score": 23.752309799194336,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00038076803321018815,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0514",
+      "label": "good",
+      "score": 22.835674285888672,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003401580033823848,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0617",
+      "label": "good",
+      "score": 23.381954193115234,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003298780065961182,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0725",
+      "label": "good",
+      "score": 23.030942916870117,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003224820247851312,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0172",
+      "label": "good",
+      "score": 23.80370330810547,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003252710448578,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-1001",
+      "label": "good",
+      "score": 26.36962890625,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003211110015399754,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0483",
+      "label": "good",
+      "score": 24.791868209838867,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00033960602013394237,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0654",
+      "label": "good",
+      "score": 24.843402862548828,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00031048699747771025,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0400",
+      "label": "good",
+      "score": 23.699663162231445,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00029104104032739997,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0469",
+      "label": "good",
+      "score": 25.279251098632812,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003019100404344499,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0525",
+      "label": "good",
+      "score": 25.311492919921875,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00029378599720075727,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0170",
+      "label": "good",
+      "score": 23.20379638671875,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002941249986179173,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0631",
+      "label": "good",
+      "score": 24.105310440063477,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00031028600642457604,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0685",
+      "label": "good",
+      "score": 24.315759658813477,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00028975203167647123,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0320",
+      "label": "good",
+      "score": 34.83332443237305,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.3",
+      "cited_class": "extra",
+      "sentence": "A foreign object, possibly a fragment of plastic or solder, is present on the board surface.",
+      "row_id": null,
+      "outcome": "needs review",
+      "review_cause": "outside every zone",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "outside every zone",
+          "asked": true,
+          "seconds": 2.292015414976049,
+          "attempts": 1,
+          "prompt_tokens": 4741,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3385438440018333,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0869",
+      "label": "good",
+      "score": 23.255964279174805,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.000560031970962882,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0423",
+      "label": "good",
+      "score": 31.788349151611328,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone B",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0212214079801925,
+          "attempts": 1,
+          "prompt_tokens": 4644,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0714481780305505,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0417",
+      "label": "good",
+      "score": 23.751665115356445,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005723870126530528,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0751",
+      "label": "good",
+      "score": 23.192249298095703,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00038186099845916033,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0764",
+      "label": "good",
+      "score": 23.14690589904785,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003266229759901762,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0971",
+      "label": "good",
+      "score": 24.263568878173828,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003236760385334492,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0730",
+      "label": "good",
+      "score": 25.977338790893555,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00028921099146828055,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0306",
+      "label": "good",
+      "score": 24.552377700805664,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002912870259024203,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0011",
+      "label": "good",
+      "score": 30.295310974121094,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A small, dark spot on the board surface, likely foreign material.",
+      "row_id": null,
+      "outcome": "needs review",
+      "review_cause": "outside every zone",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "outside every zone",
+          "asked": true,
+          "seconds": 2.1046689189970493,
+          "attempts": 1,
+          "prompt_tokens": 4550,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1470939229475334,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0215",
+      "label": "good",
+      "score": 26.723617553710938,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005271609988994896,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0159",
+      "label": "good",
+      "score": 25.25611686706543,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0004371039685793221,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0629",
+      "label": "good",
+      "score": 26.013784408569336,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00036292598815634847,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0694",
+      "label": "good",
+      "score": 25.490079879760742,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.000336777011398226,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0518",
+      "label": "good",
+      "score": 25.462980270385742,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003301420365460217,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0940",
+      "label": "good",
+      "score": 23.51976776123047,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00030880700796842575,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0026",
+      "label": "good",
+      "score": 34.274871826171875,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A foreign material spot on the board surface in zone B.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.085352446010802,
+          "attempts": 1,
+          "prompt_tokens": 4661,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1336577950278297,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0844",
+      "label": "good",
+      "score": 23.871370315551758,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005946459714323282,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0957",
+      "label": "good",
+      "score": 27.581972122192383,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003969770041294396,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0900",
+      "label": "good",
+      "score": 26.012495040893555,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00034187600249424577,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0402",
+      "label": "good",
+      "score": 23.14303207397461,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003341810079291463,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0621",
+      "label": "good",
+      "score": 24.264488220214844,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003051179810427129,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0294",
+      "label": "good",
+      "score": 27.435970306396484,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.000291000003926456,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0016",
+      "label": "good",
+      "score": 27.928377151489258,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003130129771307111,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0046",
+      "label": "good",
+      "score": 24.2460994720459,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00030129699734970927,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0705",
+      "label": "good",
+      "score": 24.548316955566406,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002943099825643003,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0208",
+      "label": "good",
+      "score": 23.59522819519043,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00029858597554266453,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0674",
+      "label": "good",
+      "score": 26.93453598022461,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002899069804698229,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0427",
+      "label": "good",
+      "score": 24.8365421295166,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002903600106947124,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0552",
+      "label": "good",
+      "score": 25.575538635253906,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003176269819959998,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0804",
+      "label": "good",
+      "score": 23.364145278930664,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002991359797306359,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0333",
+      "label": "good",
+      "score": 25.410526275634766,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00028041802579537034,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0027",
+      "label": "good",
+      "score": 23.151443481445312,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002995869726873934,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0100",
+      "label": "good",
+      "score": 26.525419235229492,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00030605000210925937,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0800",
+      "label": "good",
+      "score": 27.279905319213867,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002834509941749275,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0923",
+      "label": "good",
+      "score": 28.00565528869629,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002823870163410902,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0755",
+      "label": "good",
+      "score": 27.523595809936523,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00027428101748228073,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0013",
+      "label": "good",
+      "score": 28.605857849121094,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00026611401699483395,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0297",
+      "label": "good",
+      "score": 25.32131576538086,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002264769864268601,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0768",
+      "label": "good",
+      "score": 23.37261962890625,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00022627098951488733,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0457",
+      "label": "good",
+      "score": 24.05390167236328,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.000236260995734483,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0520",
+      "label": "good",
+      "score": 23.80817222595215,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00023378996411338449,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0952",
+      "label": "good",
+      "score": 27.679636001586914,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00022677896777167916,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0871",
+      "label": "good",
+      "score": 34.35225296020508,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone C",
+      "row_id": "5.1.3",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.064885673986282,
+          "attempts": 1,
+          "prompt_tokens": 4709,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1340262570302,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0811",
+      "label": "good",
+      "score": 23.457242965698242,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0012155629810877144,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0174",
+      "label": "good",
+      "score": 26.317733764648438,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005529170157387853,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0648",
+      "label": "good",
+      "score": 23.243833541870117,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0004254800151102245,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0261",
+      "label": "good",
+      "score": 25.637226104736328,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003504870110191405,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0784",
+      "label": "good",
+      "score": 31.988597869873047,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A foreign material defect, appearing as a thin, elongated strand on the board surface.",
+      "row_id": null,
+      "outcome": "needs review",
+      "review_cause": "outside every zone",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "outside every zone",
+          "asked": true,
+          "seconds": 2.2570117979776114,
+          "attempts": 1,
+          "prompt_tokens": 4618,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.304498109035194,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0977",
+      "label": "good",
+      "score": 27.402978897094727,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0006499080336652696,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0935",
+      "label": "good",
+      "score": 23.955598831176758,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00040086801163852215,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0286",
+      "label": "good",
+      "score": 24.069883346557617,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00038511399179697037,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0779",
+      "label": "good",
+      "score": 23.20060920715332,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00032380595803260803,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0363",
+      "label": "good",
+      "score": 23.896621704101562,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003059750306420028,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0619",
+      "label": "good",
+      "score": 24.53424835205078,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00031826202757656574,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0024",
+      "label": "good",
+      "score": 24.914533615112305,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00030714599415659904,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0735",
+      "label": "good",
+      "score": 22.919937133789062,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002873670309782028,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0688",
+      "label": "good",
+      "score": 32.56880187988281,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone B",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0212016539881006,
+          "attempts": 1,
+          "prompt_tokens": 4645,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0669558660010807,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0796",
+      "label": "good",
+      "score": 23.708913803100586,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005513409851118922,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0178",
+      "label": "good",
+      "score": 23.948280334472656,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00038097205106168985,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0797",
+      "label": "good",
+      "score": 25.943021774291992,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00038457399932667613,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0920",
+      "label": "good",
+      "score": 26.840450286865234,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00031546095851808786,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0479",
+      "label": "good",
+      "score": 23.51657485961914,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003099530003964901,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0684",
+      "label": "good",
+      "score": 22.67057991027832,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003088659723289311,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0739",
+      "label": "good",
+      "score": 26.233827590942383,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002956300158984959,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0569",
+      "label": "good",
+      "score": 23.65762710571289,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00028734200168401003,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0196",
+      "label": "good",
+      "score": 26.251161575317383,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003011610242538154,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0892",
+      "label": "good",
+      "score": 27.844985961914062,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002826800337061286,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0964",
+      "label": "good",
+      "score": 26.19625473022461,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00029006198747083545,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0187",
+      "label": "good",
+      "score": 26.85527992248535,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00032341096084564924,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0488",
+      "label": "good",
+      "score": 24.946346282958984,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0002808910212479532,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0994",
+      "label": "good",
+      "score": 24.515295028686523,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00029035203624516726,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0545",
+      "label": "good",
+      "score": 26.18888282775879,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003152959980070591,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0615",
+      "label": "good",
+      "score": 34.45111846923828,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A foreign material, a thin, curved fiber, is present on the board surface in zone C.",
+      "row_id": "5.1.3",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.342116696003359,
+          "attempts": 1,
+          "prompt_tokens": 4705,
+          "completion_tokens": 43,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.392128192994278,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0974",
+      "label": "good",
+      "score": 27.272804260253906,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005642370088025928,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0490",
+      "label": "good",
+      "score": 24.940881729125977,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00040494801942259073,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0168",
+      "label": "good",
+      "score": 24.180288314819336,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00034300104016438127,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-000",
+      "label": "bad",
+      "score": 36.8028678894043,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "burnt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A blackened, charred area on the board surface under the heatmap.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2124260640121065,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2971086089964956,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-001",
+      "label": "bad",
+      "score": 36.597164154052734,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "burnt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A burn mark on the board near a component",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0577774380217306,
+          "attempts": 1,
+          "prompt_tokens": 4705,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.11394495901186,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-002",
+      "label": "bad",
+      "score": 44.129638671875,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1131480620242655,
+          "attempts": 1,
+          "prompt_tokens": 4752,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.381977053009905,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-003",
+      "label": "bad",
+      "score": 38.61216735839844,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "burnt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "A component with a large blackened area on its body, indicating burn damage.",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.23248807300115,
+          "attempts": 1,
+          "prompt_tokens": 4755,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3005811650073156,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-004",
+      "label": "bad",
+      "score": 34.25394821166992,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "The receptacle component has foreign material on its surface.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.115433064987883,
+          "attempts": 1,
+          "prompt_tokens": 4755,
+          "completion_tokens": 34,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.188979855971411,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-005",
+      "label": "bad",
+      "score": 30.844058990478516,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the receptacle surface",
+      "row_id": "5.1.2",
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "not measured",
+          "asked": true,
+          "seconds": 1.949910665047355,
+          "attempts": 1,
+          "prompt_tokens": 4574,
+          "completion_tokens": 31,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 1.9996022869599983,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-006",
+      "label": "bad",
+      "score": 36.6216926574707,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "The receptacle has foreign material on its surface.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1193126710131764,
+          "attempts": 1,
+          "prompt_tokens": 4770,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.228254411020316,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-007",
+      "label": "bad",
+      "score": 34.28413772583008,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "A damaged component body on the integrated circuit",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9935062800068408,
+          "attempts": 1,
+          "prompt_tokens": 4644,
+          "completion_tokens": 31,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.042271417041775,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-008",
+      "label": "bad",
+      "score": 33.545719146728516,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "burnt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0399607069557533,
+          "attempts": 1,
+          "prompt_tokens": 4643,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0912867470178753,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-009",
+      "label": "bad",
+      "score": 33.05497360229492,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A component with a burn mark on its body.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.049321112979669,
+          "attempts": 1,
+          "prompt_tokens": 4642,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1000788760138676,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-010",
+      "label": "bad",
+      "score": 43.86897659301758,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "The receptacle has foreign material on its surface.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1090227640233934,
+          "attempts": 1,
+          "prompt_tokens": 4809,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.233373644994572,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-011",
+      "label": "bad",
+      "score": 47.24470901489258,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.3",
+      "cited_class": "extra",
+      "sentence": "A lump of solder or adhesive on the board near the BAT- pad",
+      "row_id": "5.3",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.201569068012759,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2935614120215178,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-012",
+      "label": "bad",
+      "score": 34.440547943115234,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone B and C",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1398217329988256,
+          "attempts": 1,
+          "prompt_tokens": 4754,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2419239209848456,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-013",
+      "label": "bad",
+      "score": 40.53773880004883,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone B",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.099435771990102,
+          "attempts": 1,
+          "prompt_tokens": 4786,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.191027439024765,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-014",
+      "label": "bad",
+      "score": 41.60459899902344,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A large dark spot of foreign material on the board surface in zone A.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.217325469944626,
+          "attempts": 1,
+          "prompt_tokens": 4735,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2919919599662535,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-015",
+      "label": "bad",
+      "score": 38.84844207763672,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "The receptacle has foreign material on its surface.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0702575310133398,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1614314690232277,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-016",
+      "label": "bad",
+      "score": 35.71858596801758,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A lump of foreign material on the board surface",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1228194260038435,
+          "attempts": 1,
+          "prompt_tokens": 4771,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.189828648988623,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-017",
+      "label": "bad",
+      "score": 46.2979621887207,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "The receptacle component has a blackened, charred area on its surface.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.258970705966931,
+          "attempts": 1,
+          "prompt_tokens": 4746,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.424375337024685,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-018",
+      "label": "bad",
+      "score": 36.66415023803711,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "A component is damaged with a broken or chipped body.",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0995729680289514,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 34,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.165898285980802,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-019",
+      "label": "bad",
+      "score": 42.66558074951172,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "A component is damaged, with visible chipping and discoloration on its body.",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2234824600163847,
+          "attempts": 1,
+          "prompt_tokens": 4642,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.320644107996486,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-020",
+      "label": "bad",
+      "score": 35.36290740966797,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "A damaged component or board, specifically a gouge through the board surface near the 'IN-' marking.",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.3368272639927454,
+          "attempts": 1,
+          "prompt_tokens": 4684,
+          "completion_tokens": 43,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3882065059733577,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-021",
+      "label": "bad",
+      "score": 47.13947296142578,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "The receptacle component is damaged, with visible chipping and deformation on its shell.",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2595249339938164,
+          "attempts": 1,
+          "prompt_tokens": 4707,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.380490123992786,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-022",
+      "label": "bad",
+      "score": 34.467079162597656,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "scratch",
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A burn mark on the receptacle shell",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.033340348978527,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 32,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0912671969854273,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-023",
+      "label": "bad",
+      "score": 34.81435012817383,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the receptacle",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9701075470075011,
+          "attempts": 1,
+          "prompt_tokens": 4707,
+          "completion_tokens": 30,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0378159129759297,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-024",
+      "label": "bad",
+      "score": 40.0224494934082,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "The receptacle component has foreign material on its surface.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1106870229705237,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 34,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.226341221947223,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-025",
+      "label": "bad",
+      "score": 37.96346664428711,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A blackened, charred area on the board surface in zone A.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2230369559838437,
+          "attempts": 1,
+          "prompt_tokens": 4745,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2942388859810308,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-026",
+      "label": "bad",
+      "score": 41.904537200927734,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A burn mark on the board surface",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0020865380065516,
+          "attempts": 1,
+          "prompt_tokens": 4744,
+          "completion_tokens": 31,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0794084099470638,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-027",
+      "label": "bad",
+      "score": 45.746212005615234,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "burnt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A black, irregular lump of material on the board surface near a component.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2245275719906203,
+          "attempts": 1,
+          "prompt_tokens": 4695,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.322652363043744,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-028",
+      "label": "bad",
+      "score": 42.199806213378906,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "A component is damaged, with its body cracked and broken.",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0937346650171094,
+          "attempts": 1,
+          "prompt_tokens": 4707,
+          "completion_tokens": 34,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.165079065016471,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-029",
+      "label": "bad",
+      "score": 35.72011184692383,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A small, curved piece of foreign material on the board surface near the USB connector.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.272709859011229,
+          "attempts": 1,
+          "prompt_tokens": 4682,
+          "completion_tokens": 40,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3549318510340527,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-030",
+      "label": "bad",
+      "score": 41.641544342041016,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "burnt",
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A burn mark on the board surface",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0077264619758353,
+          "attempts": 1,
+          "prompt_tokens": 4745,
+          "completion_tokens": 31,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0740101379924454,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-031",
+      "label": "bad",
+      "score": 37.65184783935547,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.073016539972741,
+          "attempts": 1,
+          "prompt_tokens": 4749,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1694472819799557,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-032",
+      "label": "bad",
+      "score": 50.27783966064453,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A black, irregularly shaped spot on the surface of the component body.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2265871959971264,
+          "attempts": 1,
+          "prompt_tokens": 4705,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.313575040025171,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-033",
+      "label": "bad",
+      "score": 40.859249114990234,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A blackened, charred area on the board surface under the heatmap.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.226657797000371,
+          "attempts": 1,
+          "prompt_tokens": 4737,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.323776732024271,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-034",
+      "label": "bad",
+      "score": 42.62439727783203,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder bridging two pads near the USB connector.",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.258352416974958,
+          "attempts": 1,
+          "prompt_tokens": 4798,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.400002901966218,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-035",
+      "label": "bad",
+      "score": 45.999412536621094,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A yellow plastic fragment on the board surface",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.042177114984952,
+          "attempts": 1,
+          "prompt_tokens": 4736,
+          "completion_tokens": 32,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1297640100237913,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-036",
+      "label": "bad",
+      "score": 49.2508430480957,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "scratch",
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A purple, non-component material is present on the board surface in zone A.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.256015077000484,
+          "attempts": 1,
+          "prompt_tokens": 4743,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3687043800018728,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-037",
+      "label": "bad",
+      "score": 48.177886962890625,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder bridging two pads near the 'IN+' marking",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2788299940293655,
+          "attempts": 1,
+          "prompt_tokens": 4738,
+          "completion_tokens": 40,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3803381900070235,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-038",
+      "label": "bad",
+      "score": 30.3818302154541,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "not measured",
+          "asked": true,
+          "seconds": 1.990377216017805,
+          "attempts": 1,
+          "prompt_tokens": 4574,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0399635159992613,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-039",
+      "label": "bad",
+      "score": 41.68711471557617,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.071064017014578,
+          "attempts": 1,
+          "prompt_tokens": 4723,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.184428212000057,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-040",
+      "label": "bad",
+      "score": 40.36445236206055,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.086444885004312,
+          "attempts": 1,
+          "prompt_tokens": 4744,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.271712341986131,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-041",
+      "label": "bad",
+      "score": 54.107242584228516,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A white, irregularly shaped object is present on the board surface, not belonging to any component.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.3662284209858626,
+          "attempts": 1,
+          "prompt_tokens": 4707,
+          "completion_tokens": 43,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.4590169999864884,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-042",
+      "label": "bad",
+      "score": 42.236812591552734,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder on the board surface under the component",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1871597110293806,
+          "attempts": 1,
+          "prompt_tokens": 4706,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.248129550018348,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-043",
+      "label": "bad",
+      "score": 46.85916519165039,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.3",
+      "cited_class": "extra",
+      "sentence": "A red, non-component object on the board near the BAT+ label",
+      "row_id": "5.3",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.20019239699468,
+          "attempts": 1,
+          "prompt_tokens": 4701,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3053937669610605,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-044",
+      "label": "bad",
+      "score": 42.13960266113281,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder on the board surface near the IN+ marking",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2516044240328483,
+          "attempts": 1,
+          "prompt_tokens": 4746,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.32522571698064,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-045",
+      "label": "bad",
+      "score": 47.190311431884766,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "scratch",
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.124685267044697,
+          "attempts": 1,
+          "prompt_tokens": 4799,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.374917679990176,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-046",
+      "label": "bad",
+      "score": 28.443866729736328,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.000770552025642246,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-047",
+      "label": "bad",
+      "score": 32.47977066040039,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder on the board surface in zone A",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1505932260188274,
+          "attempts": 1,
+          "prompt_tokens": 4643,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.200824595987797,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-048",
+      "label": "bad",
+      "score": 32.99082946777344,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A lump of foreign material on the board surface in zone A.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1514971099677496,
+          "attempts": 1,
+          "prompt_tokens": 4707,
+          "completion_tokens": 36,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.202993901039008,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-049",
+      "label": "bad",
+      "score": 47.23696517944336,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.133106379013043,
+          "attempts": 1,
+          "prompt_tokens": 4799,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.399197989027016,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-050",
+      "label": "bad",
+      "score": 37.37490463256836,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A large, irregularly shaped foreign material spot on the board surface in zone A.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2711565180215985,
+          "attempts": 1,
+          "prompt_tokens": 4706,
+          "completion_tokens": 40,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3263496109866537,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-051",
+      "label": "bad",
+      "score": 33.34872055053711,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0416497090482153,
+          "attempts": 1,
+          "prompt_tokens": 4644,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0936018979991786,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-052",
+      "label": "bad",
+      "score": 46.14622116088867,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.3",
+      "cited_class": "extra",
+      "sentence": "A lump of solder or adhesive on the board surface",
+      "row_id": "5.3",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1213034259853885,
+          "attempts": 1,
+          "prompt_tokens": 4801,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3537218289566226,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-053",
+      "label": "bad",
+      "score": 48.69791030883789,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone B",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.102292336989194,
+          "attempts": 1,
+          "prompt_tokens": 4712,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3544346819981,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-054",
+      "label": "bad",
+      "score": 36.555049896240234,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing",
+        "damage"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A component is present but has a burn mark on its body.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1511984890094027,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 36,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.206660074996762,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-055",
+      "label": "bad",
+      "score": 35.67027282714844,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder on the board surface near the BAT- pad",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2254711379646324,
+          "attempts": 1,
+          "prompt_tokens": 4642,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2753458759980276,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-056",
+      "label": "bad",
+      "score": 34.668766021728516,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "The receptacle has brownish discoloration and residue on its surface.",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2348178590182215,
+          "attempts": 1,
+          "prompt_tokens": 4756,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.296521782001946,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-057",
+      "label": "bad",
+      "score": 46.70719528198242,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1057812629733235,
+          "attempts": 1,
+          "prompt_tokens": 4740,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3658291489700787,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-058",
+      "label": "bad",
+      "score": 30.173749923706055,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A foreign material spot on the surface of a resistor component.",
+      "row_id": "5.1.1",
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "not measured",
+          "asked": true,
+          "seconds": 2.0698355520144105,
+          "attempts": 1,
+          "prompt_tokens": 4574,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1232540420023724,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-059",
+      "label": "bad",
+      "score": 35.924354553222656,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0663011320284568,
+          "attempts": 1,
+          "prompt_tokens": 4706,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.113137575041037,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-060",
+      "label": "bad",
+      "score": 34.45382308959961,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A large, irregularly shaped foreign material spot on the board surface.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1966417339863256,
+          "attempts": 1,
+          "prompt_tokens": 4754,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2682828120305203,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-061",
+      "label": "bad",
+      "score": 31.748184204101562,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0407465749885887,
+          "attempts": 1,
+          "prompt_tokens": 4644,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0907660509692505,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-062",
+      "label": "bad",
+      "score": 47.26571273803711,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone B",
+      "row_id": "5.1.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1025975859956816,
+          "attempts": 1,
+          "prompt_tokens": 4712,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.337043993989937,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-063",
+      "label": "bad",
+      "score": 35.49956130981445,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [],
+      "citation": "cited",
+      "cited_heading": "5.6",
+      "cited_class": "scratch",
+      "sentence": "A scratch on the board surface",
+      "row_id": null,
+      "outcome": "needs review",
+      "review_cause": "outside every zone",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "outside every zone",
+          "asked": true,
+          "seconds": 1.9454513099626638,
+          "attempts": 1,
+          "prompt_tokens": 4669,
+          "completion_tokens": 29,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.00474248197861,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-064",
+      "label": "bad",
+      "score": 33.44461441040039,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder on the board surface",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.073811048991047,
+          "attempts": 1,
+          "prompt_tokens": 4641,
+          "completion_tokens": 34,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.125918661011383,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-065",
+      "label": "bad",
+      "score": 47.372474670410156,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1209598590503447,
+          "attempts": 1,
+          "prompt_tokens": 4766,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.427995071047917,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-066",
+      "label": "bad",
+      "score": 37.46622848510742,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder on the board surface near the BAT- marking",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.245204670005478,
+          "attempts": 1,
+          "prompt_tokens": 4707,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3033214200404473,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-067",
+      "label": "bad",
+      "score": 36.928993225097656,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.03870261303382,
+          "attempts": 1,
+          "prompt_tokens": 4642,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.088000177987851,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-068",
+      "label": "bad",
+      "score": 47.598445892333984,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.117801114975009,
+          "attempts": 1,
+          "prompt_tokens": 4750,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.4335574990254827,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-069",
+      "label": "bad",
+      "score": 36.30278396606445,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0584955539670773,
+          "attempts": 1,
+          "prompt_tokens": 4708,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.112781078030821,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-070",
+      "label": "bad",
+      "score": 35.48321533203125,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0649761389940977,
+          "attempts": 1,
+          "prompt_tokens": 4708,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.117577216005884,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-071",
+      "label": "bad",
+      "score": 35.22331619262695,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.060184113041032,
+          "attempts": 1,
+          "prompt_tokens": 4708,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.11435527499998,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-072",
+      "label": "bad",
+      "score": 27.60064125061035,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005776869948022068,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-073",
+      "label": "bad",
+      "score": 48.82746505737305,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.13434321800014,
+          "attempts": 1,
+          "prompt_tokens": 4801,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3957053549820557,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-074",
+      "label": "bad",
+      "score": 31.740528106689453,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A foreign material spot on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1010245599900372,
+          "attempts": 1,
+          "prompt_tokens": 4645,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.15332171600312,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-075",
+      "label": "bad",
+      "score": 47.45020294189453,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "scratch"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.082005397998728,
+          "attempts": 1,
+          "prompt_tokens": 4746,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2107517409604043,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-076",
+      "label": "bad",
+      "score": 39.82157897949219,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "scratch"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder bridging two header pins.",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1539060409995727,
+          "attempts": 1,
+          "prompt_tokens": 4799,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.246338333992753,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-077",
+      "label": "bad",
+      "score": 38.88140106201172,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "scratch"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9794710759888403,
+          "attempts": 1,
+          "prompt_tokens": 4703,
+          "completion_tokens": 30,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0451486160163768,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-078",
+      "label": "bad",
+      "score": 39.39308166503906,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "scratch",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.984772881027311,
+          "attempts": 1,
+          "prompt_tokens": 4747,
+          "completion_tokens": 30,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.071515472023748,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-079",
+      "label": "bad",
+      "score": 37.59907150268555,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "scratch",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "The USB receptacle has a discolored, charred area on its surface.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.298855397035368,
+          "attempts": 1,
+          "prompt_tokens": 4745,
+          "completion_tokens": 40,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.4515472619677894,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-080",
+      "label": "bad",
+      "score": 41.38546371459961,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor is present and correctly placed but has foreign material on it.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 11.014358940068632,
+          "attempts": 2,
+          "prompt_tokens": 5021,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 11.093453695997596,
+      "digit_reasons": [],
+      "refused": [
+        {
+          "part": "pcb4",
+          "image_id": "bad-080",
+          "area": 1,
+          "attempt": 1,
+          "kind": "padded to the token limit",
+          "problem": "not JSON (Unterminated string starting at at character 11)"
+        }
+      ]
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-081",
+      "label": "bad",
+      "score": 30.048744201660156,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0006063469918444753,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-082",
+      "label": "bad",
+      "score": 34.383304595947266,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0850518359802663,
+          "attempts": 1,
+          "prompt_tokens": 4756,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1448813779861666,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-083",
+      "label": "bad",
+      "score": 34.90996170043945,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor component with a white, cloudy, and uneven coating covering its body, indicating a coating defect or contamination.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.4578709470224567,
+          "attempts": 1,
+          "prompt_tokens": 4750,
+          "completion_tokens": 46,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.524366914003622,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-084",
+      "label": "bad",
+      "score": 38.63973617553711,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor with a large, irregularly shaped solder blob on its body, covering part of its surface.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.39187850500457,
+          "attempts": 1,
+          "prompt_tokens": 4748,
+          "completion_tokens": 44,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.457596619031392,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-085",
+      "label": "bad",
+      "score": 35.931785583496094,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 10.780867682944518,
+          "attempts": 2,
+          "prompt_tokens": 5026,
+          "completion_tokens": 30,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 10.831892198009882,
+      "digit_reasons": [],
+      "refused": [
+        {
+          "part": "pcb4",
+          "image_id": "bad-085",
+          "area": 1,
+          "attempt": 1,
+          "kind": "padded to the token limit",
+          "problem": "not JSON (Unterminated string starting at at character 11)"
+        }
+      ]
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-086",
+      "label": "bad",
+      "score": 39.133541107177734,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra",
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor with a large, irregularly shaped area of foreign material on its body.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.273301167995669,
+          "attempts": 1,
+          "prompt_tokens": 4707,
+          "completion_tokens": 40,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3311992349918,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-087",
+      "label": "bad",
+      "score": 44.554847717285156,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor with a large, irregularly shaped area of foreign material on its body.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.287858226976823,
+          "attempts": 1,
+          "prompt_tokens": 4702,
+          "completion_tokens": 40,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3791719310102053,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-088",
+      "label": "bad",
+      "score": 37.098548889160156,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor with a large amount of foreign material on its body.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1466293110279366,
+          "attempts": 1,
+          "prompt_tokens": 4700,
+          "completion_tokens": 36,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.201919684011955,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-089",
+      "label": "bad",
+      "score": 48.46475601196289,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "missing",
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.2",
+      "cited_class": "missing",
+      "sentence": "A lump of solder bridging two adjacent pads near the IN+ and IN- terminals.",
+      "row_id": "5.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.397149664000608,
+          "attempts": 1,
+          "prompt_tokens": 4727,
+          "completion_tokens": 43,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.6166618930292316,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-090",
+      "label": "bad",
+      "score": 49.2056999206543,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A large area of foreign material on the board surface, touching zones A and C.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.288064184016548,
+          "attempts": 1,
+          "prompt_tokens": 4695,
+          "completion_tokens": 40,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.4090502640465274,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-091",
+      "label": "bad",
+      "score": 40.07828140258789,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor with excess solder on its body and pads.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.102310304995626,
+          "attempts": 1,
+          "prompt_tokens": 4748,
+          "completion_tokens": 34,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1694035609834827,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-092",
+      "label": "bad",
+      "score": 35.59352493286133,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A lump of foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1826806780300103,
+          "attempts": 1,
+          "prompt_tokens": 4799,
+          "completion_tokens": 36,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2627727949875407,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-093",
+      "label": "bad",
+      "score": 38.81024169921875,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface in zone A",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.083952549030073,
+          "attempts": 1,
+          "prompt_tokens": 4749,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1723148609744385,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-094",
+      "label": "bad",
+      "score": 33.12459182739258,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A foreign material spot on the board surface within zone A.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 4.861908766964916,
+          "attempts": 2,
+          "prompt_tokens": 4810,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 4.9113676940323785,
+      "digit_reasons": [
+        {
+          "part": "pcb4",
+          "image_id": "bad-094",
+          "area": 1,
+          "reason": "A small, dark, irregularly shaped spot on the board surface within zone A, which is larger than the ½ mm limit for foreign material in zone A.",
+          "valid": false,
+          "followed_by_a_unit": false
+        }
+      ],
+      "refused": [
+        {
+          "part": "pcb4",
+          "image_id": "bad-094",
+          "area": 1,
+          "attempt": 1,
+          "kind": "reason states a figure",
+          "problem": "reason: Value error, the reason must not state a figure: sizes are measured, not judged"
+        }
+      ]
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-095",
+      "label": "bad",
+      "score": 36.28507614135742,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "wrong place",
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "Foreign material on the board surface",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 10.81517575494945,
+          "attempts": 2,
+          "prompt_tokens": 5019,
+          "completion_tokens": 30,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 10.921225389000028,
+      "digit_reasons": [],
+      "refused": [
+        {
+          "part": "pcb4",
+          "image_id": "bad-095",
+          "area": 1,
+          "attempt": 1,
+          "kind": "padded to the token limit",
+          "problem": "not JSON (Unterminated string starting at at character 11)"
+        }
+      ]
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-096",
+      "label": "bad",
+      "score": 33.155921936035156,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A resistor is present and in place but has foreign material on it.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 10.997825438971631,
+          "attempts": 2,
+          "prompt_tokens": 5028,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 11.04944325395627,
+      "digit_reasons": [],
+      "refused": [
+        {
+          "part": "pcb4",
+          "image_id": "bad-096",
+          "area": 1,
+          "attempt": 1,
+          "kind": "padded to the token limit",
+          "problem": "not JSON (Unterminated string starting at at character 11)"
+        }
+      ]
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-097",
+      "label": "bad",
+      "score": 38.19719314575195,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "The resistor RQOO has foreign material on its body.",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.125917736964766,
+          "attempts": 1,
+          "prompt_tokens": 4702,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.189755006984342,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-098",
+      "label": "bad",
+      "score": 34.33616638183594,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "wrong place"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.1",
+      "cited_class": "dirt",
+      "sentence": "A lump of foreign material on the board surface",
+      "row_id": "5.1.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0448035260196775,
+          "attempts": 1,
+          "prompt_tokens": 4643,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.097028238000348,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-099",
+      "label": "bad",
+      "score": 42.375980377197266,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "extra"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.3",
+      "cited_class": "extra",
+      "sentence": "A lump of solder or adhesive on the board near a component",
+      "row_id": "5.3",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.138926823041402,
+          "attempts": 1,
+          "prompt_tokens": 4738,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2371257370105013,
+      "digit_reasons": [],
+      "refused": []
+    }
+  ]
+}

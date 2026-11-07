@@ -1,0 +1,2297 @@
+{
+  "schema_version": 2,
+  "unit": "stage2",
+  "stage": "II",
+  "measured_at": "2026-11-07T04:15:14+00:00",
+  "measured_on": "2026-11-07",
+  "command": [
+    "spec-to-inspector",
+    "bench",
+    "--part",
+    "pcb1",
+    "--limit",
+    "30",
+    "--batch",
+    "trial-30",
+    "--results",
+    "/home/devcloud/before-final/trial-30/bench.json",
+    "--readme",
+    "/home/devcloud/before-final/trial-30/README.md"
+  ],
+  "parts": [
+    "pcb1"
+  ],
+  "limit": 30,
+  "partial": true,
+  "protocol": [
+    {
+      "path": "eval/PROTOCOL-stage2.md",
+      "sha256": "ebbd8cc1cb25172f7d74cddf8190e0826204eb6b3c8cc7e1da83a565ead4e3f6"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md",
+      "sha256": "84c8d198200b11a45e4eac8735611c20681cf5a9db5f0d4a2063330ac4f7c65b"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md",
+      "sha256": "8d8d4ef19e95354a4a1ab220e6eb9dc51865c87b2ae6e9f9da1464bdd4c5b1b1"
+    }
+  ],
+  "labels": {
+    "file": {
+      "path": "eval/clause_labels.csv",
+      "sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337"
+    },
+    "images": 30,
+    "single_defect": 28,
+    "multi_defect": 2
+  },
+  "specification": {
+    "pdf": {
+      "path": "specs/pcb-spec.pdf",
+      "sha256": "2b8749b32fa88b3a3ac15455324cb3a726dffa7e8e94a7acd7b5c39abc6b47bd"
+    },
+    "clause_table": {
+      "path": "specs/pcb-spec.clauses.json",
+      "sha256": "510ca4c1735b1e5ad0f525380d1414fd6943fa40a09195006251380b114ad661"
+    },
+    "title": "Workmanship acceptance specification: PCB1 and PCB4 assemblies",
+    "pages": 6,
+    "clauses": 16,
+    "headings": 11,
+    "parse_seconds": 6.5372141230036505,
+    "equals_tracked_clause_table": true
+  },
+  "judge": {
+    "url": "http://127.0.0.1:8131/v1",
+    "model": "qwen3-vl-8b-instruct",
+    "server": {
+      "vllm_version": "0.26.1.dev0+g568afb3a1.d20260831",
+      "served_model": "qwen3-vl-8b-instruct",
+      "weights_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+      "max_model_len": "32768",
+      "image": "intel/llm-scaler-vllm:0.26.0-b1",
+      "image_digest": "sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490",
+      "image_label_version": "20260608",
+      "image_label_revision": "ac12083301cbdbe06135882d401f7877b0b512db",
+      "command": "-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt '{\"image\": 2}' --mm-processor-kwargs '{\"size\": {\"shortest_edge\": 1048576, \"longest_edge\": 16777216}}' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1",
+      "dtype": "float16"
+    },
+    "server_sources": {
+      "vllm_version": "GET /version",
+      "served_model": "GET /v1/models",
+      "weights_revision": "GET /v1/models",
+      "max_model_len": "GET /v1/models",
+      "image": "docker inspect, Config.Image",
+      "image_digest": "docker image inspect, RepoDigests",
+      "image_label_version": "container label org.opencontainers.image.version",
+      "image_label_revision": "container label org.opencontainers.image.revision",
+      "command": "docker inspect, Args",
+      "dtype": "the server's log, the engine's line, dtype=torch.*"
+    },
+    "image_min_tokens": "1024",
+    "gpu": "Intel(R) Arc(TM) Pro B70 Graphics",
+    "cache_prompt": false,
+    "cold": {
+      "server_flags": [
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb 0"
+      ],
+      "engine_prefix_caching": false,
+      "server_started_at": "2026-11-06T15:40:16.517468169Z",
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "hit_rate_percent": 0.0,
+      "hit_rate_readings": 8,
+      "server_log": {
+        "path": "/home/devcloud/before-final/trial-30/bench.server-log.20261107T041333Z.txt",
+        "sha256": "0383dc8336fcad918a0f9a083525708638d8105eb139445882c79ebdfe862f4a"
+      }
+    },
+    "warm_up": {
+      "asked": true,
+      "image": "pcb1 good-0214",
+      "seconds": 1.998934998002369
+    },
+    "reason_pattern": "^[^0-9\\n\\r\"\\\\]{1,240}$",
+    "max_regions": 3,
+    "corrections": "none recalled"
+  },
+  "runs": {
+    "pcb1": {
+      "part": "pcb1",
+      "run_directory": "/home/devcloud/before-final/runs/pcb1/trial-30",
+      "images": 60,
+      "good": 30,
+      "anomalous": 30,
+      "flagged_good": 3,
+      "flagged_anomalous": 26,
+      "image_threshold": 31.319488525390625,
+      "thresholds_tuned_on_test": true,
+      "batch_size": 16,
+      "load_seconds": 2.5290173020330258,
+      "inference_seconds": 7.714239981025457,
+      "seconds_per_image": 0.1285706663504243,
+      "model_trained_at": "2026-11-06T17:17:44+00:00",
+      "fit_seconds": 698.776051807974,
+      "train_peak_allocated_mib": 7971.28369140625,
+      "memory": {
+        "process_peak_mib": 2552,
+        "card_peak_mib": 2594,
+        "card_before_mib": 1592,
+        "samples": 9,
+        "interval_seconds": 0.5,
+        "source": "xpu-smi",
+        "card": "0000:17:00.0, under ZE_AFFINITY_MASK=0",
+        "process_note": null
+      },
+      "checkpoint": {
+        "path": "/home/devcloud/week2/run-1/models/patchcore/pcb1/model.ckpt",
+        "sha256": "b71ff0c3db7e780c6198db5686569fa59de4a56b5663557b56d90e237b37a855"
+      }
+    }
+  },
+  "scores": {
+    "headline": {
+      "strict": {
+        "all": {
+          "count": 16,
+          "n": 28,
+          "rate": 0.5714285714285714,
+          "low": 0.39070785495839777,
+          "high": 0.7349145298359636
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 16,
+            "n": 28,
+            "rate": 0.5714285714285714,
+            "low": 0.39070785495839777,
+            "high": 0.7349145298359636
+          }
+        }
+      },
+      "flagged": {
+        "all": {
+          "count": 25,
+          "n": 28,
+          "rate": 0.8928571428571429,
+          "low": 0.7280414829086315,
+          "high": 0.962881633460356
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 25,
+            "n": 28,
+            "rate": 0.8928571428571429,
+            "low": 0.7280414829086315,
+            "high": 0.962881633460356
+          }
+        }
+      },
+      "on_defect": {
+        "all": {
+          "count": 22,
+          "n": 28,
+          "rate": 0.7857142857142857,
+          "low": 0.6046141419113311,
+          "high": 0.8978753972661142
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 22,
+            "n": 28,
+            "rate": 0.7857142857142857,
+            "low": 0.6046141419113311,
+            "high": 0.8978753972661142
+          }
+        }
+      },
+      "strict_given_flagged": {
+        "all": {
+          "count": 16,
+          "n": 25,
+          "rate": 0.64,
+          "low": 0.44518497600865714,
+          "high": 0.7975211932184335
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 16,
+            "n": 25,
+            "rate": 0.64,
+            "low": 0.44518497600865714,
+            "high": 0.7975211932184335
+          }
+        }
+      },
+      "strict_given_on_defect": {
+        "all": {
+          "count": 14,
+          "n": 22,
+          "rate": 0.6363636363636364,
+          "low": 0.4295170793613564,
+          "high": 0.8026679542917857
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 14,
+            "n": 22,
+            "rate": 0.6363636363636364,
+            "low": 0.4295170793613564,
+            "high": 0.8026679542917857
+          }
+        }
+      },
+      "rows_applied": {
+        "4.4": 9,
+        "4.1": 7
+      },
+      "region1_outcomes": {
+        "reject": 16
+      }
+    },
+    "lenient": {
+      "all": {
+        "count": 1,
+        "n": 2,
+        "rate": 0.5,
+        "low": 0.09453120463920084,
+        "high": 0.9054687953607992
+      },
+      "by_part": {
+        "pcb1": {
+          "count": 1,
+          "n": 2,
+          "rate": 0.5,
+          "low": 0.09453120463920084,
+          "high": 0.9054687953607992
+        }
+      }
+    },
+    "per_region": {
+      "all": {
+        "count": 14,
+        "n": 22,
+        "rate": 0.6363636363636364,
+        "low": 0.4295170793613564,
+        "high": 0.8026679542917857
+      },
+      "by_part": {
+        "pcb1": {
+          "count": 14,
+          "n": 22,
+          "rate": 0.6363636363636364,
+          "low": 0.4295170793613564,
+          "high": 0.8026679542917857
+        }
+      }
+    },
+    "confusion_single": {
+      "pcb1": {
+        "bent": {
+          "bent": 9,
+          "melt": 5
+        },
+        "melt": {
+          "melt": 7,
+          "not flagged": 3,
+          "scratch": 2,
+          "bent": 2
+        }
+      }
+    },
+    "confusion_region": {
+      "pcb1": {
+        "bent": {
+          "bent": 9,
+          "melt": 5
+        },
+        "melt": {
+          "melt": 5,
+          "bent": 2,
+          "not flagged": 1
+        }
+      }
+    },
+    "class_not_of_heading": 0,
+    "anomalous": {
+      "boards": 30,
+      "not_flagged": 4,
+      "board_outcomes": {
+        "reject": 24,
+        "needs review": 2
+      },
+      "board_review_causes": {
+        "not measured": 2
+      },
+      "board_needs_review": {
+        "count": 2,
+        "n": 30,
+        "rate": 0.06666666666666667,
+        "low": 0.018477023624516822,
+        "high": 0.21323458516874166
+      },
+      "areas": 26,
+      "area_outcomes": {
+        "reject": 24,
+        "needs review": 2
+      },
+      "area_review_causes": {
+        "not measured": 2
+      },
+      "area_needs_review": {
+        "count": 2,
+        "n": 26,
+        "rate": 0.07692307692307693,
+        "low": 0.0213550882794125,
+        "high": 0.24141553940631577
+      }
+    },
+    "good": {
+      "all": {
+        "flagged": {
+          "count": 3,
+          "n": 30,
+          "rate": 0.1,
+          "low": 0.03459988847741868,
+          "high": 0.256210827331743
+        },
+        "rejected": {
+          "count": 1,
+          "n": 30,
+          "rate": 0.03333333333333333,
+          "low": 0.005908590316197976,
+          "high": 0.16670391146115726
+        },
+        "referred": {
+          "count": 2,
+          "n": 30,
+          "rate": 0.06666666666666667,
+          "low": 0.018477023624516822,
+          "high": 0.21323458516874166
+        },
+        "accepted_after_judging": {
+          "count": 0,
+          "n": 30,
+          "rate": 0.0,
+          "low": 0.0,
+          "high": 0.11351339476145204
+        },
+        "citations": {
+          "4.2": 3
+        },
+        "dispositions": {
+          "boards": 30,
+          "not_flagged": 27,
+          "board_outcomes": {
+            "needs review": 2,
+            "reject": 1
+          },
+          "board_review_causes": {
+            "not measured": 2
+          },
+          "board_needs_review": {
+            "count": 2,
+            "n": 30,
+            "rate": 0.06666666666666667,
+            "low": 0.018477023624516822,
+            "high": 0.21323458516874166
+          },
+          "areas": 3,
+          "area_outcomes": {
+            "needs review": 2,
+            "reject": 1
+          },
+          "area_review_causes": {
+            "not measured": 2
+          },
+          "area_needs_review": {
+            "count": 2,
+            "n": 3,
+            "rate": 0.6666666666666666,
+            "low": 0.2076595988078242,
+            "high": 0.9385080559790691
+          }
+        }
+      },
+      "by_part": {
+        "pcb1": {
+          "flagged": {
+            "count": 3,
+            "n": 30,
+            "rate": 0.1,
+            "low": 0.03459988847741868,
+            "high": 0.256210827331743
+          },
+          "rejected": {
+            "count": 1,
+            "n": 30,
+            "rate": 0.03333333333333333,
+            "low": 0.005908590316197976,
+            "high": 0.16670391146115726
+          },
+          "referred": {
+            "count": 2,
+            "n": 30,
+            "rate": 0.06666666666666667,
+            "low": 0.018477023624516822,
+            "high": 0.21323458516874166
+          },
+          "accepted_after_judging": {
+            "count": 0,
+            "n": 30,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.11351339476145204
+          },
+          "citations": {
+            "4.2": 3
+          },
+          "dispositions": {
+            "boards": 30,
+            "not_flagged": 27,
+            "board_outcomes": {
+              "needs review": 2,
+              "reject": 1
+            },
+            "board_review_causes": {
+              "not measured": 2
+            },
+            "board_needs_review": {
+              "count": 2,
+              "n": 30,
+              "rate": 0.06666666666666667,
+              "low": 0.018477023624516822,
+              "high": 0.21323458516874166
+            },
+            "areas": 3,
+            "area_outcomes": {
+              "needs review": 2,
+              "reject": 1
+            },
+            "area_review_causes": {
+              "not measured": 2
+            },
+            "area_needs_review": {
+              "count": 2,
+              "n": 3,
+              "rate": 0.6666666666666666,
+              "low": 0.2076595988078242,
+              "high": 0.9385080559790691
+            }
+          }
+        }
+      }
+    },
+    "stale_region_truth": [
+      "pcb1 bad-029"
+    ]
+  },
+  "times": {
+    "parse_seconds": 6.5372141230036505,
+    "anomaly_seconds_per_image": {
+      "pcb1": 0.1285706663504243
+    },
+    "flagged_images": 29,
+    "areas_asked": 29,
+    "areas_per_flagged_image": 1.0,
+    "measure_and_draw_seconds": {
+      "n": 29,
+      "p50": 0.0943385330028832,
+      "p95": 0.21487601984990745,
+      "mean": 0.09976628797072597,
+      "minimum": 0.03595530800521374,
+      "maximum": 0.24447652301751077
+    },
+    "vlm_seconds_per_area": {
+      "n": 29,
+      "p50": 2.1466644409811124,
+      "p95": 2.338410998380277,
+      "mean": 2.1656561144085695,
+      "minimum": 1.9051905479864217,
+      "maximum": 2.5709782550111413
+    },
+    "vlm_seconds_per_flagged_image": {
+      "n": 29,
+      "p50": 2.1466644409811124,
+      "p95": 2.338410998380277,
+      "mean": 2.1656561144085695,
+      "minimum": 1.9051905479864217,
+      "maximum": 2.5709782550111413
+    },
+    "flagged_image_seconds": {
+      "n": 29,
+      "p50": 2.39341610634001,
+      "p95": 2.6489521427662113,
+      "mean": 2.39399306872972,
+      "minimum": 2.0927597913425418,
+      "maximum": 2.751508718344849
+    },
+    "judge_stage_seconds": 65.77721631497843,
+    "prompt_tokens": {
+      "n": 29,
+      "p50": 4670.0,
+      "p95": 4749.6,
+      "mean": 4650.551724137931,
+      "minimum": 4521.0,
+      "maximum": 4756.0
+    },
+    "completion_tokens": {
+      "n": 29,
+      "p50": 35.0,
+      "p95": 41.599999999999994,
+      "mean": 36.58620689655172,
+      "minimum": 28.0,
+      "maximum": 50.0
+    },
+    "output_tokens_per_second": null
+  },
+  "judge_memory": {
+    "process_peak_mib": null,
+    "card_peak_mib": 29471,
+    "card_before_mib": 29471,
+    "samples": 86,
+    "interval_seconds": 0.5,
+    "source": "xpu-smi",
+    "card": "0000:ba:00.0",
+    "process_note": "the judge's server runs in a container: xpu-smi ps does not list its process, even under sudo, and ss shows no pid, so its own figure is null and its card stands for it"
+  },
+  "inspector": {
+    "parse_seconds": 6.5372141230036505,
+    "fit_seconds": {
+      "pcb1": 698.776051807974
+    },
+    "minutes_by_part": {
+      "pcb1": 11.755221098849628
+    },
+    "minutes_all_parts": 11.755221098849628
+  },
+  "leak": {
+    "decisions": 60,
+    "with_corrections_in_prompt": 0
+  },
+  "on_threshold": {
+    "tolerance": 0.001,
+    "parts": [
+      "pcb1"
+    ],
+    "boards": [
+      {
+        "part": "pcb1",
+        "image_id": "bad-029",
+        "label": "bad",
+        "score": 31.319475173950195,
+        "threshold": 31.319488525390625,
+        "above": false
+      }
+    ],
+    "elsewhere": [
+      {
+        "part": "pcb2",
+        "image_id": "bad-060",
+        "label": "bad",
+        "score": 29.304889678955078,
+        "threshold": 29.304889678955078,
+        "above": false
+      },
+      {
+        "part": "pcb3",
+        "image_id": "bad-097",
+        "label": "bad",
+        "score": 31.543020248413086,
+        "threshold": 31.54305076599121,
+        "above": false
+      }
+    ]
+  },
+  "checkpoints_held_to": {
+    "path": "results/stage2/checkpoints.json",
+    "sha256": "af420d92ee128a051f2d779b6f731b81a6e433d5168b142e52ee559cf2779815"
+  },
+  "digit_reasons": null,
+  "refused_answers": {
+    "answers": [],
+    "by_kind": {
+      "padded to the token limit": 0,
+      "not JSON": 0,
+      "reason over the character limit": 0,
+      "reason states a figure": 0,
+      "otherwise invalid": 0
+    },
+    "padded": 0
+  },
+  "not_final": [
+    "the whole labelled set: this is a partial run"
+  ],
+  "repeat": null,
+  "notes": {
+    "protocol": "every figure is defined in eval/PROTOCOL-stage2.md, written before the run, with what eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md, eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md adds to it; each file's digest at the time of the run is under `protocol`",
+    "proportions": "count of n; rate, low and high are fractions of 1; low and high are the 95% Wilson score interval, z = 1.959964, no continuity correction",
+    "citation": "the heading id in the judge's validated answer about region 1, the most anomalous area; an image with no citation counts as wrong",
+    "units": "*_seconds and seconds are wall-clock seconds; *_mib is MiB as xpu-smi reports it; minutes are seconds / 60; anomaly scores and thresholds are raw PatchCore distances",
+    "percentiles": "numpy.percentile, linear interpolation between the ranked values",
+    "cold": "the cold comes from the server's start: vLLM ignores the request's cache_prompt and says nothing, so the server is started with its prefix cache off; judge.cold holds the flags as its container's command line gives them, the engine's own word, and the hit rate read from its log during the run, which above 0.0% voids the run",
+    "corrections": "no correction was recalled into any prompt; `leak` counts the decisions and how many of them had a correction in a prompt, which must be none",
+    "not_held_out": "the anomaly model's thresholds were chosen on the same test split, and the judge's prompt was written with sight of some of its images: see eval/PROTOCOL-stage2.md",
+    "inspector": "parse time is measured in this run and includes loading the parser's models; fit time is the one recorded when each part's model was trained, not repeated here",
+    "memory": "the anomaly model's card and the judge's are read from xpu-smi, each stage's under `memory` with the card it read; the judge's own process stays null in its container, where xpu-smi ps does not list it, and the card stands for it, 42 MiB on an idle card",
+    "warm_up": "one question before the judge's clock, as judged on the first flagged image and not recorded; judge.warm_up says it was asked and how long it took, not what it answered",
+    "on_threshold": "the rule is a strict >, so float noise decides a board whose score sits on its threshold: those of this run's boards are under `on_threshold` and the figure is read with them known"
+  },
+  "observations": [
+    {
+      "part": "pcb1",
+      "image_id": "good-0107",
+      "label": "good",
+      "score": 28.125919342041016,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.001821597048547119,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0484",
+      "label": "good",
+      "score": 26.846975326538086,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00048325303941965103,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0690",
+      "label": "good",
+      "score": 29.922090530395508,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00036429596366360784,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0303",
+      "label": "good",
+      "score": 27.021236419677734,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00033931300276890397,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0237",
+      "label": "good",
+      "score": 27.02854347229004,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00032150099286809564,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0394",
+      "label": "good",
+      "score": 29.71211051940918,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0003161919885315001,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0214",
+      "label": "good",
+      "score": 36.38188552856445,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "4.2",
+      "cited_class": "scratch",
+      "sentence": "A scratch in zone B",
+      "row_id": "4.2.2",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9051905479864217,
+          "attempts": 1,
+          "prompt_tokens": 4670,
+          "completion_tokens": 28,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 1.9641891249921173,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0989",
+      "label": "good",
+      "score": 26.248268127441406,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00019879802130162716,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0657",
+      "label": "good",
+      "score": 28.29998207092285,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00009936897549778223,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0377",
+      "label": "good",
+      "score": 27.486326217651367,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00008730700938031077,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0659",
+      "label": "good",
+      "score": 27.145912170410156,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00009038299322128296,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0514",
+      "label": "good",
+      "score": 26.643831253051758,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00007792102405801415,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0617",
+      "label": "good",
+      "score": 28.878936767578125,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00007770798401907086,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0725",
+      "label": "good",
+      "score": 30.658111572265625,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00007047998951748013,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0172",
+      "label": "good",
+      "score": 28.622920989990234,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006833299994468689,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-1000",
+      "label": "good",
+      "score": 28.129304885864258,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00007059000199660659,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0483",
+      "label": "good",
+      "score": 30.435951232910156,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006724800914525986,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0654",
+      "label": "good",
+      "score": 29.554412841796875,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006636499892920256,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0400",
+      "label": "good",
+      "score": 26.575294494628906,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006826501339673996,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0469",
+      "label": "good",
+      "score": 27.594139099121094,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00007643899880349636,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0525",
+      "label": "good",
+      "score": 27.92529296875,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006596499588340521,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0170",
+      "label": "good",
+      "score": 27.700000762939453,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00007224699947983027,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0631",
+      "label": "good",
+      "score": 31.10219955444336,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006904004840180278,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0685",
+      "label": "good",
+      "score": 31.038475036621094,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006628205301240087,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0320",
+      "label": "good",
+      "score": 29.56207847595215,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006314599886536598,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0869",
+      "label": "good",
+      "score": 29.239965438842773,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006859999848529696,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0423",
+      "label": "good",
+      "score": 26.747697830200195,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006603001384064555,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0417",
+      "label": "good",
+      "score": 26.015195846557617,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.00006951199611648917,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0751",
+      "label": "good",
+      "score": 32.25593185424805,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "4.2",
+      "cited_class": "scratch",
+      "sentence": "A spot of foreign material on the mesh cover of the transducer.",
+      "row_id": "4.2.2",
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "not measured",
+          "asked": true,
+          "seconds": 2.233186535013374,
+          "attempts": 1,
+          "prompt_tokens": 4521,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2691418430185877,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0764",
+      "label": "good",
+      "score": 31.713285446166992,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": null,
+      "citation": "cited",
+      "cited_heading": "4.2",
+      "cited_class": "scratch",
+      "sentence": "A spot of foreign material on the mesh cover of the transducer.",
+      "row_id": "4.2.2",
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "not measured",
+          "asked": true,
+          "seconds": 2.23954134399537,
+          "attempts": 1,
+          "prompt_tokens": 4521,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.290303280984517,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-000",
+      "label": "bad",
+      "score": 36.41634750366211,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "A stray solder lump on the board surface",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9681538500008173,
+          "attempts": 1,
+          "prompt_tokens": 4591,
+          "completion_tokens": 32,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0292550770100206,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-001",
+      "label": "bad",
+      "score": 48.042354583740234,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "The header pins are bent, with the leftmost pin angled inward and touching the adjacent pin.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.3630988939548843,
+          "attempts": 1,
+          "prompt_tokens": 4756,
+          "completion_tokens": 42,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.4886061899596825,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-002",
+      "label": "bad",
+      "score": 49.855045318603516,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent out of alignment with its neighbors.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1466644409811124,
+          "attempts": 1,
+          "prompt_tokens": 4729,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2528945740195923,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-003",
+      "label": "bad",
+      "score": 48.9407844543457,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A bent header pin extending out of alignment with the others.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1385089709656313,
+          "attempts": 1,
+          "prompt_tokens": 4682,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2648454399895854,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-004",
+      "label": "bad",
+      "score": 43.913448333740234,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Solder has flowed onto the header pins and the board surface.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1756234950153157,
+          "attempts": 1,
+          "prompt_tokens": 4730,
+          "completion_tokens": 36,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.289334856031928,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-005",
+      "label": "bad",
+      "score": 55.51811218261719,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "A lump of solder bridging two header pins.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.105523766949773,
+          "attempts": 1,
+          "prompt_tokens": 4732,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2774624080047943,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-006",
+      "label": "bad",
+      "score": 44.989662170410156,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent, touching its neighbor.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0960785399656743,
+          "attempts": 1,
+          "prompt_tokens": 4731,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2342561529949307,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-007",
+      "label": "bad",
+      "score": 48.81032180786133,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Solder has flowed or splashed onto the board surface near the header pins.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.282474552979693,
+          "attempts": 1,
+          "prompt_tokens": 4659,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.525975492026191,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-008",
+      "label": "bad",
+      "score": 55.85303497314453,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent and touching another pin.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0951180410338566,
+          "attempts": 1,
+          "prompt_tokens": 4756,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2275311920093372,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-009",
+      "label": "bad",
+      "score": 54.96480178833008,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent",
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "Two header pins are bent and touching each other.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0830086739733815,
+          "attempts": 1,
+          "prompt_tokens": 4685,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.229216131963767,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-010",
+      "label": "bad",
+      "score": 57.76125717163086,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent, touching another pin.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.072083320992533,
+          "attempts": 1,
+          "prompt_tokens": 4679,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1735999879892915,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-011",
+      "label": "bad",
+      "score": 53.893829345703125,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "The header pins are bent, with one pin visibly angled and touching another pin.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.254359463986475,
+          "attempts": 1,
+          "prompt_tokens": 4670,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.370269298029598,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-012",
+      "label": "bad",
+      "score": 54.02829360961914,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "The header pins are bent, touching each other.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.095185217971448,
+          "attempts": 1,
+          "prompt_tokens": 4740,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2214231510297395,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-013",
+      "label": "bad",
+      "score": 50.88139343261719,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent out of alignment with its neighbors.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1558882840326987,
+          "attempts": 1,
+          "prompt_tokens": 4731,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.3047397839836776,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-014",
+      "label": "bad",
+      "score": 59.68762969970703,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Solder has flowed or splashed onto the header pins and board surface.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2675139299826697,
+          "attempts": 1,
+          "prompt_tokens": 4730,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.5119904530001804,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-015",
+      "label": "bad",
+      "score": 31.927757263183594,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [],
+      "citation": "cited",
+      "cited_heading": "4.2",
+      "cited_class": "scratch",
+      "sentence": "A spot of foreign material on the mesh cover of the transducer.",
+      "row_id": "4.2.2",
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "not measured",
+          "asked": true,
+          "seconds": 2.2422357629984617,
+          "attempts": 1,
+          "prompt_tokens": 4521,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.292005545052234,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-016",
+      "label": "bad",
+      "score": 58.01410675048828,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent, touching adjacent pins.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.0785463500069454,
+          "attempts": 1,
+          "prompt_tokens": 4693,
+          "completion_tokens": 33,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1728848830098286,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-017",
+      "label": "bad",
+      "score": 32.37242889404297,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Solder bridge between the Trig and Echo pads",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.034162663971074,
+          "attempts": 1,
+          "prompt_tokens": 4533,
+          "completion_tokens": 34,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.088335484964773,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-018",
+      "label": "bad",
+      "score": 31.43747901916504,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Solder has flowed onto the board surface near the VCC pad, forming a lump.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.242602104030084,
+          "attempts": 1,
+          "prompt_tokens": 4533,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.292491499974858,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-019",
+      "label": "bad",
+      "score": 36.248558044433594,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "A lump of solder has flowed onto the board surface near the 'VCC' pad, extending toward the 'Trig' pad.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.5709782550111413,
+          "attempts": 1,
+          "prompt_tokens": 4661,
+          "completion_tokens": 50,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.6229380519944243,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-020",
+      "label": "bad",
+      "score": 30.997133255004883,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005980430287308991,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-021",
+      "label": "bad",
+      "score": 41.668521881103516,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Stray solder between header pins",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.982393754995428,
+          "attempts": 1,
+          "prompt_tokens": 4655,
+          "completion_tokens": 30,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.058681346999947,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-022",
+      "label": "bad",
+      "score": 29.47221565246582,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0006216320325620472,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-023",
+      "label": "bad",
+      "score": 38.56959915161133,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A bent header pin with a visible kink or curve.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1202402310445905,
+          "attempts": 1,
+          "prompt_tokens": 4642,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1809492969769053,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-024",
+      "label": "bad",
+      "score": 34.9903564453125,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "A spot of foreign material on the mesh cover of the transducer.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1286845759605058,
+          "attempts": 1,
+          "prompt_tokens": 4591,
+          "completion_tokens": 37,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.1768485830398276,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-025",
+      "label": "bad",
+      "score": 29.418424606323242,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0006126679945737123,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-026",
+      "label": "bad",
+      "score": 31.991395950317383,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Solder has flowed between the Trig and Echo pads, forming a bridge.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1851842130417936,
+          "attempts": 1,
+          "prompt_tokens": 4533,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2345371039700694,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-027",
+      "label": "bad",
+      "score": 31.435537338256836,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [],
+      "citation": "cited",
+      "cited_heading": "4.2",
+      "cited_class": "scratch",
+      "sentence": "A spot of foreign material on the mesh cover of the transducer.",
+      "row_id": "4.2.2",
+      "outcome": "needs review",
+      "review_cause": "not measured",
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "needs review",
+          "review_cause": "not measured",
+          "asked": true,
+          "seconds": 2.2404183819890022,
+          "attempts": 1,
+          "prompt_tokens": 4521,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.290915212011896,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-028",
+      "label": "bad",
+      "score": 39.823158264160156,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "melt"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "Solder has flowed or splashed onto the header pins, forming a bridge between them.",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.301379155018367,
+          "attempts": 1,
+          "prompt_tokens": 4670,
+          "completion_tokens": 41,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.361628223967273,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-029",
+      "label": "bad",
+      "score": 31.319475173950195,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0006307869916781783,
+      "digit_reasons": [],
+      "refused": []
+    }
+  ]
+}

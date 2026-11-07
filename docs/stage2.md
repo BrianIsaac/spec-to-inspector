@@ -13,8 +13,9 @@ there on 6 November, in week 1 or week 2. A file named alone is under
 `results/stage2/week2/`. Every figure marked "on the laptop" is in
 `results/stage1/`. A figure marked as a plan or an estimate has not been
 measured. Not yet run on the machine: the judge at FP8, a scanned
-specification, the bench on the anomaly models trained there, and the final
-run. Nothing on this page is a final figure.
+specification, and the final run. The bench has run on the anomaly models trained
+there one whole part at a time, on 7 November, only to show that it runs
+(`results/stage2/before-final/`). Nothing on this page is a final figure.
 
 ## The machine
 
@@ -255,10 +256,11 @@ The addition answers two things week 2 found (`results/stage2/week2/README.md`):
 - **The region columns.** `eval/clause_labels.csv` holds what each board's region 1
   lies on, made from the laptop's models, and the bench stops if a model's regions
   disagree. The models trained on the machine stop on PCB1 `bad-029`, one of the 135
-  (`results/stage2/week2/label-region-columns.json`). So the columns are regenerated
-  from the machine's checkpoints before the final run, with every row that changes
-  recorded. That has not been done yet. The clause each image expects does not change:
-  it comes from VisA's annotation, not from any model.
+  (`results/stage2/week2/label-region-columns.json`). So the columns were regenerated
+  from the machine's checkpoints on 7 November, over the whole split as the bench
+  batches it. One row of the 200 changed, `bad-029`, from no region to one type
+  (`results/stage2/region-columns/README.md`). The clause each image expects did not
+  change: it comes from VisA's annotation, not from any model.
 - **The board on the threshold.** Anomalib's adaptive threshold is set at a board's
   score, so one board a part sits on it: PCB1 `bad-029`, PCB2 `bad-060`, PCB3 `bad-097`,
   PCB4 `bad-081`. Floating-point noise decides such a board on any device. The rule

@@ -1,0 +1,131 @@
+=== step1
+Sat Nov  7 04:10:32 UTC 2026
+--- A. the laptop checkpoints, which must void
+Parsed specs/pcb-spec.pdf in 6.3 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb1's checkpoint models/patchcore/pcb1/model.ckpt has SHA-256 6250fb1451f4412057e54d1dc676a2a69e3d4d7575ac48d5fad281bb7f9ec187, which is the laptop's, and the protocol names b71ff0c3db7e780c6198db5686569fa59de4a56b5663557b56d90e237b37a855, ~/week2/run-1/models/patchcore/pcb1/model.ckpt. The protocol voids a run on any other checkpoint, and nothing is written; point SPEC_TO_INSPECTOR_MODELS_DIR at the checkpoints it names
+A exit=1
+Sat Nov  7 04:10:48 UTC 2026
+--- B. the whole split on the machine checkpoints, both parts scored first
+Parsed specs/pcb-spec.pdf in 6.8 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb1: scored 200 images in 19.9 s into /home/devcloud/before-final/runs/pcb1/bench; 92 of 100 anomalous and 19 of 100 good boards flagged
+pcb4: scored 201 images in 18.1 s into /home/devcloud/before-final/runs/pcb4/bench; 97 of 100 anomalous and 9 of 101 good boards flagged
+the labelled set's region columns are not what the models' regions give for 1 image(s) (pcb1 bad-029): from a whole run of every part, rebuild it with `.venv/bin/python -m spec_to_inspector.bench.labels --run bench`
+B exit=1
+Sat Nov  7 04:11:46 UTC 2026
+FINISHED
+=== step2
+Sat Nov  7 04:12:42 UTC 2026
+--- trial: bench --limit 3
+Parsed specs/pcb-spec.pdf in 6.0 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb1: scored 6 images in 2.8 s into /home/devcloud/before-final/runs/pcb1/trial; 3 of 3 anomalous and 0 of 3 good boards flagged
+pcb4: scored 6 images in 1.1 s into /home/devcloud/before-final/runs/pcb4/trial; 3 of 3 anomalous and 0 of 3 good boards flagged
+Asked the warm-up question on pcb1 bad-000 in 2.1 s
+Judged 6 of 6 flagged images, 14 s
+Partial run, not the protocol's figures. Clause-citation accuracy, strict, 3 single-defect images: 66.7% (2 of 3), 95% interval 20.8% to 93.9%
+Lenient, 3 multi-defect images: 100.0% (3 of 3), 95% interval 43.9% to 100.0%
+Per region, one defect type under region 1: 83.3% (5 of 6), 95% interval 43.6% to 97.0%
+Good boards rejected: 0.0% (0 of 6), 95% interval 0.0% to 39.0%; flagged by the anomaly model: 0.0% (0 of 6)
+Corrections in a prompt: 0 of 12 decisions
+Not yet final: the whole labelled set: this is a partial run
+Figures: /home/devcloud/before-final/trial/bench.json
+Page: /home/devcloud/before-final/trial/README.md
+trial exit=0
+Sat Nov  7 04:13:32 UTC 2026
+Sat Nov  7 04:13:32 UTC 2026
+--- trial-30: bench --part pcb1 --limit 30
+Parsed specs/pcb-spec.pdf in 6.5 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb1: scored 60 images in 7.7 s into /home/devcloud/before-final/runs/pcb1/trial-30; 26 of 30 anomalous and 3 of 30 good boards flagged
+The region columns are of the whole split as the bench batches it, and this trial's batches are not: on 1 image(s) they do not hold here (pcb1 bad-029)
+Asked the warm-up question on pcb1 good-0214 in 2.0 s
+Judged 25 of 29 flagged images, 57 s
+Judged 29 of 29 flagged images, 66 s
+Partial run, not the protocol's figures. Clause-citation accuracy, strict, 28 single-defect images: 57.1% (16 of 28), 95% interval 39.1% to 73.5%
+Lenient, 2 multi-defect images: 50.0% (1 of 2), 95% interval 9.5% to 90.5%
+Per region, one defect type under region 1: 63.6% (14 of 22), 95% interval 43.0% to 80.3%
+Good boards rejected: 3.3% (1 of 30), 95% interval 0.6% to 16.7%; flagged by the anomaly model: 10.0% (3 of 30)
+Corrections in a prompt: 0 of 60 decisions
+Not yet final: the whole labelled set: this is a partial run
+Figures: /home/devcloud/before-final/trial-30/bench.json
+Page: /home/devcloud/before-final/trial-30/README.md
+trial-30 exit=0
+Sat Nov  7 04:15:15 UTC 2026
+Sat Nov  7 04:15:15 UTC 2026
+--- whole-pcb1: bench --part pcb1
+Parsed specs/pcb-spec.pdf in 6.9 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb1: scored 200 images in 19.8 s into /home/devcloud/before-final/runs/pcb1/whole-pcb1; 92 of 100 anomalous and 19 of 100 good boards flagged
+Asked the warm-up question on pcb1 good-0214 in 2.0 s
+Judged 25 of 111 flagged images, 54 s
+Judged 50 of 111 flagged images, 111 s
+Judged 75 of 111 flagged images, 171 s
+Judged 100 of 111 flagged images, 226 s
+Judged 111 of 111 flagged images, 251 s
+Partial run, not the protocol's figures. Clause-citation accuracy, strict, 91 single-defect images: 45.1% (41 of 91), 95% interval 35.2% to 55.3%
+Lenient, 9 multi-defect images: 88.9% (8 of 9), 95% interval 56.5% to 98.0%
+Per region, one defect type under region 1: 52.0% (39 of 75), 95% interval 40.9% to 62.9%
+Good boards rejected: 10.0% (10 of 100), 95% interval 5.5% to 17.4%; flagged by the anomaly model: 19.0% (19 of 100)
+Corrections in a prompt: 0 of 200 decisions
+Not yet final: the whole labelled set: this is a partial run
+Figures: /home/devcloud/before-final/whole-pcb1/bench.json
+Page: /home/devcloud/before-final/whole-pcb1/README.md
+whole-pcb1 exit=0
+Sat Nov  7 04:20:18 UTC 2026
+Sat Nov  7 04:20:18 UTC 2026
+--- whole-pcb4: bench --part pcb4
+Parsed specs/pcb-spec.pdf in 6.5 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb4: scored 201 images in 19.8 s into /home/devcloud/before-final/runs/pcb4/whole-pcb4; 97 of 100 anomalous and 9 of 101 good boards flagged
+Asked the warm-up question on pcb4 good-0990 in 2.2 s
+Judged 25 of 106 flagged images, 55 s
+Judged 50 of 106 flagged images, 111 s
+Judged 75 of 106 flagged images, 168 s
+Judged 100 of 106 flagged images, 242 s
+Judged 106 of 106 flagged images, 275 s
+Partial run, not the protocol's figures. Clause-citation accuracy, strict, 44 single-defect images: 11.4% (5 of 44), 95% interval 5.0% to 24.0%
+Lenient, 56 multi-defect images: 67.9% (38 of 56), 95% interval 54.8% to 78.6%
+Per region, one defect type under region 1: 20.3% (15 of 74), 95% interval 12.7% to 30.8%
+Good boards rejected: 5.9% (6 of 101), 95% interval 2.8% to 12.4%; flagged by the anomaly model: 8.9% (9 of 101)
+Corrections in a prompt: 0 of 201 decisions
+Not yet final: the whole labelled set: this is a partial run
+Figures: /home/devcloud/before-final/whole-pcb4/bench.json
+Page: /home/devcloud/before-final/whole-pcb4/README.md
+whole-pcb4 exit=0
+Sat Nov  7 04:25:43 UTC 2026
+FINISHED
+=== step3
+Sat Nov  7 04:27:02 UTC 2026
+--- designators-trial-pcb4: a trial of the code on one whole part, not the comparison
+Parsed specs/pcb-spec.pdf in 6.3 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+pcb4: scored 201 images in 20.0 s into /home/devcloud/before-final/runs/pcb4/designators-trial-pcb4; 97 of 100 anomalous and 9 of 101 good boards flagged
+Asked the warm-up question on pcb4 good-0990 in 2.3 s
+Judged 25 of 106 flagged images, 55 s
+Judged 50 of 106 flagged images, 111 s
+Judged 75 of 106 flagged images, 168 s
+Judged 100 of 106 flagged images, 224 s
+Judged 106 of 106 flagged images, 241 s
+Partial run, not the protocol's figures. Clause-citation accuracy, strict, 44 single-defect images: 11.4% (5 of 44), 95% interval 5.0% to 24.0%
+Lenient, 56 multi-defect images: 66.1% (37 of 56), 95% interval 53.0% to 77.1%
+Per region, one defect type under region 1: 20.3% (15 of 74), 95% interval 12.7% to 30.8%
+Good boards rejected: 5.9% (6 of 101), 95% interval 2.8% to 12.4%; flagged by the anomaly model: 8.9% (9 of 101)
+Corrections in a prompt: 0 of 201 decisions
+Not yet final: the whole labelled set: this is a partial run
+Not yet final: the final setting: this is the designators comparison
+Figures: /home/devcloud/before-final/designators-trial-pcb4/bench.json
+Page: /home/devcloud/before-final/designators-trial-pcb4/README.md
+designators-trial-pcb4 exit=0
+Sat Nov  7 04:31:53 UTC 2026
+--- figure 10 from the two real records, nothing run
+Figure 10: /home/devcloud/before-final/designators-trial-pcb4/paired.json
+Page: /home/devcloud/before-final/designators-trial-pcb4/README.md
+figure-10 exit=0
+Sat Nov  7 04:31:55 UTC 2026
+FINISHED
+=== step4
+Sat Nov  7 04:33:41 UTC 2026
+--- put a size in digits, under the addition pattern, a trial and not the comparison file
+schema-check exit=0
+Sat Nov  7 04:35:00 UTC 2026
+--- the xpu tests
+.......                                                                  [100%]
+7 passed, 1642 deselected in 53.18s
+xpu exit=0
+Sat Nov  7 04:35:55 UTC 2026
+FINISHED

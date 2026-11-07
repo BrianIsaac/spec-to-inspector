@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "counted_at": "2026-11-07T04:31:55+00:00",
+  "final": {
+    "path": "/home/devcloud/before-final/whole-pcb4/bench.json",
+    "sha256": "92edd1904f71cce3cf6ce86c36227672e0613b1acb140a95ff5110ffb69e9b60"
+  },
+  "comparison": {
+    "path": "/home/devcloud/before-final/designators-trial-pcb4/bench.json",
+    "sha256": "746c0acacd73971974f14337324ed6e3bdec2236658af589daa3a2d2cefc6bc6"
+  },
+  "labels": {
+    "path": "eval/clause_labels.csv",
+    "sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337"
+  },
+  "threshold": 0.05,
+  "correction": "each comparison is tested on its own at 0.05, with no correction for three",
+  "partial": true,
+  "comparison_is_a_repeat": false,
+  "differences": [
+    "the reason's pattern: '^[^0-9\\\\n\\\\r\"\\\\\\\\]{1,240}$' against '^(?:[^0-9\\\\n\\\\r\"\\\\\\\\]|[A-Z][0-9]{1,3})+$'"
+  ],
+  "strict": {
+    "figure": "strict",
+    "boards": 44,
+    "both_right": 5,
+    "both_wrong": 39,
+    "only_final": 0,
+    "only_comparison": 0,
+    "sign_test": {
+      "only_final": 0,
+      "only_comparison": 0,
+      "differing": 0,
+      "exact": "1",
+      "p_value": 1.0,
+      "below_threshold": false,
+      "can_reach_threshold": false
+    },
+    "moved": null,
+    "finding": "0 of the 44 boards differ, and with fewer than 6 no split can reach 0.05: no figure separates them.",
+    "differing_boards": []
+  },
+  "lenient": {
+    "figure": "lenient",
+    "boards": 56,
+    "both_right": 37,
+    "both_wrong": 18,
+    "only_final": 1,
+    "only_comparison": 0,
+    "sign_test": {
+      "only_final": 1,
+      "only_comparison": 0,
+      "differing": 1,
+      "exact": "1",
+      "p_value": 1.0,
+      "below_threshold": false,
+      "can_reach_threshold": false
+    },
+    "moved": null,
+    "finding": "p = 1: the lenient figure does not pass the test, so it is no evidence of a change. It is reported under its own name, is never pooled and offsets nothing of the strict figure; this is not the primary test.",
+    "differing_boards": [
+      {
+        "part": "pcb4",
+        "image_id": "bad-095",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      }
+    ]
+  }
+}
