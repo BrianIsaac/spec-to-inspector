@@ -9,7 +9,7 @@
 <body>
 <main class="page">
 <div class="crumbs">
-  <p class="trail"><a href="../{{ report }}">Batch {{ run_name }}, part {{ decision.category }}</a> / <b>Board {{ decision.image_id }}</b></p>
+  <p class="trail"><a href="../{{ report }}">Run {{ run_name }}, part {{ decision.category }}</a> / <b>Board {{ decision.image_id }}</b></p>
 </div>
 {% set clause = decision.clause %}
 <section class="verdict verdict-reject" id="verdict">
@@ -47,7 +47,8 @@
       <h2>Measured by code</h2>
       {% set measured = region.measurement %}
       {% if measured and not region.from_peak %}
-      {% if region.rule and region.rule.measured is not none and region.rule.limit is not none %}
+      {% set compared = region.rule.quantity.value if region.rule and region.rule.quantity and region.rule.measured is not none and region.rule.limit is not none else none %}
+      {% if compared %}
       <div class="compare">
         <div><p class="figure-label">{{ region.rule.quantity.value|capitalize }}</p><p class="figure-value">{{ "%.2f"|format(region.rule.measured) }} <span class="figure-unit">{{ region.rule.unit }}</span></p></div>
         <span class="compare-word is-over">nonconforming</span>
@@ -55,9 +56,9 @@
       </div>
       {% endif %}
       <table class="facts-table">
-        <tr><th>Longest extent</th><td>{{ "%.2f"|format(measured.longest_extent_mm) }} mm</td></tr>
+        {% if compared != "longest extent" %}<tr><th>Longest extent</th><td>{{ "%.2f"|format(measured.longest_extent_mm) }} mm</td></tr>{% endif %}
         <tr><th>Shortest extent</th><td>{{ "%.2f"|format(measured.shortest_extent_mm) }} mm</td></tr>
-        <tr><th>Area</th><td>{{ "%.2f"|format(measured.area_mm2) }} mm<sup>2</sup></td></tr>
+        {% if compared != "area" %}<tr><th>Area</th><td>{{ "%.2f"|format(measured.area_mm2) }} mm<sup>2</sup></td></tr>{% endif %}
         <tr><th>Zone</th><td>{{ measured.zone or "outside every zone" }}</td></tr>
         <tr><th>Anomaly score</th><td>{{ "%.3f"|format(decision.score) }} <span class="muted small">threshold {{ "%.3f"|format(decision.image_threshold) }}</span></td></tr>
       </table>

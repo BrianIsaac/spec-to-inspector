@@ -49,6 +49,19 @@ _SECTIONS: Final[dict[str, str]] = {
 }
 _OTHER_SECTION: Final = "What the record is made of"
 _BOARD_FIELDS: Final = ("flagged", "score", "outcome", "cited_heading", "cited_class", "sentence")
+_FINAL_FIELDS: Final = (
+    "score",
+    "flagged",
+    "regions_found",
+    "citation",
+    "cited_heading",
+    "cited_class",
+    "sentence",
+    "row_id",
+    "outcome",
+    "review_cause",
+)
+"""What a board's line holds that is not a time, to set each run against the final's second."""
 
 
 @dataclass(frozen=True)
@@ -311,7 +324,8 @@ def _runs_lines(runs: Sequence[OneRun]) -> list[str]:
         "## The runs",
         "",
         "Times UTC, as the wrapper wrote them; the raw files are under `raw/`. Pids are the "
-        "wrapper's for a run and the process's for a part.",
+        "wrapper's for a run and the process's for a part. A run's wall clock includes the 5 s the "
+        "wrapper waits after the last part, so that a last reading of the cards falls after it.",
         "",
         *_table(("Step", "Start", "End", "Wall clock", "Pid", "Exit"), rows),
         "",
@@ -361,6 +375,48 @@ def _boards_lines(runs: Sequence[OneRun]) -> list[str]:
     return ["## What became of the boards", "", *_table(head, rows), ""]
 
 
+def _against_final_lines(directory: Path, runs: Sequence[OneRun]) -> list[str]:
+    """Set each run's boards against the final's second run, line by line.
+
+    This asks whether `inspect` and the bench are one pipeline in the one setting. It counts boards
+    whose fields differ, and no citation against any label.
+
+    Args:
+        directory: The batch's directory; the final's record is in `final/` beside it.
+        runs: The runs.
+
+    Returns:
+        The section's lines; none if the final's record is not there.
+    """
+    path = directory.parent / "final" / "bench.json"
+    if not path.is_file():
+        return []
+    final = cast("dict[str, list[dict[str, object]]]", json.loads(path.read_text(encoding="utf-8")))
+    lines = {(str(line["part"]), str(line["image_id"])): line for line in final["observations"]}
+    rows: list[Sequence[object]] = []
+    for run in runs:
+        boards = [line for part in PARTS for line in run.records[part].observations]
+        differing = [
+            sum(
+                cast("object", getattr(board, field))
+                != lines[(board.part, board.image_id)].get(field)
+                for board in boards
+            )
+            for field in _FINAL_FIELDS
+        ]
+        rows.append((run.name, len(boards), *differing))
+    return [
+        "## Against the final's second run, board by board",
+        "",
+        "Each run's line for each board against `results/stage2/final/bench.json`, by every field "
+        "that is not a time: how many boards differ. This asks whether `inspect` and the bench are "
+        "one pipeline in the one setting. It re-reads no figure.",
+        "",
+        *_table(("Run", "Boards", *_FINAL_FIELDS), rows),
+        "",
+    ]
+
+
 def _sizes_lines(runs: Sequence[OneRun]) -> list[str]:
     """Lay out the sizes of the cards, the report and the run on disk.
 
@@ -387,7 +443,8 @@ def _sizes_lines(runs: Sequence[OneRun]) -> list[str]:
         "",
         "Each size is in MiB, as the files' bytes and then as allocated on the disk. The report is "
         "`report.html` and its stylesheet; the run's directory is everything the part's run left "
-        "on the machine.",
+        "on the machine. Run 2's reports are kept under `raw/reports/`; their links to the cards "
+        "work on the machine, where the cards are.",
         "",
         *_table(("Run", "Part", "The report", "The cards", "The run's directory"), rows),
         "",
@@ -595,6 +652,7 @@ def render_page(directory: Path, runs: Sequence[OneRun]) -> str:
             *_digest_lines(directory),
             *_runs_lines(runs),
             *_boards_lines(runs),
+            *_against_final_lines(directory, runs),
             *_sizes_lines(runs),
             *_figure_seven_lines(runs),
             *_figure_eight_lines(runs),

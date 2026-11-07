@@ -79,6 +79,7 @@ def test_the_report_lists_every_board_with_a_link_to_each_card(run: Path) -> Non
     assert "1 referred" in report
     assert "accura" not in report.lower()
     assert "<td>The anomaly score" in report
+    assert f"Run {run.name}, part" in report
 
 
 def test_the_sizes_are_read_from_the_disk(run: Path) -> None:
@@ -155,6 +156,22 @@ def test_text_from_the_model_is_escaped(run: Path) -> None:
     write_report(run)
 
     assert "<script>" not in (run / "cut" / CARD_NAME).read_text(encoding="utf-8")
+
+
+def test_a_figure_compared_with_its_limit_is_not_listed_again(run: Path) -> None:
+    """The extent the rule compared stands once, beside its limit; the others stand below."""
+    write_report(run)
+    region = load_decision(run / "cut").regions[0]
+    assert region.rule is not None
+    assert region.rule.quantity is not None
+    assert region.rule.quantity.value == "longest extent"
+
+    card = (run / "cut" / CARD_NAME).read_text(encoding="utf-8")
+
+    assert card.count("<th>Longest extent</th>") == 0
+    assert card.count("Longest extent") == 1
+    assert "<th>Shortest extent</th>" in card
+    assert "<th>Area</th>" in card
 
 
 def test_the_frames_keep_the_crops_shape(run: Path) -> None:

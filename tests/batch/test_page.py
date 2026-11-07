@@ -154,6 +154,36 @@ def test_a_board_is_named_by_its_id_and_a_changed_answer_shows(batch: Path) -> N
     assert "another sentence altogether" in text
 
 
+def test_each_run_is_set_against_the_finals_second_board_by_board(batch: Path) -> None:
+    """How many boards differ, by each field that is not a time; no citation against a label."""
+    second = read_batch_record(batch / "pcb4.json")
+    first = read_batch_record(batch / "pcb1.json")
+    lines = [
+        json.loads(line.model_dump_json()) for line in [*first.observations, *second.observations]
+    ]
+    lines[0]["sentence"] = "the final said something else"
+    (batch.parent / "final").mkdir(parents=True)
+    (batch.parent / "final" / "bench.json").write_text(
+        json.dumps({"observations": lines}), encoding="utf-8"
+    )
+
+    page = render_page(
+        batch, [read_run(batch, "run-1", "first-run."), read_run(batch, "run-2", "")]
+    )
+
+    assert "## Against the final's second run, board by board" in page
+    assert "| run-2 | 7 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 |" in page
+
+
+def test_without_the_finals_record_that_section_is_left_out(batch: Path) -> None:
+    """A batch run elsewhere has no final to be set against."""
+    page = render_page(
+        batch, [read_run(batch, "run-1", "first-run."), read_run(batch, "run-2", "")]
+    )
+
+    assert "Against the final's" not in page
+
+
 def test_the_page_renders_with_only_the_files_it_names(batch: Path) -> None:
     """The bench's directories are not read, so the page can be made on the laptop."""
     shutil.rmtree(Path("runs"))

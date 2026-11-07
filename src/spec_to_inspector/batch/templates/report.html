@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Batch {{ run_name }}, part {{ category }} | Spec to Inspector</title>
+<title>Run {{ run_name }}, part {{ category }} | Spec to Inspector</title>
 <link rel="stylesheet" href="{{ style }}">
 <style>
   .report-table { width: 100%; border-collapse: collapse; font-size: 16px; }
@@ -12,6 +12,7 @@
   .report-table tr:last-child td { border-bottom: 0; }
   .report-table .board { white-space: nowrap; font-weight: 600; }
   .report-table .outcome { white-space: nowrap; }
+  .report-table .report-page { white-space: nowrap; }
   .report-counts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 16px; font-size: 19px; }
   .report-title { margin-bottom: 8px; font-size: 32px; line-height: 1.2; }
   .report-spec { margin-bottom: 12px; color: var(--ink-soft); }
@@ -19,7 +20,7 @@
 </head>
 <body>
 <main class="page">
-<h1 class="report-title">Batch {{ run_name }}, part {{ category }}</h1>
+<h1 class="report-title">Run {{ run_name }}, part {{ category }}</h1>
 {% if specification %}<p class="report-spec">Judged against {{ specification }}.</p>{% endif %}
 <p class="report-counts">
   <span><b>{{ written.boards }} boards</b></span>
@@ -36,7 +37,7 @@
     <tr>
       <td class="board">{% if row.card %}<a href="{{ row.card }}">{{ row.image_id }}</a>{% else %}{{ row.image_id }}{% endif %}</td>
       <td class="outcome"><span class="badge badge-{{ row.status }}">{{ row.outcome }}</span></td>
-      <td>{% if row.clause %}{{ row.clause.id }} {{ row.clause.title }} <span class="muted small">page {{ row.clause.page }}</span>{% endif %}</td>
+      <td>{% if row.clause %}{{ row.clause.id }} {{ row.clause.title }} <span class="muted small report-page">page {{ row.clause.page }}</span>{% endif %}</td>
       <td>{% if row.reason %}{{ row.reason[:1]|upper }}{{ row.reason[1:] }}.{% endif %}</td>
     </tr>
     {% endfor %}
