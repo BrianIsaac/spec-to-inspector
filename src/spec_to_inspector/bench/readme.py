@@ -19,12 +19,13 @@ from spec_to_inspector.bench.observe import (
     RefusedAnswer,
     RefusedAnswers,
 )
-from spec_to_inspector.bench.paired import PairedRecord, PairedTable
+from spec_to_inspector.bench.paired import AnswerTime, PairedRecord, PairedTable
 from spec_to_inspector.bench.record import (
     PROTOCOL_SERVER_SCRIPT,
     QUANTISATION_FACT,
     BenchRecord,
     ColdStart,
+    DeclaredStore,
     Repeat,
     ServerOverride,
     StageMemory,
@@ -366,6 +367,12 @@ def summary_lines(record: BenchRecord) -> list[str]:
         f"Corrections in a prompt: {record.leak.with_corrections_in_prompt} of "
         f"{record.leak.decisions} decisions",
     ]
+    if record.declared_store is not None:
+        lines.append(
+            f"The declared store: {record.declared_store.file.path}, "
+            f"{record.declared_store.corrections} corrections, "
+            f"{len(record.declared_store.excluded_keys)} boards left out of the figures"
+        )
     lines.extend(f"Not yet final: {reason}" for reason in record.not_final)
     repeat = record.repeat
     if repeat is not None:
@@ -1017,9 +1024,22 @@ def _paired_lines(paired: PairedRecord) -> list[str]:
         f"- **The strict figure, the primary test.** {paired.strict.finding}",
         f"- **The lenient figure.** {paired.lenient.finding}",
         "",
-        "Each comparison is tested on its own at 0.05, with no correction for there being three.",
+        (
+            "Each comparison is tested on its own at 0.05, with no correction for there being "
+            "three."
+            if not paired.excluded_boards
+            else "This comparison is tested on its own at 0.05, with no correction for the others."
+        ),
         "",
     ]
+    if paired.excluded_boards:
+        lines += [
+            f"Left out of both tables, since the store was drawn from them: "
+            f"{', '.join(f'`{board}`' for board in paired.excluded_boards)}.",
+            "",
+        ]
+    if paired.answer_time is not None:
+        lines += [*_answer_time_lines(paired.answer_time), ""]
     if paired.differences:
         lines += [
             "What differs between the two runs' makings:",
@@ -1057,6 +1077,81 @@ def _paired_lines(paired: PairedRecord) -> list[str]:
     return lines
 
 
+def _answer_time_lines(times: AnswerTime) -> list[str]:
+    """Lay out the answer time beside figure 10, on the boards the figure is counted over.
+
+    Args:
+        times: The readings.
+
+    Returns:
+        The lines.
+    """
+
+    def tokens(spread: Spread | None) -> str:
+        return "-" if spread is None else f"{spread.p50:,.0f}"
+
+    return [
+        "The answer time on the same boards, each over the areas that run asked of them: a prompt "
+        "with corrections in it is longer.",
+        "",
+        *_table(
+            ["Run", "The VLM's answer to one area, cold", "Prompt tokens, median"],
+            [
+                [
+                    "The final run",
+                    _seconds(times.final_seconds),
+                    tokens(times.final_prompt_tokens),
+                ],
+                [
+                    "The comparison",
+                    _seconds(times.comparison_seconds),
+                    tokens(times.comparison_prompt_tokens),
+                ],
+            ],
+        ),
+    ]
+
+
+def _declared_store_lines(store: DeclaredStore) -> list[str]:
+    """Lay out the store a run recalled from.
+
+    Args:
+        store: What the record holds of it.
+
+    Returns:
+        The section's lines.
+    """
+    recalled = [
+        [part, str(number), line.replace("|", "\\|")]
+        for part, lines in store.recalled.items()
+        for number, line in enumerate(lines, start=1)
+    ]
+    return [
+        f"`{store.file.path}`, SHA-256 `{store.file.sha256}`, holding {store.corrections} "
+        f"corrections. The recall is the product's own: the settings' default, `{store.strategy}`, "
+        f"at most {store.limit} in a prompt. A correction from any other store voids the run, and "
+        "so does this one's file changing during it.",
+        "",
+        *(
+            _table(["Part", "Slot", "The line that stood in every prompt of the part"], recalled)
+            if recalled
+            else ["The lines depend on each answer, so none is listed here."]
+        ),
+        "",
+        "The boards the store was drawn from, in the draw's order. Each is left out of figures 1 "
+        "to 7, whether or not it holds a correction, and keeps its line in the record:",
+        "",
+        *_table(
+            ["Part", "Boards"],
+            (
+                [part, ", ".join(f"`{board}`" for board in boards)]
+                for part, boards in store.excluded.items()
+            ),
+        ),
+        "",
+    ]
+
+
 def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = None) -> str:
     """Write a Stage II run's page.
 
@@ -1069,6 +1164,7 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
     """
     judge, labels, inspector = record.judge, record.labels, record.inspector
     warm_up = judge.warm_up
+    store = record.declared_store
     lines = [
         "# Stage II: what the machine measured",
         "",
@@ -1106,6 +1202,16 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
     lines += [
         *_final_lines(record),
         "",
+        *(
+            []
+            if store is None
+            else [
+                f"The {len(store.excluded_keys)} boards the store was drawn from are left out of "
+                "figures 1 to 7, since it holds their answers. Figure 9 is the card's and has no "
+                "boards to leave out, and the judge's stage's time is the whole run's.",
+                "",
+            ]
+        ),
         "## The figures",
         "",
         *_figure_tables(record),
@@ -1136,9 +1242,17 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
         f"{record.specification.parse_seconds:.1f} s into {record.specification.clauses} clauses "
         f"under {record.specification.headings} numbered headings, equal to the tracked "
         f"`{record.specification.clause_table.path}`.",
-        f"- The corrections store empty: {record.leak.with_corrections_in_prompt} of "
-        f"{record.leak.decisions} decisions had a correction in a prompt "
-        "(`decision.corrected.in_prompt`).",
+        (
+            f"- The corrections store empty: {record.leak.with_corrections_in_prompt} of "
+            f"{record.leak.decisions} decisions had a correction in a prompt "
+            "(`decision.corrected.in_prompt`)."
+            if store is None
+            else f"- The corrections: the declared store, below. "
+            f"{record.leak.with_corrections_in_prompt} of {record.leak.decisions} decisions had a "
+            "correction in a prompt (`decision.corrected.in_prompt`), and "
+            f"{sum(observation.flagged for observation in record.observations)} boards were "
+            "flagged."
+        ),
         "",
         "The anomaly models, not retrained here:",
         "",
@@ -1167,6 +1281,7 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
                 "",
             ]
         ),
+        *([] if store is None else ["## The declared store", "", *_declared_store_lines(store)]),
         "## The boards on the threshold",
         "",
         *_on_threshold_lines(record),
@@ -1213,7 +1328,12 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
         "  model's threshold is chosen on this same split, the judge's prompt was written with",
         "  sight of answers on some of these images, and the protocol was written after a bench",
         "  had been read on the same set.",
-        "- Not a figure for the corrections loop: the store is empty throughout.",
+        (
+            "- Not a figure for the corrections loop: the store is empty throughout."
+            if store is None
+            else "- Not the final figure, which keeps its empty store. This is what a store of "
+            "corrections does to the boards it does not hold, read by the paired table."
+        ),
         "- One specification, one model, one precision, one machine.",
         "- Not a figure against Stage I. The host, the precision, the server and the answer",
         "  pattern all differ, and no figure separates them.",

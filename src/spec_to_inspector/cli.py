@@ -1063,7 +1063,7 @@ def _check_bench_files(
 
 
 @app.command()
-def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and its report
+def bench(  # noqa: PLR0913, PLR0915, PLR0917 - one verb: its checks, its run, its two files, its report
     part: Annotated[
         list[str] | None,
         typer.Option(
@@ -1146,15 +1146,26 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             "and onto its page. With --render-only it needs no server.",
         ),
     ] = None,
+    declared_store: Annotated[
+        Path | None,
+        typer.Option(
+            "--declared-store",
+            help="The corrections comparison's store, built by "
+            "spec_to_inspector.corrections.declared_store: recalled into the prompts by the "
+            "settings' own strategy, its digest in the record, its boards out of the figures. A "
+            "correction from any other store voids the run. A Stage II run only.",
+        ),
+    ] = None,
 ) -> None:
     """Run the pipeline on the labelled set and write the measured figures.
 
     The specification is parsed, each part's test split is scored by its
     trained anomaly model into a run of the bench's own, and every image is
-    judged with no correction recalled and every question asked cold. The
-    figures of the stage's protocol are written as a record and as a page: on
-    an Intel card eval/PROTOCOL-stage2.md, otherwise eval/PROTOCOL.md. Needs
-    the data, the trained models, the GPU and the VLM server up.
+    judged with no correction recalled, unless --declared-store names a store,
+    and every question asked cold. The figures of the stage's protocol are
+    written as a record and as a page: on an Intel card eval/PROTOCOL-stage2.md,
+    otherwise eval/PROTOCOL.md. Needs the data, the trained models, the GPU and
+    the VLM server up.
     """
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", FutureWarning)
@@ -1270,6 +1281,8 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             else None
         ),
         checkpoints=settings.checkpoint_record if settings.stage == "II" else None,
+        declared_store=declared_store,
+        recall=settings.corrections_recall,
         command=(
             "spec-to-inspector",
             "bench",
@@ -1282,6 +1295,7 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             *given("--readme", readme, None),
             *given("--beside", beside, None),
             *given("--against", against, None),
+            *given("--declared-store", declared_store, None),
         ),
     )
     try:

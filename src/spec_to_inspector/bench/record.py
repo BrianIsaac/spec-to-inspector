@@ -15,6 +15,9 @@ are read as they are: a single protocol file reads as a list of one.
 The server's start is the protocol's, or one of its declared comparisons, or neither, and the record
 says which by the container's command line it holds: never by what a run was meant to be. A kept
 record's `not_final` stands as it was written, and the page reads it with what the record shows now.
+
+A run named a store by `--declared-store` holds it under `declared_store`, by its digest, and that
+field is written only for such a run: a run with no store writes the record it always wrote.
 """
 
 import hashlib
@@ -148,13 +151,23 @@ STAGE_II_NOTES: Final[dict[str, str]] = {
     ),
 }
 
+DECLARED_STORE_NOTE: Final = (
+    "corrections were recalled into the prompts from the declared store only, by the product's own "
+    "recall; `declared_store` holds its digest, its recall and the boards it was drawn from, which "
+    "are left out of the figures and keep their lines; `leak` counts the decisions with a "
+    "correction in a prompt, and a correction from any other store voids the run"
+)
 
-def notes_for(stage: Stage, protocol: Sequence["FileRef"]) -> dict[str, str]:
+
+def notes_for(
+    stage: Stage, protocol: Sequence["FileRef"], *, declared: bool = False
+) -> dict[str, str]:
     """Write what a record's fields mean, in the words true of the run that wrote it.
 
     Args:
         stage: The stage the run follows.
         protocol: The protocol's files in force, the protocol's own first.
+        declared: Whether the run recalled from a declared store.
 
     Returns:
         The notes.
@@ -178,7 +191,8 @@ def notes_for(stage: Stage, protocol: Sequence["FileRef"]) -> dict[str, str]:
             f"every figure is defined in {named}, written before the run, with what {additions} "
             "adds to it; each file's digest at the time of the run is under `protocol`"
         )
-    return {**NOTES, **protocol_notes, **STAGE_II_NOTES}
+    store_note = {"corrections": DECLARED_STORE_NOTE} if declared else {}
+    return {**NOTES, **protocol_notes, **STAGE_II_NOTES, **store_note}
 
 
 class FileRef(BaseModel):
@@ -482,7 +496,8 @@ class JudgeSetup(BaseModel):
         warm_up: The question asked before the judge's clock, where one is.
         reason_pattern: The reason's pattern in the schema sent.
         max_regions: The most areas per image put to the judge.
-        corrections: What stood in the prompts' corrections slot.
+        corrections: What stood in the prompts' corrections slot: nothing, or the lines the
+            declared store gives.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -498,7 +513,39 @@ class JudgeSetup(BaseModel):
     warm_up: WarmUp | None = None
     reason_pattern: str | None = None
     max_regions: int
-    corrections: Literal["none recalled"] = "none recalled"
+    corrections: Literal["none recalled", "from the declared store"] = "none recalled"
+
+
+class DeclaredStore(BaseModel):
+    """The store a run of the corrections comparison recalled from.
+
+    Attributes:
+        file: The store's file, by its digest at the start of the run. A run in which it changed is
+            void.
+        strategy: When the corrections were put before the judge: the settings' own.
+        limit: The most corrections that stand in one prompt.
+        corrections: Rows the store holds.
+        excluded: Each part's boards the store was drawn from, in the draw's order: every one is
+            left out of the figures, whether or not it holds a correction.
+        recalled: Each part's lines, as they stood in every prompt of that part, where the strategy
+            recalls by part; none under recall on the answer, where they depend on it.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    file: FileRef
+    strategy: str
+    limit: int
+    corrections: int
+    excluded: dict[str, tuple[str, ...]]
+    recalled: dict[str, tuple[str, ...]]
+
+    @property
+    def excluded_keys(self) -> frozenset[tuple[str, str]]:
+        """The boards left out of the figures, as an observation names them."""
+        return frozenset(
+            (part, image_id) for part, boards in self.excluded.items() for image_id in boards
+        )
 
 
 class StageTimes(BaseModel):
@@ -560,12 +607,13 @@ class InspectorMinutes(BaseModel):
 
 
 class Leak(BaseModel):
-    """The proof that no correction reached a prompt.
+    """How many decisions had a correction in a prompt: the proof that none did, on a final run.
 
     Attributes:
         decisions: Decisions the run made, one per image.
         with_corrections_in_prompt: Of those, decisions with a correction in
-            any prompt. A run is written only when this is zero.
+            any prompt. A run with no declared store is written only when this
+            is zero; on one with a store, it is the boards the judge was asked about.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -639,7 +687,7 @@ class BenchRecord(BaseModel):
         judge_memory: GPU memory while the judge answered; the process is the
             VLM server's.
         inspector: Minutes from a specification to a working inspector.
-        leak: The proof that no correction reached a prompt.
+        leak: How many decisions had a correction in a prompt.
         on_threshold: The boards whose scores sit on their thresholds; None in
             a record from before they were written down.
         checkpoints_held_to: The record of the named checkpoints each part's
@@ -657,6 +705,8 @@ class BenchRecord(BaseModel):
             the same making.
         notes: What the fields mean.
         observations: One line per image run.
+        declared_store: The store the run recalled from, where one was named; not written
+            otherwise.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -688,6 +738,7 @@ class BenchRecord(BaseModel):
     repeat: Repeat | None = None
     notes: dict[str, str] = Field(default_factory=lambda: dict(NOTES))
     observations: list[Observation]
+    declared_store: DeclaredStore | None = Field(default=None, exclude_if=lambda held: held is None)
 
     @field_validator("protocol", mode="before")
     @classmethod
@@ -875,6 +926,8 @@ def declared_comparisons(record: BenchRecord) -> list[str]:
         names.append("image-minimum")
     if record.digit_reasons is not None:
         names.append("designators")
+    if record.declared_store is not None:
+        names.append("corrections")
     return names
 
 
@@ -996,6 +1049,18 @@ def _server_compared(record: BenchRecord, other: BenchRecord) -> dict[str, str]:
     }
 
 
+def _store_digest(record: BenchRecord) -> str | None:
+    """Name the store a run recalled from, by its bytes.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The digest, or None for a run with no store.
+    """
+    return None if record.declared_store is None else record.declared_store.file.sha256
+
+
 def same_making(record: BenchRecord, other: BenchRecord) -> list[str]:
     """Say why two runs are not runs of the same thing.
 
@@ -1027,6 +1092,7 @@ def same_making(record: BenchRecord, other: BenchRecord) -> list[str]:
             {part: run.checkpoint and run.checkpoint.sha256 for part, run in record.runs.items()},
             {part: run.checkpoint and run.checkpoint.sha256 for part, run in other.runs.items()},
         ),
+        ("the declared store", _store_digest(record), _store_digest(other)),
     )
     return [
         f"{name}: {mine!r} against {theirs!r}" for name, mine, theirs in pairs if mine != theirs

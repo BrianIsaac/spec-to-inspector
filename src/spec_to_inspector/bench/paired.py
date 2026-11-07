@@ -8,21 +8,26 @@ only if it passes the same test on the 65, under its own name and never pooled.
 Nothing here runs a model. Two records and the labelled set they were both scored on give the whole
 figure, so it can be counted again at any time; two runs of other boards, other checkpoints or
 another labelled set have no pairs and are refused.
+
+A comparison that recalled from a declared store has its store's boards left out of both tables, and
+the answer time on the boards that remain goes beside them: the two fields are written only for such
+a comparison, so the others' files stay as they are.
 """
 
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from datetime import UTC, datetime
 from fractions import Fraction
 from math import comb
 from pathlib import Path
 from typing import Final, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from spec_to_inspector.bench.labels import ClauseLabel, read_labels
-from spec_to_inspector.bench.observe import Citation, Observation
+from spec_to_inspector.bench.observe import Area, Citation, Observation
 from spec_to_inspector.bench.record import BenchRecord, FileRef, file_ref, read_record, same_making
 from spec_to_inspector.bench.score import cites
+from spec_to_inspector.judge.timing import Spread, spread
 
 PAIRED_NAME: Final = "paired.json"
 """The figure's file, in the comparison's folder beside its record and page."""
@@ -285,6 +290,71 @@ def paired_table(
     )
 
 
+class AnswerTime(BaseModel):
+    """Figure 7's answer time and prompt length on the boards a comparison is counted over.
+
+    A prompt with corrections in it is longer, so these are read beside the figure. Each is over
+    the areas that run asked of those boards, which can be fewer than the other's, since a board
+    stops at its first reject.
+
+    Attributes:
+        final_seconds: The judge's answer to one area, cold, on the final run.
+        comparison_seconds: The same on the comparison.
+        final_prompt_tokens: Tokens in a prompt on the final run, images included.
+        comparison_prompt_tokens: The same on the comparison.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    final_seconds: Spread
+    comparison_seconds: Spread
+    final_prompt_tokens: Spread | None
+    comparison_prompt_tokens: Spread | None
+
+
+def _answer_time(
+    final: Sequence[Observation],
+    comparison: Sequence[Observation],
+    excluded: Collection[tuple[str, str]],
+) -> AnswerTime | None:
+    """Read the answer time of two runs on the boards a comparison is counted over.
+
+    Args:
+        final: The final run's observations.
+        comparison: The comparison's observations.
+        excluded: The boards left out.
+
+    Returns:
+        The readings; None if either run asked nothing of those boards.
+    """
+
+    def asked(run: Sequence[Observation]) -> list[Area]:
+        return [
+            area
+            for observation in run
+            if observation.key not in excluded
+            for area in observation.areas
+            if area.asked
+        ]
+
+    def seconds(areas: Sequence[Area]) -> list[float]:
+        return [area.seconds for area in areas if area.seconds is not None]
+
+    def tokens(areas: Sequence[Area]) -> Spread | None:
+        counted = [float(area.prompt_tokens) for area in areas if area.prompt_tokens is not None]
+        return spread(counted) if counted else None
+
+    on_final, on_comparison = asked(final), asked(comparison)
+    if not seconds(on_final) or not seconds(on_comparison):
+        return None
+    return AnswerTime(
+        final_seconds=spread(seconds(on_final)),
+        comparison_seconds=spread(seconds(on_comparison)),
+        final_prompt_tokens=tokens(on_final),
+        comparison_prompt_tokens=tokens(on_comparison),
+    )
+
+
 class PairedRecord(BaseModel):
     """Figure 10 for one comparison: what `paired.json` holds.
 
@@ -303,6 +373,10 @@ class PairedRecord(BaseModel):
         differences: What differs between the two runs' makings, in words: what the comparison is.
         strict: The primary table, over the single-defect boards.
         lenient: The table over the multi-defect boards, not primary.
+        excluded_boards: The boards a declared store was drawn from, as `<part> <image id>`, left
+            out of both tables; not written for a comparison with no store.
+        answer_time: The answer time on the boards counted, for a comparison with a declared store;
+            not written otherwise.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -319,6 +393,8 @@ class PairedRecord(BaseModel):
     differences: tuple[str, ...]
     strict: PairedTable
     lenient: PairedTable
+    excluded_boards: tuple[str, ...] = Field(default=(), exclude_if=lambda boards: not boards)
+    answer_time: AnswerTime | None = Field(default=None, exclude_if=lambda held: held is None)
 
 
 def _read(path: Path, what: str) -> BenchRecord:
@@ -405,7 +481,9 @@ def pair_records(final_path: Path, comparison_path: Path, labels_path: Path) -> 
         msg = f"the labelled set {labels_path} cannot be read: {error}"
         raise PairedError(msg) from error
     _same_boards(final, comparison, labels_ref)
-    in_run = {observation.key for observation in final.observations}
+    store = comparison.declared_store
+    excluded = frozenset[tuple[str, str]]() if store is None else store.excluded_keys
+    in_run = {observation.key for observation in final.observations} - excluded
     run_labels = [row for row in labels if (row.part, row.image_id) in in_run]
     return PairedRecord(
         counted_at=datetime.now(UTC).isoformat(timespec="seconds"),
@@ -426,6 +504,17 @@ def pair_records(final_path: Path, comparison_path: Path, labels_path: Path) -> 
             [row for row in run_labels if not row.single],
             final.observations,
             comparison.observations,
+        ),
+        correction=(
+            PairedRecord.model_fields["correction"].default
+            if store is None
+            else "this comparison is tested on its own at 0.05, with no correction for the others"
+        ),
+        excluded_boards=tuple(f"{part} {image_id}" for part, image_id in sorted(excluded)),
+        answer_time=(
+            None
+            if store is None
+            else _answer_time(final.observations, comparison.observations, excluded)
         ),
     )
 

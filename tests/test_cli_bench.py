@@ -9,10 +9,14 @@ from typer.testing import CliRunner, Result
 from spec_to_inspector import cli
 from spec_to_inspector.anomaly.infer import visa_test_items
 from spec_to_inspector.bench import run as benching
+from spec_to_inspector.bench.labels import read_labels
 from spec_to_inspector.bench.paired import read_paired
 from spec_to_inspector.bench.record import read_record, write_record
 from spec_to_inspector.cli import app
+from spec_to_inspector.corrections.declared_store import draw_boards
+from spec_to_inspector.corrections.store import CorrectionStore, Override
 from spec_to_inspector.judge.answer import REASON_PATTERNS
+from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.settings import Settings
 from tests.bench.bench_fakes import (
     REPLIES,
@@ -387,6 +391,56 @@ def test_a_comparison_run_with_against_writes_the_figure_as_it_ends(machine: Pat
     assert not read_paired(Path("comparison-fp8/paired.json")).comparison_is_a_repeat
     page = Path("comparison-fp8/README.md").read_text(encoding="utf-8")
     assert "the comparison's first run" in page
+
+
+def test_a_declared_store_goes_from_the_flag_into_the_run_its_record_and_its_figure(
+    machine: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """One flag: the store's lines in the prompts, its digest and its boards out of the figure."""
+    monkeypatch.setattr(benching, "draw_boards", lambda labels: draw_boards(labels, per_part=1))
+    store = CorrectionStore(Path("corrections/store.sqlite3"))
+    for part, boards in draw_boards(
+        read_labels(Path("eval/clause_labels.csv")), per_part=1
+    ).items():
+        store.record(
+            Override(
+                category=part,
+                image_id=boards[0],
+                region_index=1,
+                judged_class="scratch",
+                judged_clause="4.2" if part == "pcb1" else "5.6",
+                judged_outcome=Outcome.REJECT,
+                judged_reason="a mark on the board",
+                corrected_class="melt" if part == "pcb1" else "missing",
+                corrected_clause="4.1" if part == "pcb1" else "5.2",
+                note="the flag's own note",
+            )
+        )
+
+    with FakeVlm([*[WARM_UP, *REPLIES] * 2]) as server:
+        first = _bench(server, "--results", "final/bench.json", "--readme", "final/README.md")
+        second = _bench(
+            server,
+            "--declared-store",
+            "corrections/store.sqlite3",
+            "--against",
+            "final/bench.json",
+            "--results",
+            "comparison/bench.json",
+            "--readme",
+            "comparison/README.md",
+        )
+
+    assert first.exit_code == second.exit_code == 0, second.output
+    record = read_record(Path("comparison/bench.json"))
+    assert record.declared_store is not None
+    assert record.declared_store.file.path == "corrections/store.sqlite3"
+    assert record.command[-2:] == ["--declared-store", "corrections/store.sqlite3"]
+    assert read_paired(Path("comparison/paired.json")).strict.boards == 1
+    assert "--declared-store corrections/store.sqlite3" in Path("comparison/README.md").read_text(
+        encoding="utf-8"
+    )
+    assert "The declared store" in second.output
 
 
 def test_a_page_written_again_keeps_the_figure_of_the_record_it_was_counted_from(

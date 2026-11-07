@@ -10,12 +10,18 @@ Three stages, as a user would go through them:
    correction is recalled (the empty store), and every question is asked
    with the server's prompt cache off (cold), so the answers repeat.
 
+A run that names a store with `--declared-store` is the corrections comparison of
+`eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md`. The product's own recall reads that store
+into the prompts, a correction from anywhere else voids the run, the store's digest goes into the
+record, and the boards the store was drawn from leave the figures. Without the flag nothing changes.
+
 Then the figures of the protocol are counted: `eval/PROTOCOL-stage2.md` on the
 machine, `eval/PROTOCOL.md` on the laptop. Nothing is trained, and nothing is
 written outside the bench's own run directories but the server's log, beside
-the record. A run in which the server could not be asked, a correction reached
-a prompt, the labelled set's region columns are not what the model's regions
-give, or the server's prefix cache was hit, raises and leaves no record. A trial
+the record. A run in which the server could not be asked, a correction from
+outside any declared store reached a prompt, the labelled set's region columns
+are not what the model's regions give, or the server's prefix cache was hit,
+raises and leaves no record. A trial
 cut down by `limit` only names a board whose columns do not hold: the columns are
 of the whole split as the bench batches it, and a board on the threshold is
 decided by the other boards of its batch.
@@ -39,7 +45,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Final, NamedTuple, TypedDict
+from typing import TYPE_CHECKING, Final, Literal, NamedTuple, TypedDict
 
 import httpx
 from pydantic import BaseModel, ConfigDict
@@ -66,6 +72,7 @@ from spec_to_inspector.bench.record import (
     UNIT,
     BenchRecord,
     ColdStart,
+    DeclaredStore,
     FileRef,
     InspectorMinutes,
     JudgeSetup,
@@ -85,6 +92,10 @@ from spec_to_inspector.bench.record import (
 )
 from spec_to_inspector.bench.score import score
 from spec_to_inspector.card_memory import read_xpu_address, read_xpu_memory, read_xpu_name
+from spec_to_inspector.corrections.declared_store import DeclaredStoreError, draw_boards
+from spec_to_inspector.corrections.recall import JudgeOptions, RecallStrategy, judge_options
+from spec_to_inspector.corrections.render import render_correction
+from spec_to_inspector.corrections.store import MAX_RECALL, CorrectionStore, StoreError
 from spec_to_inspector.judge.answer import REASON_PATTERNS
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause
@@ -122,6 +133,7 @@ JUDGE_PROCESS_NOTE: Final = (
 )
 _PROBE_TIMEOUT_SECONDS: Final = 5.0
 _MIB: Final = 1024**2
+_NO_CORRECTIONS: Final = JudgeOptions(recall=None, recall_on_answer=None, overridden=None)
 
 
 class BenchError(RuntimeError):
@@ -183,6 +195,9 @@ class BenchPlan(BaseModel):
         reason_rule: What the judge's reason may hold.
         server_log: Where to keep the server's log of the run; None for no log.
         checkpoints: The record of the checkpoints a Stage II run is held to.
+        declared_store: The store a run of the corrections comparison recalls from; None for the
+            empty store of every other run.
+        recall: When a declared store's corrections are put before the judge: the settings' own.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -202,6 +217,8 @@ class BenchPlan(BaseModel):
     reason_rule: ReasonRule = "no_digits"
     server_log: Path | None = None
     checkpoints: Path | None = None
+    declared_store: Path | None = None
+    recall: Literal["part", "answer"] = "part"
 
     @property
     def server_script(self) -> str:
@@ -700,6 +717,120 @@ def _hold_to_region_columns(
     raise BenchError(msg)
 
 
+class _Declared(NamedTuple):
+    """A declared store, as a run uses it.
+
+    Attributes:
+        setup: What the record holds of it.
+        options: The product's recall from it, for the judge.
+        lines: Every line it can put in a prompt: a line that is not one of these came from
+            somewhere else.
+    """
+
+    setup: DeclaredStore
+    options: JudgeOptions
+    lines: frozenset[str]
+
+
+def read_declared_store(plan: BenchPlan, labels: Sequence[ClauseLabel]) -> _Declared | None:
+    """Read the store a run names, before anything is scored or asked.
+
+    Args:
+        plan: The run's plan.
+        labels: The whole labelled set, which the rule draws from.
+
+    Returns:
+        The store as the run uses it; None for a run that names none.
+
+    Raises:
+        BenchError: If the run is Stage I's, or the store is absent, empty, unreadable or holds a
+            row of a board the rule did not draw.
+    """
+    path = plan.declared_store
+    if path is None:
+        return None
+    if plan.stage != "II":
+        msg = "a declared store is the Stage II corrections comparison's, and this is Stage I's run"
+        raise BenchError(msg)
+    if not path.is_file():
+        msg = (
+            f"the declared store {path} does not exist: build it with `{plan.python} -m "
+            "spec_to_inspector.corrections.declared_store`"
+        )
+        raise BenchError(msg)
+    store = CorrectionStore(path)
+    strategy = RecallStrategy(plan.recall)
+    try:
+        drawn = draw_boards(labels)
+        rows = [
+            row
+            for part, boards in drawn.items()
+            for image_id in boards
+            for row in store.for_image(part, image_id)
+        ]
+        held = store.count()
+        recalled = (
+            {part: _recalled_lines(store, part) for part in plan.parts}
+            if strategy is RecallStrategy.PART
+            else {}
+        )
+    except (StoreError, DeclaredStoreError) as error:
+        raise BenchError(str(error)) from error
+    if not held:
+        msg = f"the declared store {path} holds no correction"
+        raise BenchError(msg)
+    if held != len(rows):
+        msg = (
+            f"the declared store {path} holds {held} rows, of which {held - len(rows)} are of "
+            "boards outside the draw, whose answers would stay in the figures"
+        )
+        raise BenchError(msg)
+    return _Declared(
+        setup=DeclaredStore(
+            file=file_ref(path),
+            strategy=strategy.value,
+            limit=MAX_RECALL,
+            corrections=held,
+            excluded=drawn,
+            recalled=recalled,
+        ),
+        options=judge_options(store, strategy),
+        lines=frozenset(render_correction(row) for row in rows),
+    )
+
+
+def _recalled_lines(store: CorrectionStore, part: str) -> tuple[str, ...]:
+    """Give the lines the product's recall by part puts in a part's prompts.
+
+    Args:
+        store: The store.
+        part: The part.
+
+    Returns:
+        The lines, most recent first.
+    """
+    return tuple(render_correction(row) for row in store.recall_for_part(part))
+
+
+def _hold_to_the_declared_digest(store: FileRef) -> None:
+    """Void a run whose store is not, at its end, the one named at its start.
+
+    Args:
+        store: The store as the run's start read it.
+
+    Raises:
+        BenchError: If the file has changed or gone.
+    """
+    path = Path(store.path)
+    if path.is_file() and file_ref(path).sha256 == store.sha256:
+        return
+    msg = (
+        f"the declared store {store.path} changed during the run: its corrections are not the "
+        "ones its digest names, so the run is void and nothing is written"
+    )
+    raise BenchError(msg)
+
+
 def judge_part(
     scored: _Scored,
     specification: Specification,
@@ -709,8 +840,9 @@ def judge_part(
     reason_rule: ReasonRule = "no_digits",
     server_script: str = "scripts/serve_vlm.sh",
     on_image: Callable[[Observation], None] | None = None,
+    declared: _Declared | None = None,
 ) -> Iterator[Observation]:
-    """Judge every image of one part's run, cold and with no correction recalled.
+    """Judge every image of one part's run, cold and with no correction recalled but a store's.
 
     Args:
         scored: The part's run, as the anomaly model's stage left it.
@@ -720,13 +852,14 @@ def judge_part(
         reason_rule: What the judge's reason may hold.
         server_script: The script that starts the judge's server, to name if it is lost.
         on_image: Called with each image's observation as it is made.
+        declared: The store the run recalls from; None for the empty store.
 
     Yields:
         One observation per image, in the run's order.
 
     Raises:
-        BenchError: If the server could not be asked about an area, or a
-            correction stood in a prompt.
+        BenchError: If the server could not be asked about an area, or a correction stood in a
+            prompt that the run's store did not put there.
     """
     for image_id, result in scored.results.items():
         started = time.perf_counter()
@@ -737,6 +870,7 @@ def judge_part(
             max_regions=max_regions,
             cache_prompt=False,
             reason_rule=reason_rule,
+            **(_NO_CORRECTIONS if declared is None else declared.options),
         )
         seconds = time.perf_counter() - started
         unasked = next(
@@ -750,10 +884,19 @@ def judge_part(
             )
             raise BenchError(msg)
         observation = observe(decision, result, judge_seconds=seconds)
-        if observation.corrections_in_prompt:
+        if declared is None and observation.corrections_in_prompt:
             msg = (
                 f"a correction stood in a prompt of {result.category} {image_id}, which the "
                 "protocol forbids: the run is void and nothing is written"
+            )
+            raise BenchError(msg)
+        if declared is not None and any(
+            line not in declared.lines for region in decision.regions for line in region.corrections
+        ):
+            msg = (
+                f"a correction stood in a prompt of {result.category} {image_id} from a store "
+                f"other than the declared one, {declared.setup.file.path}: the run is void and "
+                "nothing is written"
             )
             raise BenchError(msg)
         if on_image is not None:
@@ -804,6 +947,8 @@ def ask_warm_up(
     scored: dict[str, _Scored],
     specification: Specification,
     client: ChatClient,
+    *,
+    options: JudgeOptions = _NO_CORRECTIONS,
 ) -> WarmUp:
     """Ask the one question that comes before the judge's clock, and keep nothing of its answer.
 
@@ -816,6 +961,7 @@ def ask_warm_up(
         scored: The anomaly model's stage, per part.
         specification: The parsed specification.
         client: The VLM server's client.
+        options: The corrections' share of the judge's arguments, so that it is put as the run will.
 
     Returns:
         That it was asked, or that no image was flagged for it to be asked about.
@@ -836,6 +982,7 @@ def ask_warm_up(
                 cache_prompt=False,
                 reason_rule=plan.reason_rule,
                 write=False,
+                **options,
             )
             if decision.regions[0].review_cause is Cause.SERVER_UNAVAILABLE:
                 msg = (
@@ -975,6 +1122,8 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
     except (OSError, ValueError) as error:
         raise BenchError(str(error)) from error
     named = _named_checkpoints(plan)
+    declared = read_declared_store(plan, labels)
+    excluded = frozenset[tuple[str, str]]() if declared is None else declared.setup.excluded_keys
     reading = None if probes.server is None else probes.server.read(client.url)
 
     specification, parsed = parse_specification(plan, parse)
@@ -1018,7 +1167,17 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
 
     since = datetime.now(UTC)
     counters_before = None if probes.server is None else probes.server.counters(client.url)
-    warm_up = ask_warm_up(plan, scored, specification, client) if plan.stage == "II" else None
+    warm_up = (
+        ask_warm_up(
+            plan,
+            scored,
+            specification,
+            client,
+            options=_NO_CORRECTIONS if declared is None else declared.options,
+        )
+        if plan.stage == "II"
+        else None
+    )
     if warm_up is not None and warm_up.asked:
         tell(f"Asked the warm-up question on {warm_up.image} in {warm_up.seconds:.1f} s")
 
@@ -1047,9 +1206,12 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
                     reason_rule=plan.reason_rule,
                     server_script=plan.server_script,
                     on_image=progress,
+                    declared=declared,
                 )
             )
     judge_stage_seconds = time.perf_counter() - started
+    if declared is not None:
+        _hold_to_the_declared_digest(declared.setup.file)
     cold = (
         None
         if probes.server is None or reading is None
@@ -1062,6 +1224,8 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
     fit = {part: run.fit_seconds for part, run in runs.items()}
     now = datetime.now(UTC)
     whole = plan.limit is None and len(run_labels) == len(labels)
+    counted_labels = [row for row in run_labels if (row.part, row.image_id) not in excluded]
+    counted = [observation for observation in observations if observation.key not in excluded]
     record = BenchRecord(
         unit=STAGE_II_UNIT if plan.stage == "II" else UNIT,
         stage=plan.stage,
@@ -1074,9 +1238,9 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
         protocol=protocol,
         labels=LabelledSet(
             file=file_ref(plan.labels),
-            images=len(run_labels),
-            single_defect=sum(label.single for label in run_labels),
-            multi_defect=sum(not label.single for label in run_labels),
+            images=len(counted_labels),
+            single_defect=sum(label.single for label in counted_labels),
+            multi_defect=sum(not label.single for label in counted_labels),
         ),
         specification=parsed,
         judge=JudgeSetup(
@@ -1094,10 +1258,11 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
             warm_up=warm_up,
             reason_pattern=REASON_PATTERNS[plan.reason_rule],
             max_regions=plan.max_regions,
+            corrections="none recalled" if declared is None else "from the declared store",
         ),
         runs=runs,
-        scores=score(run_labels, observations),
-        times=stage_times(parsed.parse_seconds, runs, observations, judge_stage_seconds),
+        scores=score(counted_labels, counted),
+        times=stage_times(parsed.parse_seconds, runs, counted, judge_stage_seconds),
         judge_memory=_memory(
             sampler,
             probes,
@@ -1126,8 +1291,9 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
             digit_reasons_of(observations) if plan.reason_rule == "designators" else None
         ),
         refused_answers=refused_answers_of(observations) if plan.stage == "II" else None,
-        notes=notes_for(plan.stage, protocol),
+        notes=notes_for(plan.stage, protocol, declared=declared is not None),
         observations=observations,
+        declared_store=None if declared is None else declared.setup,
     )
     if plan.stage == "II":
         return record.model_copy(update={"not_final": missing_for_final(record)})
