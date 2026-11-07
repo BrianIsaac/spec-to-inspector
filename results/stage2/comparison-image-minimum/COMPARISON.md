@@ -39,8 +39,10 @@ So on the good boards: cited 4.2, 8 and 9; no clause applies, 3 and 2; referred 
 values, and every time and memory value that differs, are in `two-runs.md`. Run 1 is `first-run.json` and `first-run.md`, run 2
 `bench.json` and `README.md`. The sign test uses run 2, as the protocol says.
 
-## What the page cannot say
+## The page
 
-**Two lines of `README.md` are wrong for this comparison, and the page is left as the bench wrote it.** "This run's record holds
-what the protocol asks of a final run": the record has the fields, and this is a comparison. "none of its settings overridden",
-under "Repeating it": `IMAGE_MIN_PIXELS` is, as above.
+**`README.md` now says what this run is.** Its two wrong lines were put right on 7 November by the bench's `--render-only` from the
+same record, and no figure on it moved: it says this is the `image-minimum` comparison and so not final, and under "Repeating it" that
+`IMAGE_MIN_PIXELS=65536` started it, with the one flag against the protocol's. Its `quantisation` row reads "not recorded", since this
+record was written before the field; the engine's line in `raw/server-image-minimum-whole.txt` reads `quantization=None`. `bench.json`'s
+own `not_final` still reads empty, and `first-run.md` keeps both old lines, each as written with its run.

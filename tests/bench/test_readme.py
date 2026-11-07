@@ -594,3 +594,15 @@ def test_the_pages_not_rendered_again_differ_only_by_the_new_line(
         expected = expected.replace("SPEC_TO_INSPECTOR_REASON_RULE=designators ", "")
 
     assert expected == (folder / "README.md").read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("name", ["comparison-fp8", "comparison-image-minimum"])
+def test_the_two_pages_rendered_again_are_what_their_records_write(name: str) -> None:
+    """Every word from the tracked record and its kept figure, whose digest still holds."""
+    folder = REPOSITORY / "results" / "stage2" / name
+    kept = figure_beside(folder / "bench.json")
+
+    assert kept is not None
+    assert render_readme(read_record(folder / "bench.json"), paired=kept) == (
+        folder / "README.md"
+    ).read_text(encoding="utf-8")
