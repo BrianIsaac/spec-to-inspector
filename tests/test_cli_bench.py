@@ -9,6 +9,7 @@ from typer.testing import CliRunner, Result
 from spec_to_inspector import cli
 from spec_to_inspector.anomaly.infer import visa_test_items
 from spec_to_inspector.bench import run as benching
+from spec_to_inspector.bench.paired import read_paired
 from spec_to_inspector.bench.record import read_record, write_record
 from spec_to_inspector.cli import app
 from spec_to_inspector.judge.answer import REASON_PATTERNS
@@ -306,3 +307,123 @@ def test_on_the_laptop_nothing_of_the_machines_is_written(world: Path) -> None:
     assert record.judge.warm_up is None
     assert list(RESULTS.parent.glob("*server-log*")) == []
     assert PAGE.read_text(encoding="utf-8").startswith("# Stage I: what the laptop prototype")
+
+
+def _a_pair_of_runs(server: FakeVlm) -> None:
+    """Run the protocol's command twice into a final folder and once into a comparison's.
+
+    Args:
+        server: The fake judge, with replies for all three.
+    """
+    for folder in ("final", "comparison-fp8", "comparison-fp8"):
+        result = _bench(
+            server, "--results", f"{folder}/bench.json", "--readme", f"{folder}/README.md"
+        )
+        assert result.exit_code == 0, result.output
+
+
+def test_on_the_machine_a_comparison_is_paired_with_the_final_from_the_two_records(
+    machine: Path,
+) -> None:
+    """Figure 10 needs no run: two records, the labelled set, a file and the page beside them."""
+    with FakeVlm([*[WARM_UP, *REPLIES] * 3]) as server:
+        _a_pair_of_runs(server)
+        asked = len(server.requests)
+        result = _bench(
+            server,
+            "--render-only",
+            "--against",
+            "final/bench.json",
+            "--results",
+            "comparison-fp8/bench.json",
+            "--readme",
+            "comparison-fp8/README.md",
+        )
+        assert len(server.requests) == asked
+
+    assert result.exit_code == 0, result.output
+    paired = read_paired(Path("comparison-fp8/paired.json"))
+    assert paired.final.path == "final/bench.json"
+    assert paired.comparison_is_a_repeat
+    assert (paired.strict.boards, paired.lenient.boards) == (3, 1)
+    assert paired.strict.sign_test.p_value == 1.0
+    page = Path("comparison-fp8/README.md").read_text(encoding="utf-8")
+    assert "## 10. The paired table, against the final run" in page
+    assert "| Strict, single-defect | 3 | 2 | 1 | 0 | 0 | 0 | 1 | no |" in page
+
+
+def test_a_comparison_run_with_against_writes_the_figure_as_it_ends(machine: Path) -> None:
+    """The same in one command, on the run itself, named for the first run it is."""
+    with FakeVlm([*[WARM_UP, *REPLIES] * 2]) as server:
+        first = _bench(server, "--results", "final/bench.json", "--readme", "final/README.md")
+        second = _bench(
+            server,
+            "--against",
+            "final/bench.json",
+            "--results",
+            "comparison-fp8/bench.json",
+            "--readme",
+            "comparison-fp8/README.md",
+        )
+
+    assert first.exit_code == second.exit_code == 0, second.output
+    assert not read_paired(Path("comparison-fp8/paired.json")).comparison_is_a_repeat
+    page = Path("comparison-fp8/README.md").read_text(encoding="utf-8")
+    assert "the comparison's first run" in page
+
+
+def test_a_page_written_again_keeps_the_figure_of_the_record_it_was_counted_from(
+    machine: Path,
+) -> None:
+    """Rendering without --against reads the file, as long as the record is the one counted."""
+    with FakeVlm([*[WARM_UP, *REPLIES] * 3]) as server:
+        _a_pair_of_runs(server)
+        arguments = [
+            "--results",
+            "comparison-fp8/bench.json",
+            "--readme",
+            "comparison-fp8/README.md",
+        ]
+        assert (
+            _bench(server, "--render-only", "--against", "final/bench.json", *arguments).exit_code
+            == 0
+        )
+        again = _bench(server, "--render-only", *arguments)
+
+    assert again.exit_code == 0, again.output
+    page = Path("comparison-fp8/README.md")
+    assert "## 10. The paired table" in page.read_text(encoding="utf-8")
+
+    record = read_record(Path("comparison-fp8/bench.json"))
+    write_record(Path("comparison-fp8/bench.json"), record.model_copy(update={"measured_on": "x"}))
+    with FakeVlm() as server:
+        replaced = _bench(server, "--render-only", *arguments)
+    assert replaced.exit_code == 0, replaced.output
+    assert "## 10. The paired table" not in page.read_text(encoding="utf-8")
+
+
+def test_against_needs_the_comparisons_own_record(machine: Path) -> None:
+    """With no record named it would read Stage I's default path."""
+    with FakeVlm() as server:
+        result = _bench(server, "--render-only", "--against", "final/bench.json")
+    assert result.exit_code == 2
+    assert "--results" in result.output
+
+
+def test_two_records_that_have_no_pairs_stop_with_the_reason(machine: Path) -> None:
+    """Exit 1 and no file written: a table of nothing is worse than none."""
+    with FakeVlm([WARM_UP, *REPLIES]) as server:
+        ran = _bench(server, "--results", "comparison-fp8/bench.json")
+        assert ran.exit_code == 0, ran.output
+        result = _bench(
+            server,
+            "--render-only",
+            "--against",
+            "final/missing.json",
+            "--results",
+            "comparison-fp8/bench.json",
+        )
+
+    assert result.exit_code == 1
+    assert "missing.json" in result.output
+    assert not Path("comparison-fp8/paired.json").exists()

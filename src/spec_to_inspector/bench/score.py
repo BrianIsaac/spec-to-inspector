@@ -204,7 +204,7 @@ def _accuracy(pairs: Sequence[Pair], parts: Sequence[str], hit: Callable[[Pair],
     return Accuracy(all=wilson(sum(hit(pair) for pair in pairs), len(pairs)), by_part=by_part)
 
 
-def _cites(observation: Observation, headings: Iterable[str]) -> bool:
+def cites(observation: Observation, headings: Iterable[str]) -> bool:
     """Whether an image's citation on region 1 is one of some headings.
 
     Args:
@@ -323,7 +323,7 @@ def _headline(single: Sequence[Pair], parts: Sequence[str]) -> Headline:
     """
 
     def strict(pair: Pair) -> bool:
-        return _cites(pair[1], pair[0].expected_headings)
+        return cites(pair[1], pair[0].expected_headings)
 
     flagged = [pair for pair in single if pair[1].flagged]
     on_defect = [
@@ -394,9 +394,9 @@ def score(labels: Sequence[ClauseLabel], observations: Sequence[Observation]) ->
 
     return Scores(
         headline=_headline(single, parts),
-        lenient=_accuracy(multi, parts, lambda pair: _cites(pair[1], pair[0].expected_headings)),
+        lenient=_accuracy(multi, parts, lambda pair: cites(pair[1], pair[0].expected_headings)),
         per_region=_accuracy(
-            one_type, parts, lambda pair: _cites(pair[1], pair[0].region1_headings)
+            one_type, parts, lambda pair: cites(pair[1], pair[0].region1_headings)
         ),
         confusion_single=_confusion((lb.part, lb.visa_types[0], ob) for lb, ob in single),
         confusion_region=_confusion((lb.part, lb.region1_types[0], ob) for lb, ob in one_type),

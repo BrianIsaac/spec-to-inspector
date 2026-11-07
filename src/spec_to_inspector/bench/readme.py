@@ -19,6 +19,7 @@ from spec_to_inspector.bench.observe import (
     RefusedAnswer,
     RefusedAnswers,
 )
+from spec_to_inspector.bench.paired import PairedRecord, PairedTable
 from spec_to_inspector.bench.record import BenchRecord, ColdStart, Repeat, StageMemory
 from spec_to_inspector.bench.score import Accuracy, Confusion, Dispositions, FalseAlarms
 from spec_to_inspector.bench.wilson import Proportion
@@ -872,11 +873,116 @@ def _refused_answer_lines(refused: RefusedAnswers) -> list[str]:
     ]
 
 
-def render_stage2_readme(record: BenchRecord) -> str:
+def _paired_lines(paired: PairedRecord) -> list[str]:
+    """Lay out figure 10 for a comparison.
+
+    Args:
+        paired: The figure.
+
+    Returns:
+        The section's lines.
+    """
+
+    def row(name: str, table: PairedTable) -> list[str]:
+        test = table.sign_test
+        return [
+            name,
+            str(table.boards),
+            str(table.both_right),
+            str(table.both_wrong),
+            str(table.only_final),
+            str(table.only_comparison),
+            str(test.differing),
+            f"{test.p_value:.4g}",
+            "yes" if test.below_threshold else "no",
+        ]
+
+    boards = (*paired.strict.differing_boards, *paired.lenient.differing_boards)
+    lines = [
+        f"Against the final run's record, `{paired.final.path}` (SHA-256 "
+        f"`{paired.final.sha256[:16]}`). The pairs are the boards, the labelled set "
+        f"`{paired.labels.path}`.",
+        "",
+    ]
+    if paired.partial:
+        lines += [
+            "**A record here is partial: these pairs are not the protocol's 135 and 65.**",
+            "",
+        ]
+    if not paired.comparison_is_a_repeat:
+        lines += [
+            "**This record is the comparison's first run.** The protocol pairs the final run's "
+            "tracked file with the comparison's second.",
+            "",
+        ]
+    lines += [
+        *_table(
+            [
+                "Figure",
+                "Boards",
+                "Right on both",
+                "Wrong on both",
+                "Right only on the final run",
+                "Right only on the comparison",
+                "Differing",
+                "Exact sign test, p",
+                "Below 0.05",
+            ],
+            (
+                row("Strict, single-defect", paired.strict),
+                row("Lenient, multi-defect", paired.lenient),
+            ),
+        ),
+        "",
+        f"- **The strict figure, the primary test.** {paired.strict.finding}",
+        f"- **The lenient figure.** {paired.lenient.finding}",
+        "",
+        "Each comparison is tested on its own at 0.05, with no correction for there being three.",
+        "",
+    ]
+    if paired.differences:
+        lines += [
+            "What differs between the two runs' makings:",
+            "",
+            *(f"- {difference}" for difference in paired.differences),
+            "",
+        ]
+    if boards:
+        lines += [
+            "The boards that differ:",
+            "",
+            *_table(
+                [
+                    "Part",
+                    "Board",
+                    "Expected",
+                    "The final run cited",
+                    "The comparison cited",
+                    "Right on",
+                ],
+                (
+                    [
+                        board.part,
+                        f"`{board.image_id}`",
+                        ", ".join(board.expected),
+                        board.final,
+                        board.comparison,
+                        board.right_on,
+                    ]
+                    for board in boards
+                ),
+            ),
+            "",
+        ]
+    return lines
+
+
+def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = None) -> str:
     """Write a Stage II run's page.
 
     Args:
         record: The run.
+        paired: Figure 10, where the run is a comparison and the figure has been counted.
 
     Returns:
         The page, as Markdown.
@@ -976,6 +1082,11 @@ def render_stage2_readme(record: BenchRecord) -> str:
         *_memory_table(record),
         *_memory_lines(record),
         "",
+        *(
+            []
+            if paired is None
+            else ["## 10. The paired table, against the final run", "", *_paired_lines(paired)]
+        ),
         "## Repeating it",
         "",
         "The judge's server is started by `scripts/serve_vlm_xpu.sh start`, none of its settings",
@@ -1035,7 +1146,9 @@ def _memory_lines(record: BenchRecord) -> list[str]:
     ]
 
 
-def render_readme(record: BenchRecord, *, beside: BenchRecord | None = None) -> str:
+def render_readme(
+    record: BenchRecord, *, beside: BenchRecord | None = None, paired: PairedRecord | None = None
+) -> str:
     """Write the page of a run's figures: Stage I's, or a Stage II run's own.
 
     Args:
@@ -1043,12 +1156,14 @@ def render_readme(record: BenchRecord, *, beside: BenchRecord | None = None) -> 
         beside: A run of the same command against another server setting, to
             compare with on Stage I's page; None for no comparison. A Stage II
             comparison goes into files of its own.
+        paired: Figure 10, on a Stage II comparison's page. No test is run against Stage I, so
+            its page takes none.
 
     Returns:
         The page, as Markdown.
     """
     if record.stage == "II":
-        return render_stage2_readme(record)
+        return render_stage2_readme(record, paired=paired)
     judge, labels, protocol = record.judge, record.labels, record.protocol[0]
     server = ", ".join(f"{key} {value}" for key, value in judge.server.items()) or "not reported"
 

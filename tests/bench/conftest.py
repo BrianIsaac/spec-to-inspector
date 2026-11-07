@@ -114,6 +114,16 @@ def stage2_plan(plan: BenchPlan, tmp_path: Path) -> BenchPlan:
 
 
 @pytest.fixture
+def stage2_plan_labels(stage2_plan: BenchPlan) -> Path:
+    """Give the labelled set a Stage II run of the small set is scored on.
+
+    Returns:
+        The file.
+    """
+    return stage2_plan.labels
+
+
+@pytest.fixture
 def machine_models(tmp_path: Path) -> ModelLoader:
     """Give stub models that each have a checkpoint on disk, as a real one does.
 

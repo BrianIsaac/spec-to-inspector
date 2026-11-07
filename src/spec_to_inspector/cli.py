@@ -822,6 +822,54 @@ def correct(
     out.print(render_correction(kept), markup=False, highlight=False, soft_wrap=True)
 
 
+def _check_bench_files(
+    results: Path | None,
+    default_record: Path,
+    *,
+    on_machine: bool,
+    trial: bool,
+    beside: Path | None,
+    against: Path | None,
+    render_only: bool,
+) -> None:
+    """Refuse a bench whose files would replace a record that stands, or are not its own.
+
+    Args:
+        results: The record named, if one was.
+        default_record: Stage I's record, the default.
+        on_machine: Whether the run follows the Stage II protocol.
+        trial: Whether the run is cut down to fewer images or parts.
+        beside: A record named to show beside this run.
+        against: The final run's record, where this run is a comparison.
+        render_only: Whether nothing is to be run.
+
+    Raises:
+        typer.BadParameter: If the files named do not fit the run.
+    """
+    if on_machine and not render_only:
+        if results is None:
+            raise typer.BadParameter(
+                f"a run on this device must name its own record: {default_record} is Stage I's, "
+                "which stands as measured",
+                param_hint="--results",
+            )
+        if beside is not None:
+            raise typer.BadParameter(
+                "a Stage II comparison goes into files of its own, not beside the run",
+                param_hint="--beside",
+            )
+    if against is not None and results is None:
+        raise typer.BadParameter(
+            "the comparison's own record must be named, to pair with the final run",
+            param_hint="--results",
+        )
+    if trial and results is None and not render_only:
+        raise typer.BadParameter(
+            f"a trial run must name its own record, so that it cannot replace {default_record}",
+            param_hint="--results",
+        )
+
+
 @app.command()
 def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and its report
     part: Annotated[
@@ -897,6 +945,15 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             help="Run nothing: write the page again from the record already on disk.",
         ),
     ] = False,
+    against: Annotated[
+        Path | None,
+        typer.Option(
+            "--against",
+            help="The final run's record, where --results is a comparison's: count the protocol's "
+            "figure 10 and its sign test from the two records, into paired.json beside --results "
+            "and onto its page. With --render-only it needs no server.",
+        ),
+    ] = None,
 ) -> None:
     """Run the pipeline on the labelled set and write the measured figures.
 
@@ -911,6 +968,13 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
         warnings.simplefilter("ignore", FutureWarning)
         from spec_to_inspector.bench import run as benching  # noqa: PLC0415
         from spec_to_inspector.bench.mapping import PARTS  # noqa: PLC0415
+        from spec_to_inspector.bench.paired import (  # noqa: PLC0415
+            PAIRED_NAME,
+            PairedError,
+            figure_beside,
+            pair_records,
+            write_paired,
+        )
         from spec_to_inspector.bench.readme import render_readme, summary_lines  # noqa: PLC0415
         from spec_to_inspector.bench.record import (  # noqa: PLC0415
             BenchRecord,
@@ -930,27 +994,20 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
         )
     settings = Settings()
     default_record = Path("results/stage1/bench.json")
-    if settings.stage == "II" and not render_only:
-        if results is None:
-            raise typer.BadParameter(
-                f"a run on this device must name its own record: {default_record} is Stage I's, "
-                "which stands as measured",
-                param_hint="--results",
-            )
-        if beside is not None:
-            raise typer.BadParameter(
-                "a Stage II comparison goes into files of its own, not beside the run",
-                param_hint="--beside",
-            )
     trial = limit is not None or parts != PARTS
-    if trial and results is None and not render_only:
-        raise typer.BadParameter(
-            f"a trial run must name its own record, so that it cannot replace {default_record}",
-            param_hint="--results",
-        )
+    _check_bench_files(
+        results,
+        default_record,
+        on_machine=settings.stage == "II",
+        trial=trial,
+        beside=beside,
+        against=against,
+        render_only=render_only,
+    )
     record_path = results or default_record
     page_path = readme or (default_record.with_name("README.md") if results is None else None)
     beside_path = beside or record_path.with_name("bench-own-image-tokens.json")
+    labels_path = eval_dir / "clause_labels.csv"
 
     def say(line: str) -> None:
         err.print(line, markup=False, highlight=False, soft_wrap=True)
@@ -967,7 +1024,19 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             say(f"{what} {path} is not a record of the bench and is left out: {error}")
             return None
 
+    def count_figure_ten() -> None:
+        if against is None:
+            return
+        paired_path = record_path.with_name(PAIRED_NAME)
+        try:
+            write_paired(paired_path, pair_records(against, record_path, labels_path))
+        except PairedError as error:
+            say(str(error))
+            raise typer.Exit(code=1) from error
+        out.print(f"Figure 10: {paired_path}", markup=False, highlight=False, soft_wrap=True)
+
     def write_page(record: BenchRecord) -> None:
+        count_figure_ten()
         if page_path is None:
             return
         other = (
@@ -975,8 +1044,9 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             if beside_path == record_path or record.stage == "II"
             else read_or_none(beside_path, "the record")
         )
+        page = render_readme(record, beside=other, paired=figure_beside(record_path))
         page_path.parent.mkdir(parents=True, exist_ok=True)
-        page_path.write_text(render_readme(record, beside=other), encoding="utf-8")
+        page_path.write_text(page, encoding="utf-8")
         out.print(f"Page: {page_path}", markup=False, highlight=False, soft_wrap=True)
 
     if render_only:
@@ -998,7 +1068,7 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
         runs_dir=settings.runs_dir,
         spec_pdf=pdf,
         clause_table=pdf.with_suffix(".clauses.json"),
-        labels=eval_dir / "clause_labels.csv",
+        labels=labels_path,
         protocol=settings.protocol_file or eval_dir / default_protocol,
         stage=settings.stage,
         reason_rule=settings.reason_rule,
@@ -1018,6 +1088,7 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             *given("--results", results, None),
             *given("--readme", readme, None),
             *given("--beside", beside, None),
+            *given("--against", against, None),
         ),
     )
     try:

@@ -8,16 +8,18 @@ from spec_to_inspector.bench.observe import (
     RefusedAnswer,
     RefusedAnswers,
 )
+from spec_to_inspector.bench.paired import PairedRecord, paired_table
 from spec_to_inspector.bench.readme import render_readme, summary_lines
 from spec_to_inspector.bench.record import (
     BenchRecord,
     BoardOnThreshold,
+    FileRef,
     OnThreshold,
     compare,
     read_record,
 )
 from spec_to_inspector.judge.answer import RefusalKind
-from tests.bench.bench_fakes import IMAGE_DIGEST
+from tests.bench.bench_fakes import IMAGE_DIGEST, label, seen
 
 
 def test_the_page_gives_each_figure_with_its_count_its_n_and_its_interval(
@@ -268,6 +270,72 @@ def test_a_run_with_no_refusal_says_so_rather_than_saying_nothing(
 
     assert "## The refused answers" in page
     assert "### Padded to the token limit\n\nNo answer ran to the token limit." in page
+
+
+def _paired(stage2_record: BenchRecord) -> PairedRecord:
+    """Make a figure 10 over the small set, one board right only on the comparison.
+
+    Args:
+        stage2_record: The run it is said to be counted from.
+
+    Returns:
+        The figure.
+    """
+    labels = [label("pcb1", n, "melt", under=("melt",)) for n in range(7)]
+    right = [seen("pcb1", f"bad-{n:03d}", "melt", under=("melt",)) for n in range(7)]
+    wrong = [seen("pcb1", f"bad-{n:03d}", "scratch", under=("melt",)) for n in range(7)]
+    final = FileRef(path="results/stage2/final/bench.json", sha256="a" * 64)
+    return PairedRecord(
+        counted_at="2026-11-07T04:00:00+00:00",
+        final=final,
+        comparison=FileRef(path="results/stage2/comparison-fp8/bench.json", sha256="b" * 64),
+        labels=stage2_record.labels.file,
+        partial=False,
+        comparison_is_a_repeat=True,
+        differences=("the reason's pattern: 'a' against 'b'",),
+        strict=paired_table("strict", labels[:6], right[:6], wrong[:6]),
+        lenient=paired_table("lenient", labels[:1], wrong[:1], right[:1]),
+    )
+
+
+def test_the_page_of_a_comparison_holds_figure_ten(stage2_record: BenchRecord) -> None:
+    """The four cells of both tables, the test, the finding and the boards, under its number."""
+    page = render_readme(stage2_record, paired=_paired(stage2_record))
+
+    assert "## 10. The paired table, against the final run" in page
+    assert "`results/stage2/final/bench.json`" in page
+    assert "| Strict, single-defect | 6 | 0 | 0 | 6 | 0 | 6 | 0.03125 | yes |" in page
+    assert "| Lenient, multi-defect | 1 | 0 | 0 | 0 | 1 | 1 | 1 | no |" in page
+    assert "the figure moved, the comparison reading lower" in page
+    assert "no evidence of a change" in page
+    assert "no correction for there being three" in page
+    assert "the reason's pattern: 'a' against 'b'" in page
+    assert "| pcb1 | `bad-000` | 4.1 | 4.1 | 4.2 | the final run |" in page
+    assert "not the protocol's" not in page
+    assert "first run" not in page
+
+
+def test_a_page_without_a_comparison_has_no_figure_ten(stage2_record: BenchRecord) -> None:
+    """The final run's own page: the figure is of a comparison."""
+    assert "## 10." not in render_readme(stage2_record)
+
+
+def test_the_page_says_when_a_table_is_not_the_protocols(stage2_record: BenchRecord) -> None:
+    """A partial pair and a comparison's first run are shown, and named for what they are."""
+    paired = _paired(stage2_record).model_copy(
+        update={"partial": True, "comparison_is_a_repeat": False}
+    )
+    page = render_readme(stage2_record, paired=paired)
+
+    assert "not the protocol's 135 and 65" in page
+    assert "the comparison's first run" in page
+
+
+def test_stage_ones_page_takes_no_figure_ten(
+    record: BenchRecord, stage2_record: BenchRecord
+) -> None:
+    """Stage I's page stays as it was, and no test is run against it."""
+    assert render_readme(record, paired=_paired(stage2_record)) == render_readme(record)
 
 
 def test_only_the_designators_comparison_lists_reasons(stage2_record: BenchRecord) -> None:
