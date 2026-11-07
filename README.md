@@ -257,6 +257,78 @@ cards 0.31 and 0.35 MiB, and the run's whole directory, maps and masks included,
 MiB. The run directories stayed on the machine, so the cards did too. Run 2's reports are kept in
 this repository, and their links to the cards work on the machine, where the cards are.
 
+### The corrections loop
+
+A comparison of its own, under a dated addition written before its first run: the final setting with
+one thing changed, a store of an engineer's corrections, read into every prompt by the product's own
+recall. It does not replace the final figure, which keeps its empty store and is not touched. Two
+runs on 7 November 2026, 10 min 15 s and 10 min 19 s, exit 0, no void rule met and none repeated. They
+agree on every board.
+
+**A store of corrections, three a part standing in every prompt: no figure separates it from the
+final on the strict figure (46 of 115 against 42, p = 0.65), and on the lenient figure, not the
+primary test, it reads lower (29 of 65 against 46, p = 0.0076).**
+
+| Figure | The final, on the same boards | With corrections | Right only on the final, only with corrections | Sign test |
+| --- | --- | --- | --- | --- |
+| Strict, the primary test, 115 boards | 36.5% (42 of 115), 28.3% to 45.6% | 40.0% (46 of 115), 31.5% to 49.1% | 20, 24 | p = 0.6516 |
+| The lenient figure, not primary, 65 boards | 70.8% (46 of 65), 58.8% to 80.4% | 44.6% (29 of 65), 33.2% to 56.7% | 27, 10 | p = 0.007632 |
+
+The bench's words on the strict row are "no figure separates them", and on the lenient row "the
+lenient figure passes the test, which is evidence of a change, the comparison reading lower. It is
+reported under its own name, is never pooled and offsets nothing of the strict figure; this is not
+the primary test." Each is tested on its own at 0.05, with no correction for the other comparisons.
+
+**So the Stage I position stands, now measured on the machine: we do not claim that corrections raise
+accuracy.** The lines move the answers wholesale towards the classes they name, on boards they say
+nothing about: 70 of the 115 strict boards change their answer. On PCB1, "melt" goes from 47 of the 81
+to 12 and "missing" from 2 to 35; on PCB4, "dirt" goes from 22 of the 34 to 1. That reads as a judge
+following a store's habit, more than learning from it. It helps where the final's habit was wrong
+(PCB4 strict, 5 to 12 of 34) and costs where it was right (PCB1 strict, 37 to 34 of 81), and each
+part's split is a reading with no test of its own. The laptop's check, under "Results on the laptop",
+found the same behaviour on a small scale.
+
+**This comparison measures three corrections a part standing in every prompt, not ten.** A seeded rule
+drew ten single-defect boards of each part. Six of the twenty can hold no correction: the final already
+answered three as the label does, and on three the label names no class and no clause. So the store
+holds 14 (PCB1 4, PCB4 10), built by a script with nothing written by hand, and all twenty leave every
+figure, which is what makes the 115 and the 65. The recall is the product's default, by part, at most
+three, most recent first, so the same three lines stand in every prompt of a part and the store's other
+rows never reach the judge. That is what the product does today. What another recall would do is not
+measured.
+
+The answer to one area, cold, on the 197 areas counted: 2.16 s against 2.13 s at the median, on the same
+boards, 137 tokens longer. Card 1 peaks at 30,050 MiB in each run.
+
+### More than one question in flight, and one card
+
+Two more readings of 7 November 2026, each a record of its own, with an empty store. Neither is a
+figure of the corrections comparison, and neither is an accuracy figure.
+
+**Two questions in flight: 37.0 boards a minute against 26.5, each answer 3.12 s against 2.14 s at the
+median, and one citation of 111 changes.** PCB1's 111 flagged boards, through the bench's own judge and
+one client, one at a time and then two at once, against the server in its final setting:
+
+| | One at a time | Two at once |
+| --- | --- | --- |
+| The whole pass | 251.7 s | 180.2 s |
+| Boards a minute | 26.5 | 37.0 |
+| The answer to one area, median, 95th percentile | 2.14 s, 2.57 s | 3.12 s, 4.17 s |
+| Against the final's answers: heading, class, sentence, outcome | 0, 0, 0, 0 of 111 | 1, 1, 2, 0 of 111 |
+
+**A second question in flight is not free of the answers:** one at a time reproduces the final on all
+111, and two at once changes `bad-041`'s citation, so a figure measured one at a time does not carry
+over to it word for word. `inspect` and the bench ask one at a time. This is one part, once each way,
+and two is the only number tried.
+
+**The judge and the anomaly model on one card: 31,978 of 32,656 MiB, leaving 678 MiB**, with PatchCore
+scoring beside a judge that has answered, in short benches of 80 boards, not the 401. **The two take
+turns:** the bench scores and then judges, so only their memory is on the card together, and a line
+that scores and judges at the same moment has not been run. Scoring and answer times are as with a card
+each. Against the final on the same 80: 0 flags, headings, classes or outcomes, 1 sentence, and 12
+scores, which is `--limit` changing the batches. The runs reported above used a card each, and a whole
+batch on one card is still to run if a claim is to rest on it.
+
 ### Where every record and log sits
 
 | What | Where |
@@ -278,8 +350,12 @@ this repository, and their links to the cards work on the machine, where the car
 | The batch's card readings and server logs, by run and part | Beside its records in [`results/stage2/batch/`](results/stage2/batch/); each record names its own |
 | The batch's wrapper, each step's start, end, exit and output, and run 2's reports | [`results/stage2/batch/raw/`](results/stage2/batch/raw/), with [`run.sh`](results/stage2/batch/raw/run.sh) and [`reports/`](results/stage2/batch/raw/reports/) |
 | A second training's digests against the named checkpoints, with every byte that differs | [`results/stage2/batch/raw/digests-week2.txt`](results/stage2/batch/raw/digests-week2.txt) |
+| The corrections comparison, what the lines did, and every value that differs between its two runs | [`COMPARISON.md`](results/stage2/comparison-corrections/COMPARISON.md), [`moves.md`](results/stage2/comparison-corrections/moves.md) and [`two-runs.md`](results/stage2/comparison-corrections/two-runs.md) in [`results/stage2/comparison-corrections/`](results/stage2/comparison-corrections/) |
+| The corrections store, what it was built from by digest, and the script that built it | [`store.sqlite3`](results/stage2/comparison-corrections/store.sqlite3), [`store.json`](results/stage2/comparison-corrections/store.json), [`declared_store.py.txt`](results/stage2/comparison-corrections/declared_store.py.txt) |
+| Two questions in flight | [`IN-FLIGHT.md`](results/stage2/in-flight/IN-FLIGHT.md) and [`in-flight.json`](results/stage2/in-flight/in-flight.json) in [`results/stage2/in-flight/`](results/stage2/in-flight/) |
+| The judge and the anomaly model on one card | [`ONE-CARD.md`](results/stage2/one-card/ONE-CARD.md) in [`results/stage2/one-card/`](results/stage2/one-card/) |
 | The checkpoints a run is held to, and the region columns made from them | [`results/stage2/checkpoints.json`](results/stage2/checkpoints.json), [`results/stage2/region-columns/README.md`](results/stage2/region-columns/README.md) |
-| The protocol and its additions | [`eval/PROTOCOL-stage2.md`](eval/PROTOCOL-stage2.md), [the region columns](eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md), [the designators' pattern](eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md), [the whole batch](eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md), and [the corrections loop](eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md), written before any corrections run |
+| The protocol and its additions | [`eval/PROTOCOL-stage2.md`](eval/PROTOCOL-stage2.md), [the region columns](eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md), [the designators' pattern](eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md), [the whole batch](eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md), and [the corrections loop](eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md), with its dated line: the store holds 14, not 20 |
 
 Each comparison's folder also holds its bench page and record, the first run beside the
 second, its server logs, `paired.json` with the sign test, and `two-runs.md` with every
@@ -615,6 +691,11 @@ It writes the record, the page and the server's log of the run beside them, and 
 `runs/<part>/bench`, which every bench replaces whole. A run with a correction in a prompt is void,
 so `runs/` must hold no corrections store.
 
+`--declared-store <file>` names the one store a comparison may recall from, and a correction from any
+other store still voids the run. Such a run's record says it is the corrections comparison and not
+final. The command is in `results/stage2/comparison-corrections/raw/run.sh`; step 1's copy leaves `results/` out,
+so send the store and the final's record over first.
+
 **10. Three runs make a figure final.** Run the same command again, and it records how many answers
 differ from the first. Then restart the server and run it a third time against a copy of the second:
 
@@ -693,7 +774,8 @@ every model, dataset and library with its licence and source.
 The machine is the subject of Stage II: the organiser's rules ask for operation
 and validation on it, and no comparison with a team's own hardware. Week 1's
 figures are in `results/stage2/week1/`, week 2's in `results/stage2/week2/`, and the
-final run's, the three comparisons' and the whole batch's under "Results on the machine" above.
+final run's, the three comparisons', the whole batch's, the corrections comparison's and the two
+readings beside it under "Results on the machine" above.
 The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, with its
 dated additions, and the plan, corrected to the machine, is in full in
 `docs/stage2.md`:
@@ -779,13 +861,21 @@ is the whole batch.
   of its own: the 401 boards from the PDF to the reject cards, twice, in 10 min 33 s and 10 min
   34 s; 186 accepted, 194 rejected, 21 referred. Every board's outcome equals the final's second
   run, and it gives no accuracy figure. "Results on the machine" has its figures.
+- **The corrections loop.** Done on 7 November 2026, under a dated addition of its own, in two runs
+  that agree on every board. A store of corrections, three a part standing in every prompt: no figure
+  separates it from the final on the strict figure (p = 0.65), and on the lenient figure, not the
+  primary test, it reads lower (p = 0.0076). The Stage I position stands, now measured on the machine:
+  we do not claim that corrections raise accuracy. "Results on the machine" has its figures, on the
+  boards they are counted on.
+- **More than one question in flight, and one card.** Each a record of its own, and neither an accuracy
+  figure. Two at once: 37.0 boards a minute against 26.5, each answer 3.12 s against 2.14 s at the
+  median, one part, and one citation of 111 changes. The judge and the anomaly model on one card:
+  31,978 of 32,656 MiB in short benches, the two taking turns; the runs reported used a card each.
 - **What is still to be measured**, to 4 December, when the video is due, with the
   machine's reservation ending 2 December at 11:30, so everything run on it and the
   recording of the final video come before then: whether a picture of a good board
-  beside the crop and the corrections loop move the machine's own baseline, each by a
-  dated addition to the protocol, the picture only if it is proven by 25 November; and, if the
-  hours allow, more than one question in flight, which the batch does not answer, since `inspect`
-  asks one at a time. The judge's answer time at FP16 and at FP8 is measured; its throughput
+  beside the crop moves the machine's own baseline, by a dated addition to the protocol, and only if
+  it is proven by 25 November. The judge's answer time at FP16 and at FP8 is measured; its throughput
   is not read, since vLLM gives no generation rate.
 
 **The anomaly model on the machine**, measured on card 0 on 6 November 2026 with the
@@ -860,7 +950,8 @@ eval/              the labelled clause set, its mapping table, the two protocols
 results/stage1/    the laptop's measured figures, as JSON, and the page written from them
 results/stage2/    the machine's: its shape, week 1's bring-up figures and logs,
                    week 2's anomaly model, the final run and its three comparisons,
-                   the whole batch
+                   the whole batch, the corrections comparison, and the readings in
+                   flight and on one card
 scripts/           the judge's two servers, the machine's environment, the
                    specification's rebuild, the console walk
 docs/              architecture.md, stage2.md, and the reject card's screenshot
