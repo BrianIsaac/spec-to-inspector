@@ -1077,6 +1077,7 @@ def bench(  # noqa: PLR0915 - one verb: its checks, its run, its two files and i
             if settings.stage == "II"
             else None
         ),
+        checkpoints=settings.checkpoint_record if settings.stage == "II" else None,
         command=(
             "spec-to-inspector",
             "bench",

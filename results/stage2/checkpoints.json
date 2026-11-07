@@ -1,0 +1,49 @@
+{
+  "read_at": "2026-11-07T03:22:51+00:00",
+  "read_how": "sha256sum and stat on the machine, ssh asus-b70, by the before-final pane; the laptop's read the same way on the machine's ~/spec-to-inspector/models and on the laptop, the same digests. The bench holds a run to `named` and never to `the_laptops`.",
+  "rule": "eval/PROTOCOL-stage2.md, The run, step 2: where week 2's record holds more than one training of a part, the first is the one used, so that no checkpoint is picked by what it scores. Week 2's record held no digest; this file is where the protocol's void rule reads them from.",
+  "named": {
+    "pcb1": {
+      "path": "~/week2/run-1/models/patchcore/pcb1/model.ckpt",
+      "bytes": 668469863,
+      "sha256": "b71ff0c3db7e780c6198db5686569fa59de4a56b5663557b56d90e237b37a855",
+      "training": "week 2, run 1, the first training on the machine: PyTorch XPU on card 0",
+      "trained_at": "2026-11-06T17:17:44+00:00",
+      "fit_seconds": 698.776051807974,
+      "image_threshold": 31.319488525390625,
+      "pixel_threshold": 41.46424865722656
+    },
+    "pcb4": {
+      "path": "~/week2/run-1/models/patchcore/pcb4/model.ckpt",
+      "bytes": 668469863,
+      "sha256": "cc571d9a4c56ee791888a2f6ce73e7db2f7f46b57c7aeb683ce7ba447f03ccb4",
+      "training": "week 2, run 1, the first training on the machine: PyTorch XPU on card 0",
+      "trained_at": "2026-11-06T17:59:34+00:00",
+      "fit_seconds": 700.7897639329894,
+      "image_threshold": 30.048744201660156,
+      "pixel_threshold": 30.769981384277344
+    }
+  },
+  "the_laptops": {
+    "pcb1": {
+      "path": "~/spec-to-inspector/models/patchcore/pcb1/model.ckpt",
+      "bytes": 668470183,
+      "sha256": "6250fb1451f4412057e54d1dc676a2a69e3d4d7575ac48d5fad281bb7f9ec187",
+      "training": "the laptop's, Stage I, CUDA: not what a Stage II run is held to",
+      "trained_at": "2026-10-10T16:13:34+00:00",
+      "fit_seconds": 729.139757330995,
+      "image_threshold": 31.319473266601562,
+      "pixel_threshold": 41.46425247192383
+    },
+    "pcb4": {
+      "path": "~/spec-to-inspector/models/patchcore/pcb4/model.ckpt",
+      "bytes": 668470183,
+      "sha256": "e932f806135802e8a5ac9586ed75094d690d3529b85646904e84cd901dcddebe",
+      "training": "the laptop's, Stage I, CUDA: not what a Stage II run is held to",
+      "trained_at": "2026-10-10T16:00:38+00:00",
+      "fit_seconds": 725.8853450100869,
+      "image_threshold": 30.048791885375977,
+      "pixel_threshold": 30.769989013671875
+    }
+  }
+}

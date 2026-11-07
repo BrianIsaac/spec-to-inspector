@@ -1,21 +1,28 @@
 """Tests for deriving the labelled set from VisA's annotation and the mapping table."""
 
 import csv
+import hashlib
 from collections import Counter
 from pathlib import Path
 
 import pytest
+import typer
+from typer.testing import CliRunner
 
 from spec_to_inspector.anomaly.records import Box, ImageResult, Region
+from spec_to_inspector.bench import labels as labels_module
 from spec_to_inspector.bench.labels import (
     LABEL_COLUMNS,
     ClauseLabel,
     LabelError,
     Region1,
+    RegionColumnsChange,
     derive_labels,
+    main,
     read_labels,
     read_region_truth,
     region1_types,
+    region_changes,
     write_labels,
 )
 from spec_to_inspector.bench.mapping import PARTS, expected_headings
@@ -24,6 +31,17 @@ from tests.datasets.visa_fakes import fake_files, write_tree
 
 ROOT = Path(__file__).parents[2]
 TRACKED = ROOT / "eval" / "clause_labels.csv"
+
+
+def _labels_app() -> typer.Typer:
+    """Give the labels' command as an app a runner can invoke.
+
+    Returns:
+        The app.
+    """
+    app = typer.Typer()
+    app.command()(main)
+    return app
 
 
 def _result(image_id: str, values: list[list[int]] | None, *, part: str = "pcb4") -> ImageResult:
@@ -236,3 +254,124 @@ def test_the_tracked_set_is_what_the_data_and_the_test_runs_derive() -> None:
         ids = [f"bad-{number:03d}" for number in range(100)]
         rebuilt.extend(derive_labels(settings.visa_dir, part, read_region_truth(run, ids)))
     assert rebuilt == read_labels(TRACKED)
+
+
+def _rows(visa: Path, under: dict[str, tuple[str, ...] | None]) -> list[ClauseLabel]:
+    return derive_labels(
+        visa, "pcb4", {"bad-000": ("dirt",), "bad-001": (), "bad-002": None} | under
+    )
+
+
+def test_the_changed_rows_are_given_board_by_board_old_and_new(visa: Path) -> None:
+    """The addition's table: a board gaining a region, one losing it; the others are not listed."""
+    old = _rows(visa, {})
+    new = _rows(visa, {"bad-000": None, "bad-002": ("burnt",)})
+
+    changes = region_changes(old, new)
+
+    assert [(c.part, c.image_id) for c in changes] == [("pcb4", "bad-000"), ("pcb4", "bad-002")]
+    first = changes[0]
+    assert (first.old_region1, first.old_types, first.old_headings) == (
+        Region1.ONE_TYPE,
+        ("dirt",),
+        ("5.1",),
+    )
+    assert (first.new_region1, first.new_types, first.new_headings) == (Region1.NO_REGION, (), ())
+    assert changes[1].old_region1 is Region1.NO_REGION
+    assert changes[1].new_types == ("burnt",)
+
+
+def test_no_change_is_an_empty_table(visa: Path) -> None:
+    """The columns of the same model's run: nothing to list."""
+    assert region_changes(_rows(visa, {}), _rows(visa, {})) == []
+
+
+def test_a_change_to_the_labels_themselves_is_refused(visa: Path) -> None:
+    """They come from VisA through the mapping, not from a model: the addition says they stay."""
+    old = _rows(visa, {})
+    moved = old[0].model_copy(update={"anno_line": old[0].anno_line + 1})
+
+    with pytest.raises(LabelError, match="anno_line"):
+        region_changes(old, [moved, *old[1:]])
+
+
+def test_a_board_gained_or_lost_is_refused(visa: Path) -> None:
+    """The set is all 200, no image left out for any reason."""
+    old = _rows(visa, {})
+
+    with pytest.raises(LabelError, match="bad-002"):
+        region_changes(old, old[:2])
+    with pytest.raises(LabelError, match="bad-002"):
+        region_changes(old[:2], old)
+
+
+def _command(tmp_path: Path, visa: Path, under: dict[str, str | None]) -> Path:
+    """Lay out runs for the labels' command: one part, with a sidecar per board.
+
+    Args:
+        tmp_path: The working root.
+        visa: The fetched data.
+        under: Per board, the mask value's type under region 1; None for no region.
+
+    Returns:
+        The runs directory.
+    """
+    runs = tmp_path / "runs"
+    values = {"burnt": 1, "dirt": 7}
+    for image_id, kind in under.items():
+        result = _result(image_id, None if kind is None else [[values[kind]]])
+        path = runs / "pcb4" / "bench" / image_id / "result.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(result.model_dump_json(), encoding="utf-8")
+    return runs
+
+
+def test_the_command_writes_the_columns_and_the_table_and_keeps_the_labels(
+    visa: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The same code as ever, from the bench's own run, with the addition's table beside it."""
+    out = tmp_path / "clause_labels.csv"
+    write_labels(out, _rows(visa, {}))
+    before = out.read_bytes()
+    runs = _command(tmp_path, visa, {"bad-000": "dirt", "bad-001": None, "bad-002": "burnt"})
+    changes_path = tmp_path / "region-columns" / "changes.json"
+    monkeypatch.setattr(labels_module, "PARTS", ("pcb4",))
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DATA_DIR", str(visa.parent))
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_RUNS_DIR", str(runs))
+
+    result = CliRunner().invoke(_labels_app(), ["--out", str(out), "--changes", str(changes_path)])
+
+    assert result.exit_code == 0, result.output
+    written = RegionColumnsChange.model_validate_json(changes_path.read_text(encoding="utf-8"))
+    assert written.run == "bench"
+    assert written.rows == 3
+    assert [change.image_id for change in written.changes] == ["bad-001", "bad-002"]
+    assert written.old_sha256 == hashlib.sha256(before).hexdigest()
+    assert written.new_sha256 == hashlib.sha256(out.read_bytes()).hexdigest()
+    assert written.new_sha256 != written.old_sha256
+    assert "pcb4 bad-001" in result.output
+    assert "off the labelled defect" in result.output
+    kept = read_labels(out)
+    assert [row.visa_types for row in kept] == [row.visa_types for row in _rows(visa, {})]
+    assert [row.expected_headings for row in kept] == [
+        row.expected_headings for row in _rows(visa, {})
+    ]
+
+
+def test_the_command_refuses_a_part_whose_run_is_not_whole(
+    visa: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A run cut down by --limit has no sidecar for the rest, and the file stays as it was."""
+    out = tmp_path / "clause_labels.csv"
+    write_labels(out, _rows(visa, {}))
+    before = out.read_bytes()
+    runs = _command(tmp_path, visa, {"bad-000": "dirt"})
+    monkeypatch.setattr(labels_module, "PARTS", ("pcb4",))
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DATA_DIR", str(visa.parent))
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_RUNS_DIR", str(runs))
+
+    result = CliRunner().invoke(_labels_app(), ["--out", str(out)])
+
+    assert result.exit_code == 1
+    assert "bad-001" in result.output
+    assert out.read_bytes() == before

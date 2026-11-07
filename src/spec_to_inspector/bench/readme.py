@@ -1014,6 +1014,15 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
             + f"; parts {', '.join(record.parts)}). Its figures are not the protocol's.",
             "",
         ]
+    stale = record.scores.stale_region_truth
+    if stale:
+        lines += [
+            "The labelled set's region columns are of the whole split as the bench batches it, "
+            "and this trial's batches are not. They do not hold here on "
+            + ", ".join(f"`{name}`" for name in stale)
+            + ".",
+            "",
+        ]
     lines += [
         *_final_lines(record),
         "",
@@ -1068,6 +1077,16 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
             ),
         ),
         "",
+        *(
+            []
+            if record.checkpoints_held_to is None
+            else [
+                f"Each checkpoint was held to `{record.checkpoints_held_to.path}` (SHA-256 "
+                f"`{record.checkpoints_held_to.sha256[:16]}`) before it scored anything: another "
+                "digest voids the run.",
+                "",
+            ]
+        ),
         "## The boards on the threshold",
         "",
         *_on_threshold_lines(record),

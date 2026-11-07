@@ -7,7 +7,7 @@ import pytest
 
 from spec_to_inspector.anomaly.infer import visa_test_items
 from spec_to_inspector.bench.record import BenchRecord
-from spec_to_inspector.bench.run import BenchPlan, LoadedModel, ModelLoader, run_bench
+from spec_to_inspector.bench.run import BenchPlan, ModelLoader, run_bench
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.spec.schema import Specification, read_clause_table
 from tests.bench.bench_fakes import (
@@ -15,9 +15,11 @@ from tests.bench.bench_fakes import (
     fake_probes,
     machine_probes,
     stub_models,
+    stub_models_with_files,
     stub_scoring,
     write_bench_labels,
     write_bench_visa,
+    write_checkpoint_record,
 )
 from tests.judge.fake_vlm import FakeVlm
 
@@ -104,11 +106,14 @@ def stage2_plan(plan: BenchPlan, tmp_path: Path) -> BenchPlan:
     Returns:
         The plan.
     """
+    checkpoints = tmp_path / "results" / "checkpoints.json"
+    write_checkpoint_record(checkpoints)
     return plan.model_copy(
         update={
             "stage": "II",
             "protocol": ROOT / "eval" / "PROTOCOL-stage2.md",
             "server_log": tmp_path / "results" / "bench.server-log.stamp.txt",
+            "checkpoints": checkpoints,
         }
     )
 
@@ -130,14 +135,7 @@ def machine_models(tmp_path: Path) -> ModelLoader:
     Returns:
         The loader.
     """
-
-    def load(part: str) -> LoadedModel:
-        checkpoint = tmp_path / "models" / part / "model.ckpt"
-        checkpoint.parent.mkdir(parents=True, exist_ok=True)
-        checkpoint.write_bytes(f"the {part} checkpoint".encode())
-        return stub_models(part)._replace(checkpoint=checkpoint)
-
-    return load
+    return stub_models_with_files(tmp_path / "models")
 
 
 @pytest.fixture

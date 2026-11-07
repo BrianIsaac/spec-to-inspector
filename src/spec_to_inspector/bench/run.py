@@ -15,10 +15,14 @@ machine, `eval/PROTOCOL.md` on the laptop. Nothing is trained, and nothing is
 written outside the bench's own run directories but the server's log, beside
 the record. A run in which the server could not be asked, a correction reached
 a prompt, the labelled set's region columns are not what the model's regions
-give, or the server's prefix cache was hit, raises and leaves no record.
+give, or the server's prefix cache was hit, raises and leaves no record. A trial
+cut down by `limit` only names a board whose columns do not hold: the columns are
+of the whole split as the bench batches it, and a board on the threshold is
+decided by the other boards of its batch.
 
-A Stage II run also reads which server answered, asks one question before the
-judge's clock, and reads the server's prefix-cache hit rate during the run.
+A Stage II run also holds each checkpoint to the digest the protocol names, reads
+which server answered, asks one question before the judge's clock, and reads the
+server's prefix-cache hit rate during the run.
 
 What depends on the machine (the PDF parser, the trained models, the card's
 tool, the server's process and its container) is passed in, so the run itself
@@ -41,6 +45,12 @@ import httpx
 from pydantic import BaseModel, ConfigDict
 
 from spec_to_inspector.anomaly.records import ImageResult, RunIndex
+from spec_to_inspector.bench.checkpoints import (
+    CheckpointError,
+    CheckpointRecord,
+    hold_to_record,
+    read_checkpoint_record,
+)
 from spec_to_inspector.bench.gpu import read_gpu_memory
 from spec_to_inspector.bench.labels import ClauseLabel, Region1, read_labels, region1_types
 from spec_to_inspector.bench.mapping import mapping_problems
@@ -172,6 +182,7 @@ class BenchPlan(BaseModel):
         stage: The stage the run follows.
         reason_rule: What the judge's reason may hold.
         server_log: Where to keep the server's log of the run; None for no log.
+        checkpoints: The record of the checkpoints a Stage II run is held to.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -190,6 +201,7 @@ class BenchPlan(BaseModel):
     stage: Stage = "I"
     reason_rule: ReasonRule = "no_digits"
     server_log: Path | None = None
+    checkpoints: Path | None = None
 
     @property
     def server_script(self) -> str:
@@ -546,33 +558,56 @@ class _Scored(NamedTuple):
     results: dict[str, ImageResult]
 
 
+def _named_checkpoints(plan: BenchPlan) -> tuple[CheckpointRecord, FileRef] | None:
+    """Read the record a Stage II run's checkpoints are held to.
+
+    Args:
+        plan: The run's plan.
+
+    Returns:
+        The record and its file by digest; None for a run held to none, which is Stage I's.
+
+    Raises:
+        BenchError: If a Stage II run has no such record to read, so that the void rule could not
+            be applied.
+    """
+    if plan.stage != "II":
+        return None
+    if plan.checkpoints is None:
+        msg = "a Stage II run needs the record of the checkpoints' digests, and none was named"
+        raise BenchError(msg)
+    try:
+        return read_checkpoint_record(plan.checkpoints), file_ref(plan.checkpoints)
+    except (CheckpointError, OSError) as error:
+        raise BenchError(str(error)) from error
+
+
 def score_part(
     plan: BenchPlan,
     part: str,
-    labels: Sequence[ClauseLabel],
     *,
     models: ModelLoader,
     items: Sequence["InferenceItem"],
     scoring: Scoring,
     probes: Probes,
+    named: CheckpointRecord | None = None,
 ) -> _Scored:
     """Score one part's test images with its trained model, into the bench's own run.
 
     Args:
         plan: The run's plan.
         part: The part.
-        labels: The part's labels among the images run.
         models: Opens the part's trained model.
         items: The images to score.
         scoring: Scores the images and writes the run directory.
         probes: How the machine is read.
+        named: The checkpoints the model is held to before it scores anything; None for none.
 
     Returns:
         The stage's record, the run's directory and its sidecars.
 
     Raises:
-        BenchError: If the labelled set's region columns are not what this
-            model's regions give.
+        BenchError: If the checkpoint loaded is not the one named, which voids the run.
     """
     directory = plan.runs_dir / part / plan.batch
     started = time.perf_counter()
@@ -580,6 +615,16 @@ def score_part(
     load_seconds = time.perf_counter() - started
     trained_at, fit_seconds, peak, release, checkpoint = loaded[1:]
     try:
+        loaded_from = None if checkpoint is None else file_ref(checkpoint)
+        if named is not None:
+            try:
+                hold_to_record(named, part, loaded_from)
+            except CheckpointError as error:
+                msg = (
+                    f"{error}. The protocol voids a run on any other checkpoint, and nothing is "
+                    "written; point SPEC_TO_INSPECTOR_MODELS_DIR at the checkpoints it names"
+                )
+                raise BenchError(msg) from error
         with _sampling(probes, probes.own_pid()) as sampler:
             index = scoring(loaded.scorer, items, directory)
         thresholds = loaded.scorer.thresholds
@@ -589,14 +634,6 @@ def score_part(
         del loaded
         release()
     results = _results(directory, index)
-    stale = _stale(labels, results)
-    if stale:
-        msg = (
-            f"the labelled set's region columns are not what the {part} model's regions give "
-            f"for {len(stale)} image(s) ({', '.join(stale[:5])}{'...' if len(stale) > 5 else ''}): "
-            f"rebuild it with `{plan.python} -m spec_to_inspector.bench.labels --run {plan.batch}`"
-        )
-        raise BenchError(msg)
     flagged = [entry for entry in index.entries if entry.regions > 0]
     run = PartRun(
         part=part,
@@ -616,9 +653,51 @@ def score_part(
         fit_seconds=fit_seconds,
         train_peak_allocated_mib=None if peak is None else peak / _MIB,
         memory=_memory(sampler, probes, card=probes.anomaly_card),
-        checkpoint=None if checkpoint is None else file_ref(checkpoint),
+        checkpoint=loaded_from,
     )
     return _Scored(run, directory, results)
+
+
+def _hold_to_region_columns(
+    plan: BenchPlan,
+    labels: Sequence[ClauseLabel],
+    scored: dict[str, _Scored],
+    tell: Callable[[str], None],
+) -> None:
+    """Compare the labelled set's region columns with what the models' regions gave.
+
+    Every part is scored first, so one run names every board and leaves every part's run for the
+    labels' command to read.
+
+    Args:
+        plan: The run's plan.
+        labels: The labels of the images run.
+        scored: The anomaly model's stage, per part.
+        tell: Says a line of progress.
+
+    Raises:
+        BenchError: If they disagree on a run not cut down by `limit`.
+    """
+    stale = [
+        name
+        for part in plan.parts
+        for name in _stale([row for row in labels if row.part == part], scored[part].results)
+    ]
+    if not stale:
+        return
+    named = f"{', '.join(stale[:5])}{'...' if len(stale) > 5 else ''}"
+    if plan.limit is not None:
+        tell(
+            f"The region columns are of the whole split as the bench batches it, and this trial's "
+            f"batches are not: on {len(stale)} image(s) they do not hold here ({named})"
+        )
+        return
+    msg = (
+        f"the labelled set's region columns are not what the models' regions give for "
+        f"{len(stale)} image(s) ({named}): from a whole run of every part, rebuild it with "
+        f"`{plan.python} -m spec_to_inspector.bench.labels --run {plan.batch}`"
+    )
+    raise BenchError(msg)
 
 
 def judge_part(
@@ -895,6 +974,7 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
         protocol = [file_ref(path) for path in protocol_files(plan.protocol)]
     except (OSError, ValueError) as error:
         raise BenchError(str(error)) from error
+    named = _named_checkpoints(plan)
     reading = None if probes.server is None else probes.server.read(client.url)
 
     specification, parsed = parse_specification(plan, parse)
@@ -916,11 +996,11 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
             scored[part] = score_part(
                 plan,
                 part,
-                part_labels,
                 models=models,
                 items=items,
                 scoring=scoring,
                 probes=probes,
+                named=None if named is None else named[0],
             )
         except RuntimeError as error:
             if isinstance(error, BenchError):
@@ -933,6 +1013,8 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
             f"{run.run_directory}; {run.flagged_anomalous} of {run.anomalous} anomalous and "
             f"{run.flagged_good} of {run.good} good boards flagged"
         )
+
+    _hold_to_region_columns(plan, run_labels, scored, tell)
 
     since = datetime.now(UTC)
     counters_before = None if probes.server is None else probes.server.counters(client.url)
@@ -1039,6 +1121,7 @@ def run_bench(  # noqa: PLR0915 - one run: its stages in order, and what each on
             {part: run.image_threshold for part, run in runs.items()},
             elsewhere=BOARDS_NOT_SCORED_BY_THE_BENCH if plan.stage == "II" else (),
         ),
+        checkpoints_held_to=None if named is None else named[1],
         digit_reasons=(
             digit_reasons_of(observations) if plan.reason_rule == "designators" else None
         ),

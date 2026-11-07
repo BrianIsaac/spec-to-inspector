@@ -16,6 +16,7 @@ from spec_to_inspector.bench.record import (
     FileRef,
     OnThreshold,
     compare,
+    missing_for_final,
     read_record,
 )
 from spec_to_inspector.judge.answer import RefusalKind
@@ -270,6 +271,38 @@ def test_a_run_with_no_refusal_says_so_rather_than_saying_nothing(
 
     assert "## The refused answers" in page
     assert "### Padded to the token limit\n\nNo answer ran to the token limit." in page
+
+
+def test_the_stage_two_page_says_the_checkpoints_were_held_to_the_record(
+    stage2_record: BenchRecord,
+) -> None:
+    """The void rule's last clause, in the words of the page that shows the digests."""
+    held = stage2_record.checkpoints_held_to
+    assert held is not None
+
+    assert f"Each checkpoint was held to `{held.path}`" in render_readme(stage2_record)
+
+
+def test_a_record_not_held_to_the_digests_lacks_it_for_a_final(stage2_record: BenchRecord) -> None:
+    """A record from before the check was built says so where it says what it lacks."""
+    earlier = stage2_record.model_copy(update={"checkpoints_held_to": None})
+
+    assert any("held to" in reason for reason in missing_for_final(earlier))
+    assert "Each checkpoint was held to" not in render_readme(earlier)
+
+
+def test_a_trial_page_names_a_board_where_the_columns_do_not_hold(
+    stage2_record: BenchRecord,
+) -> None:
+    """Named, with why: the columns are of the whole split as the bench batches it."""
+    scores = stage2_record.scores.model_copy(update={"stale_region_truth": ["pcb1 bad-029"]})
+    trial = stage2_record.model_copy(update={"partial": True, "limit": 30, "scores": scores})
+
+    page = render_readme(trial)
+
+    assert "`pcb1 bad-029`" in page
+    assert "whole split" in page
+    assert "`pcb1 bad-029`" not in render_readme(stage2_record)
 
 
 def _paired(stage2_record: BenchRecord) -> PairedRecord:

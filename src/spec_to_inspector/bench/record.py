@@ -587,6 +587,9 @@ class BenchRecord(BaseModel):
         leak: The proof that no correction reached a prompt.
         on_threshold: The boards whose scores sit on their thresholds; None in
             a record from before they were written down.
+        checkpoints_held_to: The record of the named checkpoints each part's
+            was held to; None for a run held to none, which is Stage I's, and in
+            a record from before they were.
         digit_reasons: Every reason with a digit in it, under the `designators`
             comparison; None under any other rule.
         refused_answers: Every answer of a Stage II run the validation refused,
@@ -622,6 +625,7 @@ class BenchRecord(BaseModel):
     inspector: InspectorMinutes
     leak: Leak
     on_threshold: OnThreshold | None = None
+    checkpoints_held_to: FileRef | None = None
     digit_reasons: DigitReasons | None = None
     refused_answers: RefusedAnswers | None = None
     not_final: list[str] = Field(default_factory=list)
@@ -718,6 +722,8 @@ def missing_for_final(record: BenchRecord) -> list[str]:
         for part, run in record.runs.items()
         if run.checkpoint is None
     ]
+    if record.checkpoints_held_to is None:
+        missing.append("the checkpoints held to the digests the protocol names")
     if judge.warm_up is None or not judge.warm_up.asked:
         missing.append("the warm-up having been asked")
     if record.digit_reasons is not None:

@@ -18,9 +18,11 @@ from tests.bench.bench_fakes import (
     REPLIES,
     machine_probes,
     stub_models,
+    stub_models_with_files,
     stub_scoring,
     write_bench_labels,
     write_bench_visa,
+    write_checkpoint_record,
 )
 from tests.bench.conftest import WARM_UP, tracked
 from tests.judge.fake_vlm import FakeVlm
@@ -28,6 +30,7 @@ from tests.judge.fake_vlm import FakeVlm
 ROOT = Path(__file__).parents[1]
 RESULTS = Path("results/stage1/bench.json")
 PAGE = Path("results/stage1/README.md")
+DIGESTS = Path("results/stage2/checkpoints.json")
 
 runner = CliRunner()
 
@@ -222,6 +225,17 @@ def machine(world: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """
     monkeypatch.setenv("SPEC_TO_INSPECTOR_DEVICE", "xpu")
     monkeypatch.setattr(benching, "device_probes", lambda _settings: machine_probes())
+    write_checkpoint_record(DIGESTS)
+
+    def pipeline(_settings: Settings) -> benching.Pipeline:
+        return benching.Pipeline(
+            parse=tracked,
+            models=stub_models_with_files(world / "models"),
+            test_items=visa_test_items,
+            scoring=stub_scoring,
+        )
+
+    monkeypatch.setattr(benching, "laptop_pipeline", pipeline)
     return world
 
 
@@ -427,3 +441,39 @@ def test_two_records_that_have_no_pairs_stop_with_the_reason(machine: Path) -> N
     assert result.exit_code == 1
     assert "missing.json" in result.output
     assert not Path("comparison-fp8/paired.json").exists()
+
+
+def test_on_the_machine_the_verb_reads_the_tracked_record_of_the_digests(machine: Path) -> None:
+    """By its default path, with no flag, so that the protocol's command is the one that runs."""
+    with FakeVlm([WARM_UP, *REPLIES]) as server:
+        result = _bench(server, "--results", "final/bench.json")
+
+    assert result.exit_code == 0, result.output
+    held = read_record(Path("final/bench.json")).checkpoints_held_to
+    assert held is not None
+    assert held.path == DIGESTS.as_posix()
+
+
+def test_on_the_machine_a_checkpoint_not_named_ends_with_exit_one_and_no_record(
+    machine: Path,
+) -> None:
+    """The void rule as a user meets it: the reason on the screen, nothing asked or written."""
+    write_checkpoint_record(DIGESTS, parts=("pcb4",))
+
+    with FakeVlm() as server:
+        result = _bench(server, "--results", "final/bench.json")
+        assert server.requests == []
+
+    assert result.exit_code == 1
+    assert "pcb1" in result.output
+    assert not Path("final/bench.json").exists()
+
+
+def test_on_the_laptop_the_verb_needs_no_record_of_the_digests(world: Path) -> None:
+    """Stage I's run is as it was."""
+    assert not DIGESTS.exists()
+    with FakeVlm(REPLIES) as server:
+        result = _bench(server)
+
+    assert result.exit_code == 0, result.output
+    assert read_record(RESULTS).checkpoints_held_to is None

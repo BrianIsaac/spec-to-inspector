@@ -57,6 +57,8 @@ class Settings(BaseSettings):
             sit beside it. Unset, it is the stage's protocol under the bench's
             evaluation directory: `PROTOCOL-stage2.md` where `device` is `xpu`,
             `PROTOCOL.md` otherwise.
+        checkpoint_record: The record of the checkpoints the Stage II protocol
+            names by SHA-256, which a run on `xpu` is held to.
         corrections_db: The corrections store's SQLite file; unset, it is
             `corrections.sqlite3` under the runs directory.
         corrections_recall: When the store's corrections are put before the
@@ -83,6 +85,7 @@ class Settings(BaseSettings):
     vlm_timeout_seconds: float = Field(default=120.0, gt=0)
     reason_rule: ReasonRule = "no_digits"
     protocol_file: Path | None = None
+    checkpoint_record: Path = Path("results/stage2/checkpoints.json")
     corrections_db: Path | None = None
     corrections_recall: Literal["part", "answer"] = "part"
 

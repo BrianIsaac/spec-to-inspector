@@ -1,6 +1,7 @@
 """Fakes for the bench's tests: hand-made labels and observations, and a small VisA to run on."""
 
 import csv
+import hashlib
 import json
 from collections.abc import Sequence
 from pathlib import Path
@@ -21,7 +22,7 @@ from spec_to_inspector.bench.labels import (
 )
 from spec_to_inspector.bench.mapping import expected_headings, mapping_row
 from spec_to_inspector.bench.observe import Area, Citation, Observation
-from spec_to_inspector.bench.run import LoadedModel, Probes, ServerProbes
+from spec_to_inspector.bench.run import LoadedModel, ModelLoader, Probes, ServerProbes
 from spec_to_inspector.judge.decision import Cause
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.timing import GpuReading
@@ -263,6 +264,72 @@ def stub_scoring(scorer: Scorer, items: Sequence[InferenceItem], directory: Path
         The run's index.
     """
     return run_inference(scorer, items, directory, options=InferenceOptions(num_workers=0))
+
+
+def stub_checkpoint_bytes(part: str) -> bytes:
+    """Give what a stub model's file holds.
+
+    Args:
+        part: The part.
+
+    Returns:
+        The file's bytes.
+    """
+    return f"the {part} checkpoint".encode()
+
+
+def stub_models_with_files(directory: Path) -> ModelLoader:
+    """Give stub models that each have a checkpoint on disk, as a real one does.
+
+    Args:
+        directory: Where their files go.
+
+    Returns:
+        The loader.
+    """
+
+    def load(part: str) -> LoadedModel:
+        checkpoint = directory / part / "model.ckpt"
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        checkpoint.write_bytes(stub_checkpoint_bytes(part))
+        return stub_models(part)._replace(checkpoint=checkpoint)
+
+    return load
+
+
+def write_checkpoint_record(path: Path, parts: Sequence[str] = ("pcb1", "pcb4")) -> None:
+    """Write a record that names the stub models' files, as the tracked one names the machine's.
+
+    Args:
+        path: The file.
+        parts: The parts it names.
+    """
+    entry = {
+        "path": "a place",
+        "bytes": 1,
+        "training": "the stub's",
+        "trained_at": "2026-11-06T17:17:44+00:00",
+        "fit_seconds": 1.0,
+        "image_threshold": 1.0,
+        "pixel_threshold": 1.0,
+    }
+    named = {
+        part: {**entry, "sha256": hashlib.sha256(stub_checkpoint_bytes(part)).hexdigest()}
+        for part in parts
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "read_at": "now",
+                "read_how": "here",
+                "rule": "a test",
+                "named": named,
+                "the_laptops": {},
+            }
+        ),
+        encoding="utf-8",
+    )
 
 
 def write_bench_labels(visa: Path, runs: Path, path: Path) -> None:

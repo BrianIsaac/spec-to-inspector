@@ -9,13 +9,19 @@ types under region 1 are read from the model's test run, where a region is
 known. That part is a property of the trained model's regions, not of VisA
 alone, and the bench checks it against its own inference.
 
-    uv run python -m spec_to_inspector.bench.labels
+    .venv/bin/python -m spec_to_inspector.bench.labels --changes <file>
 
-rebuilds `eval/clause_labels.csv` from the fetched data and the test runs.
+rebuilds `eval/clause_labels.csv` from the fetched data and the bench's own runs,
+on the machine, whose models the Stage II protocol names. It reads a whole run of
+every part: a board on the threshold is decided by the other boards of its batch,
+so the columns hold for the split as the bench batches it and for no trial cut
+from it. The labels themselves do not change, and the command refuses if they
+would; `--changes` writes the protocol's table of the rows whose columns did.
 A list in a field is comma-separated, as VisA writes its own.
 """
 
 import csv
+import hashlib
 from collections.abc import Iterable, Mapping, Sequence
 from enum import StrEnum
 from pathlib import Path
@@ -43,6 +49,9 @@ LABEL_COLUMNS: Final[tuple[str, ...]] = (
     "region1_types",
     "region1_headings",
 )
+REGION_COLUMNS: Final[tuple[str, ...]] = ("region1", "region1_types", "region1_headings")
+"""What a model's regions decide. Every other column comes from VisA through the mapping table."""
+DEFAULT_RUN: Final = "bench"
 ANNOTATION_NAME: Final = "image_anno.csv"
 _RESULT_NAME: Final = "result.json"
 _LIST_COLUMNS: Final = frozenset(
@@ -360,6 +369,141 @@ def read_labels(path: Path) -> list[ClauseLabel]:
     return labels
 
 
+class RegionChange(BaseModel):
+    """A board whose region columns changed, with the old and the new values.
+
+    Attributes:
+        part: The part.
+        image_id: The board.
+        defects: `single` or `multi`: whether the board is one of the 135.
+        expected_headings: The clause the board expects, which does not change.
+        old_region1: What region 1 lay on before.
+        old_types: The VisA types under it before.
+        old_headings: The headings covering those before.
+        new_region1: What it lies on now.
+        new_types: The VisA types under it now.
+        new_headings: The headings covering those now.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    part: str
+    image_id: str
+    defects: Literal["single", "multi"]
+    expected_headings: tuple[str, ...]
+    old_region1: Region1
+    old_types: tuple[str, ...]
+    old_headings: tuple[str, ...]
+    new_region1: Region1
+    new_types: tuple[str, ...]
+    new_headings: tuple[str, ...]
+
+
+class RegionColumnsChange(BaseModel):
+    """What a regeneration of the region columns did: what `--changes` writes.
+
+    Attributes:
+        run: The name of each part's run the columns were read from.
+        runs_dir: Where those runs are.
+        old_sha256: The labelled set's digest before.
+        new_sha256: Its digest after.
+        rows: The rows compared.
+        changes: Every row whose region columns changed.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    run: str
+    runs_dir: str
+    old_sha256: str
+    new_sha256: str
+    rows: int
+    changes: tuple[RegionChange, ...]
+
+
+def region_changes(old: Sequence[ClauseLabel], new: Sequence[ClauseLabel]) -> list[RegionChange]:
+    """List the boards whose region columns differ between two labelled sets.
+
+    Args:
+        old: The labelled set as it stands.
+        new: The labelled set regenerated.
+
+    Returns:
+        One per board whose region columns changed, in the new set's order.
+
+    Raises:
+        LabelError: If a board is in only one of them or a column other than the region columns
+            differs: the labels come from VisA through the mapping table, and do not change.
+    """
+    before = {(row.part, row.image_id): row for row in old}
+    after = {(row.part, row.image_id): row for row in new}
+    alone = sorted(before.keys() ^ after.keys())
+    if alone:
+        names = ", ".join(f"{part} {image_id}" for part, image_id in alone)
+        msg = f"the labelled set is every image, and these are in only one of the two: {names}"
+        raise LabelError(msg)
+    changes: list[RegionChange] = []
+    for key, row in after.items():
+        earlier = before[key]
+        for column in LABEL_COLUMNS:
+            if column not in REGION_COLUMNS and getattr(row, column) != getattr(earlier, column):
+                msg = (
+                    f"{row.part} {row.image_id}: `{column}` would change from "
+                    f"{getattr(earlier, column)!r} to {getattr(row, column)!r}, and the labels "
+                    "themselves do not change"
+                )
+                raise LabelError(msg)
+        if any(getattr(row, column) != getattr(earlier, column) for column in REGION_COLUMNS):
+            changes.append(
+                RegionChange(
+                    part=row.part,
+                    image_id=row.image_id,
+                    defects=row.defects,
+                    expected_headings=row.expected_headings,
+                    old_region1=earlier.region1,
+                    old_types=earlier.region1_types,
+                    old_headings=earlier.region1_headings,
+                    new_region1=row.region1,
+                    new_types=row.region1_types,
+                    new_headings=row.region1_headings,
+                )
+            )
+    return changes
+
+
+def _change_line(change: RegionChange) -> str:
+    """Say one changed row in a line.
+
+    Args:
+        change: The row.
+
+    Returns:
+        The line.
+    """
+
+    def state(region1: Region1, types: tuple[str, ...]) -> str:
+        return f"{region1.value} ({', '.join(types)})" if types else region1.value
+
+    return (
+        f"{change.part} {change.image_id} ({change.defects}): "
+        f"{state(change.old_region1, change.old_types)} -> "
+        f"{state(change.new_region1, change.new_types)}"
+    )
+
+
+def _digest(path: Path) -> str:
+    """Give a file's SHA-256.
+
+    Args:
+        path: The file.
+
+    Returns:
+        The digest.
+    """
+    with path.open("rb") as file:
+        return hashlib.file_digest(file, "sha256").hexdigest()
+
+
 def main(
     out: Annotated[
         Path, typer.Option("--out", help="Where the labelled set is written.")
@@ -369,11 +513,19 @@ def main(
         typer.Option(
             "--run",
             help="The name of each part's run that region 1's own defect types are read from, "
-            "<runs-dir>/<part>/<name>; the anomaly model's test run by default.",
+            "<runs-dir>/<part>/<name>: a whole run of the part, as the bench batches it.",
         ),
-    ] = "test",
+    ] = DEFAULT_RUN,
+    changes_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--changes",
+            help="Where to write the table of rows whose region columns changed. It compares with "
+            "--out as it stands, and refuses a change to the labels themselves.",
+        ),
+    ] = None,
 ) -> None:
-    """Rebuild the labelled set from the fetched VisA data and the anomaly model's test runs."""
+    """Rebuild the labelled set from the fetched VisA data and the bench's own runs of each part."""
     settings = Settings()
     labels: list[ClauseLabel] = []
     try:
@@ -385,15 +537,32 @@ def main(
                 if image.label == "bad"
             ]
             labels.extend(derive_labels(settings.visa_dir, part, read_region_truth(run, images)))
+        changes = None if changes_path is None else region_changes(read_labels(out), labels)
     except (LabelError, SplitError) as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
+    old_sha256 = _digest(out) if changes is not None else ""
     write_labels(out, labels)
     single = sum(label.single for label in labels)
     typer.echo(
         f"{len(labels)} anomalous test images of {' and '.join(PARTS)}: {single} single-defect, "
         f"{len(labels) - single} multi-defect.\nLabelled set: {out}"
     )
+    if changes is None or changes_path is None:
+        return
+    record = RegionColumnsChange(
+        run=run_name,
+        runs_dir=settings.runs_dir.as_posix(),
+        old_sha256=old_sha256,
+        new_sha256=_digest(out),
+        rows=len(labels),
+        changes=tuple(changes),
+    )
+    changes_path.parent.mkdir(parents=True, exist_ok=True)
+    changes_path.write_text(record.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    typer.echo(f"{len(changes)} of {len(labels)} rows changed their region columns: {changes_path}")
+    for change in changes:
+        typer.echo(_change_line(change))
 
 
 if __name__ == "__main__":

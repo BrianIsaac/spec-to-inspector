@@ -43,6 +43,7 @@ from tests.bench.bench_fakes import (
     fake_probes,
     machine_probes,
     rate_line,
+    stub_checkpoint_bytes,
     stub_models,
 )
 from tests.bench.conftest import ROOT, WARM_UP, run
@@ -214,6 +215,177 @@ def test_region_columns_that_are_not_this_models_stop_therun(plan: BenchPlan) ->
     with FakeVlm(REPLIES) as server, pytest.raises(BenchError, match="pcb4 bad-000") as raised:
         run(plan, server)
     assert "bench.labels --run bench" in str(raised.value)
+
+
+def _stale_on_both_parts(plan: BenchPlan) -> None:
+    """Make the labelled set disagree with the stub's regions on a board of each part.
+
+    Args:
+        plan: The plan, whose labelled set is rewritten.
+    """
+    text = plan.labels.read_text(encoding="utf-8")
+    for row in ("melt,single,4.1,one type,melt,4.1", "scratch,single,5.6,one type,scratch,5.6"):
+        assert row in text
+        text = text.replace(row, f"{row.rsplit(',one type', 1)[0]},off the labelled defect,,")
+    plan.labels.write_text(text, encoding="utf-8")
+
+
+def test_a_whole_run_names_every_stale_board_of_every_part_before_it_asks_the_judge(
+    plan: BenchPlan,
+) -> None:
+    """Both parts are scored first, so one run gives both the names and both run directories."""
+    _stale_on_both_parts(plan)
+
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError) as raised:
+        run(plan, server)
+
+    assert "pcb1 bad-000" in str(raised.value)
+    assert "pcb4 bad-000" in str(raised.value)
+    assert "bench.labels --run bench" in str(raised.value)
+    assert server.requests == []
+    assert (plan.runs_dir / "pcb1" / "bench" / "run.json").is_file()
+    assert (plan.runs_dir / "pcb4" / "bench" / "run.json").is_file()
+
+
+def test_a_whole_part_is_still_held_to_the_columns(plan: BenchPlan) -> None:
+    """One part with no limit batches as the whole set does, so it stops as a whole run does."""
+    _stale_on_both_parts(plan)
+    one_part = plan.model_copy(update={"parts": ("pcb1",)})
+
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError, match="pcb1 bad-000"):
+        run(one_part, server)
+
+
+def test_a_limited_trial_names_a_stale_board_and_goes_on(plan: BenchPlan) -> None:
+    """Its batches are not the whole split's, so region 1 may differ there for no fault of the set.
+
+    The record pane measured `bad-029` on both sides of its threshold between a trial of 30 and the
+    whole part: a trial that stopped on that would say nothing of the columns.
+    """
+    _stale_on_both_parts(plan)
+    trial = plan.model_copy(update={"limit": 1, "parts": ("pcb1",)})
+    said: list[str] = []
+
+    with FakeVlm(default=REPLIES[0]) as server:
+        record = run(trial, server, say=said.append)
+
+    assert record.partial
+    assert record.scores.stale_region_truth == ["pcb1 bad-000"]
+    assert any("pcb1 bad-000" in line and "whole split" in line for line in said)
+
+
+def _digests_naming(path: Path, part: str, sha256: str) -> None:
+    """Rewrite a record of the checkpoints so that it names another digest for a part.
+
+    Args:
+        path: The record.
+        part: The part.
+        sha256: The digest it should name.
+    """
+    written = json.loads(path.read_text(encoding="utf-8"))
+    written["named"][part]["sha256"] = sha256
+    path.write_text(json.dumps(written), encoding="utf-8")
+
+
+def test_a_stage_two_run_holds_each_checkpoint_to_the_digest_on_record(
+    stage2_record: BenchRecord, stage2_plan: BenchPlan
+) -> None:
+    """The record says which file it was held to, by its digest, and lacks nothing for that."""
+    assert stage2_plan.checkpoints is not None
+    held = stage2_record.checkpoints_held_to
+    assert held is not None
+    assert (held.path, held.sha256) == (
+        stage2_plan.checkpoints.as_posix(),
+        _digest(stage2_plan.checkpoints),
+    )
+    assert not any("held" in reason for reason in stage2_record.not_final)
+
+
+def test_a_checkpoint_that_is_not_the_named_one_voids_the_run(
+    stage2_plan: BenchPlan, machine_models: ModelLoader
+) -> None:
+    """The void rule's last clause: nothing scored, nothing asked, no record, the model let go."""
+    assert stage2_plan.checkpoints is not None
+    _digests_naming(stage2_plan.checkpoints, "pcb1", "0" * 64)
+    RELEASED.clear()
+
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError) as raised:
+        run(stage2_plan, server, probes=machine_probes(), models=machine_models)
+
+    message = str(raised.value)
+    assert "void" in message
+    assert "0" * 64 in message
+    assert "pcb1" in message
+    assert server.requests == []
+    assert not (stage2_plan.runs_dir / "pcb1" / "bench").exists()
+    assert RELEASED == ["pcb1"]
+
+
+def test_the_second_parts_checkpoint_voids_the_run_as_well(
+    stage2_plan: BenchPlan, machine_models: ModelLoader
+) -> None:
+    """The first part passing says nothing of the second; the judge is not reached either way."""
+    assert stage2_plan.checkpoints is not None
+    _digests_naming(stage2_plan.checkpoints, "pcb4", "1" * 64)
+
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError, match="pcb4"):
+        run(stage2_plan, server, probes=machine_probes(), models=machine_models)
+
+    assert server.requests == []
+
+
+def test_the_digest_is_of_the_file_as_it_stands_when_the_model_is_loaded(
+    stage2_plan: BenchPlan, tmp_path: Path
+) -> None:
+    """Bytes changed on disk are another checkpoint, whatever its name and size."""
+
+    def tampered(part: str) -> LoadedModel:
+        checkpoint = tmp_path / "models" / part / "model.ckpt"
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        checkpoint.write_bytes(stub_checkpoint_bytes(part)[::-1])
+        return stub_models(part)._replace(checkpoint=checkpoint)
+
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError, match="void"):
+        run(stage2_plan, server, probes=machine_probes(), models=tampered)
+
+
+def test_a_stage_two_model_with_no_file_voids_the_run(stage2_plan: BenchPlan) -> None:
+    """No digest to compare is no pass."""
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError, match="no file"):
+        run(stage2_plan, server, probes=machine_probes(), models=stub_models)
+
+
+@pytest.mark.parametrize("absent", [True, False])
+def test_a_stage_two_run_with_no_record_of_the_digests_stops_before_it_starts(
+    stage2_plan: BenchPlan, machine_models: ModelLoader, tmp_path: Path, absent: bool
+) -> None:
+    """Named nowhere or named and missing: nothing is parsed, scored or asked."""
+    update = {"checkpoints": None if absent else tmp_path / "nowhere.json"}
+    plan = stage2_plan.model_copy(update=update)
+
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError, match="digests"):
+        run(plan, server, probes=machine_probes(), models=machine_models)
+
+    assert server.requests == []
+    assert not (plan.runs_dir / "pcb1" / "bench").exists()
+
+
+def test_stage_one_is_held_to_no_digest(record: BenchRecord) -> None:
+    """The laptop's run and its record are as they were."""
+    assert record.checkpoints_held_to is None
+    assert record.not_final == []
+
+
+def test_a_partial_trial_on_the_machine_is_held_to_the_digests_too(
+    stage2_plan: BenchPlan, machine_models: ModelLoader
+) -> None:
+    """A trial on the wrong checkpoint would show nothing of the right one."""
+    assert stage2_plan.checkpoints is not None
+    _digests_naming(stage2_plan.checkpoints, "pcb1", "2" * 64)
+    trial = stage2_plan.model_copy(update={"limit": 1})
+
+    with FakeVlm(REPLIES) as server, pytest.raises(BenchError, match="void"):
+        run(trial, server, probes=machine_probes(), models=machine_models)
 
 
 def test_the_image_token_minimum_is_read_from_the_servers_command_line() -> None:
