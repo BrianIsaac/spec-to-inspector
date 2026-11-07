@@ -12,7 +12,8 @@ there on 6 November, in week 1 or week 2, or on 7 November in the final run and 
 comparisons. A file named alone is under `results/stage2/week1/`; the others are
 given with their whole path. Every figure marked "on the laptop" is in
 `results/stage1/`. A figure marked as a plan or an estimate has not been
-measured. Not yet run on the machine: a scanned specification. The final figure is
+measured. Not yet run on the machine: a scanned specification, a picture of a good
+board beside the crop, and a store of corrections. The final figure is
 under "The baseline" below and in `results/stage2/final/FINAL.md`, and no other
 figure on this page is one.
 
@@ -106,10 +107,11 @@ its clause table and two pictures is about 4,700 tokens (median 4,682 over
 the bench, `bench/bench.json`), so 16K is enough for it. A real customer's
 specification is longer. Holding the whole of one in context, at full
 precision, with a card beside the anomaly model's, is what the machine's
-memory is for. Whether it does so at a useful speed has one first reading,
-with the demonstration specification only: asked cold at FP16 a question takes
-a median of 2.13 s and a 95th percentile of 2.56 s
-(`results/stage2/week1/README.md`). The plan found no published measured figure
+memory is for. Whether it does so at a useful speed has readings with the
+demonstration specification only: asked cold at FP16 a question takes a median of
+2.13 s and a 95th percentile of 2.56 s in week 1
+(`results/stage2/week1/README.md`), and 2.12 s and 2.54 s in the final run
+(`results/stage2/final/FINAL.md`). The plan found no published measured figure
 for a vision-language model on a B70, and this page quotes none but its own.
 
 ## The serving stack
@@ -215,7 +217,7 @@ yet known.*
 What is not yet known:
 
 - What a specification much longer than the demonstration's does to memory and to
-  speed: week 3.
+  speed: not measured. The final run and its comparisons used the demonstration's.
 - Why OpenVINO holds 18 GiB at batch 16, why it runs at about half PyTorch XPU's speed,
   and why its speed differs by part. Each is measured and not explained, and no
   OpenVINO setting but the precision was tried. The plugin's FP16 and Anomalib's

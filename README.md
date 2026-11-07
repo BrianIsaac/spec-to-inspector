@@ -9,9 +9,9 @@ An entry to the ASUS UGen AI League Innovation Hackathon 2026: Workplace AI,
 Battlefield Thunderstorm (ASUS UGen Intel Arc Pro B70 32GB). The prototype was
 built and measured on a laptop in Stage I. **Stage II's subject is the
 organiser's machine**, two Intel Arc Pro B70s, where the pipeline has run since
-6 November 2026: its figures so far are a bring-up and the anomaly model's own,
-and the final figure, under `eval/PROTOCOL-stage2.md`, has not been run yet.
-A solo entry by Brian Isaac.
+6 November 2026. Its final figure, under `eval/PROTOCOL-stage2.md`, ran on 7
+November 2026: strict clause-citation accuracy 34.1%, 46 of 135, 95% interval
+26.6% to 42.4% (see "Results on the machine"). A solo entry by Brian Isaac.
 
 ![The reject card: a damaged component on a PCB4 board, rejected under clause 5.5 of the specification, with the crop, the anomaly heatmap, the measured size and the clause quoted with its page.](docs/screens/page-06-reject-card.png)
 
@@ -21,7 +21,7 @@ defect class and the clause number come from the vision-language model; the
 decision to reject is the clause's limit applied by code. The board is a
 VisA test image (CC BY 4.0, see "Data"). It was picked by rule, as the first
 board of the batch on which the model named the labelled defect; how often
-it does is under "Results".
+it does is under "Results on the laptop".
 
 ## How it works
 
@@ -287,7 +287,7 @@ environment or in a `.env` file at the repository root.
 
 | Model | Role | Version | Size and precision | Licence | Stage I, the laptop | Stage II, the machine |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, is a declared comparison and has not been run | Apache-2.0 | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context |
+| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, has run as a declared comparison: 51 of 135, and no figure separates it from the final run | Apache-2.0 | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context: a median of 2.12 s and a 95th percentile of 2.54 to 2.56 s to answer one area, cold, and 29,471 to 29,784 MiB on the card at its peak (the final's 3 runs) |
 | PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: 692.7 to 703.5 s to train a part and 10,345 to 10,785 MiB on the card at its peak (8 trainings); 34.69 to 35.22 images a second at batch 16, the model alone. Anomalib's OpenVINO export was measured beside it and is not the path: "Stage II on the Intel Arc Pro B70" has both |
 | [docling](https://github.com/docling-project/docling)'s layout and table models | The parser: reads the specification PDF | as docling 2.135.0 fetches them: `docling-layout-heron`, `docling-models` v2.3.0 | about 530 MB together | Apache-2.0 and CDLA-Permissive-2.0 (docling itself is MIT) | CPU | CPU |
 | [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 | not built | planned, at FP16; not run |
@@ -300,9 +300,10 @@ every model, dataset and library with its licence and source.
 
 The machine is the subject of Stage II: the organiser's rules ask for operation
 and validation on it, and no comparison with a team's own hardware. Week 1's
-figures are in `results/stage2/week1/` and week 2's in `results/stage2/week2/`.
-The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, with one
-dated addition so far, and the plan, corrected to the machine, is in full in
+figures are in `results/stage2/week1/`, week 2's in `results/stage2/week2/`, and the
+final run's and the three comparisons' under "Results on the machine" above.
+The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, with two
+dated additions, and the plan, corrected to the machine, is in full in
 `docs/stage2.md`:
 
 ```mermaid
@@ -328,11 +329,11 @@ flowchart LR
     CLIENT -->|"a URL and<br/>a model name"| V1
 ```
 
-Every line has run. On the machine that means the judge at FP16, and PatchCore
-trained and scored on XPU in FP32, on all four parts, in two runs. Anomalib's
-OpenVINO export has run too and is measured below; nothing in the pipeline runs
-through it. The judge at FP8, the bench on the models trained on the machine and
-the final run have not run.
+Every line has run. On the machine that means the judge at FP16, and at FP8 as a
+declared comparison, and PatchCore trained and scored on XPU in FP32, on all four
+parts, in two runs. Anomalib's OpenVINO export has run too and is measured below;
+nothing in the pipeline runs through it. The bench has run on the models trained on
+the machine: that is the final run.
 
 - **The machine.** Two whole Arc Pro B70s of 32,656 MiB each in one bare-metal
   host, not a virtual machine, reached over ssh, with outbound HTTPS open
@@ -343,9 +344,10 @@ the final run have not run.
   server takes 90% of card 1: at 80% FP16 leaves 2.97 GiB of cache and vLLM refuses
   a 32K-token context; at 90% it leaves 6.16 GiB, 44,800 tokens. The anomaly model
   holds 2,899 to 2,963 MiB of card 0 while scoring, 4,069 MiB at most in the process
-  that has just trained, and 10,345 to 10,785 MiB at its peak in training. At FP8
-  the cache is an estimate, not a measurement: about 13 GiB at 90%. The plan had
-  assumed 80% of one shared card and about 8 GB of cache at FP16.
+  that has just trained, and 10,345 to 10,785 MiB at its peak in training. At FP8,
+  measured at 90% as a comparison, the cache is 91,712 tokens, 2.80 times a 32K
+  context. The plan had assumed 80% of one shared card and about 8 GB of cache at
+  FP16.
 - **The serving stack.** Moving the client from llama.cpp to the llm-scaler vLLM
   image is two settings. The server needs two more of its own or it is not the
   pipeline the protocol declares: asked cold (`--no-enable-prefix-caching
@@ -359,29 +361,34 @@ the final run have not run.
 - **Running there.** `scripts/setup_xpu.sh` syncs the `xpu` dependency group, and
   `scripts/serve_vlm_xpu.sh start` starts the judge's server. Set
   `SPEC_TO_INSPECTOR_DEVICE=xpu` and run from `.venv/bin/`: a bare `uv run` syncs
-  back to the default groups and swaps in the CUDA wheels.
-- **The first bench.** A bring-up figure, never final: 34.1% strict (46 of 135,
-  95% interval 26.6% to 42.4%) and lenient 70.8% (46 of 65, 58.8% to 80.4%), with
-  the laptop's anomaly checkpoints.
+  back to the default groups and swaps in the CUDA wheels. The whole recipe is under
+  "Quick start on the machine".
+- **The first bench.** History: a bring-up figure, never final, with the laptop's
+  anomaly checkpoints: 34.1% strict (46 of 135, 95% interval 26.6% to 42.4%) and
+  lenient 70.8% (46 of 65, 58.8% to 80.4%). The final run reads the same counts, and
+  they are not the same answers: "Results on the machine" says which differ.
 - **The final figure.** One setting declared in the protocol before the run, FP16,
   with the anomaly models trained on the machine and an empty corrections store,
-  reported whatever it reads; three runs, the third after a server restart. It has
-  not been run yet. Before it is, the bench's region columns, made from the laptop's
-  models, are regenerated from the machine's, on which the bench now stops at PCB1
-  `bad-029`; the threshold rule stays a strict `>`, with the four boards that sit on
-  the threshold named in the record. A dated addition to the protocol,
-  `eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`, says both. Three
-  comparisons are declared in files of their own: FP8, the model's own image minimum,
-  and designators let through the digit ban, which stays in the final figure. A figure
-  is said to have moved only on a paired, two-sided exact sign test below 0.05 on the
-  135.
-- **What will be measured**, 6 November to 4 December, when the video is due, with
-  the machine's reservation ending 2 December at 11:30, so everything run on it and
-  the recording of the final video come before then: the judge's answer time and
-  throughput at FP16 and FP8; and clause-citation accuracy on the 200 labelled boards,
-  to see whether FP8, a picture of a good board beside the crop, and the corrections
-  loop move the machine's own baseline. The last two each get a dated addition to the
-  protocol when built.
+  reported whatever it reads; three runs on 7 November 2026, the third after a server
+  restart. Strict, 34.1%, 46 of 135, 95% interval 26.6% to 42.4%; the lenient figure,
+  never pooled with it, 70.8%, 46 of 65, 58.8% to 80.4%. Before it ran, the bench's
+  region columns, made from the laptop's models, were regenerated from the machine's,
+  and one row of the 200 moved, PCB1 `bad-029`; the threshold rule stays a strict `>`,
+  with the four boards that sit on the threshold named in the record.
+  `eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md` says both, and
+  `eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md` sets one
+  comparison's pattern. The three declared comparisons ran after it, in files of their
+  own: FP8, the model's own image minimum, and designators let through the digit ban,
+  which stays in the final figure. A figure is said to have moved only on a paired,
+  two-sided exact sign test below 0.05 on the 135, and no figure separates any of the
+  three from the final run.
+- **What is still to be measured**, to 4 December, when the video is due, with the
+  machine's reservation ending 2 December at 11:30, so everything run on it and the
+  recording of the final video come before then: whether a picture of a good board
+  beside the crop and the corrections loop move the machine's own baseline, each by a
+  dated addition to the protocol when built, and a whole batch end to end. The judge's
+  answer time at FP16 and at FP8 is measured; its throughput is not read, since vLLM
+  gives no generation rate.
 
 **The anomaly model on the machine**, measured on card 0 on 6 November 2026 with the
 judge's server up on card 1 (`results/stage2/week2/README.md`, which has every command).
@@ -450,10 +457,10 @@ src/spec_to_inspector/
 tests/             mirrors src/
 specs/             the demonstration specification: Markdown source, PDF, clause table
 eval/              the labelled clause set, its mapping table, the two protocols and
-                   the second's dated addition
+                   the second's two dated additions
 results/stage1/    the laptop's measured figures, as JSON, and the page written from them
 results/stage2/    the machine's: its shape, week 1's bring-up figures and logs,
-                   week 2's anomaly model
+                   week 2's anomaly model, the final run and its three comparisons
 scripts/           the judge's two servers, the machine's environment, the
                    specification's rebuild, the console walk
 docs/              architecture.md, stage2.md, and the reject card's screenshot
