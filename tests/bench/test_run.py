@@ -301,15 +301,17 @@ def test_a_process_that_is_read_needs_no_note(stage2_record: BenchRecord) -> Non
 def test_the_protocols_files_in_force_are_listed_with_their_digests(
     stage2_record: BenchRecord,
 ) -> None:
-    """The protocol first, then the dated addition of 7 November, each by its bytes at the run."""
+    """The protocol first, then its dated additions by name, each by its bytes at the run."""
     eval_dir = ROOT / "eval"
     protocol = eval_dir / "PROTOCOL-stage2.md"
-    addition = eval_dir / "PROTOCOL-stage2-addition-region-columns-2026-11-07.md"
+    in_force = [protocol, *sorted(eval_dir.glob("PROTOCOL-stage2-addition-*.md"))]
 
     assert [(file.path, file.sha256) for file in stage2_record.protocol] == [
-        (protocol.as_posix(), _digest(protocol)),
-        (addition.as_posix(), _digest(addition)),
+        (path.as_posix(), _digest(path)) for path in in_force
     ]
+    named = {path.name for path in in_force}
+    assert "PROTOCOL-stage2-addition-region-columns-2026-11-07.md" in named
+    assert "PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md" in named
     assert not any(file.path.endswith("eval/PROTOCOL.md") for file in stage2_record.protocol)
 
 
