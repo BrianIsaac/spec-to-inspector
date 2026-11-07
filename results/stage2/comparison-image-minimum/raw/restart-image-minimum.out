@@ -1,0 +1,5 @@
+Stopped spec-to-inspector-vlm
+0698504cd9fdf427c3248f58e13d835717258fd70b14d9b4fb1edb7b1121a0da
+Up in 125 s: http://127.0.0.1:8131/v1, model qwen3-vl-8b-instruct, intel/llm-scaler-vllm:0.26.0-b1
+Up: http://127.0.0.1:8131/v1, model qwen3-vl-8b-instruct, intel/llm-scaler-vllm:0.26.0-b1
+spec-to-inspector-vlm Up 2 minutes

@@ -8,14 +8,13 @@ read against the machine's own baseline run.
 
 **This plan was written before the machine was seen, and was corrected to it
 on 7 November 2026.** Every figure marked "on the machine" was measured
-there on 6 November, in week 1 or week 2. A file named alone is under
-`results/stage2/week1/`; week 2's are given with their whole path, under
-`results/stage2/week2/`. Every figure marked "on the laptop" is in
+there on 6 November, in week 1 or week 2, or on 7 November in the final run and its
+comparisons. A file named alone is under `results/stage2/week1/`; the others are
+given with their whole path. Every figure marked "on the laptop" is in
 `results/stage1/`. A figure marked as a plan or an estimate has not been
-measured. Not yet run on the machine: the judge at FP8, a scanned
-specification, and the final run. The bench has run on the anomaly models trained
-there one whole part at a time, on 7 November, only to show that it runs
-(`results/stage2/before-final/`). Nothing on this page is a final figure.
+measured. Not yet run on the machine: a scanned specification. The final figure is
+under "The baseline" below and in `results/stage2/final/FINAL.md`, and no other
+figure on this page is one.
 
 ## The machine
 
@@ -51,8 +50,8 @@ reconnect.
 | Parse a born-digital specification | none: docling runs on the CPU | 0 GB | 0 GB (`machine.md`) |
 | Parse a scanned specification | 0, in turn | not built in Stage I | a plan, not run: PaddleOCR-VL-1.6, 958.6M parameters at FP16, about 2 GB of weights plus its cache |
 | Train the anomaly model | 0 | 7.82 GiB allocated, 8.66 GiB reserved, for 904 images at 256 px | 7.76 to 7.79 GiB allocated, 8.87 to 8.91 GiB reserved by PyTorch's count; 10,345 to 10,785 MiB on the whole card. 8 trainings, each of the four parts twice (`results/stage2/week2/README.md`) |
-| Score boards | 0 | 0.62 GiB resident, 1.34 GiB peak allocated at batch 16 | 666 to 669 MB resident. By PyTorch's count, at batch 1: 1.16 to 1.17 GiB allocated, 1.19 GiB reserved; at batch 16: 1.30 to 1.31 GiB, 1.73 GiB. The whole card: 2,899 to 2,963 MiB over both batches, and 4,005 to 4,069 MiB in a scored run in the process that had just trained; 8 each (`results/stage2/week2/README.md`). Week 1's bench, with the laptop's checkpoints, read 2,594 MiB at most at batch 16 (`bench/card-memory.txt`) |
-| Judge | 1 | 4-bit (Q4_K_M) with a 16K context: 8,780 MiB peak | FP16 with a 32K context: 17.34 GiB of weights as vLLM loads them, 16.33 GiB on disk; the card at 26,960 MiB once up, 29,456 MiB at most over two bench runs (`machine.md`, `bench/card-memory.txt`). FP8: not run |
+| Score boards | 0 | 0.62 GiB resident, 1.34 GiB peak allocated at batch 16 | 666 to 669 MB resident. By PyTorch's count, at batch 1: 1.16 to 1.17 GiB allocated, 1.19 GiB reserved; at batch 16: 1.30 to 1.31 GiB, 1.73 GiB. The whole card: 2,899 to 2,963 MiB over both batches, and 4,005 to 4,069 MiB in a scored run in the process that had just trained; 8 each (`results/stage2/week2/README.md`). Week 1's bench, with the laptop's checkpoints, read 2,594 MiB at most at batch 16 (`bench/card-memory.txt`), and the final run reads the same on the machine's (`results/stage2/final/README.md`) |
+| Judge | 1 | 4-bit (Q4_K_M) with a 16K context: 8,780 MiB peak | FP16 with a 32K context: 17.34 GiB of weights as vLLM loads them, 16.33 GiB on disk; the card at 26,960 MiB once up, 29,456 MiB at most over two bench runs (`machine.md`, `bench/card-memory.txt`), and 29,471, 29,471 and 29,784 MiB over the final's three, the last after a restart (`results/stage2/final/three-runs.md`). FP8, as a comparison: 10.88 GiB of weights as vLLM loads them, the card at 26,579 MiB once up, 29,515 MiB at most (`results/stage2/comparison-fp8/`) |
 
 The configuration this leads to:
 
@@ -79,10 +78,12 @@ The configuration this leads to:
   activation and 2.2 GiB of non-torch memory
   (`raw/serve-fp16-util-0.9-cold-final.txt`); how much of that is the vision
   encoder was not measured.
-- **FP8 is an estimate.** It has not been run. If the 5.2 GiB measured at FP16
-  holds at FP8, its 10.59 GB of weights leave about 13 GiB of cache at 90%,
-  close to three 32K contexts, and about 10 GiB at 80%, about two
-  (`machine.md`).
+- **FP8, measured at 90% as a comparison.** vLLM's line gives 10.88 GiB of weights,
+  3.01 GiB of peak activation and 2.21 GiB of non-torch memory, and a cache of 91,712
+  tokens, 2.80 times a 32K context
+  (`results/stage2/comparison-fp8/raw/server-fp8-whole.txt`). 80% was not run. *Corrected
+  7 November 2026. The plan had said "FP8 is an estimate": if the 5.2 GiB measured at
+  FP16 held, about 13 GiB of cache at 90%, close to three 32K contexts. That held.*
 
 *Corrected 7 November 2026. The plan had assumed one shared card: training
 before the judge was loaded; the judge's server at 80%, 25.6 GB, beside 6.4
@@ -116,7 +117,7 @@ for a vision-language model on a B70, and this page quotes none but its own.
 | Part | Stage I, the laptop | Stage II, the machine |
 | --- | --- | --- |
 | Anomaly model | PatchCore through Anomalib 2.7.0 on PyTorch 2.14 CUDA, full float32 | PatchCore through Anomalib 2.7.0 on PyTorch 2.14.1 XPU in FP32, trained and scored on card 0: the path on this machine (`results/stage2/week2/README.md`). Week 1's bench ran the laptop's checkpoints; the final run uses the models trained on the machine. Through OpenVINO 2026.4.1 it was exported and measured, and nothing in the pipeline runs through it |
-| Judge's model | Qwen3-VL-8B-Instruct, Qwen's own 4-bit GGUF with the F16 projector | Qwen3-VL-8B-Instruct at FP16; Qwen's own FP8 build not yet run |
+| Judge's model | Qwen3-VL-8B-Instruct, Qwen's own 4-bit GGUF with the F16 projector | Qwen3-VL-8B-Instruct at FP16; Qwen's own FP8 build run as a declared comparison, not as the final figure |
 | Judge's server | llama.cpp `llama-server` at tag `v0.6.0`, OpenAI-compatible | Intel's llm-scaler vLLM image at a pinned tag (`0.26.0-b1`, never `latest`; digest in `machine.md`), vLLM 0.26.1.dev0, on card 1 |
 | Judge's client | one OpenAI-compatible client, answers constrained to a JSON schema | the same client, by two settings, `SPEC_TO_INSPECTOR_VLM_URL` and `SPEC_TO_INSPECTOR_VLM_MODEL`, whose defaults already fit |
 | Parser, measurement, rule, corrections, console | CPU, plain Python, one SQLite file, server-rendered pages | unchanged |
@@ -213,9 +214,8 @@ yet known.*
 
 What is not yet known:
 
-- What the final run reads. It has not been run.
-- What FP8 does, and what a specification much longer than the demonstration's
-  does, to memory and to speed: week 3.
+- What a specification much longer than the demonstration's does to memory and to
+  speed: week 3.
 - Why OpenVINO holds 18 GiB at batch 16, why it runs at about half PyTorch XPU's speed,
   and why its speed differs by part. Each is measured and not explained, and no
   OpenVINO setting but the precision was tried. The plugin's FP16 and Anomalib's
@@ -234,7 +234,7 @@ this repository, measured on the machine.
 | --- | --- | --- |
 | 1, 6 to 12 November: bring-up | Read the cards the machine exposes (name, memory, whole card or virtual function). Install the pinned environment. Check PyTorch XPU and OpenVINO. Start the judge's server. | Done on 6 November, `results/stage2/week1/`: the machine's measured shape; the answer schema accepted with one fix |
 | 2, 13 to 19 November: the anomaly model | PatchCore on PyTorch XPU in FP32 and through OpenVINO | Done on 6 November UTC, ahead of its week, `results/stage2/week2/`: training time, images per second and peak memory on the machine, on all four parts, in two runs |
-| 3, 20 to 26 November: the judge at full precision | Qwen3-VL-8B-Instruct at FP16 and at FP8, with the whole specification in context | Answer time, throughput, and clause-citation accuracy on the 200 labelled boards, under the protocol: FP16 as the final setting, FP8 as a declared comparison |
+| 3, 20 to 26 November: the judge at full precision | Qwen3-VL-8B-Instruct at FP16 and at FP8, with the whole specification in context | Done on 7 November, ahead of its week, `results/stage2/final/` and `results/stage2/comparison-fp8/`: answer time and clause-citation accuracy on the 200 labelled boards, under the protocol: FP16 as the final setting, FP8 as a declared comparison. Throughput is not read: vLLM gives no generation rate |
 | 4, 27 November to 4 December: the full run | A whole batch end to end; memory per stage against the plan above; the corrections loop across the batch | The final video recorded from a session on the machine; the repository with its measured B70 figures |
 
 What the end of the reservation does to week 4: of its eight days, about five
@@ -245,13 +245,29 @@ no machine: what is left of it can only work from what was copied. The weeks are
 not re-planned here; that is the owner's.
 
 **The baseline.** What Stage II rests on is a final run on the machine under
-`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and its dated addition
-`eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`: one setting declared
+`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and its two dated additions
+(`eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`,
+`eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md`): one setting declared
 before the run, FP16, with the anomaly models trained on the machine and an empty
 corrections store, reported whatever it reads. Three runs make it final, the third
-after a server restart. It has not been run yet.
+after a server restart. They ran on 7 November 2026.
 
-The addition answers two things week 2 found (`results/stage2/week2/README.md`):
+**The final figure: strict clause-citation accuracy, 34.1%, 46 of 135 single-defect
+boards, 95% interval 26.6% to 42.4%** (pcb1 41 of 91, pcb4 5 of 44). **The lenient
+figure**, a citation of any of a multi-defect board's types, claims only that and is
+never pooled with it: 70.8%, 46 of 65, 58.8% to 80.4%. Beside them: region 1 lies on the
+labelled defect on 110 of the 135, and the judge's own share there, conditional, is 42 of
+110; 8.0% of good boards are rejected (16 of 201, 5.0% to 12.5%); an answer to one area
+takes a median of 2.12 s and a 95th percentile of 2.54 s, cold. It is not held out.
+
+The three runs agree on every counted figure, and no void rule was met: 0 of 401 decisions
+with a correction in a prompt, the highest prefix-cache hit rate 0.0% in each run's log, the
+named checkpoints. Times and memory differ between them, and every value is in
+`results/stage2/final/three-runs.md`. One board of the 46 sits on its threshold: PCB1 `bad-029`,
+1.9e-6 above it under the strict `>`, flagged and cited rightly. The figure is read with that
+known (`results/stage2/final/FINAL.md`).
+
+The first addition answers two things week 2 found (`results/stage2/week2/README.md`):
 
 - **The region columns.** `eval/clause_labels.csv` holds what each board's region 1
   lies on, made from the laptop's models, and the bench stops if a model's regions
@@ -267,9 +283,10 @@ The addition answers two things week 2 found (`results/stage2/week2/README.md`):
   stays a strict `>`, the final run's record names the four with each one's score and
   threshold, and the figure is read with that known.
 
-Week 1's bench on the machine is a bring-up figure, never final: 34.1% strict (46
-of 135, 95% interval 26.6% to 42.4%) and lenient 70.8% (46 of 65, 58.8% to 80.4%),
-with the laptop's anomaly checkpoints (`results/stage2/week1/README.md`). The
+Week 1's bench on the machine is a bring-up figure, never final, with the laptop's
+anomaly checkpoints (`results/stage2/week1/README.md`). It reads the same counts as the
+final run, 46 of 135 and 46 of 65, and they are not the same answers: 4 of the 135 differ
+(PCB1 `bad-006`, `bad-029`, `bad-041`, `bad-046`), two each way. The
 anomaly model is not what holds it down: on 109 of the 135 the most anomalous area
 lies on the labelled defect. The judge names the wrong defect class; asked simply
 to describe four of the crops, on the laptop, it was right about what is in them.
@@ -287,7 +304,22 @@ never pooled.
 
 1. **Full precision.** The baseline is FP16. FP8, Qwen's own build, is a comparison
    declared in the protocol, two runs in files of its own, beside two others: the
-   model's own image minimum, and designators let through the digit ban.
+   model's own image minimum, and designators let through the digit ban. All three ran
+   on 7 November (`results/stage2/comparison-<name>/COMPARISON.md`), and **no figure
+   separates any of them from the final run**. Each is tested on its own at 0.05, with no
+   correction for there being three, and none replaces the final figure:
+
+   | Comparison | Strict | Right only on the final, only on the comparison | Sign test on the 135 | The lenient figure, not primary | Sign test on the 65 |
+   | --- | --- | --- | --- | --- | --- |
+   | FP8 | 37.8% (51 of 135), 30.0% to 46.2% | 1, 6 | p = 0.125 | 73.8% (48 of 65), 62.0% to 83.0% | p = 0.625 |
+   | The image minimum | 33.3% (45 of 135), 25.9% to 41.6% | 8, 7 | p = 1 | 70.8% (46 of 65), 58.8% to 80.4% | p = 1 |
+   | Designators | 34.1% (46 of 135), 26.6% to 42.4% | 0, 0 | p = 1; no board differs | 69.2% (45 of 65), 57.2% to 79.1% | p = 1 |
+
+   Designators were there to show that a pattern for them never passes a size. By the
+   protocol's test it passed one, `½ mm` on pcb4 `bad-094`, which is not a designator, which
+   the final's pattern passes too, and which the answer's validation refused in both. No answer
+   that stood holds a size, and "put a size in digits" gave none on its three boards under the
+   pattern. The final figure keeps the ban.
 2. **A picture of a good board beside the crop.** The judge sees a defect
    with nothing to compare it against. Showing the same place on a good
    board needs the boards registered first, since they wander in the frame;

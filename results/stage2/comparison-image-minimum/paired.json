@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "counted_at": "2026-11-07T07:27:29+00:00",
+  "final": {
+    "path": "results/stage2/final/bench.json",
+    "sha256": "ece9864d4ff3f8f93b679c4a14cf15dd2c480fb6c0963f9209b73e2c7f9c4d71"
+  },
+  "comparison": {
+    "path": "results/stage2/comparison-image-minimum/bench.json",
+    "sha256": "411373e92f1ac163b9a12e8fcfef6ab9657f2b2cd240b621663c9045beafc7f4"
+  },
+  "labels": {
+    "path": "eval/clause_labels.csv",
+    "sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337"
+  },
+  "threshold": 0.05,
+  "correction": "each comparison is tested on its own at 0.05, with no correction for three",
+  "partial": false,
+  "comparison_is_a_repeat": true,
+  "differences": [
+    "the server: {'vllm_version': '0.26.1.dev0+g568afb3a1.d20260831', 'served_model': 'qwen3-vl-8b-instruct', 'weights_revision': '0c351dd01ed87e9c1b53cbc748cba10e6187ff3b', 'max_model_len': '32768', 'image': 'intel/llm-scaler-vllm:0.26.0-b1', 'image_digest': 'sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490', 'image_label_version': '20260608', 'image_label_revision': 'ac12083301cbdbe06135882d401f7877b0b512db', 'command': '-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt \\'{\"image\": 2}\\' --mm-processor-kwargs \\'{\"size\": {\"shortest_edge\": 1048576, \"longest_edge\": 16777216}}\\' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1', 'dtype': 'float16'} against {'vllm_version': '0.26.1.dev0+g568afb3a1.d20260831', 'served_model': 'qwen3-vl-8b-instruct', 'weights_revision': '0c351dd01ed87e9c1b53cbc748cba10e6187ff3b', 'max_model_len': '32768', 'image': 'intel/llm-scaler-vllm:0.26.0-b1', 'image_digest': 'sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490', 'image_label_version': '20260608', 'image_label_revision': 'ac12083301cbdbe06135882d401f7877b0b512db', 'command': '-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt \\'{\"image\": 2}\\' --mm-processor-kwargs \\'{\"size\": {\"shortest_edge\": 65536, \"longest_edge\": 16777216}}\\' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1', 'dtype': 'float16'}",
+    "the image token minimum: '1024' against '64'"
+  ],
+  "strict": {
+    "figure": "strict",
+    "boards": 135,
+    "both_right": 38,
+    "both_wrong": 82,
+    "only_final": 8,
+    "only_comparison": 7,
+    "sign_test": {
+      "only_final": 8,
+      "only_comparison": 7,
+      "differing": 15,
+      "exact": "1",
+      "p_value": 1.0,
+      "below_threshold": false,
+      "can_reach_threshold": true
+    },
+    "moved": null,
+    "finding": "p = 1, not below 0.05: no figure separates them.",
+    "differing_boards": [
+      {
+        "part": "pcb1",
+        "image_id": "bad-003",
+        "expected": [
+          "4.4"
+        ],
+        "final": "4.4",
+        "comparison": "4.1",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-006",
+        "expected": [
+          "4.4"
+        ],
+        "final": "4.4",
+        "comparison": "4.1",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-024",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.2",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-031",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.2",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-050",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.3",
+        "comparison": "4.2",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-055",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.2",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-059",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-085",
+        "expected": [
+          "4.2"
+        ],
+        "final": "4.2",
+        "comparison": "4.1",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-087",
+        "expected": [
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-095",
+        "expected": [
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-020",
+        "expected": [
+          "5.5"
+        ],
+        "final": "5.5",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-049",
+        "expected": [
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-057",
+        "expected": [
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-067",
+        "expected": [
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-099",
+        "expected": [
+          "5.3"
+        ],
+        "final": "5.3",
+        "comparison": "5.1",
+        "right_on": "the final run"
+      }
+    ]
+  },
+  "lenient": {
+    "figure": "lenient",
+    "boards": 65,
+    "both_right": 39,
+    "both_wrong": 12,
+    "only_final": 7,
+    "only_comparison": 7,
+    "sign_test": {
+      "only_final": 7,
+      "only_comparison": 7,
+      "differing": 14,
+      "exact": "1",
+      "p_value": 1.0,
+      "below_threshold": false,
+      "can_reach_threshold": true
+    },
+    "moved": null,
+    "finding": "p = 1: the lenient figure does not pass the test, so it is no evidence of a change. It is reported under its own name, is never pooled and offsets nothing of the strict figure; this is not the primary test.",
+    "differing_boards": [
+      {
+        "part": "pcb4",
+        "image_id": "bad-003",
+        "expected": [
+          "5.7",
+          "5.1"
+        ],
+        "final": "5.5",
+        "comparison": "5.7",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-007",
+        "expected": [
+          "5.6",
+          "5.5",
+          "5.3"
+        ],
+        "final": "5.5",
+        "comparison": "5.7",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-009",
+        "expected": [
+          "5.5",
+          "5.1"
+        ],
+        "final": "5.7",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-024",
+        "expected": [
+          "5.5",
+          "5.3"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-029",
+        "expected": [
+          "5.3",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-030",
+        "expected": [
+          "5.7",
+          "5.3"
+        ],
+        "final": "5.7",
+        "comparison": "5.1",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-042",
+        "expected": [
+          "5.3",
+          "5.1"
+        ],
+        "final": "5.2",
+        "comparison": "5.1",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-045",
+        "expected": [
+          "5.6",
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-054",
+        "expected": [
+          "5.2",
+          "5.5"
+        ],
+        "final": "5.7",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-070",
+        "expected": [
+          "5.2",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-079",
+        "expected": [
+          "5.6",
+          "5.1"
+        ],
+        "final": "5.7",
+        "comparison": "5.1",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-080",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-088",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-089",
+        "expected": [
+          "5.2",
+          "5.4"
+        ],
+        "final": "5.2",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      }
+    ]
+  }
+}
