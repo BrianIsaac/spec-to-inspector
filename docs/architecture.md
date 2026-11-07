@@ -52,15 +52,16 @@ What each stage reads and writes:
 
 | Stage | Package | Reads | Writes |
 | --- | --- | --- | --- |
-| Parse | `spec_to_inspector.spec` | a born-digital PDF | `<name>.clauses.json`: the clauses with their limits, units, zones and page numbers, and the parts' calibrations |
+| Parse | `spec_to_inspector.spec` | a born-digital PDF | `<name>.clauses.json`: the clauses with their limits, units, zones and page numbers, and the parts' calibrations; given the PDF, `inspect` writes the same table into the run's directory as `clauses.json` |
 | Train | `spec_to_inspector.anomaly` | the good images of a part | `models/patchcore/<part>/`: the memory bank and its training record, thresholds included |
 | Score | `spec_to_inspector.anomaly` | an inspection image | per image: the score, the anomaly map, a mask, numbered regions and their crops |
 | Measure | `spec_to_inspector.measure` | a region's mask, the calibration, the zones | longest extent, shortest extent and area in millimetres; the zone |
 | Judge | `spec_to_inspector.judge` | the clause table, the measured facts, the crop and its heatmap overlay, up to three corrections | the model's answer: defect class, clause, one sentence |
 | Decide | `spec_to_inspector.judge` | the answer, the clause's limit, the measurement | `decision.json`: the outcome, the clause applied, the reason in words written by code |
 | Correct | `spec_to_inspector.corrections` | an engineer's override, from the console's form or the `correct` verb | a row in one SQLite file, shown to the judge on later boards of the part |
-| Show | `spec_to_inspector.app` | everything above, from disk | four server-rendered pages: Specification, Train, Batch, and the reject card |
+| Show | `spec_to_inspector.app`; `spec_to_inspector.batch` for the files | everything above, from disk | four server-rendered pages: Specification, Train, Batch, and the reject card; and as files, which `inspect` writes into the run's directory on every form of the verb, `report.html` with its stylesheet and `<image>/reject-card.html` for each rejected board |
 | Measure the whole | `spec_to_inspector.bench` | the labelled set in `eval/` | `results/stage1/bench.json` and the page beside it; on the machine, where `eval/PROTOCOL-stage2.md` says |
+| Measure a batch | `spec_to_inspector.batch` | the specification's PDF and a part's whole test split, under `inspect --record` | the record named: figures 7, 8 and 9 and the counts, with each card's readings and the server's log beside it |
 
 The clause table comes first in the judge's prompt and is the same for
 every board, so a server with a prefix cache evaluates it once. The
@@ -98,7 +99,8 @@ judge at FP16, and at FP8 as a declared comparison
 XPU in FP32, on all four parts, in two runs (`results/stage2/week2/README.md`).
 Anomalib's OpenVINO export has run too and is measured; nothing in the pipeline runs
 through it. The bench has run on the models trained on the machine: that is the final
-run, on 7 November 2026 (`results/stage2/final/FINAL.md`).
+run, on 7 November 2026 (`results/stage2/final/FINAL.md`). So has `inspect`, from the PDF
+to the reject cards: that is the whole batch (`results/stage2/batch/README.md`).
 
 - **The judge's backend is a setting.** The client speaks the
   OpenAI-compatible chat API over HTTP, so the server behind it is two
@@ -130,4 +132,4 @@ run, on 7 November 2026 (`results/stage2/final/FINAL.md`).
 
 `docs/stage2.md` has the memory plan per stage on the machine, what the plan
 assumed about it before it was seen, and what Stage II will measure.
-`eval/PROTOCOL-stage2.md`, with its two dated additions, is how it is measured.
+`eval/PROTOCOL-stage2.md`, with its dated additions, is how it is measured.
