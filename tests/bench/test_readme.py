@@ -2,13 +2,15 @@
 
 from pathlib import Path
 
+import pytest
+
 from spec_to_inspector.bench.observe import (
     DigitReason,
     DigitReasons,
     RefusedAnswer,
     RefusedAnswers,
 )
-from spec_to_inspector.bench.paired import PairedRecord, paired_table
+from spec_to_inspector.bench.paired import PairedRecord, figure_beside, paired_table
 from spec_to_inspector.bench.readme import render_readme, summary_lines
 from spec_to_inspector.bench.record import (
     BenchRecord,
@@ -20,7 +22,17 @@ from spec_to_inspector.bench.record import (
     read_record,
 )
 from spec_to_inspector.judge.answer import RefusalKind
-from tests.bench.bench_fakes import IMAGE_DIGEST, label, seen
+from tests.bench.bench_fakes import (
+    FINAL_COMMAND,
+    FINAL_KWARGS,
+    FINAL_SNAPSHOT,
+    FP8_REVISION,
+    FP8_SNAPSHOT,
+    IMAGE_DIGEST,
+    IMAGE_MINIMUM_KWARGS,
+    label,
+    seen,
+)
 
 
 def test_the_page_gives_each_figure_with_its_count_its_n_and_its_interval(
@@ -390,3 +402,207 @@ def test_only_the_designators_comparison_lists_reasons(stage2_record: BenchRecor
     assert "## The reasons with a digit in them" in page
     assert page.count("1 reasons with a digit, of which 1 have a digit followed by a unit") == 2
     assert "| pcb4 | `bad-080` | 1 | yes | **yes** | a mark of R5 mm |" in page
+
+
+def _with_server(record: BenchRecord, *, without: str | None = None, **facts: str) -> BenchRecord:
+    """Give a record another server's facts.
+
+    Args:
+        record: The record.
+        without: A fact to take out.
+        **facts: Facts to set.
+
+    Returns:
+        The record, as if that server had answered.
+    """
+    server = {**record.judge.server, **facts}
+    if without is not None:
+        del server[without]
+    return record.model_copy(update={"judge": record.judge.model_copy(update={"server": server})})
+
+
+REPEATING_THE_FINAL = (
+    "The judge's server is started by `scripts/serve_vlm_xpu.sh start`, none of its settings\n"
+    "overridden, and this run's command is started on the machine as:\n"
+)
+
+
+def test_the_final_settings_page_says_it_is_held_and_nothing_overridden(
+    stage2_record: BenchRecord,
+) -> None:
+    """The two lines stand where they are true, word for word."""
+    page = render_readme(stage2_record)
+
+    assert "This run's record holds what the protocol asks of a final run." in page
+    assert REPEATING_THE_FINAL in page
+    assert "SPEC_TO_INSPECTOR_REASON_RULE" not in page
+
+
+def test_the_fp8_page_says_which_comparison_it_is_and_what_started_it(
+    stage2_record: BenchRecord,
+) -> None:
+    """Its own script, and the one flag against the protocol's, in the record's words."""
+    fp8 = _with_server(
+        stage2_record,
+        command=FINAL_COMMAND.replace(FINAL_SNAPSHOT, FP8_SNAPSHOT),
+        weights_revision=FP8_REVISION,
+    )
+    page = render_readme(fp8)
+
+    assert "This run's record holds" not in page
+    assert "**This run is not final.**" in page
+    assert "- the final setting: this is the fp8 comparison." in page
+    assert "none of its settings" not in page
+    assert "`results/stage2/comparison-fp8/serve-fp8.sh start`" in page
+    assert f"`--model {FP8_SNAPSHOT}` where the protocol has `--model {FINAL_SNAPSHOT}`" in page
+
+
+def test_the_image_minimum_page_says_which_comparison_it_is_and_what_started_it(
+    stage2_record: BenchRecord,
+) -> None:
+    """The script with the variable the protocol writes for it, and the flag that variable wrote."""
+    page = render_readme(
+        _with_server(
+            stage2_record, command=FINAL_COMMAND.replace(FINAL_KWARGS, IMAGE_MINIMUM_KWARGS)
+        )
+    )
+
+    assert "This run's record holds" not in page
+    assert "- the final setting: this is the image-minimum comparison." in page
+    assert "none of its settings" not in page
+    assert "`IMAGE_MIN_PIXELS=65536 scripts/serve_vlm_xpu.sh start`" in page
+    assert (
+        f"`--mm-processor-kwargs {IMAGE_MINIMUM_KWARGS}` where the protocol has "
+        f"`--mm-processor-kwargs {FINAL_KWARGS}`" in page
+    )
+
+
+def test_the_designators_page_starts_the_final_server_and_says_the_clients_variable(
+    stage2_record: BenchRecord,
+) -> None:
+    """Its pattern is the client's: nothing of the server is overridden, and the run's line says."""
+    page = render_readme(
+        stage2_record.model_copy(
+            update={"digit_reasons": DigitReasons(reasons=(), followed_by_a_unit=0)}
+        )
+    )
+
+    assert "- the final setting: this is the designators comparison." in page
+    assert REPEATING_THE_FINAL in page
+    assert (
+        "SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 SPEC_TO_INSPECTOR_REASON_RULE=designators "
+        ".venv/bin/" in page
+    )
+
+
+def test_a_flag_taken_out_or_added_is_said_as_it_is(stage2_record: BenchRecord) -> None:
+    """The other two shapes a difference can take, each with what the protocol has."""
+    page = render_readme(
+        _with_server(
+            stage2_record,
+            command=FINAL_COMMAND.replace(
+                "--no-enable-prefix-caching --mm-processor-cache-gb 0 ", "--seed 7 "
+            ),
+        )
+    )
+
+    assert "no `--no-enable-prefix-caching`, which the protocol has" in page
+    assert "no `--mm-processor-cache-gb 0`, which the protocol has" in page
+    assert "`--seed 7`, which the protocol does not have" in page
+
+
+def test_a_start_no_script_could_write_does_not_name_one(stage2_record: BenchRecord) -> None:
+    """Never guessed: the flag is shown, and the page says the record names nothing that did."""
+    page = render_readme(
+        _with_server(
+            stage2_record,
+            command=FINAL_COMMAND.replace("--dtype=float16", "--dtype=bfloat16"),
+        )
+    )
+
+    assert "none of its settings" not in page
+    assert "`scripts/serve_vlm_xpu.sh start`" not in page
+    assert "the record does not name what started it" in page
+    assert "`--dtype bfloat16` where the protocol has `--dtype float16`" in page
+
+
+def test_a_record_with_no_command_line_does_not_claim_nothing_was_overridden(
+    stage2_record: BenchRecord,
+) -> None:
+    """A record that cannot say, says that it cannot."""
+    page = render_readme(_with_server(stage2_record, without="command"))
+
+    assert "none of its settings" not in page
+    assert "does not hold the command line of the judge's server" in page
+    assert "which server answered: command" in page
+
+
+def test_the_quantisation_is_on_the_page_beside_the_precision(stage2_record: BenchRecord) -> None:
+    """The final's `None` and FP8's word, each straight after the dtype that does not tell them."""
+    source = "the server's log, the engine's line, quantization=*"
+    row = "| dtype | `float16` | the server's log, the engine's line, dtype=torch.* |\n"
+
+    assert f"{row}| quantisation | `None` | {source} |\n" in render_readme(stage2_record)
+    assert f"{row}| quantisation | `fp8` | {source} |\n" in render_readme(
+        _with_server(stage2_record, quantisation="fp8")
+    )
+
+
+def test_a_record_from_before_the_quantisation_says_it_is_not_recorded(
+    stage2_record: BenchRecord,
+) -> None:
+    """Told apart from the engine's `None`, in the same place on the page."""
+    page = render_readme(_with_server(stage2_record, without="quantisation"))
+
+    assert (
+        "| dtype | `float16` | the server's log, the engine's line, dtype=torch.* |\n"
+        "| quantisation | not recorded | the record does not hold it |\n" in page
+    )
+    assert "`None`" not in page
+
+
+def test_a_server_nothing_was_read_of_has_no_row_for_the_quantisation(
+    stage2_record: BenchRecord,
+) -> None:
+    """The line that says nothing was read stands alone."""
+    judge = stage2_record.judge.model_copy(update={"server": {}})
+    page = render_readme(stage2_record.model_copy(update={"judge": judge}))
+
+    assert "Nothing could be read of the server." in page
+    assert "| quantisation |" not in page
+
+
+NOT_RECORDED = "| quantisation | not recorded | the record does not hold it |\n"
+
+
+@pytest.mark.parametrize(
+    ("name", "reason_rule"),
+    [("final", False), ("comparison-designators", True)],
+)
+def test_the_pages_not_rendered_again_differ_only_by_the_new_line(
+    name: str, reason_rule: bool
+) -> None:
+    """The final's page and designators' stand as written; this says what a render would change."""
+    folder = REPOSITORY / "results" / "stage2" / name
+    written = render_readme(
+        read_record(folder / "bench.json"), paired=figure_beside(folder / "bench.json")
+    )
+    assert NOT_RECORDED in written
+    expected = written.replace(NOT_RECORDED, "")
+    if reason_rule:
+        assert "SPEC_TO_INSPECTOR_REASON_RULE=designators " in expected
+        expected = expected.replace("SPEC_TO_INSPECTOR_REASON_RULE=designators ", "")
+
+    assert expected == (folder / "README.md").read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("name", ["comparison-fp8", "comparison-image-minimum"])
+def test_the_two_pages_rendered_again_are_what_their_records_write(name: str) -> None:
+    """Every word from the tracked record and its kept figure, whose digest still holds."""
+    folder = REPOSITORY / "results" / "stage2" / name
+    kept = figure_beside(folder / "bench.json")
+
+    assert kept is not None
+    assert render_readme(read_record(folder / "bench.json"), paired=kept) == (
+        folder / "README.md"
+    ).read_text(encoding="utf-8")

@@ -9,10 +9,13 @@ import stat
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
+
 from spec_to_inspector.judge.vllm_server import (
     OWN_MINIMUM,
     UNKNOWN,
     PrefixCacheCounters,
+    ServerReading,
     log_hit_rates,
     parse_counters,
     read_counters,
@@ -55,7 +58,7 @@ vllm:prefix_cache_hits_total{engine="0",model_name="qwen3-vl-8b-instruct"} 0.0
 ENGINE = (
     "(EngineCore pid=919) INFO 11-06 15:40:43 [core.py:116] Initializing a V1 LLM engine "
     f"(v{VERSION}) with config: model='{SNAPSHOT}', trust_remote_code=True, dtype=torch.float16, "
-    "max_seq_len=32768, seed=0, served_model_name=qwen3-vl-8b-instruct, "
+    "max_seq_len=32768, quantization=None, seed=0, served_model_name=qwen3-vl-8b-instruct, "
     "enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None"
 )
 RATE_LINE = (
@@ -250,6 +253,81 @@ def test_the_precision_falls_back_to_what_the_command_asked(tmp_path: Path) -> N
     assert reading.facts["dtype"] == "float16"
     assert reading.sources["dtype"] == "docker inspect, Args, --dtype"
     assert reading.engine_prefix_caching is None
+
+
+def _quantisation_read(tmp_path: Path, *, log: str, flag: str = "") -> ServerReading:
+    """Read a server whose engine's line and command line are as given.
+
+    Args:
+        tmp_path: Where to write the stand-in `docker`.
+        log: The container's log.
+        flag: What to add to the container's command line.
+
+    Returns:
+        What was read.
+    """
+    with _vllm() as server:
+        command = COMMAND.replace("--port 8131", f"--port {_port_of(server)} {flag}")
+        return read_server(server.url, "c", docker=_docker(tmp_path, command=command, log=log))
+
+
+def test_the_engines_line_says_which_quantisation_it_runs_at(tmp_path: Path) -> None:
+    """Its word and not the weights' path: `None` is what the engine says of the FP16 final."""
+    final = _quantisation_read(tmp_path, log=ENGINE)
+    fp8 = _quantisation_read(tmp_path, log=ENGINE.replace("quantization=None", "quantization=fp8"))
+
+    assert final.facts["quantisation"] == "None"
+    assert fp8.facts["quantisation"] == "fp8"
+    assert fp8.facts["dtype"] == "float16"
+    assert fp8.sources["quantisation"] == "the server's log, the engine's line, quantization=*"
+
+
+def test_the_quantisation_falls_back_to_the_flag_and_is_otherwise_not_guessed(
+    tmp_path: Path,
+) -> None:
+    """Without the line the flag says what was asked; with neither, the fact is left out."""
+    asked = _quantisation_read(tmp_path, log="", flag="--quantization fp8")
+    neither = _quantisation_read(tmp_path, log="")
+    fp8_weights = _quantisation_read(tmp_path, log="", flag="--served-model-name x-FP8")
+
+    assert asked.facts["quantisation"] == "fp8"
+    assert asked.sources["quantisation"] == "docker inspect, Args, --quantization"
+    assert "quantisation" not in neither.facts
+    assert "quantisation" not in neither.sources
+    assert "quantisation" not in fp8_weights.facts
+
+
+def test_a_line_with_no_word_on_the_quantisation_falls_back_too(tmp_path: Path) -> None:
+    """An engine that does not print it says nothing either way."""
+    silent = ENGINE.replace("quantization=None, ", "")
+
+    assert "quantisation" not in _quantisation_read(tmp_path, log=silent).facts
+    assert (
+        _quantisation_read(tmp_path, log=silent, flag="-q fp8").sources["quantisation"]
+        == "docker inspect, Args, --quantization"
+    )
+
+
+@pytest.mark.parametrize(
+    ("kept", "word"),
+    [
+        ("comparison-fp8/raw/server-fp8-whole.txt", "fp8"),
+        ("comparison-image-minimum/raw/server-image-minimum-whole.txt", "None"),
+        ("comparison-designators/raw/server-designators-whole.txt", "None"),
+        ("final/raw/server-before-restart.txt", "None"),
+    ],
+)
+def test_the_server_logs_kept_of_the_runs_give_the_field_as_the_reader_would(
+    tmp_path: Path, kept: str, word: str
+) -> None:
+    """The machine's own lines, kept under each folder's `raw/`, through the same code path."""
+    results = Path(__file__).parents[2] / "results" / "stage2"
+    log = (results / kept).read_text(encoding="utf-8", errors="replace")
+
+    reading = _quantisation_read(tmp_path, log=log)
+
+    assert reading.facts["quantisation"] == word
+    assert reading.facts["dtype"] == "float16"
 
 
 def test_an_image_with_no_repository_digest_is_named_by_its_id(tmp_path: Path) -> None:

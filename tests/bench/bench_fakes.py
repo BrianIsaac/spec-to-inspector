@@ -374,6 +374,27 @@ def fake_probes(*, up: bool = True) -> Probes:
 
 IMAGE_DIGEST = "sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490"
 COLD_FLAGS = ("--no-enable-prefix-caching", "--mm-processor-cache-gb 0")
+FINAL_SNAPSHOT = (
+    "/root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/"
+    "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
+)
+FP8_SNAPSHOT = (
+    "/root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct-FP8/snapshots/"
+    "9cdc6310a8cb770ce18efaf4e9935334512aee45"
+)
+FP8_REVISION = "9cdc6310a8cb770ce18efaf4e9935334512aee45"
+FINAL_KWARGS = """{"size": {"shortest_edge": 1048576, "longest_edge": 16777216}}"""
+IMAGE_MINIMUM_KWARGS = """{"size": {"shortest_edge": 65536, "longest_edge": 16777216}}"""
+FINAL_COMMAND = (
+    "-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve "
+    f"--model {FINAL_SNAPSHOT} --served-model-name qwen3-vl-8b-instruct --dtype=float16 "
+    "--enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window "
+    "--gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 "
+    """--limit-mm-per-prompt '{"image": 2}' """
+    f"--mm-processor-kwargs '{FINAL_KWARGS}' "
+    "--no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1"
+)
+"""The container's command line as the final's record holds it."""
 STARTED_AT = "2026-11-06T15:40:16.517468169Z"
 MACHINE_SERVER = ServerReading(
     facts={
@@ -383,7 +404,9 @@ MACHINE_SERVER = ServerReading(
         "max_model_len": "32768",
         "image": "intel/llm-scaler-vllm:0.26.0-b1",
         "image_digest": IMAGE_DIGEST,
+        "command": FINAL_COMMAND,
         "dtype": "float16",
+        "quantisation": "None",
     },
     sources={
         "vllm_version": "GET /version",
@@ -392,7 +415,9 @@ MACHINE_SERVER = ServerReading(
         "max_model_len": "GET /v1/models",
         "image": "docker inspect, Config.Image",
         "image_digest": "docker image inspect, RepoDigests",
+        "command": "docker inspect, Args",
         "dtype": "the server's log, the engine's line, dtype=torch.*",
+        "quantisation": "the server's log, the engine's line, quantization=*",
     },
     image_min_tokens="1024",
     cold_flags=COLD_FLAGS,

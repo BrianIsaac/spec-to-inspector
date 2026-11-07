@@ -11,12 +11,18 @@ Stage I's run on the laptop and a Stage II run on the machine write the same
 layout. What is true of only one of them, such as what the memory is read from
 or where the cold comes from, is in `notes_for`. The records already written
 are read as they are: a single protocol file reads as a list of one.
+
+The server's start is the protocol's, or one of its declared comparisons, or neither, and the record
+says which by the container's command line it holds: never by what a run was meant to be. A kept
+record's `not_final` stands as it was written, and the page reads it with what the record shows now.
 """
 
 import hashlib
+import re
+import shlex
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Final, Literal, cast
+from typing import Final, Literal, NamedTuple, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -34,7 +40,49 @@ SCORE_TOLERANCE: Final = 1e-3
 """Raw anomaly scores closer than this are the same score: the model repeats to about 2e-4, and
 inference on another device moves one by at most 5.3e-4. It also says what sits on a threshold: the
 boards there are at most 3.5e-5 from it, and the next nearest in any part is 9.5e-3 away."""
-REQUIRED_SERVER_FACTS: Final = ("image", "image_digest", "vllm_version", "dtype")
+REQUIRED_SERVER_FACTS: Final = ("image", "image_digest", "vllm_version", "dtype", "command")
+QUANTISATION_FACT: Final = "quantisation"
+"""The fact a record from before it was read does not hold. The protocol does not ask for it, so a
+final run's record need not have it; `dtype` says `float16` of FP16 and of FP8 alike."""
+
+PROTOCOL_SERVER_SCRIPT: Final = "scripts/serve_vlm_xpu.sh"
+FP8_SERVER_SCRIPT: Final = "results/stage2/comparison-fp8/serve-fp8.sh"
+FP8_WEIGHTS_REVISION: Final = "9cdc6310a8cb770ce18efaf4e9935334512aee45"
+_WEIGHTS: Final = "/root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct"
+_FP8_MODEL: Final = f"{_WEIGHTS}-FP8/snapshots/{FP8_WEIGHTS_REVISION}"
+_IMAGE_SIZE: Final = re.compile(r'\{"size": \{"shortest_edge": (\d+), "longest_edge": 16777216\}\}')
+_IMAGE_MINIMUM_SIZE: Final = '{"size": {"shortest_edge": 65536, "longest_edge": 16777216}}'
+_IMAGE_MINIMUM_TOKENS: Final = "64"
+_MODEL_FLAG: Final = "--model"
+_IMAGE_SIZE_FLAG: Final = "--mm-processor-kwargs"
+_CONTEXT_FLAGS: Final = ("--max-model-len", "--max-num-batched-tokens")
+_CACHE_FLAGS: Final = ("--no-enable-prefix-caching", "--mm-processor-cache-gb")
+_PLAIN_VARIABLES: Final = {"--port": "PORT", "--gpu-memory-util": "GPU_MEMORY_UTIL"}
+
+PROTOCOL_SERVER_START: Final[dict[str, str]] = {
+    _MODEL_FLAG: f"{_WEIGHTS}/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+    "--served-model-name": "qwen3-vl-8b-instruct",
+    "--dtype": "float16",
+    "--enforce-eager": "",
+    "--port": "8131",
+    "--host": "127.0.0.1",
+    "--trust-remote-code": "",
+    "--disable-sliding-window": "",
+    "--gpu-memory-util": "0.9",
+    "--max-model-len": "32768",
+    "--max-num-batched-tokens": "32768",
+    "--block-size": "64",
+    "--limit-mm-per-prompt": '{"image": 2}',
+    _IMAGE_SIZE_FLAG: '{"size": {"shortest_edge": 1048576, "longest_edge": 16777216}}',
+    "--no-enable-prefix-caching": "",
+    "--mm-processor-cache-gb": "0",
+    "-tp": "1",
+}
+"""The flags of `scripts/serve_vlm_xpu.sh start` with nothing overridden, a flag with no value as
+empty text. A test holds them to the script and to the final's record."""
+
+_DECLARED_OVERRIDES: Final = ((_MODEL_FLAG, _FP8_MODEL), (_IMAGE_SIZE_FLAG, _IMAGE_MINIMUM_SIZE))
+"""What the declared comparisons change in the server's start; `designators` changes nothing."""
 
 NOTES: Final[dict[str, str]] = {
     "protocol": (
@@ -92,6 +140,11 @@ STAGE_II_NOTES: Final[dict[str, str]] = {
     "on_threshold": (
         "the rule is a strict >, so float noise decides a board whose score sits on its threshold: "
         "those of this run's boards are under `on_threshold` and the figure is read with them known"
+    ),
+    "quantisation": (
+        "judge.server.quantisation is the engine's own word in its line in the server's log: "
+        "`None` for weights it runs unquantised, `fp8` for FP8's, under the same dtype; a record "
+        "without it was written before it was read, or the line and the flag could not be read"
     ),
 }
 
@@ -414,7 +467,9 @@ class JudgeSetup(BaseModel):
         url: The VLM server asked.
         model: The model's name on that server.
         server: Which server answered, each fact as text: what it says of
-            itself and, in a container, what the container says.
+            itself and, in a container, what the container says. `quantisation`
+            is the text `None` where the engine says so; left out, it is not
+            recorded.
         server_sources: Where each of those facts was read from; empty in a
             record from before it was written down.
         image_min_tokens: The fewest tokens the server gives an image: the
@@ -596,7 +651,8 @@ class BenchRecord(BaseModel):
             by kind; None in Stage I's record, and in one from before it was
             written down.
         not_final: What this run's record lacks of what the Stage II protocol
-            asks of a final run, in words; empty if it lacks nothing.
+            asks of a final run, in words, as it was written with the run; empty
+            if it lacked nothing. `still_not_final` adds what is now known.
         repeat: The comparison with the run before, where there was one of
             the same making.
         notes: What the fields mean.
@@ -682,11 +738,152 @@ def boards_on_threshold(
     )
 
 
+class ServerOverride(NamedTuple):
+    """A flag of the server's start that is not as the protocol has it.
+
+    Attributes:
+        flag: The flag.
+        here: Its value on this run's command line; empty for a flag with none, None if absent.
+        protocol: Its value in the protocol's start; the same two meanings.
+    """
+
+    flag: str
+    here: str | None
+    protocol: str | None
+
+
+class ServerStart(NamedTuple):
+    """How a run's server was started, as far as its command line says.
+
+    Attributes:
+        script: The script that writes that command line; None if none does.
+        variables: The variables to set for that script, each as `NAME=value`.
+        overrides: Every flag that differs from the protocol's start; none for the protocol's.
+    """
+
+    script: str | None
+    variables: tuple[str, ...]
+    overrides: tuple[ServerOverride, ...]
+
+
+def server_flags(command: str) -> dict[str, str] | None:
+    """Read the flags of `vllm serve` from a container's command line.
+
+    Args:
+        command: The command line, as the record's `judge.server.command` holds it.
+
+    Returns:
+        Each flag with its value, empty for one with none; None if it does not run `vllm serve` or
+        cannot be split.
+    """
+    _, found, arguments = command.rpartition("vllm serve ")
+    if not found:
+        return None
+    try:
+        tokens = shlex.split(arguments)
+    except ValueError:
+        return None
+    flags: dict[str, str] = {}
+    waiting: str | None = None
+    for token in tokens:
+        if token.startswith("-"):
+            flag, _, value = token.partition("=")
+            flags[flag] = value
+            waiting = None if value else flag
+        elif waiting is not None:
+            flags[waiting] = token
+            waiting = None
+    return flags
+
+
+def _script_variable(override: ServerOverride, flags: dict[str, str]) -> str | None:
+    """Name the script's variable that writes a flag this way.
+
+    Args:
+        override: The flag that differs.
+        flags: Every flag of the command line.
+
+    Returns:
+        The variable as `NAME=value`, or None if no variable of the script writes this.
+    """
+    flag, here, _ = override
+    if flag in _CACHE_FLAGS:
+        return "PREFIX_CACHE=on" if not any(name in flags for name in _CACHE_FLAGS) else None
+    if here is None:
+        return None
+    if flag in _PLAIN_VARIABLES:
+        return f"{_PLAIN_VARIABLES[flag]}={here}"
+    if flag in _CONTEXT_FLAGS:
+        return f"MAX_MODEL_LEN={here}" if len({flags.get(n) for n in _CONTEXT_FLAGS}) == 1 else None
+    size = _IMAGE_SIZE.fullmatch(here) if flag == _IMAGE_SIZE_FLAG else None
+    return f"IMAGE_MIN_PIXELS={size.group(1)}" if size else None
+
+
+def server_start(record: BenchRecord) -> ServerStart | None:
+    """Say how a run's server was started, from the command line its record holds.
+
+    Args:
+        record: The run's record.
+
+    Returns:
+        The start; None if the record holds no command line that can be read, of which nothing can
+        be said either way.
+    """
+    flags = server_flags(record.judge.server.get("command", ""))
+    if flags is None:
+        return None
+    overrides = tuple(
+        ServerOverride(flag, flags.get(flag), PROTOCOL_SERVER_START.get(flag))
+        for flag in dict.fromkeys([*PROTOCOL_SERVER_START, *flags])
+        if flags.get(flag) != PROTOCOL_SERVER_START.get(flag)
+    )
+    script = PROTOCOL_SERVER_SCRIPT
+    variables: dict[str, None] = {}
+    for override in overrides:
+        variable = _script_variable(override, flags)
+        if variable is not None:
+            variables[variable] = None
+        elif (override.flag, override.here) == (_MODEL_FLAG, _FP8_MODEL):
+            script = FP8_SERVER_SCRIPT
+        else:
+            return ServerStart(script=None, variables=(), overrides=overrides)
+    return ServerStart(script=script, variables=tuple(variables), overrides=overrides)
+
+
+def declared_comparisons(record: BenchRecord) -> list[str]:
+    """Name the protocol's declared comparisons a record is a run of.
+
+    Args:
+        record: The run's record.
+
+    Returns:
+        The comparisons, by the protocol's names; empty for the final setting. A second name means
+        more than one thing was changed, which the protocol does not declare.
+    """
+    judge = record.judge
+    flags = server_flags(judge.server.get("command", "")) or {}
+    names: list[str] = []
+    if (
+        flags.get(_MODEL_FLAG) == _FP8_MODEL
+        or judge.server.get("weights_revision") == FP8_WEIGHTS_REVISION
+    ):
+        names.append("fp8")
+    if (
+        flags.get(_IMAGE_SIZE_FLAG) == _IMAGE_MINIMUM_SIZE
+        or judge.image_min_tokens == _IMAGE_MINIMUM_TOKENS
+    ):
+        names.append("image-minimum")
+    if record.digit_reasons is not None:
+        names.append("designators")
+    return names
+
+
 def missing_for_final(record: BenchRecord) -> list[str]:
     """Say what a Stage II run's record lacks of what the protocol asks of a final run.
 
     The list is of what the record must hold. That three runs were made, and that no void rule was
-    met, are the protocol's other conditions: a run that met a void rule writes no record.
+    met, are the protocol's other conditions: a run that met a void rule writes no record. A run of
+    a declared comparison, or of any other start than the protocol's, is never a final run's.
 
     Args:
         record: The run's record.
@@ -726,9 +923,31 @@ def missing_for_final(record: BenchRecord) -> list[str]:
         missing.append("the checkpoints held to the digests the protocol names")
     if judge.warm_up is None or not judge.warm_up.asked:
         missing.append("the warm-up having been asked")
-    if record.digit_reasons is not None:
-        missing.append("the final setting: this is the designators comparison")
+    missing += [
+        f"the final setting: this is the {name} comparison" for name in declared_comparisons(record)
+    ]
+    start = server_start(record)
+    missing += [
+        f"the final setting: its server's `{override.flag}` is not the protocol's"
+        for override in (() if start is None else start.overrides)
+        if (override.flag, override.here) not in _DECLARED_OVERRIDES
+    ]
     return missing
+
+
+def still_not_final(record: BenchRecord) -> list[str]:
+    """Say what a kept record lacks: what it was written with, and what it shows now.
+
+    A record's `not_final` is what the code knew when it wrote the record, and the record is not
+    rewritten for what the code has learned since. The rest is a matter of what the record holds.
+
+    Args:
+        record: The run's record.
+
+    Returns:
+        What it lacks, in words, the written first; empty if it lacks nothing.
+    """
+    return list(dict.fromkeys([*record.not_final, *missing_for_final(record)]))
 
 
 def read_record(path: Path) -> BenchRecord:
@@ -760,6 +979,23 @@ def write_record(path: Path, record: BenchRecord) -> None:
     partial.replace(path)
 
 
+def _server_compared(record: BenchRecord, other: BenchRecord) -> dict[str, str]:
+    """Take a run's server facts as they compare with another run's.
+
+    Args:
+        record: The run.
+        other: The run it is compared with.
+
+    Returns:
+        Its facts, without the quantisation if the other's record is from before it was read.
+    """
+    return {
+        fact: value
+        for fact, value in record.judge.server.items()
+        if fact != QUANTISATION_FACT or QUANTISATION_FACT in other.judge.server
+    }
+
+
 def same_making(record: BenchRecord, other: BenchRecord) -> list[str]:
     """Say why two runs are not runs of the same thing.
 
@@ -782,7 +1018,7 @@ def same_making(record: BenchRecord, other: BenchRecord) -> list[str]:
         ("the labelled set", record.labels.file.sha256, other.labels.file.sha256),
         ("the specification", record.specification.pdf.sha256, other.specification.pdf.sha256),
         ("the judge's model", record.judge.model, other.judge.model),
-        ("the server", record.judge.server, other.judge.server),
+        ("the server", _server_compared(record, other), _server_compared(other, record)),
         ("the image token minimum", record.judge.image_min_tokens, other.judge.image_min_tokens),
         ("the areas per image", record.judge.max_regions, other.judge.max_regions),
         ("the reason's pattern", record.judge.reason_pattern, other.judge.reason_pattern),
