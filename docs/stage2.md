@@ -8,8 +8,8 @@ read against the machine's own baseline run.
 
 **This plan was written before the machine was seen, and was corrected to it
 on 7 November 2026.** Every figure marked "on the machine" was measured
-there on 6 November, in week 1 or week 2, or on 7 November in the final run and its
-comparisons. A file named alone is under `results/stage2/week1/`; the others are
+there on 6 November, in week 1 or week 2, or on 7 November in the final run, its
+comparisons and the whole batch. A file named alone is under `results/stage2/week1/`; the others are
 given with their whole path. Every figure marked "on the laptop" is in
 `results/stage1/`. A figure marked as a plan or an estimate has not been
 measured. Not yet run on the machine: a scanned specification, a picture of a good
@@ -48,11 +48,11 @@ reconnect.
 
 | Stage | Card | On the laptop | On the machine |
 | --- | --- | --- | --- |
-| Parse a born-digital specification | none: docling runs on the CPU | 0 GB | 0 GB (`machine.md`) |
+| Parse a born-digital specification | none: docling runs on the CPU | 0 GB | 0 GB (`machine.md`); the whole batch read card 0 at 42 to 44 MiB while parsing (`results/stage2/batch/README.md`) |
 | Parse a scanned specification | 0, in turn | not built in Stage I | a plan, not run: PaddleOCR-VL-1.6, 958.6M parameters at FP16, about 2 GB of weights plus its cache |
 | Train the anomaly model | 0 | 7.82 GiB allocated, 8.66 GiB reserved, for 904 images at 256 px | 7.76 to 7.79 GiB allocated, 8.87 to 8.91 GiB reserved by PyTorch's count; 10,345 to 10,785 MiB on the whole card. 8 trainings, each of the four parts twice (`results/stage2/week2/README.md`) |
-| Score boards | 0 | 0.62 GiB resident, 1.34 GiB peak allocated at batch 16 | 666 to 669 MB resident. By PyTorch's count, at batch 1: 1.16 to 1.17 GiB allocated, 1.19 GiB reserved; at batch 16: 1.30 to 1.31 GiB, 1.73 GiB. The whole card: 2,899 to 2,963 MiB over both batches, and 4,005 to 4,069 MiB in a scored run in the process that had just trained; 8 each (`results/stage2/week2/README.md`). Week 1's bench, with the laptop's checkpoints, read 2,594 MiB at most at batch 16 (`bench/card-memory.txt`), and the final run reads the same on the machine's (`results/stage2/final/README.md`) |
-| Judge | 1 | 4-bit (Q4_K_M) with a 16K context: 8,780 MiB peak | FP16 with a 32K context: 17.34 GiB of weights as vLLM loads them, 16.33 GiB on disk; the card at 26,960 MiB once up, 29,456 MiB at most over two bench runs (`machine.md`, `bench/card-memory.txt`), and 29,471, 29,471 and 29,784 MiB over the final's three, the last after a restart (`results/stage2/final/three-runs.md`). FP8, as a comparison: 10.88 GiB of weights as vLLM loads them, the card at 26,579 MiB once up, 29,515 MiB at most (`results/stage2/comparison-fp8/`) |
+| Score boards | 0 | 0.62 GiB resident, 1.34 GiB peak allocated at batch 16 | 666 to 669 MB resident. By PyTorch's count, at batch 1: 1.16 to 1.17 GiB allocated, 1.19 GiB reserved; at batch 16: 1.30 to 1.31 GiB, 1.73 GiB. The whole card: 2,899 to 2,963 MiB over both batches, and 4,005 to 4,069 MiB in a scored run in the process that had just trained; 8 each (`results/stage2/week2/README.md`). Week 1's bench, with the laptop's checkpoints, read 2,594 MiB at most at batch 16 (`bench/card-memory.txt`), and the final run reads the same on the machine's (`results/stage2/final/README.md`). The whole batch, reading both cards every 5 s, reads 2,595 to 2,596 MiB while the model scores (`results/stage2/batch/README.md`) |
+| Judge | 1 | 4-bit (Q4_K_M) with a 16K context: 8,780 MiB peak | FP16 with a 32K context: 17.34 GiB of weights as vLLM loads them, 16.33 GiB on disk; the card at 26,960 MiB once up, 29,456 MiB at most over two bench runs (`machine.md`, `bench/card-memory.txt`), and 29,471, 29,471 and 29,784 MiB over the final's three, the last after a restart (`results/stage2/final/three-runs.md`). The whole batch, reading both cards every 5 s: 29,784 to 29,786 MiB while the judge answers, 29,788 MiB at most over a whole run (`results/stage2/batch/README.md`). FP8, as a comparison: 10.88 GiB of weights as vLLM loads them, the card at 26,579 MiB once up, 29,515 MiB at most (`results/stage2/comparison-fp8/`) |
 
 The configuration this leads to:
 
@@ -237,17 +237,18 @@ this repository, measured on the machine.
 | 1, 6 to 12 November: bring-up | Read the cards the machine exposes (name, memory, whole card or virtual function). Install the pinned environment. Check PyTorch XPU and OpenVINO. Start the judge's server. | Done on 6 November, `results/stage2/week1/`: the machine's measured shape; the answer schema accepted with one fix |
 | 2, 13 to 19 November: the anomaly model | PatchCore on PyTorch XPU in FP32 and through OpenVINO | Done on 6 November UTC, ahead of its week, `results/stage2/week2/`: training time, images per second and peak memory on the machine, on all four parts, in two runs |
 | 3, 20 to 26 November: the judge at full precision | Qwen3-VL-8B-Instruct at FP16 and at FP8, with the whole specification in context | Done on 7 November, ahead of its week, `results/stage2/final/` and `results/stage2/comparison-fp8/`: answer time and clause-citation accuracy on the 200 labelled boards, under the protocol: FP16 as the final setting, FP8 as a declared comparison. Throughput is not read: vLLM gives no generation rate |
-| 4, 27 November to 4 December: the full run | A whole batch end to end; memory per stage against the plan above; the corrections loop across the batch | The final video recorded from a session on the machine; the repository with its measured B70 figures |
+| 4, 27 November to 4 December: the full run | A whole batch end to end; memory per stage against the plan above; the corrections loop across the batch | The whole batch done on 7 November, ahead of its week, `results/stage2/batch/`: 401 boards from the PDF to the reject cards, twice, in 10 min 33 s and 10 min 34 s; 186 accepted, 194 rejected, 21 referred, 194 reject cards; every board's outcome equal to the final's second run, and no accuracy figure. Specification to inspector: 11.77 and 11.78 minutes for one part, 23.45 for both. Memory per stage: in the table above, at its peak 2,596 MiB on card 0 while the model scores and 29,786 MiB on card 1 while the judge answers. Still to come, before the reservation ends on 2 December 2026 at 11:30: the corrections loop across the batch, under its own addition (`eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md`); if the hours allow, more than one question in flight, which the batch does not answer, since `inspect` asks one at a time; and the final video recorded from a session on the machine. The repository with its measured B70 figures by 4 December |
 
 What the end of the reservation does to week 4: of its eight days, about five
-and a half have the machine. The whole batch, the memory per stage, the
-corrections loop and the recording of the final video all have to be done before
-2 December at 11:30, with everything copied off by then. After that the week has
-no machine: what is left of it can only work from what was copied. The weeks are
-not re-planned here; that is the owner's.
+and a half have the machine. The whole batch and the memory per stage are done, ahead
+of the week, on 7 November. The corrections loop and the recording of the final video
+have to be done before 2 December at 11:30, with everything copied off by then. After
+that the week has no machine: what is left of it can only work from what was copied. The
+weeks are not re-planned here; that is the owner's.
 
 **The baseline.** What Stage II rests on is a final run on the machine under
-`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and its two dated additions
+`eval/PROTOCOL-stage2.md`, in force since 7 November 2026, and the two dated additions
+then in force
 (`eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md`,
 `eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md`): one setting declared
 before the run, FP16, with the anomaly models trained on the machine and an empty
@@ -326,13 +327,15 @@ never pooled.
    with nothing to compare it against. Showing the same place on a good
    board needs the boards registered first, since they wander in the frame;
    that is Stage II work. It changes the pipeline, so it gets its own dated
-   addition to the protocol when it is built.
+   addition to the protocol when it is built. It is built on the laptop with tests
+   first, and runs on the machine only if proven by 25 November.
 3. **The corrections loop, measured.** On the laptop a single correction
    moved the next similar board to the corrected clause in 7 pairs of 7, and
    also moved 14 of 19 boards that were rightly judged before. Stage II
    measures what a store of corrections does to the whole set, in both
-   directions, by a dated addition of its own; the store stays empty in the
-   baseline.
+   directions, by a dated addition of its own, written on 7 November before any
+   corrections run (`eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md`); the
+   store stays empty in the baseline.
 
 *Corrected 7 November 2026. The plan had set these three against the laptop's
 headline, as "the figure Stage II most needs to move", and had called full precision

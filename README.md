@@ -77,8 +77,8 @@ stage's inputs and outputs, and a second diagram of the deployment.
 
 The final run of Stage II, on 7 November 2026, on the organiser's machine: two
 Intel Arc Pro B70s of 32,656 MiB each in one bare-metal host. It follows
-`eval/PROTOCOL-stage2.md` and its two dated additions: one setting declared before
-the run, FP16, with the anomaly models trained on the machine and an empty corrections
+`eval/PROTOCOL-stage2.md` and the two dated additions then in force: one setting declared
+before the run, FP16, with the anomaly models trained on the machine and an empty corrections
 store, reported whatever it reads. It is not the best of several settings. Every figure
 below is copied from the records named at the end of this section.
 
@@ -187,6 +187,76 @@ number comes from the language model" stands on the final setting.
   it. Nothing could be tuned: the setting, the prompt, the schema, the clause table and the
   thresholds were fixed before the first run.
 
+### The whole batch, end to end
+
+The pipeline as a supplier's engineer runs it: one command per part, `spec-to-inspector
+inspect`, from the specification's PDF to the reject cards, over every board of the test
+split of PCB1 and PCB4, on the machine, in the final's setting. Two runs on 7 November 2026,
+the second after nothing was changed, under a dated addition of its own, with exit 0 on every
+step and no run repeated. "Quick start on the machine", step 11, has the command.
+
+**The 401 boards end to end, twice: 10 min 33 s and 10 min 34 s, from the PDF to the 194
+reject cards**, on the wrapper's clock, which includes the 5 s it waits after the last part.
+PCB1 took 5 min 2 s and 5 min 3 s, and PCB4 5 min 26 s in both.
+
+**It gives no accuracy figure.** The final figure stands and is not re-read from a batch. What
+the batch does show is that `inspect` and the bench are one pipeline in the one setting: **every
+board's outcome, in both runs, equals the final's second run.** Of the 401, none differs on
+score, flag, regions found, citation, heading, class, sentence, row, outcome or cause of referral.
+
+What became of the boards, the same in both runs. It counts what the pipeline did, and none of
+it is scored against a label:
+
+| Part | Boards | Accepted | Rejected | Referred | Referred, by cause | Reject cards |
+| --- | --- | --- | --- | --- | --- | --- |
+| PCB1 | 200 | 91 | 95 | 14 | no clause applies 1, not measured 8, outside every zone 5 | 95 |
+| PCB4 | 201 | 95 | 99 | 7 | not measured 3, outside every zone 4 | 99 |
+| Both | 401 | 186 | 194 | 21 | | 194 |
+
+**Figure 7, time by stage**, after the warm-up, over both parts. Each time with a spread is its
+median, then its 95th percentile.
+
+| Stage | Run 1 | Run 2 |
+| --- | --- | --- |
+| Parsing the specification, PCB1's run | 7.18 s | 7.14 s |
+| Parsing the specification, PCB4's run | 6.18 s | 5.85 s |
+| The anomaly model, per image, PCB1, with its file writing | 0.0987 s | 0.0993 s |
+| The anomaly model, per image, PCB4, with its file writing | 0.0990 s | 0.0990 s |
+| Measuring and drawing, per flagged image | 0.06 s, 0.24 s | 0.06 s, 0.25 s |
+| The VLM, per question | 2.13 s, 2.55 s | 2.13 s, 2.56 s |
+| The VLM, per flagged image | 2.13 s, 2.55 s | 2.13 s, 2.56 s |
+| A flagged image, end to end | 2.34 s, 2.73 s | 2.34 s, 2.73 s |
+| Flagged images | 217 | 217 |
+| Questions asked | 217 | 217 |
+| The judge's stage, both parts | 8 min 47 s | 8 min 47 s |
+| Writing the cards and the report, both parts | 0.11 s | 0.12 s |
+
+**Figure 8, minutes from a specification to a working inspector**, in both runs: **one part,
+11.77 for PCB1 and 11.78 for PCB4; both parts, 23.45.** Each is the parse measured in this run
+plus the fit recorded at week 2's first training, which is not repeated: 698.8 s for PCB1 and
+700.8 s for PCB4. The one-part figure is that part's own parse and its fit. The both-parts figure
+is the PCB1 run's parse and both fits, 1,399.6 s, since a specification is parsed once.
+
+**Figure 9, the peak on each card**, the whole card in MiB, from `xpu-smi`, both cards read every
+5 s:
+
+| Run | Card 0, while the anomaly model scores | Card 1, while the judge answers |
+| --- | --- | --- |
+| Run 1, PCB1 | 2,596 | 29,786 |
+| Run 1, PCB4 | 2,595 | 29,784 |
+| Run 2, PCB1 | 2,596 | 29,786 |
+| Run 2, PCB4 | 2,596 | 29,784 |
+| Run 1, the whole run, the wrapper's own readings | 2,596 | 29,788 |
+| Run 2, the whole run, the wrapper's own readings | 2,596 | 29,786 |
+
+A stage shorter than the 5 s can have no reading, so each peak is a sample's and can miss a
+shorter one. The batch's page has every stage's peak.
+
+**On disk.** For PCB1, then PCB4: the report with its stylesheet 0.08 and 0.08 MiB, the reject
+cards 0.31 and 0.35 MiB, and the run's whole directory, maps and masks included, 115.7 and 116.0
+MiB. The run directories stayed on the machine, so the cards did too. Run 2's reports are kept in
+this repository, and their links to the cards work on the machine, where the cards are.
+
 ### Where every record and log sits
 
 | What | Where |
@@ -202,8 +272,14 @@ number comes from the language model" stands on the final setting.
 | The `fp8` comparison | [`COMPARISON.md`](results/stage2/comparison-fp8/COMPARISON.md) in [`results/stage2/comparison-fp8/`](results/stage2/comparison-fp8/) |
 | The `image-minimum` comparison | [`COMPARISON.md`](results/stage2/comparison-image-minimum/COMPARISON.md) in [`results/stage2/comparison-image-minimum/`](results/stage2/comparison-image-minimum/) |
 | The `designators` comparison | [`COMPARISON.md`](results/stage2/comparison-designators/COMPARISON.md) in [`results/stage2/comparison-designators/`](results/stage2/comparison-designators/) |
+| The whole batch, every figure in one page | [`results/stage2/batch/README.md`](results/stage2/batch/README.md) |
+| The batch's records, run 2 and then run 1 | [`pcb1.json`](results/stage2/batch/pcb1.json), [`pcb4.json`](results/stage2/batch/pcb4.json); [`first-run.pcb1.json`](results/stage2/batch/first-run.pcb1.json), [`first-run.pcb4.json`](results/stage2/batch/first-run.pcb4.json) |
+| Every value that differs between the batch's two runs | [`results/stage2/batch/two-runs.md`](results/stage2/batch/two-runs.md) |
+| The batch's card readings and server logs, by run and part | Beside its records in [`results/stage2/batch/`](results/stage2/batch/); each record names its own |
+| The batch's wrapper, each step's start, end, exit and output, and run 2's reports | [`results/stage2/batch/raw/`](results/stage2/batch/raw/), with [`run.sh`](results/stage2/batch/raw/run.sh) and [`reports/`](results/stage2/batch/raw/reports/) |
+| A second training's digests against the named checkpoints, with every byte that differs | [`results/stage2/batch/raw/digests-week2.txt`](results/stage2/batch/raw/digests-week2.txt) |
 | The checkpoints a run is held to, and the region columns made from them | [`results/stage2/checkpoints.json`](results/stage2/checkpoints.json), [`results/stage2/region-columns/README.md`](results/stage2/region-columns/README.md) |
-| The protocol and its additions | [`eval/PROTOCOL-stage2.md`](eval/PROTOCOL-stage2.md), [the region columns](eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md), [the designators' pattern](eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md) |
+| The protocol and its additions | [`eval/PROTOCOL-stage2.md`](eval/PROTOCOL-stage2.md), [the region columns](eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md), [the designators' pattern](eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md), [the whole batch](eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md), and [the corrections loop](eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md), written before any corrections run |
 
 Each comparison's folder also holds its bench page and record, the first run beside the
 second, its server logs, `paired.json` with the sign test, and `two-runs.md` with every
@@ -399,9 +475,18 @@ uv run spec-to-inspector serve --spec specs/pcb-spec.clauses.json
 
 `inspect` prints one line per board, such as `bad-000: reject, clause 5.7
 Burn mark (page 5): ...`, and writes a `decision.json` beside each board's
-result. In the console, Batch now lists the boards; a board opens its
-reject card, where the override form records a correction. `inspect` also
-takes image files in place of `--run`, and `uv run spec-to-inspector
+result. It also writes the cards and the report as files, on every form of
+the verb: a `reject-card.html` for each rejected board, and a `report.html`
+with its stylesheet in the run's directory, named by a `Report:` line in
+its output. In the console, Batch now lists the boards; a board opens its
+reject card, where the override form records a correction, which a file
+cannot hold.
+
+`inspect` also takes image files, or `--test-split` for the part's whole
+test split, in place of `--run`. `--spec` takes a clause table or a PDF,
+which is parsed in the run and whose table goes into the run's directory.
+`--record` measures a run under the Stage II protocol's whole-batch
+addition: "Quick start on the machine", step 11. `uv run spec-to-inspector
 inspect --help` lists the rest.
 
 **8. Reproduce the figures.** Train PCB1 as well, start the server, and
@@ -424,9 +509,10 @@ environment or in a `.env` file at the repository root.
 For someone with the same machine: two Intel Arc Pro B70s, card 0 at PCI `0000:17:00.0`
 and card 1 at `0000:ba:00.0`, on Ubuntu 26.04.1 with the `xe` driver, Docker and `xpu-smi`,
 and a user in the `docker` and `render` groups, reached over ssh
-(`results/stage2/week1/machine.md`). These steps end in the command behind "Results on the
-machine". They were not run as one sequence from a clean machine: each is what was run
-there, and step 6 says where repeating it may part from the final.
+(`results/stage2/week1/machine.md`). Steps 9 and 10 are the command behind the final figure under
+"Results on the machine", and step 11 the one behind the whole batch. They were not run as one
+sequence from a clean machine: each is what was run there, and step 6 says where repeating it
+parts from the final.
 
 **Never a bare `uv run` on the machine.** It syncs back to the default groups and swaps
 in the CUDA wheels. Run from `.venv/bin/`, or set `UV_NO_SYNC=1`.
@@ -487,11 +573,19 @@ ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector train --category pcb1
 ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector train --category pcb4
 ```
 
-Two trainings on the machine gave identical memory banks, and scores and maps identical to the
-bit. Whether a new training's file has the same SHA-256 was not read. On any other digest the
-bench exits 1, writes nothing and names both digests, and the protocol calls such a run void.
-`SPEC_TO_INSPECTOR_CHECKPOINT_RECORD` can point it at a record of your own, in the same shape;
-what that gives is a figure of your own and not the final, and nobody has tried that route.
+**A new training's model is the same to the bit and its file is not, since the file holds its own
+output directory, so the bench refuses it and names both digests.** Week 2's second training, read
+against the named checkpoints before the whole batch, differs from them in 36 of 668,469,863 bytes
+on PCB1 and 35 on PCB4. Of the 274 members of each file's archive only two differ: its pickle, in
+2 bytes, `run-1` against `run-2` in the path the checkpoint callback writes into it, and its
+serialization id; the rest of those bytes are that id and the two members' CRCs. Every tensor is the
+same, and the two trainings gave identical memory banks, and scores and maps identical to the bit.
+Whether a training into the very same path repeats to the byte was not tried.
+
+On any other digest the bench exits 1 and writes nothing, `inspect --record` refuses too, and the
+protocol calls such a run void. `SPEC_TO_INSPECTOR_CHECKPOINT_RECORD` can point at a record of your
+own, in the same shape; that is a figure of your own and not the final, and nobody has tried that
+route.
 
 **7. Start the judge's server.** It runs Intel's llm-scaler image at its pinned tag, in a container
 given only card 1, and takes 90% of that card. The first start also pulls the image. With the
@@ -538,14 +632,57 @@ are started as its table writes them, each to its own folder, and `bench --again
 results/stage2/final/bench.json` writes figure 10. The tests the gate leaves out run on the machine
 as `ZE_AFFINITY_MASK=0 .venv/bin/python -m pytest -m 'data or xpu' -q`.
 
+**11. The whole batch, from the PDF to the reject cards.** One command per part, as
+`eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md` asks, with the server of step 7 up and
+`runs/` holding no corrections store. A part took 5 min 2 s to 5 min 26 s, so start it under `nohup`
+if your ssh may drop.
+
+```bash
+SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector inspect --category pcb1 \
+    --spec specs/pcb-spec.pdf --test-split --batch batch --record results/stage2/batch/pcb1.json
+SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector inspect --category pcb4 \
+    --spec specs/pcb-spec.pdf --test-split --batch batch --record results/stage2/batch/pcb4.json
+```
+
+- **`--spec` takes the PDF**, parsed in the run. Its table goes into the run's directory as
+  `clauses.json`, and nothing is written beside the PDF.
+- **`--test-split`** scores the part's whole VisA test split, good and anomalous, as the bench does.
+- **`--batch batch`** scores into `runs/<part>/batch`, replaced whole, apart from every bench's
+  `runs/<part>/bench`.
+- **`--record`** measures the run and writes figures 7, 8 and 9 and the counts into that file, with
+  each card's readings and the server's log of the run beside it. It holds to the final's setting
+  as the bench does: the tracked clause table, the named checkpoints, an empty store, the warm-up,
+  asked cold. If any of them fails it exits 1 and writes no record.
+
+Each rejected board gets `runs/<part>/batch/<image>/reject-card.html`, and the run
+`runs/<part>/batch/report.html` with its stylesheet. Those are written on every form of the verb,
+and only `--record` holds the model to a digest: without it `inspect` scores with the model it finds,
+so your own training gives you the boards, the cards and the report, and no record.
+
+The record's second run is the same commands again, each record first copied to
+`first-run.<part>.json`. The wrapper that ran them, reading both cards across the two parts, is
+`results/stage2/batch/raw/run.sh`; step 1's copy leaves `results/` out, so send it over first. Back on
+a clone, with the wrapper's files under `raw/`, `uv run python -m spec_to_inspector.batch.page
+results/stage2/batch` makes the page and `two-runs.md`, and sets the boards against
+`results/stage2/final/bench.json`.
+
 ## Model information
 
-| Model | Role | Version | Size and precision | Licence | Stage I, the laptop | Stage II, the machine |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, has run as a declared comparison: 51 of 135, and no figure separates it from the final run | Apache-2.0 | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context: a median of 2.12 s and a 95th percentile of 2.54 to 2.56 s to answer one area, cold, and 29,471 to 29,784 MiB on the card at its peak (the final's 3 runs) |
-| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: 692.7 to 703.5 s to train a part and 10,345 to 10,785 MiB on the card at its peak (8 trainings); 34.69 to 35.22 images a second at batch 16, the model alone. Anomalib's OpenVINO export was measured beside it and is not the path: "Stage II on the Intel Arc Pro B70" has both |
-| [docling](https://github.com/docling-project/docling)'s layout and table models | The parser: reads the specification PDF | as docling 2.135.0 fetches them: `docling-layout-heron`, `docling-models` v2.3.0 | about 530 MB together | Apache-2.0 and CDLA-Permissive-2.0 (docling itself is MIT) | CPU | CPU |
-| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 | not built | planned, at FP16; not run |
+| Model | Role | Version | Size and precision | Licence |
+| --- | --- | --- | --- | --- |
+| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, has run as a declared comparison: 51 of 135, and no figure separates it from the final run | Apache-2.0 |
+| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 |
+| [docling](https://github.com/docling-project/docling)'s layout and table models | The parser: reads the specification PDF | as docling 2.135.0 fetches them: `docling-layout-heron`, `docling-models` v2.3.0 | about 530 MB together | Apache-2.0 and CDLA-Permissive-2.0 (docling itself is MIT) |
+| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 |
+
+Where each runs:
+
+| Model | Stage I, the laptop | Stage II, the machine |
+| --- | --- | --- |
+| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context: a median of 2.12 s and a 95th percentile of 2.54 to 2.56 s to answer one area, cold, and 29,471 to 29,784 MiB on the card at its peak (the final's 3 runs) |
+| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: 692.7 to 703.5 s to train a part and 10,345 to 10,785 MiB on the card at its peak (8 trainings); 34.69 to 35.22 images a second at batch 16, the model alone. Anomalib's OpenVINO export was measured beside it and is not the path: "Stage II on the Intel Arc Pro B70" has both |
+| [docling](https://github.com/docling-project/docling)'s layout and table models | CPU | CPU |
+| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | not built | planned, at FP16; not run |
 
 No model is trained or fine-tuned except PatchCore's memory bank, which is
 built from a part's good images in about 12 minutes. `THIRD_PARTY.md` lists
@@ -556,8 +693,8 @@ every model, dataset and library with its licence and source.
 The machine is the subject of Stage II: the organiser's rules ask for operation
 and validation on it, and no comparison with a team's own hardware. Week 1's
 figures are in `results/stage2/week1/`, week 2's in `results/stage2/week2/`, and the
-final run's and the three comparisons' under "Results on the machine" above.
-The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, with two
+final run's, the three comparisons' and the whole batch's under "Results on the machine" above.
+The protocol is `eval/PROTOCOL-stage2.md`, in force since 7 November 2026, with its
 dated additions, and the plan, corrected to the machine, is in full in
 `docs/stage2.md`:
 
@@ -588,7 +725,8 @@ Every line has run. On the machine that means the judge at FP16, and at FP8 as a
 declared comparison, and PatchCore trained and scored on XPU in FP32, on all four
 parts, in two runs. Anomalib's OpenVINO export has run too and is measured below;
 nothing in the pipeline runs through it. The bench has run on the models trained on
-the machine: that is the final run.
+the machine: that is the final run. So has `inspect`, from the PDF to the reject cards: that
+is the whole batch.
 
 - **The machine.** Two whole Arc Pro B70s of 32,656 MiB each in one bare-metal
   host, not a virtual machine, reached over ssh, with outbound HTTPS open
@@ -637,13 +775,18 @@ the machine: that is the final run.
   which stays in the final figure. A figure is said to have moved only on a paired,
   two-sided exact sign test below 0.05 on the 135, and no figure separates any of the
   three from the final run.
+- **The whole batch.** Done on 7 November 2026, week 4's first item, under a dated addition
+  of its own: the 401 boards from the PDF to the reject cards, twice, in 10 min 33 s and 10 min
+  34 s; 186 accepted, 194 rejected, 21 referred. Every board's outcome equals the final's second
+  run, and it gives no accuracy figure. "Results on the machine" has its figures.
 - **What is still to be measured**, to 4 December, when the video is due, with the
   machine's reservation ending 2 December at 11:30, so everything run on it and the
   recording of the final video come before then: whether a picture of a good board
   beside the crop and the corrections loop move the machine's own baseline, each by a
-  dated addition to the protocol when built, and a whole batch end to end. The judge's
-  answer time at FP16 and at FP8 is measured; its throughput is not read, since vLLM
-  gives no generation rate.
+  dated addition to the protocol, the picture only if it is proven by 25 November; and, if the
+  hours allow, more than one question in flight, which the batch does not answer, since `inspect`
+  asks one at a time. The judge's answer time at FP16 and at FP8 is measured; its throughput
+  is not read, since vLLM gives no generation rate.
 
 **The anomaly model on the machine**, measured on card 0 on 6 November 2026 with the
 judge's server up on card 1 (`results/stage2/week2/README.md`, which has every command).
@@ -708,14 +851,16 @@ src/spec_to_inspector/
     corrections/   the engineer's overrides, stored and recalled
     app/           the inspection console (FastAPI, server-rendered)
     bench/         the measurement harness behind the figures above
+    batch/         the reject cards and the report as files, and a whole batch's record
     cli.py         one entry point: parse, train, inspect, correct, bench, serve
 tests/             mirrors src/
 specs/             the demonstration specification: Markdown source, PDF, clause table
 eval/              the labelled clause set, its mapping table, the two protocols and
-                   the second's two dated additions
+                   the second's dated additions
 results/stage1/    the laptop's measured figures, as JSON, and the page written from them
 results/stage2/    the machine's: its shape, week 1's bring-up figures and logs,
-                   week 2's anomaly model, the final run and its three comparisons
+                   week 2's anomaly model, the final run and its three comparisons,
+                   the whole batch
 scripts/           the judge's two servers, the machine's environment, the
                    specification's rebuild, the console walk
 docs/              architecture.md, stage2.md, and the reject card's screenshot
