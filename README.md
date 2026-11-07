@@ -73,6 +73,143 @@ the part does not have, or a class that is not the clause's, becomes "needs
 review", never a guess. `docs/architecture.md` has this diagram with each
 stage's inputs and outputs, and a second diagram of the deployment.
 
+## Results on the machine
+
+The final run of Stage II, on 7 November 2026, on the organiser's machine: two
+Intel Arc Pro B70s of 32,656 MiB each in one bare-metal host. It follows
+`eval/PROTOCOL-stage2.md` and its two dated additions: one setting declared before
+the run, FP16, with the anomaly models trained on the machine and an empty corrections
+store, reported whatever it reads. It is not the best of several settings. Every figure
+below is copied from the records named at the end of this section.
+
+**The final figure: strict clause-citation accuracy, 34.1%. The judge cited the
+right clause on 46 of the 135 single-defect boards, 95% interval 26.6% to 42.4%,
+scored on the most anomalous area.**
+
+**The lenient figure, under its own name and never pooled with the strict one: 70.8%,
+46 of 65 multi-defect boards, 58.8% to 80.4%.** It counts a citation of any of the
+board's defect types, and it claims only that.
+
+| Figure | Measured |
+| --- | --- |
+| Clause-citation accuracy, strict, single-defect boards | 34.1% (46 of 135), 26.6% to 42.4% |
+| The same, PCB1 only | 45.1% (41 of 91), 35.2% to 55.3% |
+| The same, PCB4 only | 11.4% (5 of 44), 5.0% to 24.0% |
+| The lenient figure, multi-defect boards | 70.8% (46 of 65), 58.8% to 80.4% |
+| The per-region figure: boards with one defect type under the most anomalous area | 36.2% (54 of 149), 29.0% to 44.2% |
+| Single-defect boards flagged by the anomaly model | 93.3% (126 of 135), 87.8% to 96.5% |
+| The most anomalous area lies on the labelled defect | 81.5% (110 of 135), 74.1% to 87.1% |
+| Strict accuracy on the flagged boards only, conditional | 36.5% (46 of 126), 28.6% to 45.2% |
+| Strict accuracy where that area lies on the defect, conditional | 38.2% (42 of 110), 29.6% to 47.5% |
+| Good boards rejected, the false rejects | 8.0% (16 of 201), 5.0% to 12.5% |
+| Good boards flagged by the anomaly model | 13.9% (28 of 201), 9.8% to 19.4% |
+| The judge's answer to one area, asked cold | median 2.12 s, p95 2.54 s (217 answers) |
+| A flagged board, end to end | median 2.33 s, p95 2.73 s (217 boards) |
+| Peak on card 0, the anomaly model | 2,594 MiB |
+| Peak on card 1, the judge | 29,471 MiB; 29,784 MiB after the restart |
+| From a new specification to a working inspector, one part | 11.8 minutes: the parse measured here, the fit as recorded at training and not repeated |
+
+Every proportion is a count of its N with the 95% Wilson score interval. The times and
+the first peak on card 1 are the tracked run's, the second of the three below.
+
+**Three runs agree on every counted figure.** All three are the protocol's one declared
+setting, and the third came after the protocol's server restart. Across figures 1 to 6,
+343 fields, none differs. Each run against the one before: 401 images, 0 flags, 0
+scores, 0 board outcomes; 217 areas, 0 headings, 0 classes, 0 sentences. No void rule
+was met and no run was repeated. Times and memory do differ, and every value is in
+[`three-runs.md`](results/stage2/final/three-runs.md).
+
+**One of the 46 hangs on float noise.** PCB1 `bad-029` scores 31.319490 against a
+threshold of 31.319489: 1.9e-6 above it under the strict `>`, so it is flagged, and it
+is cited rightly. Unflagged it would be wrong, and the figure would read 45 of 135. The
+rule was declared before the run, with no margin and no `>=`, and every page of the
+run names the board, as the protocol's addition on the region columns asks. The figure
+is read with that known. The other boards on their thresholds are listed in
+[`FINAL.md`](results/stage2/final/FINAL.md).
+
+**Week 1's bring-up reads the same counts, and it is not a copy.** The first bench on the
+machine, never final and with the laptop's anomaly checkpoints, also reads 46 of 135.
+They are not the same 46 answers: 4 of the 135 differ, two each way. PCB1 `bad-006` and
+`bad-029` are right only in the final run, and `bad-041` and `bad-046` only in week 1.
+
+### The three comparisons
+
+Each was declared in the protocol in advance, and each is the final setting with one
+thing changed, run twice, in files of its own. None replaces the final figure, whichever
+reads higher. A figure is said to have moved only on a paired, two-sided exact sign test
+below 0.05 on the 135. Each comparison is tested on its own at 0.05, with no correction
+for there being three.
+
+| Comparison | Strict | Right only on the final, only on the comparison | Sign test on the 135 | The lenient figure, not primary | Sign test on the 65 |
+| --- | --- | --- | --- | --- | --- |
+| `fp8` | 37.8% (51 of 135), 30.0% to 46.2% | 1, 6 | p = 0.125 | 73.8% (48 of 65), 62.0% to 83.0% | p = 0.625 |
+| `image-minimum` | 33.3% (45 of 135), 25.9% to 41.6% | 8, 7 | p = 1 | 70.8% (46 of 65), 58.8% to 80.4% | p = 1 |
+| `designators` | 34.1% (46 of 135), 26.6% to 42.4% | 0, 0 | p = 1 | 69.2% (45 of 65), 57.2% to 79.1% | p = 1 |
+
+The bench's words on all three strict rows are **"no figure separates them"**, and on all
+three lenient rows, "the lenient figure does not pass the test, so it is no evidence of a
+change".
+
+- **`fp8`: the judge's weights are Qwen's own FP8 build.** No figure separates them.
+- **`image-minimum`: the model's own image minimum, 64 tokens for a small crop against the
+  final's 1,024.** No figure separates them. Its two runs are the one repeat here that
+  differs: strict and lenient are equal, and 12 of the 332 fields of figures 1 to 6 differ,
+  all from one good board's answer. Every value is in its `two-runs.md`.
+- **`designators`: designators such as `R12` let through the reason's digit ban.** No figure
+  separates them: 0 of the 135 boards differ, and with fewer than 6 no split can reach 0.05.
+
+The `designators` comparison was declared to show that a pattern for designators never
+passes a size. **The pattern alone does not show that on these boards. The pattern with
+the answer's validation does.** By the protocol's test, one size in any listed reason, it
+passed one, `½ mm` on PCB4 `bad-094`, in both runs. `½` is not one of the characters
+`[0-9]`, so this pattern lets it through and so does the final's, and it is not a
+designator. The validation refused it in every run, and no answer that stood holds a size.
+The designator's own route passed no size in these runs: every digit in `0-9` is in `R400`
+or the marking `HC-SR04`, neither followed by a unit. Asked to "put a size in digits" on
+three boards under this pattern, the judge gave no digit in any constrained answer; with
+no schema it gave three sizes, each refused by the validation. So none passed under that
+question on these boards, and that is all it says. The final figure keeps the ban, and "No
+number comes from the language model" stands on the final setting.
+
+### What these figures are not
+
+- **Not held out.** VisA's PCB test split is the only labelled data there is. The anomaly
+  model's threshold is chosen on this same split, the judge's prompt was written with sight
+  of answers on some of these images, and the protocol was written after a bench had been
+  read on the same set.
+- **Not a figure for the corrections loop.** The store is empty throughout.
+- **One specification, one model, one precision, one machine.**
+- **Not a figure against Stage I.** "Results on the laptop" below comes from other
+  checkpoints under another protocol, and the host, the precision, the server and the answer
+  pattern differ too. The experiment that would separate them is not run, so no figure
+  separates them.
+- **Not run blind.** Whoever ran it had read week 1's bench and the whole-part trials before
+  it. Nothing could be tuned: the setting, the prompt, the schema, the clause table and the
+  thresholds were fixed before the first run.
+
+### Where every record and log sits
+
+| What | Where |
+| --- | --- |
+| The figure, the three runs, the boards on the threshold and the comparisons, in one page | [`results/stage2/final/FINAL.md`](results/stage2/final/FINAL.md) |
+| Every figure the protocol asks for, on the page the bench wrote | [`results/stage2/final/README.md`](results/stage2/final/README.md) |
+| The setting, declared and committed before the first run | [`results/stage2/final/SETTING.md`](results/stage2/final/SETTING.md) |
+| The tracked record, run 2 | [`results/stage2/final/bench.json`](results/stage2/final/bench.json) |
+| Run 1, and run 3 after the restart | [`first-run.json`](results/stage2/final/first-run.json), [`first-run.md`](results/stage2/final/first-run.md); [`after-restart.json`](results/stage2/final/after-restart.json), [`after-restart.md`](results/stage2/final/after-restart.md) |
+| Every value that differs between the three | [`results/stage2/final/three-runs.md`](results/stage2/final/three-runs.md) |
+| The judge's server log of each run | [run 1](results/stage2/final/bench.server-log.20261107T055656Z.txt), [run 2](results/stage2/final/bench.server-log.20261107T060922Z.txt), [run 3](results/stage2/final/after-restart.server-log.20261107T062331Z.txt) |
+| Each run's start, end, exit and output, and the server's restart | [`results/stage2/final/raw/`](results/stage2/final/raw/) |
+| The `fp8` comparison | [`COMPARISON.md`](results/stage2/comparison-fp8/COMPARISON.md) in [`results/stage2/comparison-fp8/`](results/stage2/comparison-fp8/) |
+| The `image-minimum` comparison | [`COMPARISON.md`](results/stage2/comparison-image-minimum/COMPARISON.md) in [`results/stage2/comparison-image-minimum/`](results/stage2/comparison-image-minimum/) |
+| The `designators` comparison | [`COMPARISON.md`](results/stage2/comparison-designators/COMPARISON.md) in [`results/stage2/comparison-designators/`](results/stage2/comparison-designators/) |
+| The checkpoints a run is held to, and the region columns made from them | [`results/stage2/checkpoints.json`](results/stage2/checkpoints.json), [`results/stage2/region-columns/README.md`](results/stage2/region-columns/README.md) |
+| The protocol and its additions | [`eval/PROTOCOL-stage2.md`](eval/PROTOCOL-stage2.md), [the region columns](eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md), [the designators' pattern](eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md) |
+
+Each comparison's folder also holds its bench page and record, the first run beside the
+second, its server logs, `paired.json` with the sign test, and `two-runs.md` with every
+value that differs. Read `COMPARISON.md` first: two lines of the bench's page are wrong for
+`fp8` and `image-minimum`, and it says which. No figure is affected.
+
 ## Results on the laptop
 
 Stage I's figures, which are history for Stage II: nothing below is set against
@@ -176,7 +313,7 @@ What you need: Linux on x86-64, [uv](https://docs.astral.sh/uv/) and git.
 uv installs Python 3.12 itself. The first three steps need no GPU. This quick
 start is the laptop's: training and judging here need an NVIDIA GPU with 12 GB
 and a driver that supports CUDA 13 (580 or later). On the organiser's machine
-they run on its Intel cards instead: see "Stage II on the Intel Arc Pro B70".
+they run on its Intel cards instead: see "Quick start on the machine".
 
 **1. Install, and check the build.** With an empty uv cache `uv sync`
 fetches 186 packages, most of the bulk being PyTorch and its CUDA
@@ -282,6 +419,125 @@ Data, weights and run outputs live in `data/`, `models/` and `runs/`, all
 ignored by git. To keep them elsewhere, set `SPEC_TO_INSPECTOR_DATA_DIR`,
 `SPEC_TO_INSPECTOR_MODELS_DIR` and `SPEC_TO_INSPECTOR_RUNS_DIR`, in the
 environment or in a `.env` file at the repository root.
+
+## Quick start on the machine
+
+For someone with the same machine: two Intel Arc Pro B70s, card 0 at PCI `0000:17:00.0`
+and card 1 at `0000:ba:00.0`, on Ubuntu 26.04.1 with the `xe` driver, Docker and `xpu-smi`,
+and a user in the `docker` and `render` groups, reached over ssh
+(`results/stage2/week1/machine.md`). These steps end in the command behind "Results on the
+machine". They were not run as one sequence from a clean machine: each is what was run
+there, and step 6 says where repeating it may part from the final.
+
+**Never a bare `uv run` on the machine.** It syncs back to the default groups and swaps
+in the CUDA wheels. Run from `.venv/bin/`, or set `UV_NO_SYNC=1`.
+
+**1. Copy the tree.** From a clone of this repository on your own computer, with `<machine>`
+your ssh host. The copy leaves `results/` out, so it needs the record of the checkpoints
+sent after it: without that record a bench stops with a message.
+
+```bash
+rsync -az --delete --exclude .venv --exclude .git --exclude data --exclude results \
+    --exclude .pytest_cache --exclude .ruff_cache --exclude .hypothesis --exclude models \
+    --exclude runs --exclude .env --exclude .playwright-mcp --exclude __pycache__ \
+    ./ <machine>:spec-to-inspector/
+rsync -azR results/stage2/checkpoints.json <machine>:spec-to-inspector/
+```
+
+**2. Install the environment.** On the machine from here on, in `~/spec-to-inspector`.
+`scripts/setup_xpu.sh` syncs the lockfile's `xpu` group in place of the default `cuda` one.
+
+```bash
+curl -LsSf https://astral.sh/uv/0.13.5/install.sh | sh
+scripts/setup_xpu.sh
+```
+
+**3. Write the `.env`.** The anomaly model's device, and the judge's card as `xpu-smi` takes
+it. That is a PCI address because `ZE_AFFINITY_MASK` does not renumber one; left unset, it
+means the first card, the anomaly model's. `.env.example` names every setting.
+
+```bash
+cat > .env <<'EOF'
+SPEC_TO_INSPECTOR_DEVICE=xpu
+SPEC_TO_INSPECTOR_VLM_CARD=0000:ba:00.0
+EOF
+```
+
+**4. Download the judge's weights, by revision.** 16.33 GiB on disk. The server's start reads
+them offline from this cache and fetches nothing.
+
+```bash
+HF_HOME=~/hf-cache .venv/bin/hf download Qwen/Qwen3-VL-8B-Instruct \
+    --revision 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b
+```
+
+**5. Fetch the data.** The same command as the laptop's, under a minute on the machine.
+
+```bash
+.venv/bin/spec-to-inspector data fetch
+```
+
+**6. The anomaly models.** The bench holds a run to two checkpoints by SHA-256,
+`results/stage2/checkpoints.json`: the first training on the machine, of PCB1 and PCB4, 668 MB
+each and not in this repository. If you hold them, set `SPEC_TO_INSPECTOR_MODELS_DIR` to the
+directory above `patchcore/<part>/model.ckpt` and skip this step. Otherwise train both, 692.7 to
+703.5 s a part on card 0, with up to 10,785 MiB on the card:
+
+```bash
+ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector train --category pcb1
+ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector train --category pcb4
+```
+
+Two trainings on the machine gave identical memory banks, and scores and maps identical to the
+bit. Whether a new training's file has the same SHA-256 was not read. On any other digest the
+bench exits 1, writes nothing and names both digests, and the protocol calls such a run void.
+`SPEC_TO_INSPECTOR_CHECKPOINT_RECORD` can point it at a record of your own, in the same shape;
+what that gives is a figure of your own and not the final, and nobody has tried that route.
+
+**7. Start the judge's server.** It runs Intel's llm-scaler image at its pinned tag, in a container
+given only card 1, and takes 90% of that card. The first start also pulls the image. With the
+weights in the page cache it is up in 124 to 126 s. Override none of the script's settings: the
+protocol's run is the script as it stands. It has no restart policy, so a reboot ends it.
+
+```bash
+scripts/serve_vlm_xpu.sh start
+```
+
+**8. The warm-up needs nothing from you.** The bench asks one question before its clock starts, and
+does not record the answer. The first question after a server start compiles a kernel: 6.28 s in
+the run straight after a restart, against 2.00 s and 1.98 s in the runs on a server already asked.
+
+**9. Run the bench**, as the protocol writes it. `SPEC_TO_INSPECTOR_DEVICE=xpu` is in the `.env` too;
+the protocol writes it out. `ZE_AFFINITY_MASK=0` keeps the anomaly model on card 0, since Anomalib
+reads `devices=1` as the card numbered 1, the judge's. Never the bench's default paths: they are
+`results/stage1/`, which stands as measured. A run takes about 10 minutes (9 min 56 s, 9 min 58 s
+and 10 min 3 s over the final's three), so start it under `nohup` if your ssh may drop.
+
+```bash
+SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector bench \
+    --results results/stage2/final/bench.json --readme results/stage2/final/README.md
+```
+
+It writes the record, the page and the server's log of the run beside them, and scores into
+`runs/<part>/bench`, which every bench replaces whole. A run with a correction in a prompt is void,
+so `runs/` must hold no corrections store.
+
+**10. Three runs make a figure final.** Run the same command again, and it records how many answers
+differ from the first. Then restart the server and run it a third time against a copy of the second:
+
+```bash
+scripts/serve_vlm_xpu.sh stop
+scripts/serve_vlm_xpu.sh start
+cp results/stage2/final/bench.json results/stage2/final/after-restart.json
+SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector bench \
+    --results results/stage2/final/after-restart.json \
+    --readme results/stage2/final/after-restart.md
+```
+
+The protocol's "The run" and "Reproducing" have the void rules and the rest. The three comparisons
+are started as its table writes them, each to its own folder, and `bench --against
+results/stage2/final/bench.json` writes figure 10. The tests the gate leaves out run on the machine
+as `ZE_AFFINITY_MASK=0 .venv/bin/python -m pytest -m 'data or xpu' -q`.
 
 ## Model information
 
