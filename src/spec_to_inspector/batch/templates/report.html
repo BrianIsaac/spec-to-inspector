@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{{ style }}">
 <style>
   .report-table { width: 100%; border-collapse: collapse; font-size: 16px; }
-  .report-table th, .report-table td { padding: 8px 12px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+  .report-table th, .report-table td { padding: 8px 12px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: baseline; }
   .report-table th { color: var(--muted); font-size: 14px; letter-spacing: 0.07em; text-transform: uppercase; }
   .report-table tr:last-child td { border-bottom: 0; }
   .report-table .board { white-space: nowrap; font-weight: 600; }
@@ -37,7 +37,7 @@
       <td class="board">{% if row.card %}<a href="{{ row.card }}">{{ row.image_id }}</a>{% else %}{{ row.image_id }}{% endif %}</td>
       <td class="outcome"><span class="badge badge-{{ row.status }}">{{ row.outcome }}</span></td>
       <td>{% if row.clause %}{{ row.clause.id }} {{ row.clause.title }} <span class="muted small">page {{ row.clause.page }}</span>{% endif %}</td>
-      <td>{{ row.reason }}</td>
+      <td>{% if row.reason %}{{ row.reason[:1]|upper }}{{ row.reason[1:] }}.{% endif %}</td>
     </tr>
     {% endfor %}
     </tbody>

@@ -78,6 +78,7 @@ def test_the_report_lists_every_board_with_a_link_to_each_card(run: Path) -> Non
     assert "1 accepted" in report
     assert "1 referred" in report
     assert "accura" not in report.lower()
+    assert "<td>The anomaly score" in report
 
 
 def test_the_sizes_are_read_from_the_disk(run: Path) -> None:
