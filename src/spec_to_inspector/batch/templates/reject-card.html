@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reject: {{ decision.image_id }} | Spec to Inspector</title>
+<link rel="stylesheet" href="../{{ style }}">
+</head>
+<body>
+<main class="page">
+<div class="crumbs">
+  <p class="trail"><a href="../{{ report }}">Batch {{ run_name }}, part {{ decision.category }}</a> / <b>Board {{ decision.image_id }}</b></p>
+</div>
+{% set clause = decision.clause %}
+<section class="verdict verdict-reject" id="verdict">
+  <span class="badge badge-reject">Reject</span>
+  <div class="verdict-text">
+    <h1>{% if clause %}Clause {{ clause.id }} {{ clause.title }} <span class="page-ref">page {{ clause.page }} of the specification</span>{% else %}Rejected{% endif %}</h1>
+    <p class="reason">{{ decision.reason[:1]|upper }}{{ decision.reason[1:] }}.</p>
+  </div>
+  <div class="flags">
+    {% if decision.corrected.overridden %}<span class="badge badge-corrected">Corrected by an engineer</span>{% endif %}
+    {% if decision.corrected.in_prompt %}<span class="badge badge-corrected">Judged with corrections in view</span>{% endif %}
+  </div>
+</section>
+<div class="card card-wide">
+  <div class="stack">
+    {% if region %}
+    <section class="panel" id="panel-area">
+      <h2>Flagged area {{ region.index }} of {{ decision.regions_found }}: the outcome rests on it</h2>
+      <div class="shots">
+        {% if region.crop %}
+        <figure class="shot">
+          <div class="frame" style="--w: {{ crop_width }}; --h: {{ crop_height }}"><img src="{{ region.crop }}" alt="The crop the judge was shown"></div>
+          <figcaption><b>The crop</b><br>What the judge was shown of the board.</figcaption>
+        </figure>
+        {% endif %}
+        {% if region.overlay %}
+        <figure class="shot">
+          <div class="frame" style="--w: {{ crop_width }}; --h: {{ crop_height }}"><img src="{{ region.overlay }}" alt="The anomaly map over the same crop"></div>
+          <figcaption><b>Anomaly heatmap</b><br>The same crop under the anomaly model's map, as the judge saw it.</figcaption>
+        </figure>
+        {% endif %}
+      </div>
+    </section>
+    <section class="panel" id="panel-measured">
+      <h2>Measured by code</h2>
+      {% set measured = region.measurement %}
+      {% if measured and not region.from_peak %}
+      {% if region.rule and region.rule.measured is not none and region.rule.limit is not none %}
+      <div class="compare">
+        <div><p class="figure-label">{{ region.rule.quantity.value|capitalize }}</p><p class="figure-value">{{ "%.2f"|format(region.rule.measured) }} <span class="figure-unit">{{ region.rule.unit }}</span></p></div>
+        <span class="compare-word is-over">nonconforming</span>
+        <div><p class="figure-label">Limit of clause {{ region.rule.clause_id }}</p><p class="figure-value">{{ "%g"|format(region.rule.limit) }} <span class="figure-unit">{{ region.rule.unit }}</span></p></div>
+      </div>
+      {% endif %}
+      <table class="facts-table">
+        <tr><th>Longest extent</th><td>{{ "%.2f"|format(measured.longest_extent_mm) }} mm</td></tr>
+        <tr><th>Shortest extent</th><td>{{ "%.2f"|format(measured.shortest_extent_mm) }} mm</td></tr>
+        <tr><th>Area</th><td>{{ "%.2f"|format(measured.area_mm2) }} mm<sup>2</sup></td></tr>
+        <tr><th>Zone</th><td>{{ measured.zone or "outside every zone" }}</td></tr>
+        <tr><th>Anomaly score</th><td>{{ "%.3f"|format(decision.score) }} <span class="muted small">threshold {{ "%.3f"|format(decision.image_threshold) }}</span></td></tr>
+      </table>
+      {% if measured.touches_border %}<p class="rule-note"><b>Reaches the image's edge</b>: the true extent may be larger.</p>{% endif %}
+      {% else %}
+      <p>This area is the peak patch of the anomaly map: it has a place and no outline, so no size was measured.</p>
+      {% endif %}
+      <p class="hint">Measured from the anomaly map's mask with the specification's calibration. No figure on this card comes from the language model.</p>
+    </section>
+    {% endif %}
+  </div>
+  <div class="stack">
+    <section class="panel clause-cited" id="panel-clause">
+      <h2>Clause applied</h2>
+      {% if clause %}
+      <h3>Clause {{ clause.id }} {{ clause.title }}</h3>
+      <p class="page-ref">Page {{ clause.page }} of the specification, quoted as printed:</p>
+      <blockquote class="quote">{{ clause.source_text }}</blockquote>
+      <p class="limit-line">
+        <span>Limit, as printed: <b>{{ clause.limit_text }}</b></span>
+        <span>Zone: <b>{{ clause.zone }}</b></span>
+        <span>Defect class: <b>{{ clause.defect_class }}</b></span>
+      </p>
+      {% else %}
+      <h3>No clause was applied</h3>
+      {% endif %}
+    </section>
+    {% if region %}
+    <section class="panel" id="panel-model">
+      <h2>The model's description</h2>
+      {% if region.answer %}
+      <p class="model-line">"{{ region.answer.reason }}"</p>
+      <p class="model-meta">
+        <span>Class named: <b>{{ region.answer.defect_class or "none" }}</b></span>
+        <span>Clause cited: <b>{{ region.answer.clause_id or "none" }}</b></span>
+      </p>
+      <p class="hint">Written by {{ decision.judge_model }}. The model names the class and the clause; code measures and decides.</p>
+      {% else %}
+      <p class="muted">No valid answer came from the model.</p>
+      {% endif %}
+    </section>
+    {% endif %}
+  </div>
+</div>
+</main>
+</body>
+</html>
