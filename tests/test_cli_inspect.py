@@ -79,9 +79,12 @@ def test_a_run_directory_is_judged_and_each_image_gets_one_line(
     assert lines[1].startswith("speck: accept, clause 4.1.2 Scratch (page 3): every flagged area")
     assert lines[2].startswith("scratch: reject, clause 4.1.1 Scratch (page 3): region 1: longest")
     assert lines[3] == f"3 images: 2 accept, 1 reject, 0 needs review. Decisions: {run}"
-    assert len(lines) == 4
+    assert lines[4] == f"Report: {run}/report.html, 1 reject card(s)"
+    assert len(lines) == 5
     assert load_decision(run / "scratch").outcome is Outcome.REJECT
     assert load_decision(run / "scratch").judge_model == "fake-vlm"
+    assert (run / "scratch" / "reject-card.html").is_file()
+    assert not (run / "good" / "reject-card.html").exists()
     assert all(request["model"] == "fake-vlm" for request in server.requests)
 
 
@@ -232,8 +235,9 @@ def test_a_server_that_is_down_refers_every_board_and_fails_the_command(
 @pytest.mark.parametrize(
     ("arguments", "message"),
     [
-        ([], "give image files or --run"),
-        (["board.png", "--run", "runs/pcb9/test"], "give image files or --run"),
+        ([], "give image files, --test-split or --run"),
+        (["board.png", "--run", "runs/pcb9/test"], "give image files, --test-split or --run"),
+        (["--test-split", "--run", "runs/pcb9/test"], "give image files, --test-split or --run"),
         (["--run", "runs/pcb9/test", "--batch", "line-3"], "--batch names the run"),
         (["board.png", "--image-id", "board"], "--image-id picks images of --run"),
     ],

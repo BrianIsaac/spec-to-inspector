@@ -6,6 +6,7 @@ import time
 import warnings
 from collections.abc import Generator
 from contextlib import contextmanager
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from types import FrameType
@@ -484,19 +485,38 @@ def train(
         out.print(f"Figures: {results_path}", markup=False, highlight=False, soft_wrap=True)
 
 
-def _read_specification(spec: Path) -> Specification:
-    """Read a clause table, or say why it cannot be read and exit.
+def _is_pdf(spec: Path) -> bool:
+    """Tell a specification's PDF from a clause table.
 
     Args:
-        spec: The clause table's path, as `parse` writes it.
+        spec: The path given.
+
+    Returns:
+        Whether it names a PDF, which is parsed where a clause table is read.
+    """
+    return spec.suffix.lower() == ".pdf"
+
+
+def _read_specification(spec: Path) -> Specification:
+    """Read a clause table or parse a PDF, or say why it cannot be done and exit.
+
+    Args:
+        spec: A clause table's path, as `parse` writes it, or a specification's PDF.
 
     Returns:
         The specification.
 
     Raises:
         typer.Exit: With code 1, if the file cannot be read or is not a
-            valid clause table.
+            valid clause table or a specification.
     """
+    if _is_pdf(spec):
+        try:
+            parsed = read_pdf(spec, artifacts_dir=Settings().docling_artifacts_dir)
+            return parsed.specification()
+        except (PdfError, SpecificationError) as error:
+            err.print(str(error), markup=False, highlight=False, soft_wrap=True)
+            raise typer.Exit(code=1) from error
     try:
         return read_clause_table(spec)
     except OSError as error:
@@ -517,8 +537,112 @@ def _read_specification(spec: Path) -> Specification:
         raise typer.Exit(code=1) from error
 
 
+def _measured_batch(
+    *,
+    category: str,
+    spec: Path,
+    batch: str | None,
+    record: Path,
+    url: str | None,
+    model: str | None,
+    max_regions: int,
+    settings: Settings,
+) -> None:
+    """Run one part from the PDF to the reject cards under the protocol, and write its record.
+
+    Args:
+        category: The part.
+        spec: The specification's PDF.
+        batch: The name of the run's directory under the part.
+        record: Where the record goes.
+        url: The judge's server, if not the settings'.
+        model: The model's name on that server, if not the settings'.
+        max_regions: The most flagged areas per image to put to the judge.
+        settings: The settings.
+
+    Raises:
+        typer.Exit: With code 1, if the run cannot be made or is void.
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", FutureWarning)
+        from spec_to_inspector.batch.memory import BATCH_INTERVAL_SECONDS  # noqa: PLC0415
+        from spec_to_inspector.batch.record import write_batch_record  # noqa: PLC0415
+        from spec_to_inspector.batch.report import REPORT_NAME  # noqa: PLC0415
+        from spec_to_inspector.batch.run import BatchPlan, run_batch  # noqa: PLC0415
+        from spec_to_inspector.bench import run as benching  # noqa: PLC0415
+        from spec_to_inspector.corrections import recall as recalling  # noqa: PLC0415
+        from spec_to_inspector.corrections.store import CorrectionStore  # noqa: PLC0415
+        from spec_to_inspector.judge import console as verdicts  # noqa: PLC0415
+        from spec_to_inspector.judge.client import ChatClient  # noqa: PLC0415
+
+    def say(line: str) -> None:
+        err.print(line, markup=False, highlight=False, soft_wrap=True)
+
+    default_protocol = "PROTOCOL-stage2.md" if settings.stage == "II" else "PROTOCOL.md"
+    store = CorrectionStore(settings.corrections_path)
+    try:
+        plan = BatchPlan(
+            part=category,
+            batch=batch or "inspect",
+            pdf=spec,
+            visa_dir=settings.visa_dir,
+            runs_dir=settings.runs_dir,
+            record=record,
+            stamp=datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"),
+            protocol=settings.protocol_file or Path("eval") / default_protocol,
+            stage=settings.stage,
+            checkpoints=settings.checkpoint_record,
+            corrections_held=store.count(),
+            max_regions=max_regions,
+            command=("spec-to-inspector", *sys.argv[1:]),
+        )
+        with (
+            _terminate_cleanly(),
+            warnings.catch_warnings(),
+            ChatClient(
+                url or settings.vlm_url,
+                model or settings.vlm_model,
+                timeout_seconds=settings.vlm_timeout_seconds,
+            ) as client,
+        ):
+            warnings.simplefilter("ignore", FutureWarning)
+            made, decisions = run_batch(
+                plan,
+                client=client,
+                probes=replace(
+                    benching.device_probes(settings), interval_seconds=BATCH_INTERVAL_SECONDS
+                ),
+                options=recalling.judge_options(
+                    store, recalling.RecallStrategy(settings.corrections_recall), in_prompt=False
+                ),
+                on_decision=lambda decision: out.print(
+                    verdicts.verdict_line(decision), markup=False, highlight=False, soft_wrap=True
+                ),
+                say=say,
+                **benching.laptop_pipeline(settings),
+            )
+    except (ValueError, RuntimeError) as error:
+        say(str(error))
+        raise typer.Exit(code=1) from error
+    write_batch_record(record, made)
+    run_directory = Path(made.run.run_directory)
+    out.print(
+        verdicts.summary_line(decisions, run_directory),
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+    out.print(
+        f"Report: {run_directory / REPORT_NAME}, {made.report.cards} reject card(s)",
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+    out.print(f"Figures: {record}", markup=False, highlight=False, soft_wrap=True)
+
+
 @app.command()
-def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its report
+def inspect(  # noqa: PLR0912, PLR0913, PLR0915, PLR0917 - one verb: its checks, its three sources
     images: Annotated[
         list[Path] | None,
         typer.Argument(
@@ -539,9 +663,21 @@ def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its re
             "<runs-dir>/pcb4/test, to judge instead of image files.",
         ),
     ] = None,
+    test_split: Annotated[
+        bool,
+        typer.Option(
+            "--test-split",
+            help="Score the part's whole VisA test split, good and anomalous, as the bench does, "
+            "and judge that, instead of image files or --run.",
+        ),
+    ] = False,
     spec: Annotated[
         Path,
-        typer.Option("--spec", help="The specification's clause table, as `parse` writes it."),
+        typer.Option(
+            "--spec",
+            help="The specification: a clause table, as `parse` writes it, or a PDF, which is "
+            "parsed in this run and whose table goes into the run's directory.",
+        ),
     ] = Path("specs/pcb-spec.clauses.json"),
     url: Annotated[
         str | None,
@@ -589,20 +725,58 @@ def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its re
             "On by default when the store holds any; --no-corrections judges as if it were empty.",
         ),
     ] = None,
+    record: Annotated[
+        Path | None,
+        typer.Option(
+            "--record",
+            help="Measure the run under the Stage II protocol's whole-batch addition and write "
+            "its record here: its figures 7, 8 and 9, the counts, and each card's memory beside "
+            "it. Needs --test-split and --spec with a PDF whose clause table is tracked beside it.",
+        ),
+    ] = None,
 ) -> None:
     """Judge board images against the specification's clauses, one decision per image.
 
     Each flagged area is measured, shown to the VLM with the clause table, and
     decided by rule from the clause it cites: accept, reject or needs review.
     The decision is written as `decision.json` beside the anomaly model's
-    result, and one line per image is printed. Give image files, which are
-    scored first, or --run for a directory already scored. Corrections
-    recorded with `correct` are shown to the judge unless switched off.
+    result, and one line per image is printed; each rejected board gets a
+    `reject-card.html`, and the batch a `report.html`. Give image files, which
+    are scored first, --test-split for the part's whole test split, or --run
+    for a directory already scored. Corrections recorded with `correct` are
+    shown to the judge unless switched off.
     """
     if category is None:
         raise typer.BadParameter("give the part with --category", param_hint="--category")
-    if (run is None) == (not images):
-        raise typer.BadParameter("give image files or --run, not both and not neither")
+    if sum((run is not None, bool(images), test_split)) != 1:
+        raise typer.BadParameter("give image files, --test-split or --run: one of them")
+    if record is not None:
+        if not test_split:
+            raise typer.BadParameter(
+                "a measured run is of the part's whole test split: give --test-split",
+                param_hint="--record",
+            )
+        if not _is_pdf(spec):
+            raise typer.BadParameter(
+                "a measured run parses the specification: give --spec with its PDF",
+                param_hint="--record",
+            )
+        if corrections is True:
+            raise typer.BadParameter(
+                "a measured run's corrections store is empty: --corrections does not apply",
+                param_hint="--record",
+            )
+        _measured_batch(
+            category=category,
+            spec=spec,
+            batch=batch,
+            record=record,
+            url=url,
+            model=model,
+            max_regions=max_regions,
+            settings=Settings(),
+        )
+        return
     if run is not None and batch is not None:
         raise typer.BadParameter(
             "--batch names the run that image files are scored into; --run already names one",
@@ -627,6 +801,11 @@ def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its re
     # ten seconds, is loaded only when image files have to be scored first.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", FutureWarning)
+        from spec_to_inspector.batch.report import (  # noqa: PLC0415
+            CLAUSE_TABLE_NAME,
+            REPORT_NAME,
+            write_report,
+        )
         from spec_to_inspector.corrections import recall as recalling  # noqa: PLC0415
         from spec_to_inspector.corrections.store import CorrectionStore  # noqa: PLC0415
         from spec_to_inspector.judge import console as verdicts  # noqa: PLC0415
@@ -666,9 +845,13 @@ def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its re
                 )
             run_directory = infer.run_dir(settings.runs_dir, category, batch or "inspect")
             try:
-                items = [
-                    infer.InferenceItem(image_id=path.stem, path=path) for path in images or ()
-                ]
+                items = (
+                    infer.visa_test_items(settings.visa_dir, category)
+                    if test_split
+                    else [
+                        infer.InferenceItem(image_id=path.stem, path=path) for path in images or ()
+                    ]
+                )
                 scorer = infer.AnomalyModel.load(
                     settings.models_dir, category, device=settings.device
                 )
@@ -684,6 +867,8 @@ def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its re
                 soft_wrap=True,
             )
             infer.run_inference(scorer, items, run_directory)
+        if _is_pdf(spec):
+            write_clause_table(specification, run_directory / CLAUSE_TABLE_NAME)
 
         with ChatClient(
             url or settings.vlm_url,
@@ -701,12 +886,19 @@ def inspect(  # noqa: PLR0915 - one verb: its checks, its two sources and its re
                 ),
                 **recalling.judge_options(store, strategy, in_prompt=shown),
             )
+        written = write_report(run_directory)
     except (judging.InspectError, ValueError, RuntimeError) as error:
         err.print(str(error), markup=False, highlight=False, soft_wrap=True)
         raise typer.Exit(code=1) from error
 
     out.print(
         verdicts.summary_line(decisions, run_directory),
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+    out.print(
+        f"Report: {run_directory / REPORT_NAME}, {written.cards} reject card(s)",
         markup=False,
         highlight=False,
         soft_wrap=True,
