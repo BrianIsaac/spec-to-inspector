@@ -1,0 +1,102 @@
+2026-11-07T11:04:11Z
+2026-11-07T11:04:15Z
+$ sha256sum ~/week2/run-2/models/patchcore/*/model.ckpt
+9dd23b43305fff934edbfbdcd60446a63187dfcf856610e7eab475b7df2271eb  /home/devcloud/week2/run-2/models/patchcore/pcb1/model.ckpt
+dc57d8bce9c6e4962d497c47afb323e8e72e2e7845b0731bf68327660bb323c3  /home/devcloud/week2/run-2/models/patchcore/pcb2/model.ckpt
+dd16f6c907fde7eeef82ad8bee64e1523590e487c1e5fea35814a7bbfa42e497  /home/devcloud/week2/run-2/models/patchcore/pcb3/model.ckpt
+fc19950beba2363e66065e3370b952bfaadc98beaa9ea28ce9f74fe4b726b303  /home/devcloud/week2/run-2/models/patchcore/pcb4/model.ckpt
+$ sha256sum ~/week2/run-1/models/patchcore/{pcb1,pcb4}/model.ckpt
+b71ff0c3db7e780c6198db5686569fa59de4a56b5663557b56d90e237b37a855  /home/devcloud/week2/run-1/models/patchcore/pcb1/model.ckpt
+cc571d9a4c56ee791888a2f6ce73e7db2f7f46b57c7aeb683ce7ba447f03ccb4  /home/devcloud/week2/run-1/models/patchcore/pcb4/model.ckpt
+$ stat
+/home/devcloud/week2/run-1/models/patchcore/pcb1/model.ckpt 668469863
+/home/devcloud/week2/run-2/models/patchcore/pcb1/model.ckpt 668469863
+/home/devcloud/week2/run-1/models/patchcore/pcb4/model.ckpt 668469863
+/home/devcloud/week2/run-2/models/patchcore/pcb4/model.ckpt 668469863
+$ cmp -l run-1/models/patchcore/pcb1/model.ckpt run-2/models/patchcore/pcb1/model.ckpt | wc -l
+36
+$ cmp -l run-1/models/patchcore/pcb1/model.ckpt run-2/models/patchcore/pcb1/model.ckpt (offset, octal in run-1, octal in run-2)
+    59761  61  62
+    59880  61  62
+    61412 172 264
+    61413 162 262
+    61414 154 203
+    61415 256 170
+668452821  60  61
+668452822  60  63
+668452823  61  67
+668452824  62  65
+668452825  65  62
+668452826  65  62
+668452827  66  64
+668452828  70  67
+668452829  65  61
+668452830  62  60
+668452833  60  65
+668452834  71  61
+668452835  61  70
+668452836  60  62
+668452837  63  71
+668452838  60  66
+668452839  66  61
+668452840  63  66
+668452845 222 317
+668452846 237  72
+668452847 356 146
+668452848 362 223
+668452873 172 264
+668452874 162 262
+668452875 154 203
+668452876 256 170
+668469706 222 317
+668469707 237  72
+668469708 356 146
+668469709 362 223
+$ cmp -l run-1/models/patchcore/pcb4/model.ckpt run-2/models/patchcore/pcb4/model.ckpt | wc -l
+35
+$ cmp -l run-1/models/patchcore/pcb4/model.ckpt run-2/models/patchcore/pcb4/model.ckpt (offset, octal in run-1, octal in run-2)
+    59761  61  62
+    59880  61  62
+    61412 352  44
+    61413 306   6
+    61414 373  24
+    61415  20 306
+668452821  61  60
+668452822  66  63
+668452823  71  60
+668452824  66  65
+668452826  66  60
+668452828  71  66
+668452829  61  65
+668452830  67  65
+668452831  64  67
+668452832  62  60
+668452833  60  65
+668452835  63  65
+668452836  67  66
+668452837  65  60
+668452838  63  64
+668452839  61  64
+668452840  64  62
+668452845 250 317
+668452846  23 205
+668452847 347 356
+668452848 252 304
+668452873 352  44
+668452874 306   6
+668452875 373  24
+668452876  20 306
+668469706 250 317
+668469707  23 205
+668469708 347 356
+668469709 252 304
+$ zip members whose CRC or size differ, run-1 against run-2
+pcb1 members 274 same names True differing ['archive/.data/serialization_id', 'archive/data.pkl']
+pcb1 data.pkl bytes that differ 2 of 61343
+pcb1 first difference in data.pkl, run-1: b'XD\x00\x00\x00/home/devcloud/week2/run-1/models/patchcore/.pcb1.partial/model.ckptr\x16'
+pcb1 first difference in data.pkl, run-2: b'XD\x00\x00\x00/home/devcloud/week2/run-2/models/patchcore/.pcb1.partial/model.ckptr\x16'
+pcb4 members 274 same names True differing ['archive/.data/serialization_id', 'archive/data.pkl']
+pcb4 data.pkl bytes that differ 2 of 61343
+pcb4 first difference in data.pkl, run-1: b'XD\x00\x00\x00/home/devcloud/week2/run-1/models/patchcore/.pcb4.partial/model.ckptr\x16'
+pcb4 first difference in data.pkl, run-2: b'XD\x00\x00\x00/home/devcloud/week2/run-2/models/patchcore/.pcb4.partial/model.ckptr\x16'
+2026-11-07T11:04:24Z
