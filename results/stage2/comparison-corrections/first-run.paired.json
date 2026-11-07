@@ -1,0 +1,971 @@
+{
+  "schema_version": 1,
+  "counted_at": "2026-11-07T14:45:08+00:00",
+  "final": {
+    "path": "results/stage2/final/bench.json",
+    "sha256": "ece9864d4ff3f8f93b679c4a14cf15dd2c480fb6c0963f9209b73e2c7f9c4d71"
+  },
+  "comparison": {
+    "path": "results/stage2/comparison-corrections/bench.json",
+    "sha256": "2fc841975d0114ef9dc72dbc7364deb44a6882b25fb66c8cd53f0acb892f56c2"
+  },
+  "labels": {
+    "path": "eval/clause_labels.csv",
+    "sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337"
+  },
+  "threshold": 0.05,
+  "correction": "this comparison is tested on its own at 0.05, with no correction for the others",
+  "partial": false,
+  "comparison_is_a_repeat": false,
+  "differences": [
+    "the protocol's files: ['ebbd8cc1cb25172f7d74cddf8190e0826204eb6b3c8cc7e1da83a565ead4e3f6', '84c8d198200b11a45e4eac8735611c20681cf5a9db5f0d4a2063330ac4f7c65b', '8d8d4ef19e95354a4a1ab220e6eb9dc51865c87b2ae6e9f9da1464bdd4c5b1b1'] against ['ebbd8cc1cb25172f7d74cddf8190e0826204eb6b3c8cc7e1da83a565ead4e3f6', 'e3c9eb3fd13e8c9ee89b5c0e6f424440e6dc3f45ea04cc2d9a0b7b463d434eab', '84c8d198200b11a45e4eac8735611c20681cf5a9db5f0d4a2063330ac4f7c65b', '8d8d4ef19e95354a4a1ab220e6eb9dc51865c87b2ae6e9f9da1464bdd4c5b1b1', '03a4154bb25cacd8a48bdb5b49e59594820bf67200c0620dc63d99d10c284040']",
+    "the declared store: None against 'e43072ed4d3cbf2d5257cbb8e6f6c62add126675d4a0b4d7e6b8e8815077ea0c'"
+  ],
+  "strict": {
+    "figure": "strict",
+    "boards": 115,
+    "both_right": 22,
+    "both_wrong": 49,
+    "only_final": 20,
+    "only_comparison": 24,
+    "sign_test": {
+      "only_final": 20,
+      "only_comparison": 24,
+      "differing": 44,
+      "exact": "1432856785067/2199023255552",
+      "p_value": 0.651587827208914,
+      "below_threshold": false,
+      "can_reach_threshold": true
+    },
+    "moved": null,
+    "finding": "p = 0.6516, not below 0.05: no figure separates them.",
+    "differing_boards": [
+      {
+        "part": "pcb1",
+        "image_id": "bad-005",
+        "expected": [
+          "4.4"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-006",
+        "expected": [
+          "4.4"
+        ],
+        "final": "4.4",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-007",
+        "expected": [
+          "4.4"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-014",
+        "expected": [
+          "4.4"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-018",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-024",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-026",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-028",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-030",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-034",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-038",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-041",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-043",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.2",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-044",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-045",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-046",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.2",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-049",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-054",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.2",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-055",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.2",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-056",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-058",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.2",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-059",
+        "expected": [
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-062",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-063",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-064",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-066",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-068",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-070",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-072",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-073",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-074",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-077",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-082",
+        "expected": [
+          "4.1"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-087",
+        "expected": [
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-090",
+        "expected": [
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-012",
+        "expected": [
+          "5.5"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-023",
+        "expected": [
+          "5.5"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-027",
+        "expected": [
+          "5.7"
+        ],
+        "final": "5.1",
+        "comparison": "5.7",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-041",
+        "expected": [
+          "5.3"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-066",
+        "expected": [
+          "5.2"
+        ],
+        "final": "5.2",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-067",
+        "expected": [
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-069",
+        "expected": [
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-073",
+        "expected": [
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-094",
+        "expected": [
+          "5.3"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the comparison"
+      }
+    ]
+  },
+  "lenient": {
+    "figure": "lenient",
+    "boards": 65,
+    "both_right": 19,
+    "both_wrong": 9,
+    "only_final": 27,
+    "only_comparison": 10,
+    "sign_test": {
+      "only_final": 27,
+      "only_comparison": 10,
+      "differing": 37,
+      "exact": "4097441/536870912",
+      "p_value": 0.007632078602910042,
+      "below_threshold": true,
+      "can_reach_threshold": true
+    },
+    "moved": "down",
+    "finding": "p = 0.007632: the lenient figure passes the test, which is evidence of a change, the comparison reading lower. It is reported under its own name, is never pooled and offsets nothing of the strict figure; this is not the primary test.",
+    "differing_boards": [
+      {
+        "part": "pcb1",
+        "image_id": "bad-051",
+        "expected": [
+          "4.1",
+          "4.3"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-069",
+        "expected": [
+          "4.1",
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-080",
+        "expected": [
+          "4.1",
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-084",
+        "expected": [
+          "4.1",
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.4",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb1",
+        "image_id": "bad-097",
+        "expected": [
+          "4.1",
+          "4.2"
+        ],
+        "final": "4.1",
+        "comparison": "4.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-002",
+        "expected": [
+          "5.7",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-004",
+        "expected": [
+          "5.7",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-009",
+        "expected": [
+          "5.5",
+          "5.1"
+        ],
+        "final": "5.7",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-016",
+        "expected": [
+          "5.2",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-017",
+        "expected": [
+          "5.2",
+          "5.5"
+        ],
+        "final": "5.7",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-022",
+        "expected": [
+          "5.6",
+          "5.5"
+        ],
+        "final": "5.7",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-024",
+        "expected": [
+          "5.5",
+          "5.3"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-030",
+        "expected": [
+          "5.7",
+          "5.3"
+        ],
+        "final": "5.7",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-031",
+        "expected": [
+          "5.3",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-036",
+        "expected": [
+          "5.6",
+          "5.3"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-037",
+        "expected": [
+          "5.3",
+          "5.1"
+        ],
+        "final": "5.2",
+        "comparison": "5.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-042",
+        "expected": [
+          "5.3",
+          "5.1"
+        ],
+        "final": "5.2",
+        "comparison": "5.3",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-047",
+        "expected": [
+          "5.6",
+          "5.2",
+          "5.1"
+        ],
+        "final": "5.2",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-050",
+        "expected": [
+          "5.2",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-058",
+        "expected": [
+          "5.2",
+          "5.5",
+          "5.3"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-060",
+        "expected": [
+          "5.2",
+          "5.5"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-070",
+        "expected": [
+          "5.2",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-071",
+        "expected": [
+          "5.6",
+          "5.2"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the comparison"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-074",
+        "expected": [
+          "5.2",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-075",
+        "expected": [
+          "5.6",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-078",
+        "expected": [
+          "5.6",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-080",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-082",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.2",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-084",
+        "expected": [
+          "5.3",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-085",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "no valid answer",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-087",
+        "expected": [
+          "5.3",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-088",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-089",
+        "expected": [
+          "5.2",
+          "5.4"
+        ],
+        "final": "5.2",
+        "comparison": "5.5",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-092",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-095",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "no valid answer",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-097",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      },
+      {
+        "part": "pcb4",
+        "image_id": "bad-098",
+        "expected": [
+          "5.4",
+          "5.1"
+        ],
+        "final": "5.1",
+        "comparison": "5.3",
+        "right_on": "the final run"
+      }
+    ]
+  },
+  "excluded_boards": [
+    "pcb1 bad-004",
+    "pcb1 bad-021",
+    "pcb1 bad-029",
+    "pcb1 bad-033",
+    "pcb1 bad-042",
+    "pcb1 bad-052",
+    "pcb1 bad-061",
+    "pcb1 bad-078",
+    "pcb1 bad-085",
+    "pcb1 bad-092",
+    "pcb4 bad-011",
+    "pcb4 bad-015",
+    "pcb4 bad-026",
+    "pcb4 bad-038",
+    "pcb4 bad-044",
+    "pcb4 bad-051",
+    "pcb4 bad-059",
+    "pcb4 bad-065",
+    "pcb4 bad-077",
+    "pcb4 bad-096"
+  ],
+  "answer_time": {
+    "final_seconds": {
+      "n": 197,
+      "p50": 2.129379104997497,
+      "p95": 2.5408926501986566,
+      "mean": 2.314388052101228,
+      "minimum": 1.881889369979035,
+      "maximum": 11.024688423029147
+    },
+    "comparison_seconds": {
+      "n": 197,
+      "p50": 2.1612190090236254,
+      "p95": 2.582151600590441,
+      "mean": 2.399768365701001,
+      "minimum": 1.9163025299785659,
+      "maximum": 17.762631934019737
+    },
+    "final_prompt_tokens": {
+      "n": 197,
+      "p50": 4682.0,
+      "p95": 4799.0,
+      "mean": 4684.61421319797,
+      "minimum": 4521.0,
+      "maximum": 5489.0
+    },
+    "comparison_prompt_tokens": {
+      "n": 197,
+      "p50": 4819.0,
+      "p95": 4940.0,
+      "mean": 4822.9390862944165,
+      "minimum": 4658.0,
+      "maximum": 5626.0
+    }
+  }
+}

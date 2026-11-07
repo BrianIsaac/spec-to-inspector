@@ -1,0 +1,1134 @@
+{
+  "schema_version": 2,
+  "unit": "stage2",
+  "stage": "II",
+  "measured_at": "2026-11-07T14:33:58+00:00",
+  "measured_on": "2026-11-07",
+  "command": [
+    "spec-to-inspector",
+    "bench",
+    "--limit",
+    "3",
+    "--batch",
+    "corrections",
+    "--results",
+    "/home/devcloud/corrections-run/trial/bench.json",
+    "--readme",
+    "/home/devcloud/corrections-run/trial/README.md",
+    "--declared-store",
+    "results/stage2/comparison-corrections/store.sqlite3"
+  ],
+  "parts": [
+    "pcb1",
+    "pcb4"
+  ],
+  "limit": 3,
+  "partial": true,
+  "protocol": [
+    {
+      "path": "eval/PROTOCOL-stage2.md",
+      "sha256": "ebbd8cc1cb25172f7d74cddf8190e0826204eb6b3c8cc7e1da83a565ead4e3f6"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md",
+      "sha256": "e3c9eb3fd13e8c9ee89b5c0e6f424440e6dc3f45ea04cc2d9a0b7b463d434eab"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md",
+      "sha256": "84c8d198200b11a45e4eac8735611c20681cf5a9db5f0d4a2063330ac4f7c65b"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md",
+      "sha256": "8d8d4ef19e95354a4a1ab220e6eb9dc51865c87b2ae6e9f9da1464bdd4c5b1b1"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md",
+      "sha256": "03a4154bb25cacd8a48bdb5b49e59594820bf67200c0620dc63d99d10c284040"
+    }
+  ],
+  "labels": {
+    "file": {
+      "path": "eval/clause_labels.csv",
+      "sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337"
+    },
+    "images": 6,
+    "single_defect": 3,
+    "multi_defect": 3
+  },
+  "specification": {
+    "pdf": {
+      "path": "specs/pcb-spec.pdf",
+      "sha256": "2b8749b32fa88b3a3ac15455324cb3a726dffa7e8e94a7acd7b5c39abc6b47bd"
+    },
+    "clause_table": {
+      "path": "specs/pcb-spec.clauses.json",
+      "sha256": "510ca4c1735b1e5ad0f525380d1414fd6943fa40a09195006251380b114ad661"
+    },
+    "title": "Workmanship acceptance specification: PCB1 and PCB4 assemblies",
+    "pages": 6,
+    "clauses": 16,
+    "headings": 11,
+    "parse_seconds": 7.18159332399955,
+    "equals_tracked_clause_table": true
+  },
+  "judge": {
+    "url": "http://127.0.0.1:8131/v1",
+    "model": "qwen3-vl-8b-instruct",
+    "server": {
+      "vllm_version": "0.26.1.dev0+g568afb3a1.d20260831",
+      "served_model": "qwen3-vl-8b-instruct",
+      "weights_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+      "max_model_len": "32768",
+      "image": "intel/llm-scaler-vllm:0.26.0-b1",
+      "image_digest": "sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490",
+      "image_label_version": "20260608",
+      "image_label_revision": "ac12083301cbdbe06135882d401f7877b0b512db",
+      "command": "-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt '{\"image\": 2}' --mm-processor-kwargs '{\"size\": {\"shortest_edge\": 1048576, \"longest_edge\": 16777216}}' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1",
+      "dtype": "float16",
+      "quantisation": "None"
+    },
+    "server_sources": {
+      "vllm_version": "GET /version",
+      "served_model": "GET /v1/models",
+      "weights_revision": "GET /v1/models",
+      "max_model_len": "GET /v1/models",
+      "image": "docker inspect, Config.Image",
+      "image_digest": "docker image inspect, RepoDigests",
+      "image_label_version": "container label org.opencontainers.image.version",
+      "image_label_revision": "container label org.opencontainers.image.revision",
+      "command": "docker inspect, Args",
+      "dtype": "the server's log, the engine's line, dtype=torch.*",
+      "quantisation": "the server's log, the engine's line, quantization=*"
+    },
+    "image_min_tokens": "1024",
+    "gpu": "Intel(R) Arc(TM) Pro B70 Graphics",
+    "cache_prompt": false,
+    "cold": {
+      "server_flags": [
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb 0"
+      ],
+      "engine_prefix_caching": false,
+      "server_started_at": "2026-11-07T07:27:57.966649565Z",
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "hit_rate_percent": 0.0,
+      "hit_rate_readings": 2,
+      "server_log": {
+        "path": "/home/devcloud/corrections-run/trial/bench.server-log.20261107T143310Z.txt",
+        "sha256": "7284c3a65c4bf5e4d6ae0af5eeb39948d1ba65ce73bf4c265c01940cedce30af"
+      }
+    },
+    "warm_up": {
+      "asked": true,
+      "image": "pcb1 bad-000",
+      "seconds": 2.060607528022956
+    },
+    "reason_pattern": "^[^0-9\\n\\r\"\\\\]{1,240}$",
+    "max_regions": 3,
+    "corrections": "from the declared store"
+  },
+  "runs": {
+    "pcb1": {
+      "part": "pcb1",
+      "run_directory": "/home/devcloud/corrections-run/trial/runs/pcb1/corrections",
+      "images": 6,
+      "good": 3,
+      "anomalous": 3,
+      "flagged_good": 0,
+      "flagged_anomalous": 3,
+      "image_threshold": 31.319488525390625,
+      "thresholds_tuned_on_test": true,
+      "batch_size": 16,
+      "load_seconds": 2.3975527809816413,
+      "inference_seconds": 2.7485201400122605,
+      "seconds_per_image": 0.45808669000204344,
+      "model_trained_at": "2026-11-06T17:17:44+00:00",
+      "fit_seconds": 698.776051807974,
+      "train_peak_allocated_mib": 7971.28369140625,
+      "memory": {
+        "process_peak_mib": 2551,
+        "card_peak_mib": 2593,
+        "card_before_mib": 1592,
+        "samples": 4,
+        "interval_seconds": 0.5,
+        "source": "xpu-smi",
+        "card": "0000:17:00.0, under ZE_AFFINITY_MASK=0",
+        "process_note": null
+      },
+      "checkpoint": {
+        "path": "/home/devcloud/week2/run-1/models/patchcore/pcb1/model.ckpt",
+        "sha256": "b71ff0c3db7e780c6198db5686569fa59de4a56b5663557b56d90e237b37a855"
+      }
+    },
+    "pcb4": {
+      "part": "pcb4",
+      "run_directory": "/home/devcloud/corrections-run/trial/runs/pcb4/corrections",
+      "images": 6,
+      "good": 3,
+      "anomalous": 3,
+      "flagged_good": 0,
+      "flagged_anomalous": 3,
+      "image_threshold": 30.048744201660156,
+      "thresholds_tuned_on_test": true,
+      "batch_size": 16,
+      "load_seconds": 1.6407491210266016,
+      "inference_seconds": 1.1177174500189722,
+      "seconds_per_image": 0.18628624166982868,
+      "model_trained_at": "2026-11-06T17:59:34+00:00",
+      "fit_seconds": 700.7897639329894,
+      "train_peak_allocated_mib": 7971.28369140625,
+      "memory": {
+        "process_peak_mib": 2552,
+        "card_peak_mib": 2594,
+        "card_before_mib": 2050,
+        "samples": 2,
+        "interval_seconds": 0.5,
+        "source": "xpu-smi",
+        "card": "0000:17:00.0, under ZE_AFFINITY_MASK=0",
+        "process_note": null
+      },
+      "checkpoint": {
+        "path": "/home/devcloud/week2/run-1/models/patchcore/pcb4/model.ckpt",
+        "sha256": "cc571d9a4c56ee791888a2f6ce73e7db2f7f46b57c7aeb683ce7ba447f03ccb4"
+      }
+    }
+  },
+  "scores": {
+    "headline": {
+      "strict": {
+        "all": {
+          "count": 2,
+          "n": 3,
+          "rate": 0.6666666666666666,
+          "low": 0.2076595988078242,
+          "high": 0.9385080559790691
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 2,
+            "n": 3,
+            "rate": 0.6666666666666666,
+            "low": 0.2076595988078242,
+            "high": 0.9385080559790691
+          },
+          "pcb4": {
+            "count": 0,
+            "n": 0,
+            "rate": null,
+            "low": null,
+            "high": null
+          }
+        }
+      },
+      "flagged": {
+        "all": {
+          "count": 3,
+          "n": 3,
+          "rate": 1.0,
+          "low": 0.43850296436068037,
+          "high": 1.0
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 3,
+            "n": 3,
+            "rate": 1.0,
+            "low": 0.43850296436068037,
+            "high": 1.0
+          },
+          "pcb4": {
+            "count": 0,
+            "n": 0,
+            "rate": null,
+            "low": null,
+            "high": null
+          }
+        }
+      },
+      "on_defect": {
+        "all": {
+          "count": 3,
+          "n": 3,
+          "rate": 1.0,
+          "low": 0.43850296436068037,
+          "high": 1.0
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 3,
+            "n": 3,
+            "rate": 1.0,
+            "low": 0.43850296436068037,
+            "high": 1.0
+          },
+          "pcb4": {
+            "count": 0,
+            "n": 0,
+            "rate": null,
+            "low": null,
+            "high": null
+          }
+        }
+      },
+      "strict_given_flagged": {
+        "all": {
+          "count": 2,
+          "n": 3,
+          "rate": 0.6666666666666666,
+          "low": 0.2076595988078242,
+          "high": 0.9385080559790691
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 2,
+            "n": 3,
+            "rate": 0.6666666666666666,
+            "low": 0.2076595988078242,
+            "high": 0.9385080559790691
+          },
+          "pcb4": {
+            "count": 0,
+            "n": 0,
+            "rate": null,
+            "low": null,
+            "high": null
+          }
+        }
+      },
+      "strict_given_on_defect": {
+        "all": {
+          "count": 2,
+          "n": 3,
+          "rate": 0.6666666666666666,
+          "low": 0.2076595988078242,
+          "high": 0.9385080559790691
+        },
+        "by_part": {
+          "pcb1": {
+            "count": 2,
+            "n": 3,
+            "rate": 0.6666666666666666,
+            "low": 0.2076595988078242,
+            "high": 0.9385080559790691
+          },
+          "pcb4": {
+            "count": 0,
+            "n": 0,
+            "rate": null,
+            "low": null,
+            "high": null
+          }
+        }
+      },
+      "rows_applied": {
+        "4.4": 2
+      },
+      "region1_outcomes": {
+        "reject": 2
+      }
+    },
+    "lenient": {
+      "all": {
+        "count": 2,
+        "n": 3,
+        "rate": 0.6666666666666666,
+        "low": 0.2076595988078242,
+        "high": 0.9385080559790691
+      },
+      "by_part": {
+        "pcb1": {
+          "count": 0,
+          "n": 0,
+          "rate": null,
+          "low": null,
+          "high": null
+        },
+        "pcb4": {
+          "count": 2,
+          "n": 3,
+          "rate": 0.6666666666666666,
+          "low": 0.2076595988078242,
+          "high": 0.9385080559790691
+        }
+      }
+    },
+    "per_region": {
+      "all": {
+        "count": 4,
+        "n": 6,
+        "rate": 0.6666666666666666,
+        "low": 0.29999331299474324,
+        "high": 0.9032285897864654
+      },
+      "by_part": {
+        "pcb1": {
+          "count": 2,
+          "n": 3,
+          "rate": 0.6666666666666666,
+          "low": 0.2076595988078242,
+          "high": 0.9385080559790691
+        },
+        "pcb4": {
+          "count": 2,
+          "n": 3,
+          "rate": 0.6666666666666666,
+          "low": 0.2076595988078242,
+          "high": 0.9385080559790691
+        }
+      }
+    },
+    "confusion_single": {
+      "pcb1": {
+        "bent": {
+          "bent": 2,
+          "missing": 1
+        }
+      }
+    },
+    "confusion_region": {
+      "pcb1": {
+        "bent": {
+          "bent": 2,
+          "missing": 1
+        }
+      },
+      "pcb4": {
+        "burnt": {
+          "burnt": 2
+        },
+        "dirt": {
+          "damage": 1
+        }
+      }
+    },
+    "class_not_of_heading": 0,
+    "anomalous": {
+      "boards": 6,
+      "not_flagged": 0,
+      "board_outcomes": {
+        "reject": 6
+      },
+      "board_review_causes": {},
+      "board_needs_review": {
+        "count": 0,
+        "n": 6,
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.39033429165637346
+      },
+      "areas": 6,
+      "area_outcomes": {
+        "reject": 6
+      },
+      "area_review_causes": {},
+      "area_needs_review": {
+        "count": 0,
+        "n": 6,
+        "rate": 0.0,
+        "low": 0.0,
+        "high": 0.39033429165637346
+      }
+    },
+    "good": {
+      "all": {
+        "flagged": {
+          "count": 0,
+          "n": 6,
+          "rate": 0.0,
+          "low": 0.0,
+          "high": 0.39033429165637346
+        },
+        "rejected": {
+          "count": 0,
+          "n": 6,
+          "rate": 0.0,
+          "low": 0.0,
+          "high": 0.39033429165637346
+        },
+        "referred": {
+          "count": 0,
+          "n": 6,
+          "rate": 0.0,
+          "low": 0.0,
+          "high": 0.39033429165637346
+        },
+        "accepted_after_judging": {
+          "count": 0,
+          "n": 6,
+          "rate": 0.0,
+          "low": 0.0,
+          "high": 0.39033429165637346
+        },
+        "citations": {},
+        "dispositions": {
+          "boards": 6,
+          "not_flagged": 6,
+          "board_outcomes": {},
+          "board_review_causes": {},
+          "board_needs_review": {
+            "count": 0,
+            "n": 6,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.39033429165637346
+          },
+          "areas": 0,
+          "area_outcomes": {},
+          "area_review_causes": {},
+          "area_needs_review": {
+            "count": 0,
+            "n": 0,
+            "rate": null,
+            "low": null,
+            "high": null
+          }
+        }
+      },
+      "by_part": {
+        "pcb1": {
+          "flagged": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "rejected": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "referred": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "accepted_after_judging": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "citations": {},
+          "dispositions": {
+            "boards": 3,
+            "not_flagged": 3,
+            "board_outcomes": {},
+            "board_review_causes": {},
+            "board_needs_review": {
+              "count": 0,
+              "n": 3,
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.5614970356393196
+            },
+            "areas": 0,
+            "area_outcomes": {},
+            "area_review_causes": {},
+            "area_needs_review": {
+              "count": 0,
+              "n": 0,
+              "rate": null,
+              "low": null,
+              "high": null
+            }
+          }
+        },
+        "pcb4": {
+          "flagged": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "rejected": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "referred": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "accepted_after_judging": {
+            "count": 0,
+            "n": 3,
+            "rate": 0.0,
+            "low": 0.0,
+            "high": 0.5614970356393196
+          },
+          "citations": {},
+          "dispositions": {
+            "boards": 3,
+            "not_flagged": 3,
+            "board_outcomes": {},
+            "board_review_causes": {},
+            "board_needs_review": {
+              "count": 0,
+              "n": 3,
+              "rate": 0.0,
+              "low": 0.0,
+              "high": 0.5614970356393196
+            },
+            "areas": 0,
+            "area_outcomes": {},
+            "area_review_causes": {},
+            "area_needs_review": {
+              "count": 0,
+              "n": 0,
+              "rate": null,
+              "low": null,
+              "high": null
+            }
+          }
+        }
+      }
+    },
+    "stale_region_truth": []
+  },
+  "times": {
+    "parse_seconds": 7.18159332399955,
+    "anomaly_seconds_per_image": {
+      "pcb1": 0.45808669000204344,
+      "pcb4": 0.18628624166982868
+    },
+    "flagged_images": 6,
+    "areas_asked": 6,
+    "areas_per_flagged_image": 1.0,
+    "measure_and_draw_seconds": {
+      "n": 6,
+      "p50": 0.09906749750371091,
+      "p95": 0.2352659602474887,
+      "mean": 0.11732763649585347,
+      "minimum": 0.04912650096230209,
+      "maximum": 0.27129382599378005
+    },
+    "vlm_seconds_per_area": {
+      "n": 6,
+      "p50": 2.2067200889869127,
+      "p95": 2.31580965698231,
+      "mean": 2.1661471809978443,
+      "minimum": 1.9703334200312383,
+      "maximum": 2.3220985389780253
+    },
+    "vlm_seconds_per_flagged_image": {
+      "n": 6,
+      "p50": 2.2067200889869127,
+      "p95": 2.31580965698231,
+      "mean": 2.1661471809978443,
+      "minimum": 1.9703334200312383,
+      "maximum": 2.3220985389780253
+    },
+    "flagged_image_seconds": {
+      "n": 6,
+      "p50": 2.6279740523265596,
+      "p95": 2.8565786996647753,
+      "mean": 2.6056612833296335,
+      "minimum": 2.238582313681642,
+      "maximum": 2.8822120640058224
+    },
+    "judge_stage_seconds": 13.77678159601055,
+    "prompt_tokens": {
+      "n": 6,
+      "p50": 4856.0,
+      "p95": 4893.0,
+      "mean": 4845.0,
+      "minimum": 4728.0,
+      "maximum": 4893.0
+    },
+    "completion_tokens": {
+      "n": 6,
+      "p50": 36.5,
+      "p95": 39.0,
+      "mean": 35.333333333333336,
+      "minimum": 30.0,
+      "maximum": 39.0
+    },
+    "output_tokens_per_second": null
+  },
+  "judge_memory": {
+    "process_peak_mib": null,
+    "card_peak_mib": 29786,
+    "card_before_mib": 29784,
+    "samples": 18,
+    "interval_seconds": 0.5,
+    "source": "xpu-smi",
+    "card": "0000:ba:00.0",
+    "process_note": "the judge's server runs in a container: xpu-smi ps does not list its process, even under sudo, and ss shows no pid, so its own figure is null and its card stands for it"
+  },
+  "inspector": {
+    "parse_seconds": 7.18159332399955,
+    "fit_seconds": {
+      "pcb1": 698.776051807974,
+      "pcb4": 700.7897639329894
+    },
+    "minutes_by_part": {
+      "pcb1": 11.76596075219956,
+      "pcb4": 11.799522620949817
+    },
+    "minutes_all_parts": 23.445790151082715
+  },
+  "leak": {
+    "decisions": 12,
+    "with_corrections_in_prompt": 6
+  },
+  "on_threshold": {
+    "tolerance": 0.001,
+    "parts": [
+      "pcb1",
+      "pcb4"
+    ],
+    "boards": [],
+    "elsewhere": [
+      {
+        "part": "pcb2",
+        "image_id": "bad-060",
+        "label": "bad",
+        "score": 29.304889678955078,
+        "threshold": 29.304889678955078,
+        "above": false
+      },
+      {
+        "part": "pcb3",
+        "image_id": "bad-097",
+        "label": "bad",
+        "score": 31.543020248413086,
+        "threshold": 31.54305076599121,
+        "above": false
+      }
+    ]
+  },
+  "checkpoints_held_to": {
+    "path": "results/stage2/checkpoints.json",
+    "sha256": "af420d92ee128a051f2d779b6f731b81a6e433d5168b142e52ee559cf2779815"
+  },
+  "digit_reasons": null,
+  "refused_answers": {
+    "answers": [],
+    "by_kind": {
+      "padded to the token limit": 0,
+      "not JSON": 0,
+      "reason over the character limit": 0,
+      "reason states a figure": 0,
+      "otherwise invalid": 0
+    },
+    "padded": 0
+  },
+  "not_final": [
+    "the whole labelled set: this is a partial run",
+    "the final setting: this is the corrections comparison"
+  ],
+  "repeat": null,
+  "notes": {
+    "protocol": "every figure is defined in eval/PROTOCOL-stage2.md, written before the run, with what eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md, eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md, eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md, eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md adds to it; each file's digest at the time of the run is under `protocol`",
+    "proportions": "count of n; rate, low and high are fractions of 1; low and high are the 95% Wilson score interval, z = 1.959964, no continuity correction",
+    "citation": "the heading id in the judge's validated answer about region 1, the most anomalous area; an image with no citation counts as wrong",
+    "units": "*_seconds and seconds are wall-clock seconds; *_mib is MiB as xpu-smi reports it; minutes are seconds / 60; anomaly scores and thresholds are raw PatchCore distances",
+    "percentiles": "numpy.percentile, linear interpolation between the ranked values",
+    "cold": "the cold comes from the server's start: vLLM ignores the request's cache_prompt and says nothing, so the server is started with its prefix cache off; judge.cold holds the flags as its container's command line gives them, the engine's own word, and the hit rate read from its log during the run, which above 0.0% voids the run",
+    "corrections": "corrections were recalled into the prompts from the declared store only, by the product's own recall; `declared_store` holds its digest, its recall and the boards it was drawn from, which are left out of the figures and keep their lines; `leak` counts the decisions with a correction in a prompt, and a correction from any other store voids the run",
+    "not_held_out": "the anomaly model's thresholds were chosen on the same test split, and the judge's prompt was written with sight of some of its images: see eval/PROTOCOL-stage2.md",
+    "inspector": "parse time is measured in this run and includes loading the parser's models; fit time is the one recorded when each part's model was trained, not repeated here",
+    "memory": "the anomaly model's card and the judge's are read from xpu-smi, each stage's under `memory` with the card it read; the judge's own process stays null in its container, where xpu-smi ps does not list it, and the card stands for it, 42 MiB on an idle card",
+    "warm_up": "one question before the judge's clock, as judged on the first flagged image and not recorded; judge.warm_up says it was asked and how long it took, not what it answered",
+    "on_threshold": "the rule is a strict >, so float noise decides a board whose score sits on its threshold: those of this run's boards are under `on_threshold` and the figure is read with them known",
+    "quantisation": "judge.server.quantisation is the engine's own word in its line in the server's log: `None` for weights it runs unquantised, `fp8` for FP8's, under the same dtype; a record without it was written before it was read, or the line and the flag could not be read"
+  },
+  "observations": [
+    {
+      "part": "pcb1",
+      "image_id": "good-0107",
+      "label": "good",
+      "score": 28.12590980529785,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.003172844008076936,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0484",
+      "label": "good",
+      "score": 26.846975326538086,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0012665700051002204,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0690",
+      "label": "good",
+      "score": 29.922090530395508,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0010524719837121665,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-000",
+      "label": "bad",
+      "score": 36.416343688964844,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.3",
+      "cited_class": "missing",
+      "sentence": "A header pin is missing from its pad.",
+      "row_id": "4.3",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9703334200312383,
+          "attempts": 1,
+          "prompt_tokens": 4728,
+          "completion_tokens": 31,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": true,
+      "judge_seconds": 2.0194599209935404,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-001",
+      "label": "bad",
+      "score": 48.042320251464844,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "The header pin labeled 'Trig' is bent, touching the adjacent pin.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.2969430109951645,
+          "attempts": 1,
+          "prompt_tokens": 4893,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": true,
+      "judge_seconds": 2.424125374003779,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-002",
+      "label": "bad",
+      "score": 49.85504913330078,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent out of alignment with its neighbors.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1836556689813733,
+          "attempts": 1,
+          "prompt_tokens": 4866,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": true,
+      "judge_seconds": 2.2946032769978046,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0107",
+      "label": "good",
+      "score": 24.4133358001709,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0013524990063160658,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0484",
+      "label": "good",
+      "score": 23.287858963012695,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0010846370132640004,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "good-0690",
+      "label": "good",
+      "score": 24.57741355895996,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.001036435947753489,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-000",
+      "label": "bad",
+      "score": 36.80284118652344,
+      "flagged": true,
+      "regions_found": 3,
+      "region1_types": [
+        "burnt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A blackened, charred area on the board surface under the heatmap.",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.229784508992452,
+          "attempts": 1,
+          "prompt_tokens": 4844,
+          "completion_tokens": 38,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": true,
+      "judge_seconds": 2.3169718959834427,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-001",
+      "label": "bad",
+      "score": 36.5971794128418,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "burnt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.7",
+      "cited_class": "burnt",
+      "sentence": "A burnt component on the board",
+      "row_id": "5.7",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9940679380088113,
+          "attempts": 1,
+          "prompt_tokens": 4846,
+          "completion_tokens": 30,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": true,
+      "judge_seconds": 2.0522960720118135,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb4",
+      "image_id": "bad-002",
+      "label": "bad",
+      "score": 44.129638671875,
+      "flagged": true,
+      "regions_found": 2,
+      "region1_types": [
+        "dirt"
+      ],
+      "citation": "cited",
+      "cited_heading": "5.5",
+      "cited_class": "damage",
+      "sentence": "The USB receptacle is damaged, with visible chipping and wear on its shell.",
+      "row_id": "5.5",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.3220985389780253,
+          "attempts": 1,
+          "prompt_tokens": 4893,
+          "completion_tokens": 39,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": true,
+      "judge_seconds": 2.5933923649718054,
+      "digit_reasons": [],
+      "refused": []
+    }
+  ],
+  "declared_store": {
+    "file": {
+      "path": "results/stage2/comparison-corrections/store.sqlite3",
+      "sha256": "e43072ed4d3cbf2d5257cbb8e6f6c62add126675d4a0b4d7e6b8e8815077ea0c"
+    },
+    "strategy": "part",
+    "limit": 3,
+    "corrections": 14,
+    "excluded": {
+      "pcb1": [
+        "bad-078",
+        "bad-092",
+        "bad-052",
+        "bad-061",
+        "bad-004",
+        "bad-021",
+        "bad-085",
+        "bad-042",
+        "bad-033",
+        "bad-029"
+      ],
+      "pcb4": [
+        "bad-077",
+        "bad-096",
+        "bad-059",
+        "bad-065",
+        "bad-011",
+        "bad-026",
+        "bad-051",
+        "bad-044",
+        "bad-038",
+        "bad-015"
+      ]
+    },
+    "recalled": {
+      "pcb1": [
+        "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: Missing component.",
+        "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'bent' (clause 4.4). The engineer's note: Bent header pin.",
+        "On a pcb1 board the judge called the flagged area 'melt' (clause 4.1); the engineer corrected it to 'missing' (clause 4.3). The engineer's note: Missing component."
+      ],
+      "pcb4": [
+        "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'damage' (clause 5.5). The engineer's note: Damaged component or board.",
+        "On a pcb4 board the judge called the flagged area 'dirt' (clause 5.1); the engineer corrected it to 'extra' (clause 5.3). The engineer's note: Extra component or object.",
+        "On a pcb4 board the judge called the flagged area 'missing' (clause 5.2); the engineer corrected it to 'extra' (clause 5.3). The engineer's note: Extra component or object."
+      ]
+    }
+  }
+}

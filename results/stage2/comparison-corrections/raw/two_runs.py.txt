@@ -1,0 +1,309 @@
+"""Make the corrections comparison's `two-runs.md` and `moves.md` from its files alone.
+
+One-off evidence, kept as text so that the gate does not lint it as code. From the repository's root:
+
+    uv run python results/stage2/comparison-corrections/raw/two_runs.py.txt
+"""
+
+import json
+import re
+from collections import Counter
+from collections.abc import Sequence
+from pathlib import Path
+from typing import cast
+
+from spec_to_inspector.bench.labels import read_labels
+from spec_to_inspector.bench.record import BenchRecord, read_record
+from spec_to_inspector.bench.score import cites, score
+
+FOLDER = Path("results/stage2/comparison-corrections")
+FINAL = Path("results/stage2/final/bench.json")
+LABELS = Path("eval/clause_labels.csv")
+SECTIONS = {
+    "scores": "Figures 1 to 6: `scores`",
+    "labels": "Figures 1 to 6: `scores`",
+    "times": "Figure 7: `times`",
+    "inspector": "Figure 8: `inspector`",
+    "runs": "Figures 7 and 9: `runs`",
+    "judge_memory": "Figure 9: `judge_memory`",
+    "observations": "Board by board: `observations`",
+    "refused_answers": "Refused answers",
+    "on_threshold": "The boards on the threshold",
+    "declared_store": "The store: `declared_store`",
+    "leak": "Corrections in a prompt: `leak`",
+    "specification": "The specification",
+    "judge": "How the judge was asked: `judge`",
+}
+OTHER = "What the record is made of"
+BOARD_FIELDS = ("flagged", "score", "citation", "cited_heading", "cited_class", "sentence")
+
+
+def table(head: Sequence[str], rows: Sequence[Sequence[object]]) -> list[str]:
+    """Lay out a Markdown table."""
+    return [
+        f"| {' | '.join(head)} |",
+        f"| {' | '.join('---' for _ in head)} |",
+        *(f"| {' | '.join(str(cell) for cell in row)} |" for row in rows),
+    ]
+
+
+def flattened(value: object, prefix: str = "") -> dict[str, object]:
+    """Lay a record's JSON out as one value per field, a board by its part and id, the rest by place.
+
+    A part's boards share their ids with the other part's, and a board's refused answers can share
+    their area, so a list's items are named by where they stand unless the item is a board's line.
+    """
+    if isinstance(value, dict):
+        fields: dict[str, object] = {}
+        for key, item in cast("dict[str, object]", value).items():
+            fields.update(flattened(item, f"{prefix}.{key}" if prefix else key))
+        return fields
+    if isinstance(value, list):
+        fields = {}
+        for position, item in enumerate(cast("list[object]", value)):
+            name = (
+                f"{item['part']} {item['image_id']}"
+                if prefix == "observations" and isinstance(item, dict)
+                else position
+            )
+            fields.update(flattened(item, f"{prefix}[{name}]"))
+        return fields
+    return {prefix: value}
+
+
+def shown(value: object) -> str:
+    """Write a value in a table's cell, a float to four places and a long one cut with its length."""
+    if isinstance(value, float):
+        return f"{value:.4f}"
+    text = str(value)
+    return text if len(text) <= 80 else f"{text[:77]}... ({len(text)} characters)"
+
+
+def section(field: str) -> str:
+    """Name the part of the record a field falls in."""
+    return SECTIONS.get(re.split(r"[.\[]", field, maxsplit=1)[0], OTHER)
+
+
+def two_runs(first: BenchRecord, second: BenchRecord) -> str:
+    """Write every value that differs between the two runs."""
+    lines = [
+        "# The corrections comparison's two runs: every value that differs",
+        "",
+        "Made from the two records alone, field by field: `first-run.json` and `bench.json`, by "
+        "`raw/two_runs.py.txt`. A field not listed reads the same in both.",
+        "",
+        "## The boards",
+        "",
+    ]
+    before = {line.key: line for line in first.observations}
+    after = {line.key: line for line in second.observations}
+    both = before.keys() & after.keys()
+    lines += [
+        *table(
+            ("Boards in both", *BOARD_FIELDS),
+            [
+                (
+                    len(both),
+                    *(
+                        sum(getattr(before[key], name) != getattr(after[key], name) for key in both)
+                        for name in BOARD_FIELDS
+                    ),
+                )
+            ],
+        ),
+        "",
+    ]
+    was = flattened(cast("object", json.loads(first.model_dump_json())))
+    now = flattened(cast("object", json.loads(second.model_dump_json())))
+    tally: dict[str, list[int]] = {}
+    differing: dict[str, list[tuple[str, object, object]]] = {}
+    for field in sorted(was.keys() | now.keys()):
+        name = section(field)
+        counts = tally.setdefault(name, [0, 0])
+        counts[0] += 1
+        if was.get(field) != now.get(field):
+            counts[1] += 1
+            differing.setdefault(name, []).append((field, was.get(field), now.get(field)))
+    lines += [
+        "## The fields of the record",
+        "",
+        *table(
+            ("Part of the record", "Fields", "Fields that differ"),
+            [(name, *counts) for name, counts in sorted(tally.items())],
+        ),
+        "",
+    ]
+    for name in sorted(differing):
+        lines += [
+            f"## {name}",
+            "",
+            *table(
+                ("Field", "Run 1", "Run 2"),
+                [(f"`{f}`", shown(a), shown(b)) for f, a, b in differing[name]],
+            ),
+            "",
+        ]
+    return "\n".join(lines)
+
+
+def said(line: object) -> str:
+    """Name what a board's answer on region 1 was."""
+    if line.citation.value == "cited":
+        return f"{line.cited_class} {line.cited_heading}"
+    return line.citation.value
+
+
+def moves(final: BenchRecord, comparison: BenchRecord) -> str:
+    """Write which boards moved, in which direction, and to what, by the same readers as figure 10."""
+    store = comparison.declared_store
+    excluded = store.excluded_keys
+    labels = read_labels(LABELS)
+    was = {line.key: line for line in final.observations}
+    now = {line.key: line for line in comparison.observations}
+    lines = [
+        "# The corrections comparison: what moved",
+        "",
+        "Made from `results/stage2/final/bench.json` and this folder's `bench.json` by "
+        "`raw/two_runs.py.txt`. The final against the second run, on the boards figure 10 counts, by "
+        "its reader of right and wrong. A reading beside the sign test and not a test of its own.",
+        "",
+    ]
+    rows = [row for row in labels if (row.part, row.image_id) not in excluded]
+    on_final = score(rows, [line for line in final.observations if line.key not in excluded])
+    here = comparison.scores
+
+    def cell(figure: object) -> str:
+        return (
+            f"{figure.rate:.1%} ({figure.count} of {figure.n}), {figure.low:.1%} to {figure.high:.1%}"
+        )
+
+    lines += [
+        "## The figures on the same boards",
+        "",
+        "The final's counted by the bench's `score` on the boards this comparison counts, the "
+        "comparison's as its record holds them. Each has its 95% interval. The sign test is on the "
+        "first and the fourth rows' pairs, in `paired.json`; the others are readings.",
+        "",
+        *table(
+            ("Figure", "The final, on the same boards", "With corrections"),
+            [
+                ("Strict", cell(on_final.headline.strict.all), cell(here.headline.strict.all)),
+                (
+                    "Strict, pcb1",
+                    cell(on_final.headline.strict.by_part["pcb1"]),
+                    cell(here.headline.strict.by_part["pcb1"]),
+                ),
+                (
+                    "Strict, pcb4",
+                    cell(on_final.headline.strict.by_part["pcb4"]),
+                    cell(here.headline.strict.by_part["pcb4"]),
+                ),
+                ("Lenient", cell(on_final.lenient.all), cell(here.lenient.all)),
+                (
+                    "Lenient, pcb1",
+                    cell(on_final.lenient.by_part["pcb1"]),
+                    cell(here.lenient.by_part["pcb1"]),
+                ),
+                (
+                    "Lenient, pcb4",
+                    cell(on_final.lenient.by_part["pcb4"]),
+                    cell(here.lenient.by_part["pcb4"]),
+                ),
+                ("Per region", cell(on_final.per_region.all), cell(here.per_region.all)),
+                (
+                    "Anomalous boards referred",
+                    cell(on_final.anomalous.board_needs_review),
+                    cell(here.anomalous.board_needs_review),
+                ),
+                ("Good boards rejected", cell(on_final.good.all.rejected), cell(here.good.all.rejected)),
+                ("Good boards referred", cell(on_final.good.all.referred), cell(here.good.all.referred)),
+            ],
+        ),
+        "",
+    ]
+    for single, name in ((True, "Strict, the 115"), (False, "Lenient, the 65")):
+        rows = [
+            row
+            for row in labels
+            if row.single is single and (row.part, row.image_id) not in excluded
+        ]
+        lines += [f"## {name}", ""]
+        counted = []
+        for part in ("pcb1", "pcb4"):
+            mine = [row for row in rows if row.part == part]
+            right_before = sum(cites(was[(part, r.image_id)], r.expected_headings) for r in mine)
+            right_after = sum(cites(now[(part, r.image_id)], r.expected_headings) for r in mine)
+            only_final = sum(
+                cites(was[(part, r.image_id)], r.expected_headings)
+                and not cites(now[(part, r.image_id)], r.expected_headings)
+                for r in mine
+            )
+            only_comparison = sum(
+                cites(now[(part, r.image_id)], r.expected_headings)
+                and not cites(was[(part, r.image_id)], r.expected_headings)
+                for r in mine
+            )
+            changed = sum(
+                said(was[(part, r.image_id)]) != said(now[(part, r.image_id)]) for r in mine
+            )
+            counted.append(
+                (part, len(mine), right_before, right_after, only_final, only_comparison, changed)
+            )
+        lines += [
+            *table(
+                (
+                    "Part",
+                    "Boards",
+                    "Right on the final",
+                    "Right with corrections",
+                    "Right only on the final",
+                    "Right only with corrections",
+                    "Answers that changed at all",
+                ),
+                counted,
+            ),
+            "",
+        ]
+        for part in ("pcb1", "pcb4"):
+            mine = [row for row in rows if row.part == part]
+            before = Counter(said(was[(part, r.image_id)]) for r in mine)
+            after = Counter(said(now[(part, r.image_id)]) for r in mine)
+            lines += [
+                f"What the judge said on {part}'s boards here, region 1:",
+                "",
+                *table(
+                    ("Answer", "The final", "With corrections"),
+                    [(key, before[key], after[key]) for key in sorted(before.keys() | after.keys())],
+                ),
+                "",
+            ]
+    good = [line for line in comparison.observations if line.image_id.startswith("good")]
+    lines += ["## The good boards, none of them drawn", ""]
+    for part in ("pcb1", "pcb4"):
+        before = Counter(
+            said(was[line.key])
+            for line in good
+            if line.part == part and was[line.key].flagged
+        )
+        after = Counter(said(line) for line in good if line.part == part and line.flagged)
+        lines += [
+            f"What the judge said on {part}'s flagged good boards, region 1:",
+            "",
+            *table(
+                ("Answer", "The final", "With corrections"),
+                [(key, before[key], after[key]) for key in sorted(before.keys() | after.keys())],
+            ),
+            "",
+        ]
+    return "\n".join(lines)
+
+
+def main() -> None:
+    """Write the two pages."""
+    first, second = read_record(FOLDER / "first-run.json"), read_record(FOLDER / "bench.json")
+    (FOLDER / "two-runs.md").write_text(two_runs(first, second), encoding="utf-8")
+    (FOLDER / "moves.md").write_text(moves(read_record(FINAL), second), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()

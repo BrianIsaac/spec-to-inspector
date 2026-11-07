@@ -1,0 +1,25 @@
+Loading weights:   0%|          | 0/770 [00:00<?, ?it/s]Loading weights: 100%|██████████| 770/770 [00:00<00:00, 13944.79it/s]
+Parsed specs/pcb-spec.pdf in 7.0 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+pcb1: scored 200 images in 19.9 s into runs/pcb1/corrections; 92 of 100 anomalous and 19 of 100 good boards flagged
+pcb4: scored 201 images in 18.1 s into runs/pcb4/corrections; 97 of 100 anomalous and 9 of 101 good boards flagged
+Asked the warm-up question on pcb1 good-0214 in 2.0 s
+Judged 25 of 217 flagged images, 56 s
+Judged 50 of 217 flagged images, 111 s
+Judged 75 of 217 flagged images, 168 s
+Judged 100 of 217 flagged images, 223 s
+Judged 125 of 217 flagged images, 280 s
+Judged 150 of 217 flagged images, 339 s
+Judged 175 of 217 flagged images, 398 s
+Judged 200 of 217 flagged images, 466 s
+Judged 217 of 217 flagged images, 538 s
+Clause-citation accuracy, strict, 115 single-defect images: 40.0% (46 of 115), 95% interval 31.5% to 49.1%
+Lenient, 65 multi-defect images: 44.6% (29 of 65), 95% interval 33.2% to 56.7%
+Per region, one defect type under region 1: 44.7% (59 of 132), 95% interval 36.5% to 53.2%
+Good boards rejected: 9.5% (19 of 201), 95% interval 6.1% to 14.3%; flagged by the anomaly model: 13.9% (28 of 201)
+Corrections in a prompt: 217 of 401 decisions
+The declared store: results/stage2/comparison-corrections/store.sqlite3, 14 corrections, 20 boards left out of the figures
+Not yet final: the final setting: this is the corrections comparison
+Figures: results/stage2/comparison-corrections/bench.json
+Figure 10: results/stage2/comparison-corrections/paired.json
+Page: results/stage2/comparison-corrections/README.md

@@ -1,0 +1,17 @@
+Loading weights:   0%|          | 0/770 [00:00<?, ?it/s]Loading weights: 100%|██████████| 770/770 [00:00<00:00, 13092.96it/s]
+Parsed specs/pcb-spec.pdf in 7.2 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+pcb1: scored 6 images in 2.7 s into /home/devcloud/corrections-run/trial/runs/pcb1/corrections; 3 of 3 anomalous and 0 of 3 good boards flagged
+pcb4: scored 6 images in 1.1 s into /home/devcloud/corrections-run/trial/runs/pcb4/corrections; 3 of 3 anomalous and 0 of 3 good boards flagged
+Asked the warm-up question on pcb1 bad-000 in 2.1 s
+Judged 6 of 6 flagged images, 14 s
+Partial run, not the protocol's figures. Clause-citation accuracy, strict, 3 single-defect images: 66.7% (2 of 3), 95% interval 20.8% to 93.9%
+Lenient, 3 multi-defect images: 66.7% (2 of 3), 95% interval 20.8% to 93.9%
+Per region, one defect type under region 1: 66.7% (4 of 6), 95% interval 30.0% to 90.3%
+Good boards rejected: 0.0% (0 of 6), 95% interval 0.0% to 39.0%; flagged by the anomaly model: 0.0% (0 of 6)
+Corrections in a prompt: 6 of 12 decisions
+The declared store: results/stage2/comparison-corrections/store.sqlite3, 14 corrections, 20 boards left out of the figures
+Not yet final: the whole labelled set: this is a partial run
+Not yet final: the final setting: this is the corrections comparison
+Figures: /home/devcloud/corrections-run/trial/bench.json
+Page: /home/devcloud/corrections-run/trial/README.md
