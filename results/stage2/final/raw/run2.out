@@ -1,0 +1,23 @@
+Loading weights:   0%|          | 0/770 [00:00<?, ?it/s]Loading weights: 100%|██████████| 770/770 [00:00<00:00, 13565.70it/s]
+Parsed specs/pcb-spec.pdf in 6.5 s: 16 clauses under 11 headings, equal to specs/pcb-spec.clauses.json
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+pcb1: scored 200 images in 19.9 s into runs/pcb1/bench; 92 of 100 anomalous and 19 of 100 good boards flagged
+pcb4: scored 201 images in 18.1 s into runs/pcb4/bench; 97 of 100 anomalous and 9 of 101 good boards flagged
+Asked the warm-up question on pcb1 good-0214 in 2.0 s
+Judged 25 of 217 flagged images, 54 s
+Judged 50 of 217 flagged images, 110 s
+Judged 75 of 217 flagged images, 171 s
+Judged 100 of 217 flagged images, 226 s
+Judged 125 of 217 flagged images, 283 s
+Judged 150 of 217 flagged images, 338 s
+Judged 175 of 217 flagged images, 395 s
+Judged 200 of 217 flagged images, 459 s
+Judged 217 of 217 flagged images, 527 s
+Clause-citation accuracy, strict, 135 single-defect images: 34.1% (46 of 135), 95% interval 26.6% to 42.4%
+Lenient, 65 multi-defect images: 70.8% (46 of 65), 95% interval 58.8% to 80.4%
+Per region, one defect type under region 1: 36.2% (54 of 149), 95% interval 29.0% to 44.2%
+Good boards rejected: 8.0% (16 of 201), 95% interval 5.0% to 12.5%; flagged by the anomaly model: 13.9% (28 of 201)
+Corrections in a prompt: 0 of 401 decisions
+Against the run of 2026-11-07T06:06:49+00:00: 0 of 217 images cite another heading, 0 name another class, 0 give another sentence; the figures are equal
+Figures: results/stage2/final/bench.json
+Page: results/stage2/final/README.md
