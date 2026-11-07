@@ -59,8 +59,7 @@ What each stage reads and writes:
 | Judge | `spec_to_inspector.judge` | the clause table, the measured facts, the crop and its heatmap overlay, up to three corrections | the model's answer: defect class, clause, one sentence |
 | Decide | `spec_to_inspector.judge` | the answer, the clause's limit, the measurement | `decision.json`: the outcome, the clause applied, the reason in words written by code |
 | Correct | `spec_to_inspector.corrections` | an engineer's override, from the console's form or the `correct` verb | a row in one SQLite file, shown to the judge on later boards of the part |
-| Show | `spec_to_inspector.app` | everything above, from disk | four server-rendered pages: Specification, Train, Batch, and the reject card |
-| Show, as files | `spec_to_inspector.batch` | the decisions on disk, when `inspect` ends | in the run's directory, on every form of the verb: `report.html` with its stylesheet, and `<image>/reject-card.html` for each rejected board |
+| Show | `spec_to_inspector.app`; `spec_to_inspector.batch` for the files | everything above, from disk | four server-rendered pages: Specification, Train, Batch, and the reject card; and as files, which `inspect` writes into the run's directory on every form of the verb, `report.html` with its stylesheet and `<image>/reject-card.html` for each rejected board |
 | Measure the whole | `spec_to_inspector.bench` | the labelled set in `eval/` | `results/stage1/bench.json` and the page beside it; on the machine, where `eval/PROTOCOL-stage2.md` says |
 | Measure a batch | `spec_to_inspector.batch` | the specification's PDF and a part's whole test split, under `inspect --record` | the record named: figures 7, 8 and 9 and the counts, with each card's readings and the server's log beside it |
 
