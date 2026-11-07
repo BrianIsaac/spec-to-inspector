@@ -1,0 +1,27 @@
+{
+  "run": "bench",
+  "runs_dir": "/home/devcloud/before-final/runs",
+  "old_sha256": "0477eb9706a7772b057b1ed85cb165a37128b7211633ca62c4d00a853b807dcd",
+  "new_sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337",
+  "rows": 200,
+  "changes": [
+    {
+      "part": "pcb1",
+      "image_id": "bad-029",
+      "defects": "single",
+      "expected_headings": [
+        "4.1"
+      ],
+      "old_region1": "no region",
+      "old_types": [],
+      "old_headings": [],
+      "new_region1": "one type",
+      "new_types": [
+        "melt"
+      ],
+      "new_headings": [
+        "4.1"
+      ]
+    }
+  ]
+}

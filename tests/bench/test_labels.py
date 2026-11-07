@@ -375,3 +375,13 @@ def test_the_command_refuses_a_part_whose_run_is_not_whole(
     assert result.exit_code == 1
     assert "bad-001" in result.output
     assert out.read_bytes() == before
+
+
+def test_the_tracked_columns_are_the_regenerated_ones_on_record() -> None:
+    """The addition's record: the file's digest is the one the regeneration wrote."""
+    written = RegionColumnsChange.model_validate_json(
+        (ROOT / "results" / "stage2" / "region-columns" / "changes.json").read_text("utf-8")
+    )
+
+    assert hashlib.sha256(TRACKED.read_bytes()).hexdigest() == written.new_sha256
+    assert written.rows == 200
