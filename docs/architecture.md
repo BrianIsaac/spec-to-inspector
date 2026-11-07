@@ -93,10 +93,12 @@ flowchart LR
 
 Every line has run. On the machine, two whole Intel Arc Pro B70s of 32,656 MiB
 each in one bare-metal host (`results/stage2/week1/machine.md`), that means the
-judge at FP16, and PatchCore trained and scored on XPU in FP32, on all four parts,
-in two runs (`results/stage2/week2/README.md`). Anomalib's OpenVINO export has run
-too and is measured; nothing in the pipeline runs through it. The judge at FP8, the
-bench on the models trained on the machine and the final run have not run.
+judge at FP16, and at FP8 as a declared comparison
+(`results/stage2/comparison-fp8/COMPARISON.md`), and PatchCore trained and scored on
+XPU in FP32, on all four parts, in two runs (`results/stage2/week2/README.md`).
+Anomalib's OpenVINO export has run too and is measured; nothing in the pipeline runs
+through it. The bench has run on the models trained on the machine: that is the final
+run, on 7 November 2026 (`results/stage2/final/FINAL.md`).
 
 - **The judge's backend is a setting.** The client speaks the
   OpenAI-compatible chat API over HTTP, so the server behind it is two
@@ -128,4 +130,4 @@ bench on the models trained on the machine and the final run have not run.
 
 `docs/stage2.md` has the memory plan per stage on the machine, what the plan
 assumed about it before it was seen, and what Stage II will measure.
-`eval/PROTOCOL-stage2.md`, with its dated addition, is how it is measured.
+`eval/PROTOCOL-stage2.md`, with its two dated additions, is how it is measured.
