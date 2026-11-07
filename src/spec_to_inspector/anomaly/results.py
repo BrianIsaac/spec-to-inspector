@@ -2,8 +2,8 @@
 
 `models/` and `runs/` are outside git and go with the worktree; this module
 reads each category's training record, run index and bench record from them
-and writes `results/stage1/anomaly.json`, the file the deck's figures and the
-later units quote.
+and writes the file of figures other documents quote: `results/stage1/anomaly.json`
+for the laptop's models, a file under `results/stage2/` for the machine's.
 """
 
 from collections.abc import Sequence
@@ -33,15 +33,31 @@ from spec_to_inspector.anomaly.throughput import load_bench
 from spec_to_inspector.anomaly.train import load_train_record
 
 UNIT: Final = "U2"
-NOTES: Final = (
-    "AUROC and F1 are fractions of 1; *_points are percentage points (AUROC x 100).",
-    "*_bytes are bytes; *_seconds and seconds are wall-clock seconds.",
-    "Thresholds, scores and anomaly-map values are raw PatchCore distances, not normalised.",
-    "peak_allocated_bytes is torch.cuda.max_memory_allocated; peak_reserved_bytes is "
-    "torch.cuda.max_memory_reserved, which is what the card actually gives up.",
-    "Where thresholds.tuned_on_test is true, every thresholded figure (F1, the confusion "
-    "counts, predicted_anomalous) was tuned on the test images; AUROC needs no threshold.",
-)
+XPU_UNIT: Final = "stage2"
+
+
+def notes_for(*, xpu: bool) -> tuple[str, ...]:
+    """Write the file's units and conventions, in the words true of the device measured.
+
+    Args:
+        xpu: Whether the models were trained on an Intel card, through `torch.xpu`.
+
+    Returns:
+        The notes.
+    """
+    counters = "torch.xpu" if xpu else "torch.cuda"
+    return (
+        "AUROC and F1 are fractions of 1; *_points are percentage points (AUROC x 100).",
+        "*_bytes are bytes; *_seconds and seconds are wall-clock seconds.",
+        "Thresholds, scores and anomaly-map values are raw PatchCore distances, not normalised.",
+        f"peak_allocated_bytes is {counters}.max_memory_allocated; peak_reserved_bytes is "
+        f"{counters}.max_memory_reserved, which is what the card actually gives up.",
+        "Where thresholds.tuned_on_test is true, every thresholded figure (F1, the confusion "
+        "counts, predicted_anomalous) was tuned on the test images; AUROC needs no threshold.",
+    )
+
+
+NOTES: Final = notes_for(xpu=False)
 
 
 class RunSummary(BaseModel):
@@ -124,7 +140,8 @@ class AnomalyResults(BaseModel):
 
     Attributes:
         schema_version: The version of this file's layout.
-        unit: The Stage I unit that measured the figures.
+        unit: What measured the figures: Stage I's unit for models trained on
+            the laptop, `stage2` for models trained on an Intel card.
         created_at: When the file was collected, in UTC, ISO 8601.
         written_by: The command line that collected it.
         reference_source: Where the published figures come from.
@@ -234,7 +251,10 @@ def collect(
             bench=bench,
             stale=stale,
         )
+    xpu = any(entry.record.device.kind == "xpu" for entry in figures.values())
     return AnomalyResults(
+        unit=XPU_UNIT if xpu else UNIT,
+        notes=list(notes_for(xpu=xpu)),
         created_at=datetime.now(UTC).isoformat(timespec="seconds"),
         written_by=list(written_by),
         outside_gate=[

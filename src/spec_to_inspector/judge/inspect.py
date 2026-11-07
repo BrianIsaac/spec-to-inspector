@@ -37,7 +37,13 @@ from PIL import Image
 
 from spec_to_inspector.anomaly.records import ImageResult, Region, RunIndex
 from spec_to_inspector.anomaly.regions import upsample
-from spec_to_inspector.judge.answer import AnswerError, JudgeAnswer, answer_schema, parse_answer
+from spec_to_inspector.judge.answer import (
+    RECORDED,
+    AnswerError,
+    JudgeAnswer,
+    answer_schema,
+    parse_answer,
+)
 from spec_to_inspector.judge.client import ChatClient, Completion, Message, VlmError
 from spec_to_inspector.judge.decision import (
     Cause,
@@ -55,6 +61,7 @@ from spec_to_inspector.judge.join import JoinError, calibration_for, measure_reg
 from spec_to_inspector.judge.overlay import encode_png, heatmap_overlay
 from spec_to_inspector.judge.prompt import build_messages, repair_messages
 from spec_to_inspector.measure import Calibration, ZoneMap
+from spec_to_inspector.settings import ReasonRule
 from spec_to_inspector.spec.schema import Specification
 
 RESULT_NAME: Final = "result.json"
@@ -124,6 +131,7 @@ def ask_judge(
     schema: dict[str, object],
     *,
     cache_prompt: bool | None = None,
+    reason_rule: ReasonRule = "no_digits",
 ) -> Asked:
     """Ask the judge one question and validate its answer, retrying a refused answer once.
 
@@ -137,6 +145,7 @@ def ask_judge(
         schema: The answer's JSON schema, for constrained decoding.
         cache_prompt: llama.cpp's per-request prompt-cache switch; None
             leaves the server's default.
+        reason_rule: What the reason may hold.
 
     Returns:
         The validated answer, or the cause there is none, with the record of
@@ -153,7 +162,8 @@ def ask_judge(
             return Asked(None, failed, Cause.SERVER_UNAVAILABLE)
         completions.append(completion)
         try:
-            return Asked(parse_answer(completion.text), _call(completions, attempts=attempt), None)
+            answer = parse_answer(completion.text, reason_rule=reason_rule)
+            return Asked(answer, _call(completions, attempts=attempt), None)
         except AnswerError as error:
             problem = error.problem
             conversation = repair_messages(messages, error)
@@ -251,6 +261,7 @@ def _judge_region(
     corrections: Sequence[str],
     recall_on_answer: AnswerRecall | None,
     cache_prompt: bool | None,
+    reason_rule: ReasonRule,
     write: bool,
 ) -> RegionDecision:
     """Measure one region, show it to the judge and decide it.
@@ -265,6 +276,7 @@ def _judge_region(
             the judge gives; when it recalls any, the judge is asked once
             more with those and the second answer stands.
         cache_prompt: llama.cpp's per-request prompt-cache switch.
+        reason_rule: What the reason may hold.
         write: Whether to keep the overlay as a file beside the crops.
 
     Returns:
@@ -328,8 +340,9 @@ def _judge_region(
         return ask_judge(
             client,
             messages,
-            answer_schema(specification, result.category),
+            answer_schema(specification, result.category, reason_rule=reason_rule),
             cache_prompt=cache_prompt,
+            reason_rule=reason_rule,
         )
 
     in_prompt = tuple(corrections)
@@ -373,6 +386,7 @@ def _judge_regions(
     recall: Recall | None,
     recall_on_answer: AnswerRecall | None,
     cache_prompt: bool | None,
+    reason_rule: ReasonRule,
     write: bool,
 ) -> tuple[Verdict, list[RegionDecision]]:
     """Judge an image's regions in rank order and combine them.
@@ -386,6 +400,7 @@ def _judge_regions(
         recall: Recalls the corrections for the part, if a store exists.
         recall_on_answer: Recalls the corrections on record for an answer.
         cache_prompt: llama.cpp's per-request prompt-cache switch.
+        reason_rule: What the reason may hold.
         write: Whether to keep each overlay as a file.
 
     Returns:
@@ -413,6 +428,7 @@ def _judge_regions(
             corrections=corrections,
             recall_on_answer=recall_on_answer,
             cache_prompt=cache_prompt,
+            reason_rule=reason_rule,
             write=write,
         )
         decided.append(decision)
@@ -453,6 +469,7 @@ def judge_image(
     recall_on_answer: AnswerRecall | None = None,
     overridden: Overridden | None = None,
     cache_prompt: bool | None = None,
+    reason_rule: ReasonRule = "no_digits",
     write: bool = True,
 ) -> Decision:
     """Decide one image of a run, and write the decision beside its result.
@@ -478,6 +495,7 @@ def judge_image(
             image of a part; it sets the decision's flag.
         cache_prompt: llama.cpp's per-request prompt-cache switch; None
             leaves the server's default.
+        reason_rule: What the judge's reason may hold.
         write: Whether to write `decision.json` and the overlays; a timing
             run asks and decides without leaving files.
 
@@ -510,6 +528,7 @@ def judge_image(
             recall=recall,
             recall_on_answer=recall_on_answer,
             cache_prompt=cache_prompt,
+            reason_rule=reason_rule,
             write=write,
         )
     elif result.predicted_anomalous:
@@ -567,7 +586,9 @@ def load_decision(directory: Path) -> Decision:
     Returns:
         The decision.
     """
-    return Decision.model_validate_json((directory / DECISION_NAME).read_text(encoding="utf-8"))
+    return Decision.model_validate_json(
+        (directory / DECISION_NAME).read_text(encoding="utf-8"), context=RECORDED
+    )
 
 
 def read_run_index(run_directory: Path) -> RunIndex:

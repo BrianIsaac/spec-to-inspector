@@ -12,6 +12,7 @@ from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import DECISION_NAME
 from spec_to_inspector.judge.timing import (
+    NOTES,
     GpuReading,
     GpuSampler,
     JudgeResults,
@@ -20,6 +21,7 @@ from spec_to_inspector.judge.timing import (
     TimingError,
     listening_pid,
     measure,
+    notes_for,
     parse_listening_pid,
     parse_nvidia_smi,
     read_results,
@@ -27,6 +29,7 @@ from spec_to_inspector.judge.timing import (
     spread,
     update_results,
 )
+from spec_to_inspector.judge.vllm_server import ServerReading
 from spec_to_inspector.spec.schema import write_clause_table
 from tests.judge.fake_vlm import FakeVlm, Reply
 from tests.judge.run_fakes import write_run
@@ -346,3 +349,45 @@ def test_a_figures_file_that_cannot_be_read_stops_the_command_before_it_measures
     assert result.exit_code == 1
     assert "judge.json" in result.output
     assert server.requests == []
+
+
+def test_on_the_machine_the_figures_say_what_is_true_there(
+    timed: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`xpu-smi`, a cold from the server's start, and the server's facts with no `/props`."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DEVICE", "xpu")
+    monkeypatch.setattr(timing_module, "device_sampler", lambda _settings: GpuSampler(_no_gpu))
+    monkeypatch.setattr(
+        timing_module,
+        "read_server",
+        lambda _url, _container: ServerReading(
+            facts={"vllm_version": "0.26.1.dev0"},
+            sources={},
+            image_min_tokens="1024",
+            cold_flags=(),
+            engine_prefix_caching=False,
+            started_at=None,
+        ),
+    )
+    with FakeVlm(default=REPLY) as server:
+        monkeypatch.setenv("SPEC_TO_INSPECTOR_VLM_URL", server.url)
+        result = CliRunner().invoke(_command(), [*timed, "--results", "judge.json"])
+
+    assert result.exit_code == 0, result.output
+    stored = read_results(tmp_path / "judge.json")
+    assert stored.timing is not None
+    assert stored.timing.server == {"vllm_version": "0.26.1.dev0"}
+    written = json.dumps(stored.notes)
+    assert "xpu-smi" in stored.notes["units"]
+    assert "the server was started with its prefix cache off" in stored.notes["cold"]
+    assert "nvidia-smi" not in written
+    assert notes_for("cuda") == NOTES
+    assert "nvidia-smi" in notes_for("cuda")["units"]
+
+
+def test_a_later_section_keeps_the_notes_the_file_has(tmp_path: Path) -> None:
+    """The live test writes its own section and does not change what the timing's notes say."""
+    path = tmp_path / "judge.json"
+    update_results(path, notes=notes_for("xpu"))
+    update_results(path, live=_live())
+    assert "xpu-smi" in read_results(path).notes["units"]

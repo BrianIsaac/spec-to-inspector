@@ -11,15 +11,17 @@ from spec_to_inspector.anomaly.infer import visa_test_items
 from spec_to_inspector.bench import run as benching
 from spec_to_inspector.bench.record import read_record, write_record
 from spec_to_inspector.cli import app
+from spec_to_inspector.judge.answer import REASON_PATTERNS
 from spec_to_inspector.settings import Settings
 from tests.bench.bench_fakes import (
     REPLIES,
+    machine_probes,
     stub_models,
     stub_scoring,
     write_bench_labels,
     write_bench_visa,
 )
-from tests.bench.conftest import tracked
+from tests.bench.conftest import WARM_UP, tracked
 from tests.judge.fake_vlm import FakeVlm
 
 ROOT = Path(__file__).parents[1]
@@ -47,7 +49,8 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
     write_bench_labels(
         tmp_path / "data" / "visa", tmp_path / "runs", Path("eval/clause_labels.csv")
     )
-    shutil.copy(ROOT / "eval" / "PROTOCOL.md", "eval/PROTOCOL.md")
+    for protocol in (ROOT / "eval").glob("PROTOCOL*.md"):
+        shutil.copy(protocol, Path("eval") / protocol.name)
     Path("specs").mkdir()
     for name in ("pcb-spec.pdf", "pcb-spec.clauses.json"):
         shutil.copy(ROOT / "specs" / name, Path("specs") / name)
@@ -79,7 +82,7 @@ def test_the_verb_runs_the_set_and_writes_the_figures_and_the_page(world: Path) 
     assert not record.partial
     assert record.repeat is None
     assert record.command == ["spec-to-inspector", "bench"]
-    assert record.protocol.path == "eval/PROTOCOL.md"
+    assert [file.path for file in record.protocol] == ["eval/PROTOCOL.md"]
     assert "66.7% (2 of 3)" in PAGE.read_text(encoding="utf-8")
     assert (world / "runs" / "pcb4" / "bench" / "bad-000" / "decision.json").is_file()
     assert "pcb4: scored 5 images" in result.stderr
@@ -207,3 +210,98 @@ def test_a_part_the_labelled_set_does_not_cover_is_a_usage_error(world: Path) ->
         result = _bench(server, "--part", "pcb2")
     assert result.exit_code == 2
     assert "pcb1, pcb4" in result.output
+
+
+@pytest.fixture
+def machine(world: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Put the verb on the machine: an Intel card, its server in a container.
+
+    Returns:
+        The working directory.
+    """
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_DEVICE", "xpu")
+    monkeypatch.setattr(benching, "device_probes", lambda _settings: machine_probes())
+    return world
+
+
+def test_on_the_machine_the_verb_follows_stage_twos_protocol_and_writes_its_own_page(
+    machine: Path,
+) -> None:
+    """The protocol's command: its record, its page and the server's log, under `final/`."""
+    with FakeVlm([WARM_UP, *REPLIES]) as server:
+        result = _bench(server, "--results", "final/bench.json", "--readme", "final/README.md")
+
+    assert result.exit_code == 0, result.output
+    record = read_record(Path("final/bench.json"))
+    assert record.stage == "II"
+    assert [file.path for file in record.protocol] == [
+        "eval/PROTOCOL-stage2.md",
+        "eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md",
+    ]
+    assert Path("final/README.md").read_text(encoding="utf-8").startswith("# Stage II:")
+    logs = list(Path("final").glob("bench.server-log.*.txt"))
+    assert len(logs) == 1
+    assert record.judge.cold is not None
+    assert record.judge.cold.server_log is not None
+    assert record.judge.cold.server_log.path == logs[0].as_posix()
+    assert not RESULTS.exists()
+
+
+def test_on_the_machine_stage_ones_default_paths_are_refused(machine: Path) -> None:
+    """The protocol's own cold check: a run there must never replace `results/stage1/`."""
+    with FakeVlm() as server:
+        result = _bench(server)
+        assert server.requests == []
+    assert result.exit_code == 2
+    assert "--results" in result.output
+    assert not RESULTS.exists()
+
+
+def test_on_the_machine_a_comparison_does_not_go_beside_the_run(machine: Path) -> None:
+    """The protocol gives each comparison files of its own."""
+    with FakeVlm() as server:
+        result = _bench(server, "--results", "r.json", "--beside", "other.json")
+    assert result.exit_code == 2
+    assert "--beside" in result.output
+
+
+def test_a_protocol_named_in_the_configuration_is_followed(
+    machine: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`SPEC_TO_INSPECTOR_PROTOCOL_FILE` names the file, whatever the stage's default."""
+    Path("other.md").write_text("another protocol\n", encoding="utf-8")
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_PROTOCOL_FILE", "other.md")
+    with FakeVlm([WARM_UP, *REPLIES]) as server:
+        result = _bench(server, "--results", "r.json")
+    assert result.exit_code == 0, result.output
+    assert [file.path for file in read_record(Path("r.json")).protocol] == ["other.md"]
+
+
+def test_the_comparisons_rule_is_taken_from_the_configuration(
+    machine: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The pattern is the client's: one setting, the same command, and it says it is no final."""
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_REASON_RULE", "designators")
+    with FakeVlm([WARM_UP, *REPLIES]) as server:
+        result = _bench(server, "--results", "r.json", "--readme", "r.md")
+        pattern = server.requests[0]["response_format"]["json_schema"]["schema"]["properties"][
+            "reason"
+        ]["pattern"]
+
+    assert result.exit_code == 0, result.output
+    assert pattern == REASON_PATTERNS["designators"]
+    assert read_record(Path("r.json")).digit_reasons is not None
+    assert "Not yet final: the final setting" in result.stdout
+    assert "## The reasons with a digit in them" in Path("r.md").read_text(encoding="utf-8")
+
+
+def test_on_the_laptop_nothing_of_the_machines_is_written(world: Path) -> None:
+    """Stage I's protocol, no warm-up, no log, and its own page."""
+    with FakeVlm(REPLIES) as server:
+        assert _bench(server).exit_code == 0
+
+    record = read_record(RESULTS)
+    assert record.stage == "I"
+    assert record.judge.warm_up is None
+    assert list(RESULTS.parent.glob("*server-log*")) == []
+    assert PAGE.read_text(encoding="utf-8").startswith("# Stage I: what the laptop prototype")

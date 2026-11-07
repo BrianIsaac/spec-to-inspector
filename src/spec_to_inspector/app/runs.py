@@ -16,6 +16,7 @@ from typing import Final
 from PIL import Image
 
 from spec_to_inspector.anomaly.records import ImageResult, RunEntry, RunIndex
+from spec_to_inspector.judge.answer import RECORDED
 from spec_to_inspector.judge.decision import Decision
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.inspect import DECISION_NAME, RESULT_NAME, RUN_INDEX_NAME
@@ -163,7 +164,7 @@ def _read_decision(directory: Path) -> tuple[Decision | None, str | None]:
     except OSError as error:
         return None, f"{path} could not be read: {error}"
     try:
-        return Decision.model_validate_json(data), None
+        return Decision.model_validate_json(data, context=RECORDED), None
     except ValueError as error:
         first = str(error).splitlines()[0]
         return None, f"{path} is not a decision this console can read: {first}"

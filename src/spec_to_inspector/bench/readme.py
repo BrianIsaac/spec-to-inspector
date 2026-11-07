@@ -1,16 +1,20 @@
-"""The bench's figures as a page: `results/stage1/README.md`, written from a record.
+"""The bench's figures as a page, written from a record: one page for each stage.
 
-The page is what the deck quotes from, so every proportion on it carries its
-count, its N and its 95% Wilson score interval, and the page names the date,
-the command and the protocol. It is written by the command and never by hand:
-a figure that is wrong here is wrong in the record.
+The page is what other documents quote from, so every proportion on it carries
+its count, its N and its 95% Wilson score interval, and the page names the date,
+the command and the protocol. It is written by the command and never by hand: a
+figure that is wrong here is wrong in the record.
+
+Stage I's page is the laptop prototype's, `results/stage1/README.md`, and stays
+as it was. A Stage II run has a page of its own: it is about the machine, and
+says what the protocol asks that record to hold.
 """
 
 from collections.abc import Iterable, Mapping, Sequence
 
 from spec_to_inspector.bench.mapping import CLAUSE_MAPPING
-from spec_to_inspector.bench.observe import Citation
-from spec_to_inspector.bench.record import BenchRecord, Repeat, StageMemory
+from spec_to_inspector.bench.observe import Citation, DigitReasons
+from spec_to_inspector.bench.record import BenchRecord, ColdStart, Repeat, StageMemory
 from spec_to_inspector.bench.score import Accuracy, Confusion, Dispositions, FalseAlarms
 from spec_to_inspector.bench.wilson import Proportion
 from spec_to_inspector.judge.timing import Spread
@@ -345,6 +349,7 @@ def summary_lines(record: BenchRecord) -> list[str]:
         f"Corrections in a prompt: {record.leak.with_corrections_in_prompt} of "
         f"{record.leak.decisions} decisions",
     ]
+    lines.extend(f"Not yet final: {reason}" for reason in record.not_final)
     repeat = record.repeat
     if repeat is not None:
         lines.append(
@@ -356,47 +361,20 @@ def summary_lines(record: BenchRecord) -> list[str]:
     return lines
 
 
-def render_readme(record: BenchRecord, *, beside: BenchRecord | None = None) -> str:
-    """Write the page of a run's figures.
+def _figure_tables(record: BenchRecord) -> list[str]:
+    """Lay out the figures a reader looks for first.
 
     Args:
         record: The run.
-        beside: A run of the same command against another server setting, to
-            compare with; None for no comparison.
 
     Returns:
-        The page, as Markdown.
+        The two tables and what is to be said of them.
     """
-    scores, times, judge = record.scores, record.times, record.judge
+    scores, times = record.scores, record.times
     headline, good, inspector = scores.headline, scores.good, record.inspector
-    labels = record.labels
-    server = ", ".join(f"{key} {value}" for key, value in judge.server.items()) or "not reported"
     one_part = next(iter(inspector.minutes_by_part.values()))
     fit = ", ".join(f"{part} {seconds:.0f} s" for part, seconds in inspector.fit_seconds.items())
-
-    lines = [
-        "# Stage I: what the laptop prototype measured",
-        "",
-        f"Written by `{' '.join(record.command)}` on {record.measured_on} ({record.measured_at}).",
-        "Not edited by hand: a figure that is wrong here is wrong in `bench.json`, and the",
-        "remedy is to run the command again.",
-        "",
-        f"The figures follow `{record.protocol.path}` (SHA-256 `{record.protocol.sha256[:16]}`),",
-        "which was written before the run. Every proportion is a count of its N with the 95%",
-        "Wilson score interval. Nothing here is a held-out figure: see the last section.",
-        "",
-    ]
-    if record.partial:
-        lines += [
-            f"**This is a partial run** ({labels.images} labelled images"
-            + ("" if record.limit is None else f", the first {record.limit} of each kind per part")
-            + f"; parts {', '.join(record.parts)}). Its figures are not the protocol's and are "
-            "not for the deck.",
-            "",
-        ]
-    lines += [
-        "## The figures the deck quotes",
-        "",
+    return [
         *_table(
             ["Figure", "Value", "N", "95% interval"],
             [
@@ -463,31 +441,21 @@ def render_readme(record: BenchRecord, *, beside: BenchRecord | None = None) -> 
         "pooled with the strict one. The false rejects stand beside the accuracy and are never",
         "folded into it.",
         "",
-        "## How it was run",
-        "",
-        f"- The labelled set: `{labels.file.path}` (SHA-256 `{labels.file.sha256[:16]}`), "
-        f"{labels.images} anomalous test images: {labels.single_defect} single-defect, "
-        f"{labels.multi_defect} multi-defect. Labels are VisA's defect annotation mapped to "
-        "clauses by the written table `eval/clause_mapping.md`.",
-        f"- The specification: `{record.specification.pdf.path}`, parsed in "
-        f"{record.specification.parse_seconds:.1f} s into {record.specification.clauses} clauses "
-        f"under {record.specification.headings} numbered headings, equal to the tracked "
-        f"`{record.specification.clause_table.path}`.",
-        f"- The judge: `{judge.model}` at `{judge.url}` ({server}); image minimum "
-        f"{judge.image_min_tokens} tokens; GPU {judge.gpu or 'not read'}; up to "
-        f"{judge.max_regions} areas an image, stopping at the first reject.",
-        "- Every question asked cold (`cache_prompt` false), so the answers repeat.",
-        f"- The corrections store empty: {record.leak.with_corrections_in_prompt} of "
-        f"{record.leak.decisions} decisions had a correction in a prompt "
-        "(`decision.corrected.in_prompt`).",
-        "- The anomaly models are the trained ones, not retrained: "
-        + "; ".join(
-            f"{part} trained {run.model_trained_at}, image threshold {run.image_threshold:.3f}"
-            + (" (chosen on the test split)" if run.thresholds_tuned_on_test else "")
-            for part, run in record.runs.items()
-        )
-        + ".",
-        "",
+    ]
+
+
+def _numbered_sections(record: BenchRecord) -> list[str]:
+    """Lay out the protocol's figures 1 to 8, which every run's page gives alike.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The sections, up to the table of minutes.
+    """
+    scores, times, inspector = record.scores, record.times, record.inspector
+    headline, good = scores.headline, scores.good
+    return [
         "## 1. The headline: strict accuracy on the single-defect images",
         "",
         "The citation is the heading id the judge cited on region 1, the most anomalous area.",
@@ -644,11 +612,19 @@ def render_readme(record: BenchRecord, *, beside: BenchRecord | None = None) -> 
             ],
         ),
         "",
-        "Training is not repeated by the bench: the fit time is the one in each model's own",
-        "training record. A rebuilt model has the same thresholds to the last digit.",
-        "",
-        "## 9. Peak GPU memory, by stage",
-        "",
+    ]
+
+
+def _memory_table(record: BenchRecord) -> list[str]:
+    """Lay out the protocol's figure 9.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The table.
+    """
+    return [
         *_table(
             ["Stage", "The stage's own process", "The card", "The card before", "Readings"],
             [
@@ -660,6 +636,426 @@ def render_readme(record: BenchRecord, *, beside: BenchRecord | None = None) -> 
             ],
         ),
         "",
+    ]
+
+
+def _final_lines(record: BenchRecord) -> list[str]:
+    """Say whether the run's record holds what a final run's must.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The lines.
+    """
+    if record.not_final:
+        return [
+            "**This run is not final.** Its record lacks what the protocol asks of a final run:",
+            "",
+            *(f"- {reason}." for reason in record.not_final),
+        ]
+    return [
+        "This run's record holds what the protocol asks of a final run. Three runs make a figure",
+        "final: see the section on repeating it.",
+    ]
+
+
+def _server_table(record: BenchRecord) -> list[str]:
+    """Lay out which server answered, each fact with where it was read from.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The table, or a line saying nothing could be read.
+    """
+    judge = record.judge
+    if not judge.server:
+        return ["Nothing could be read of the server."]
+    return _table(
+        ["Fact", "Value", "Read from"],
+        (
+            [key, f"`{value}`", judge.server_sources.get(key, "not said")]
+            for key, value in judge.server.items()
+        ),
+    )
+
+
+def _cold_lines(cold: ColdStart | None) -> list[str]:
+    """Say where the cold came from, and what the server says of its prefix cache.
+
+    Args:
+        cold: What was read, or None if the server could not be read.
+
+    Returns:
+        The lines.
+    """
+    if cold is None:
+        return ["Where the cold came from could not be read."]
+    flags = ", ".join(f"`{flag}`" for flag in cold.server_flags) or "none was read"
+    engine = (
+        "could not be read"
+        if cold.engine_prefix_caching is None
+        else "says it is on"
+        if cold.engine_prefix_caching
+        else "says it is off"
+    )
+    rate = (
+        "no rate could be read from the log"
+        if cold.hit_rate_percent is None
+        else f"the highest of {cold.hit_rate_readings} rates in its log is "
+        f"{cold.hit_rate_percent:.1f}%"
+    )
+    counted = (
+        "its counters could not be read"
+        if cold.prefix_cache_hits is None
+        else f"its counters added {cold.prefix_cache_hits} tokens of hits of "
+        f"{cold.prefix_cache_queries} looked for"
+    )
+    log = "" if cold.server_log is None else f" The log of this run is `{cold.server_log.path}`."
+    return [
+        "The cold comes from the server's start, not the request: vLLM ignores the request's "
+        f"`cache_prompt`. The server's flags: {flags}. Its engine's own line on the prefix cache "
+        f"{engine}. It started at {cold.server_started_at or 'a time not read'}.",
+        "",
+        f"During this run {rate}, and {counted}. Any rate above 0.0% voids a run, so a run that "
+        f"has a record has none.{log}",
+    ]
+
+
+def _on_threshold_lines(record: BenchRecord) -> list[str]:
+    """Name the boards whose scores sit on their thresholds.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The section's lines.
+    """
+    found = record.on_threshold
+    if found is None:
+        return ["This record does not say."]
+    lines = [
+        f"The rule is a strict `>`. A score within {found.tolerance:g} of its part's threshold is "
+        "decided by float noise, so the figures are read with these boards known. No margin and "
+        "no `>=` is applied.",
+        "",
+    ]
+    if not found.boards:
+        lines += [
+            f"None of this run's boards ({', '.join(found.parts)}) sits on its threshold.",
+            "",
+        ]
+    rows = [(board, "yes") for board in found.boards]
+    rows += [(board, "no: week 2's record") for board in found.elsewhere]
+    if rows:
+        lines += _table(
+            ["Part", "Board", "Ground truth", "Score", "Threshold", "Strictly above", "This run"],
+            (
+                [
+                    board.part,
+                    f"`{board.image_id}`",
+                    board.label,
+                    f"{board.score:.6f}",
+                    f"{board.threshold:.6f}",
+                    "yes" if board.above else "no",
+                    scored,
+                ]
+                for board, scored in rows
+            ),
+        )
+    if found.elsewhere:
+        parts = ", ".join(dict.fromkeys(board.part for board in found.elsewhere))
+        lines += [
+            "",
+            f"{parts}: the bench does not score them, having no clause to hold them to, so their "
+            "figures are those of the first training on the machine and this run did not measure "
+            "them.",
+        ]
+    return lines
+
+
+def _digit_reason_lines(reasons: DigitReasons, previous: DigitReasons | None) -> list[str]:
+    """Lay out every reason with a digit in it, for the `designators` comparison.
+
+    Args:
+        reasons: This run's.
+        previous: The run before's, where there is one.
+
+    Returns:
+        The section's lines.
+    """
+
+    def listed(run: str, found: DigitReasons) -> list[str]:
+        head = (
+            f"{run}: {len(found.reasons)} reasons with a digit, of which "
+            f"{found.followed_by_a_unit} have a digit followed by a unit of length."
+        )
+        if not found.reasons:
+            return [head, ""]
+        return [
+            head,
+            "",
+            *_table(
+                ["Part", "Board", "Area", "Stood", "A unit follows", "Reason"],
+                (
+                    [
+                        reason.part,
+                        f"`{reason.image_id}`",
+                        str(reason.area),
+                        "yes" if reason.valid else "refused",
+                        "**yes**" if reason.followed_by_a_unit else "no",
+                        reason.reason.replace("|", "\\|"),
+                    ]
+                    for reason in found.reasons
+                ),
+            ),
+            "",
+        ]
+
+    return [
+        "One size in any of these says the pattern passes a size. None says only that none passed",
+        "on these boards. The final figure keeps the ban either way.",
+        "",
+        *listed("This run", reasons),
+        *([] if previous is None else listed("The run before", previous)),
+    ]
+
+
+def render_stage2_readme(record: BenchRecord) -> str:
+    """Write a Stage II run's page.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The page, as Markdown.
+    """
+    judge, labels, inspector = record.judge, record.labels, record.inspector
+    warm_up = judge.warm_up
+    lines = [
+        "# Stage II: what the machine measured",
+        "",
+        f"Written by `{' '.join(record.command)}` on {record.measured_on} ({record.measured_at}).",
+        "Not edited by hand: a figure that is wrong here is wrong in its record, and the remedy",
+        "is to run the command again.",
+        "",
+        "The figures follow these files, each read at the time of the run:",
+        "",
+        *_table(
+            ["File", "SHA-256"],
+            ([f"`{file.path}`", f"`{file.sha256}`"] for file in record.protocol),
+        ),
+        "",
+        "Every proportion is a count of its N with the 95% Wilson score interval. Nothing here is",
+        "a held-out figure: see the last section.",
+        "",
+    ]
+    if record.partial:
+        lines += [
+            f"**This is a partial run** ({labels.images} labelled images"
+            + ("" if record.limit is None else f", the first {record.limit} of each kind per part")
+            + f"; parts {', '.join(record.parts)}). Its figures are not the protocol's.",
+            "",
+        ]
+    lines += [
+        *_final_lines(record),
+        "",
+        "## The figures",
+        "",
+        *_figure_tables(record),
+        "## Which server answered",
+        "",
+        *_server_table(record),
+        "",
+        f"The judge's card: {judge.gpu or 'its name could not be read'}. Its image minimum: "
+        f"{judge.image_min_tokens} tokens. Up to {judge.max_regions} areas an image, stopping at "
+        "the first reject.",
+        "",
+        *_cold_lines(judge.cold),
+        "",
+        "## What else the run was made of",
+        "",
+        "- The warm-up: "
+        + (
+            "no question was asked before the judge's clock."
+            if warm_up is None or not warm_up.asked
+            else f"one question before the judge's clock, on {warm_up.image}, in "
+            f"{warm_up.seconds or 0.0:.2f} s; its answer is not recorded."
+        ),
+        f"- The reason's pattern: `{judge.reason_pattern}`.",
+        f"- The labelled set: `{labels.file.path}` (SHA-256 `{labels.file.sha256[:16]}`), "
+        f"{labels.images} anomalous test images: {labels.single_defect} single-defect, "
+        f"{labels.multi_defect} multi-defect.",
+        f"- The specification: `{record.specification.pdf.path}`, parsed in "
+        f"{record.specification.parse_seconds:.1f} s into {record.specification.clauses} clauses "
+        f"under {record.specification.headings} numbered headings, equal to the tracked "
+        f"`{record.specification.clause_table.path}`.",
+        f"- The corrections store empty: {record.leak.with_corrections_in_prompt} of "
+        f"{record.leak.decisions} decisions had a correction in a prompt "
+        "(`decision.corrected.in_prompt`).",
+        "",
+        "The anomaly models, not retrained here:",
+        "",
+        *_table(
+            ["Part", "Checkpoint", "SHA-256", "Trained", "Image threshold", "Chosen on the test"],
+            (
+                [
+                    part,
+                    "not read" if run.checkpoint is None else f"`{run.checkpoint.path}`",
+                    "not read" if run.checkpoint is None else f"`{run.checkpoint.sha256}`",
+                    run.model_trained_at,
+                    f"{run.image_threshold:.6f}",
+                    "yes" if run.thresholds_tuned_on_test else "no",
+                ]
+                for part, run in record.runs.items()
+            ),
+        ),
+        "",
+        "## The boards on the threshold",
+        "",
+        *_on_threshold_lines(record),
+        "",
+        *_numbered_sections(record),
+        "Training is not repeated by the bench: the fit time is the one in each model's own",
+        f"training record. {inspector.minutes_all_parts:.1f} minutes is every part of this run in "
+        "turn.",
+        "",
+        "## 9. Peak GPU memory, by stage",
+        "",
+        *_memory_table(record),
+        *_memory_lines(record),
+        "",
+        "## Repeating it",
+        "",
+        "The judge's server is started by `scripts/serve_vlm_xpu.sh start`, none of its settings",
+        "overridden, and this run's command is started on the machine as:",
+        "",
+        "```",
+        f"SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/{' '.join(record.command)}",
+        "```",
+        "",
+        *_repeat_lines(record.repeat),
+        "",
+    ]
+    if record.digit_reasons is not None:
+        previous = None if record.repeat is None else record.repeat.previous_digit_reasons
+        lines += [
+            "## The reasons with a digit in them",
+            "",
+            *_digit_reason_lines(record.digit_reasons, previous),
+        ]
+    lines += [
+        "## What these figures are not",
+        "",
+        "- Not held out. VisA's PCB test split is the only labelled data there is. The anomaly",
+        "  model's threshold is chosen on this same split, the judge's prompt was written with",
+        "  sight of answers on some of these images, and the protocol was written after a bench",
+        "  had been read on the same set.",
+        "- Not a figure for the corrections loop: the store is empty throughout.",
+        "- One specification, one model, one precision, one machine.",
+        "- Not a figure against Stage I. The host, the precision, the server and the answer",
+        "  pattern all differ, and no figure separates them.",
+        "- The labels are VisA's annotation mapped to clauses by a written table,",
+        "  `eval/clause_mapping.md`.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def _memory_lines(record: BenchRecord) -> list[str]:
+    """Say what figure 9's memory was read from, and why a process's own figure can be null.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The lines.
+    """
+    stages = [(f"the anomaly model on {part}", run.memory) for part, run in record.runs.items()]
+    stages.append(("the judge", record.judge_memory))
+    read = "; ".join(f"{name}, card {memory.card or 'not named'}" for name, memory in stages)
+    notes = dict.fromkeys(memory.process_note for _, memory in stages if memory.process_note)
+    return [
+        f"Read from `{record.judge_memory.source}`, sampled by the bench: {read}. Each stage has "
+        "a card to itself, so the card stands for the process.",
+        *(f"Where a process's own figure says `not read`: {note}." for note in notes),
+    ]
+
+
+def render_readme(record: BenchRecord, *, beside: BenchRecord | None = None) -> str:
+    """Write the page of a run's figures: Stage I's, or a Stage II run's own.
+
+    Args:
+        record: The run.
+        beside: A run of the same command against another server setting, to
+            compare with on Stage I's page; None for no comparison. A Stage II
+            comparison goes into files of its own.
+
+    Returns:
+        The page, as Markdown.
+    """
+    if record.stage == "II":
+        return render_stage2_readme(record)
+    judge, labels, protocol = record.judge, record.labels, record.protocol[0]
+    server = ", ".join(f"{key} {value}" for key, value in judge.server.items()) or "not reported"
+
+    lines = [
+        "# Stage I: what the laptop prototype measured",
+        "",
+        f"Written by `{' '.join(record.command)}` on {record.measured_on} ({record.measured_at}).",
+        "Not edited by hand: a figure that is wrong here is wrong in `bench.json`, and the",
+        "remedy is to run the command again.",
+        "",
+        f"The figures follow `{protocol.path}` (SHA-256 `{protocol.sha256[:16]}`),",
+        "which was written before the run. Every proportion is a count of its N with the 95%",
+        "Wilson score interval. Nothing here is a held-out figure: see the last section.",
+        "",
+    ]
+    if record.partial:
+        lines += [
+            f"**This is a partial run** ({labels.images} labelled images"
+            + ("" if record.limit is None else f", the first {record.limit} of each kind per part")
+            + f"; parts {', '.join(record.parts)}). Its figures are not the protocol's and are "
+            "not for the deck.",
+            "",
+        ]
+    lines += [
+        "## The figures the deck quotes",
+        "",
+        *_figure_tables(record),
+        "## How it was run",
+        "",
+        f"- The labelled set: `{labels.file.path}` (SHA-256 `{labels.file.sha256[:16]}`), "
+        f"{labels.images} anomalous test images: {labels.single_defect} single-defect, "
+        f"{labels.multi_defect} multi-defect. Labels are VisA's defect annotation mapped to "
+        "clauses by the written table `eval/clause_mapping.md`.",
+        f"- The specification: `{record.specification.pdf.path}`, parsed in "
+        f"{record.specification.parse_seconds:.1f} s into {record.specification.clauses} clauses "
+        f"under {record.specification.headings} numbered headings, equal to the tracked "
+        f"`{record.specification.clause_table.path}`.",
+        f"- The judge: `{judge.model}` at `{judge.url}` ({server}); image minimum "
+        f"{judge.image_min_tokens} tokens; GPU {judge.gpu or 'not read'}; up to "
+        f"{judge.max_regions} areas an image, stopping at the first reject.",
+        "- Every question asked cold (`cache_prompt` false), so the answers repeat.",
+        f"- The corrections store empty: {record.leak.with_corrections_in_prompt} of "
+        f"{record.leak.decisions} decisions had a correction in a prompt "
+        "(`decision.corrected.in_prompt`).",
+        "- The anomaly models are the trained ones, not retrained: "
+        + "; ".join(
+            f"{part} trained {run.model_trained_at}, image threshold {run.image_threshold:.3f}"
+            + (" (chosen on the test split)" if run.thresholds_tuned_on_test else "")
+            for part, run in record.runs.items()
+        )
+        + ".",
+        "",
+        *_numbered_sections(record),
+        "Training is not repeated by the bench: the fit time is the one in each model's own",
+        "training record. A rebuilt model has the same thresholds to the last digit.",
+        "",
+        "## 9. Peak GPU memory, by stage",
+        "",
+        *_memory_table(record),
         "Read from `nvidia-smi` for the process concerned. While the anomaly model scores, the",
         "VLM server is resident too, so the card's figure in those rows is both together."
         + "".join(

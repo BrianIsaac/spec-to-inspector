@@ -21,10 +21,11 @@ from spec_to_inspector.bench.labels import (
 )
 from spec_to_inspector.bench.mapping import expected_headings, mapping_row
 from spec_to_inspector.bench.observe import Area, Citation, Observation
-from spec_to_inspector.bench.run import LoadedModel, Probes
+from spec_to_inspector.bench.run import LoadedModel, Probes, ServerProbes
 from spec_to_inspector.judge.decision import Cause
 from spec_to_inspector.judge.disposition import Outcome
 from spec_to_inspector.judge.timing import GpuReading
+from spec_to_inspector.judge.vllm_server import PrefixCacheCounters, ServerReading
 from tests.judge.run_fakes import _RED as RED
 from tests.judge.run_fakes import HEIGHT, WIDTH, Kind, StubScorer
 
@@ -301,4 +302,89 @@ def fake_probes(*, up: bool = True) -> Probes:
         reachable=lambda _url: up,
         gpu_name=lambda: "Fake GPU",
         interval_seconds=0.01,
+    )
+
+
+IMAGE_DIGEST = "sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490"
+COLD_FLAGS = ("--no-enable-prefix-caching", "--mm-processor-cache-gb 0")
+STARTED_AT = "2026-11-06T15:40:16.517468169Z"
+MACHINE_SERVER = ServerReading(
+    facts={
+        "vllm_version": "0.26.1.dev0+g568afb3a1.d20260831",
+        "served_model": "qwen3-vl-8b-instruct",
+        "weights_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+        "max_model_len": "32768",
+        "image": "intel/llm-scaler-vllm:0.26.0-b1",
+        "image_digest": IMAGE_DIGEST,
+        "dtype": "float16",
+    },
+    sources={
+        "vllm_version": "GET /version",
+        "served_model": "GET /v1/models",
+        "weights_revision": "GET /v1/models",
+        "max_model_len": "GET /v1/models",
+        "image": "docker inspect, Config.Image",
+        "image_digest": "docker image inspect, RepoDigests",
+        "dtype": "the server's log, the engine's line, dtype=torch.*",
+    },
+    image_min_tokens="1024",
+    cold_flags=COLD_FLAGS,
+    engine_prefix_caching=False,
+    started_at=STARTED_AT,
+)
+"""Which server answered, as the machine's gave it on 7 November 2026."""
+
+
+def rate_line(rate: str) -> str:
+    """Write a line of the server's log, as vLLM prints it every ten seconds.
+
+    Args:
+        rate: The hit rate.
+
+    Returns:
+        The line.
+    """
+    return (
+        "(APIServer pid=1) INFO 11-06 19:54:40 [loggers.py:310] Engine 000: Avg prompt "
+        "throughput: 934.6 tokens/s, Avg generation throughput: 5.8 tokens/s, Running: 1 reqs, "
+        f"Waiting: 0 reqs, GPU KV cache usage: 10.7%, Prefix cache hit rate: {rate}%\n"
+    )
+
+
+def machine_probes(
+    *,
+    log: str | None = None,
+    counters: tuple[PrefixCacheCounters | None, PrefixCacheCounters | None] = (
+        PrefixCacheCounters(0, 0),
+        PrefixCacheCounters(0, 0),
+    ),
+    server: ServerReading = MACHINE_SERVER,
+) -> Probes:
+    """Give probes of the machine: a card each, the judge's server in its container.
+
+    Args:
+        log: The server's log during the run; by default two readings of 0.0%.
+        counters: The prefix-cache counters before the run and after it.
+        server: Which server answers.
+
+    Returns:
+        The probes.
+    """
+    readings = iter(counters)
+    return Probes(
+        read_gpu=lambda pid: GpuReading(gpu_used_mib=1860, server_mib=1300 if pid == 1 else None),
+        read_server_gpu=lambda _pid: GpuReading(gpu_used_mib=29456, server_mib=None),
+        own_pid=lambda: 1,
+        server_pid=lambda _url: None,
+        reachable=lambda _url: True,
+        gpu_name=lambda: "Intel(R) Arc(TM) Pro B70 Graphics",
+        interval_seconds=0.01,
+        memory_source="xpu-smi",
+        anomaly_card="0, under ZE_AFFINITY_MASK=0",
+        judge_card="0000:ba:00.0",
+        server=ServerProbes(
+            read=lambda _url: server,
+            counters=lambda _url: next(readings),
+            log=lambda _since: rate_line("0.0") * 2 if log is None else log,
+        ),
     )

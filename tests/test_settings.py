@@ -9,6 +9,8 @@ import pytest
 from spec_to_inspector.datasets.visa import VISA_URL
 from spec_to_inspector.settings import Settings
 
+ROOT = Path(__file__).parents[1]
+
 
 @pytest.fixture(autouse=True)
 def _no_env_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -154,3 +156,32 @@ def test_reading_the_settings_does_not_import_pytorch() -> None:
     """Every verb reads the settings, and PyTorch takes seconds to import."""
     program = "import sys, spec_to_inspector.settings; sys.exit('torch' in sys.modules)"
     assert subprocess.run([sys.executable, "-c", program], check=False).returncode == 0
+
+
+def test_the_reason_rule_is_the_final_figures_unless_the_comparison_names_its_own(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The rule is the client's: one setting, and nothing else it does not name is allowed."""
+    assert Settings().reason_rule == "no_digits"
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_REASON_RULE", "designators")
+    assert Settings().reason_rule == "designators"
+    monkeypatch.setenv("SPEC_TO_INSPECTOR_REASON_RULE", "anything")
+    with pytest.raises(ValueError, match="reason_rule"):
+        Settings()
+
+
+def test_stage_ii_is_the_intel_cards() -> None:
+    """The stage follows the device: the machine's protocol, on the machine."""
+    assert Settings(device="xpu").stage == "II"
+    assert Settings(device="cuda").stage == "I"
+    assert Settings(device="cpu").stage == "I"
+
+
+def test_the_example_file_names_every_setting_and_the_judges_card() -> None:
+    """A setting added and not named there would be a setting nobody can find."""
+    example = (ROOT / ".env.example").read_text(encoding="utf-8")
+
+    for name in Settings.model_fields:
+        assert f"SPEC_TO_INSPECTOR_{name.upper()}=" in example, name
+    assert "SPEC_TO_INSPECTOR_VLM_CARD=0000:ba:00.0" in example
+    assert VISA_URL in example

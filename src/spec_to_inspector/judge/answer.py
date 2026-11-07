@@ -15,23 +15,42 @@ The pattern also bars the double quote and the backslash. It describes the
 string's contents, so with a quote allowed the model can close the sentence
 itself and go on to write the other fields inside the string, free of their
 enums: a server that enforced the schema faithfully did exactly that.
+
+The final figure holds that ban. The Stage II protocol's `designators` comparison lets one thing
+through, a digit straight after a capital, as in `R12`, so that `5.67 mm` still cannot be written.
+The pattern alone does not settle it: its class bars only 0 to 9, so `½` is the validation's to
+refuse; its limit counts a designator as one, so the 240 characters are the validation's to hold;
+and `R5 mm` passes both, which is why the bench lists every reason with a digit in it.
 """
 
 import json
-from typing import Annotated, Final, Self
+import re
+from collections.abc import Mapping
+from typing import Annotated, Final, Self, cast
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     StringConstraints,
     ValidationError,
+    ValidationInfo,
     field_validator,
     model_validator,
 )
 
+from spec_to_inspector.settings import ReasonRule
 from spec_to_inspector.spec.schema import Specification
 
 MAX_REASON_CHARACTERS: Final = 240
+REASON_PATTERNS: Final[dict[ReasonRule, str]] = {
+    "no_digits": f'^[^0-9\\n\\r"\\\\]{{1,{MAX_REASON_CHARACTERS}}}$',
+    "designators": f'^(?:[^0-9\\n\\r"\\\\]|[A-Z][0-9]{{1,3}}){{1,{MAX_REASON_CHARACTERS}}}$',
+}
+"""The reason's pattern under each rule, as `eval/PROTOCOL-stage2.md` declares them."""
+RECORDED: Final[Mapping[str, ReasonRule]] = {"reason_rule": "designators"}
+"""The validation context for reading a decision back: it was held to its rule when it was made,
+and the file does not say which that was, so the widest rule reads either."""
+_DESIGNATOR: Final = re.compile(r"[A-Z][0-9]{1,3}(?![0-9])")
 
 _ClassName = Annotated[
     str,
@@ -88,11 +107,12 @@ class JudgeAnswer(BaseModel):
 
     @field_validator("reason")
     @classmethod
-    def _one_line_without_figures(cls, value: str) -> str:
+    def _one_line_without_figures(cls, value: str, info: ValidationInfo) -> str:
         """Refuse a reason that runs over a line or states a figure.
 
         Args:
             value: The reason, stripped.
+            info: The validation's context, which may name the rule; `no_digits` if it does not.
 
         Returns:
             The reason unchanged.
@@ -103,7 +123,10 @@ class JudgeAnswer(BaseModel):
         if len(value.splitlines()) > 1:
             msg = "the reason must be one line"
             raise ValueError(msg)
-        if any(character.isnumeric() for character in value):
+        context = cast("Mapping[str, ReasonRule] | None", info.context)
+        rule = context["reason_rule"] if context else "no_digits"
+        words = _DESIGNATOR.sub("", value) if rule == "designators" else value
+        if any(character.isnumeric() for character in words):
             msg = "the reason must not state a figure: sizes are measured, not judged"
             raise ValueError(msg)
         return value
@@ -129,7 +152,9 @@ class JudgeAnswer(BaseModel):
         return self.clause_id is not None
 
 
-def answer_schema(specification: Specification, category: str) -> dict[str, object]:
+def answer_schema(
+    specification: Specification, category: str, *, reason_rule: ReasonRule = "no_digits"
+) -> dict[str, object]:
     """Give the JSON schema of an answer about one part.
 
     The class and the clause are held to the part's own classes and numbered
@@ -139,6 +164,7 @@ def answer_schema(specification: Specification, category: str) -> dict[str, obje
     Args:
         specification: The parsed specification.
         category: The part the board is.
+        reason_rule: What the reason may hold.
 
     Returns:
         A JSON schema for constrained decoding; a part the specification does
@@ -152,7 +178,7 @@ def answer_schema(specification: Specification, category: str) -> dict[str, obje
         "properties": {
             "reason": {
                 "type": "string",
-                "pattern": f'^[^0-9\\n\\r"\\\\]{{1,{MAX_REASON_CHARACTERS}}}$',
+                "pattern": REASON_PATTERNS[reason_rule],
             },
             "defect_class": {"enum": [*classes, None]},
             "clause_id": {"enum": [*headings, None]},
@@ -182,7 +208,7 @@ def _no_repeats(pairs: list[tuple[str, object]]) -> dict[str, object]:
     return dict(pairs)
 
 
-def parse_answer(text: str) -> JudgeAnswer:
+def parse_answer(text: str, *, reason_rule: ReasonRule = "no_digits") -> JudgeAnswer:
     """Read the model's text as an answer.
 
     Whether the clause exists and whether the class is the clause's are not
@@ -191,6 +217,7 @@ def parse_answer(text: str) -> JudgeAnswer:
 
     Args:
         text: What the model wrote.
+        reason_rule: What the reason may hold.
 
     Returns:
         The answer.
@@ -208,7 +235,7 @@ def parse_answer(text: str) -> JudgeAnswer:
     if not isinstance(value, dict):
         raise AnswerError(text, "not a JSON object")
     try:
-        return JudgeAnswer.model_validate(value)
+        return JudgeAnswer.model_validate(value, context={"reason_rule": reason_rule})
     except ValidationError as error:
         problems = "; ".join(
             f"{'.'.join(str(part) for part in issue['loc']) or 'answer'}: {issue['msg']}"

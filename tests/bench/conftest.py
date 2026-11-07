@@ -1,17 +1,19 @@
 """Fixtures shared by the bench's tests: a small set, a plan to run it, and one run's record."""
 
+import json
 from pathlib import Path
 
 import pytest
 
 from spec_to_inspector.anomaly.infer import visa_test_items
 from spec_to_inspector.bench.record import BenchRecord
-from spec_to_inspector.bench.run import BenchPlan, run_bench
+from spec_to_inspector.bench.run import BenchPlan, LoadedModel, ModelLoader, run_bench
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.spec.schema import Specification, read_clause_table
 from tests.bench.bench_fakes import (
     REPLIES,
     fake_probes,
+    machine_probes,
     stub_models,
     stub_scoring,
     write_bench_labels,
@@ -21,6 +23,10 @@ from tests.judge.fake_vlm import FakeVlm
 
 ROOT = Path(__file__).parents[2]
 CLAUSE_TABLE = ROOT / "specs" / "pcb-spec.clauses.json"
+WARM_UP = json.dumps(
+    {"reason": "asked only to warm the server", "defect_class": "melt", "clause_id": "4.1"}
+)
+"""The warm-up's answer, which stands for nothing and must appear nowhere."""
 
 
 def tracked(_pdf: Path) -> Specification:
@@ -89,3 +95,47 @@ def record(plan: BenchPlan) -> BenchRecord:
         assert len(server.requests) == len(REPLIES)
         assert all(request["cache_prompt"] is False for request in server.requests)
     return made
+
+
+@pytest.fixture
+def stage2_plan(plan: BenchPlan, tmp_path: Path) -> BenchPlan:
+    """Plan a Stage II run: the machine's protocol, with the server's log kept beside the record.
+
+    Returns:
+        The plan.
+    """
+    return plan.model_copy(
+        update={
+            "stage": "II",
+            "protocol": ROOT / "eval" / "PROTOCOL-stage2.md",
+            "server_log": tmp_path / "results" / "bench.server-log.stamp.txt",
+        }
+    )
+
+
+@pytest.fixture
+def machine_models(tmp_path: Path) -> ModelLoader:
+    """Give stub models that each have a checkpoint on disk, as a real one does.
+
+    Returns:
+        The loader.
+    """
+
+    def load(part: str) -> LoadedModel:
+        checkpoint = tmp_path / "models" / part / "model.ckpt"
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        checkpoint.write_bytes(f"the {part} checkpoint".encode())
+        return stub_models(part)._replace(checkpoint=checkpoint)
+
+    return load
+
+
+@pytest.fixture
+def stage2_record(stage2_plan: BenchPlan, machine_models: ModelLoader) -> BenchRecord:
+    """Run the bench as on the machine, on the small set.
+
+    Returns:
+        The run's record.
+    """
+    with FakeVlm([WARM_UP, *REPLIES]) as server:
+        return run(stage2_plan, server, probes=machine_probes(), models=machine_models)

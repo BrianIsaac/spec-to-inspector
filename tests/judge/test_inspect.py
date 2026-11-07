@@ -16,7 +16,7 @@ import pytest
 from PIL import Image
 
 from spec_to_inspector.anomaly.infer import load_result
-from spec_to_inspector.judge.answer import JudgeAnswer
+from spec_to_inspector.judge.answer import REASON_PATTERNS, JudgeAnswer
 from spec_to_inspector.judge.client import ChatClient
 from spec_to_inspector.judge.decision import Cause, Decision
 from spec_to_inspector.judge.disposition import Outcome
@@ -734,3 +734,39 @@ def test_lines_already_in_the_prompt_do_not_bring_a_second_question(run: Path) -
     assert len(server.requests) == 1
     assert decision.regions[0].first_answer is None
     assert decision.regions[0].corrections == (CORRECTION,)
+
+
+def test_the_comparisons_rule_reaches_the_schema_the_validation_and_the_decision_on_disk(
+    run: Path,
+) -> None:
+    """Under `designators` a reason naming R12 is taken at the first asking and can be read back."""
+    answer = json.dumps(
+        {"reason": "a scratch across R12", "defect_class": "scratch", "clause_id": "4.1"}
+    )
+    with FakeVlm([answer]) as server, ChatClient(server.url, "fake", timeout_seconds=5) as client:
+        decision = judge_image(run / "scratch", SPEC, client, reason_rule="designators")
+        sent = server.requests[0]["response_format"]["json_schema"]["schema"]
+
+    assert sent["properties"]["reason"]["pattern"] == REASON_PATTERNS["designators"]
+    assert decision.regions[0].answer is not None
+    assert decision.regions[0].answer.reason == "a scratch across R12"
+    assert decision.regions[0].call is not None
+    assert decision.regions[0].call.attempts == 1
+    assert load_decision(run / "scratch").regions[0].answer == decision.regions[0].answer
+
+
+def test_without_the_comparisons_rule_a_designator_is_refused_and_retried(run: Path) -> None:
+    """The final setting: the same text is sent back once, with the final pattern."""
+    answer = json.dumps(
+        {"reason": "a scratch across R12", "defect_class": "scratch", "clause_id": "4.1"}
+    )
+    with (
+        FakeVlm([answer, _reply()]) as server,
+        ChatClient(server.url, "fake", timeout_seconds=5) as client,
+    ):
+        decision = judge_image(run / "scratch", SPEC, client)
+        sent = server.requests[0]["response_format"]["json_schema"]["schema"]
+
+    assert sent["properties"]["reason"]["pattern"] == REASON_PATTERNS["no_digits"]
+    assert decision.regions[0].call is not None
+    assert decision.regions[0].call.attempts == 2
