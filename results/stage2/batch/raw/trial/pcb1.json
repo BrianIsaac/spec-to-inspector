@@ -1,0 +1,490 @@
+{
+  "schema_version": 1,
+  "stage": "II",
+  "measured_at": "2026-11-07T11:42:20+00:00",
+  "command": [
+    "spec-to-inspector",
+    "pcb1"
+  ],
+  "part": "pcb1",
+  "protocol": [
+    {
+      "path": "eval/PROTOCOL-stage2.md",
+      "sha256": "ebbd8cc1cb25172f7d74cddf8190e0826204eb6b3c8cc7e1da83a565ead4e3f6"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-designators-pattern-2026-11-07.md",
+      "sha256": "84c8d198200b11a45e4eac8735611c20681cf5a9db5f0d4a2063330ac4f7c65b"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-region-columns-2026-11-07.md",
+      "sha256": "8d8d4ef19e95354a4a1ab220e6eb9dc51865c87b2ae6e9f9da1464bdd4c5b1b1"
+    },
+    {
+      "path": "eval/PROTOCOL-stage2-addition-whole-batch-2026-11-07.md",
+      "sha256": "03a4154bb25cacd8a48bdb5b49e59594820bf67200c0620dc63d99d10c284040"
+    }
+  ],
+  "specification": {
+    "pdf": {
+      "path": "specs/pcb-spec.pdf",
+      "sha256": "2b8749b32fa88b3a3ac15455324cb3a726dffa7e8e94a7acd7b5c39abc6b47bd"
+    },
+    "clause_table": {
+      "path": "specs/pcb-spec.clauses.json",
+      "sha256": "510ca4c1735b1e5ad0f525380d1414fd6943fa40a09195006251380b114ad661"
+    },
+    "title": "Workmanship acceptance specification: PCB1 and PCB4 assemblies",
+    "pages": 6,
+    "clauses": 16,
+    "headings": 11,
+    "parse_seconds": 7.269644045969471,
+    "equals_tracked_clause_table": true
+  },
+  "clause_table": {
+    "path": "/home/devcloud/batch-run/trial/runs/pcb1/trial/clauses.json",
+    "sha256": "510ca4c1735b1e5ad0f525380d1414fd6943fa40a09195006251380b114ad661"
+  },
+  "judge": {
+    "url": "http://127.0.0.1:8131/v1",
+    "model": "qwen3-vl-8b-instruct",
+    "server": {
+      "vllm_version": "0.26.1.dev0+g568afb3a1.d20260831",
+      "served_model": "qwen3-vl-8b-instruct",
+      "weights_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+      "max_model_len": "32768",
+      "image": "intel/llm-scaler-vllm:0.26.0-b1",
+      "image_digest": "sha256:70e7eafdd52c281263f2a19266086b88e55064402a17ef731ba5657c4bd86490",
+      "image_label_version": "20260608",
+      "image_label_revision": "ac12083301cbdbe06135882d401f7877b0b512db",
+      "command": "-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt '{\"image\": 2}' --mm-processor-kwargs '{\"size\": {\"shortest_edge\": 1048576, \"longest_edge\": 16777216}}' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1",
+      "dtype": "float16"
+    },
+    "server_sources": {
+      "vllm_version": "GET /version",
+      "served_model": "GET /v1/models",
+      "weights_revision": "GET /v1/models",
+      "max_model_len": "GET /v1/models",
+      "image": "docker inspect, Config.Image",
+      "image_digest": "docker image inspect, RepoDigests",
+      "image_label_version": "container label org.opencontainers.image.version",
+      "image_label_revision": "container label org.opencontainers.image.revision",
+      "command": "docker inspect, Args",
+      "dtype": "the server's log, the engine's line, dtype=torch.*"
+    },
+    "image_min_tokens": "1024",
+    "gpu": "Intel(R) Arc(TM) Pro B70 Graphics",
+    "cache_prompt": false,
+    "cold": {
+      "server_flags": [
+        "--no-enable-prefix-caching",
+        "--mm-processor-cache-gb 0"
+      ],
+      "engine_prefix_caching": false,
+      "server_started_at": "2026-11-07T07:27:57.966649565Z",
+      "prefix_cache_hits": 0,
+      "prefix_cache_queries": 0,
+      "hit_rate_percent": 0.0,
+      "hit_rate_readings": 2,
+      "server_log": {
+        "path": "/home/devcloud/batch-run/trial/pcb1.server-log.20261107T114141Z.txt",
+        "sha256": "ca5b9c8821e04639a540bc8fbc198e1d768f7f8266f2ce78e6e00c34044fbded"
+      }
+    },
+    "warm_up": {
+      "asked": true,
+      "image": "pcb1 bad-000",
+      "seconds": 2.9015619729761966
+    },
+    "reason_pattern": "^[^0-9\\n\\r\"\\\\]{1,240}$",
+    "max_regions": 3,
+    "corrections": "none recalled"
+  },
+  "run": {
+    "part": "pcb1",
+    "run_directory": "/home/devcloud/batch-run/trial/runs/pcb1/trial",
+    "images": 6,
+    "good": 3,
+    "anomalous": 3,
+    "flagged_good": 0,
+    "flagged_anomalous": 3,
+    "image_threshold": 31.319488525390625,
+    "thresholds_tuned_on_test": true,
+    "batch_size": 16,
+    "load_seconds": 2.439158473047428,
+    "inference_seconds": 2.754261810972821,
+    "seconds_per_image": 0.4590436351621368,
+    "model_trained_at": "2026-11-06T17:17:44+00:00",
+    "fit_seconds": 698.776051807974,
+    "train_peak_allocated_mib": 7971.28369140625,
+    "memory": {
+      "process_peak_mib": 1550,
+      "card_peak_mib": 1592,
+      "card_before_mib": 1592,
+      "samples": 1,
+      "interval_seconds": 5.0,
+      "source": "xpu-smi",
+      "card": "0000:17:00.0, under ZE_AFFINITY_MASK=0",
+      "process_note": null
+    },
+    "checkpoint": {
+      "path": "/home/devcloud/week2/run-1/models/patchcore/pcb1/model.ckpt",
+      "sha256": "b71ff0c3db7e780c6198db5686569fa59de4a56b5663557b56d90e237b37a855"
+    }
+  },
+  "times": {
+    "parse_seconds": 7.269644045969471,
+    "anomaly_seconds_per_image": {
+      "pcb1": 0.4590436351621368
+    },
+    "flagged_images": 3,
+    "areas_asked": 3,
+    "areas_per_flagged_image": 1.0,
+    "measure_and_draw_seconds": {
+      "n": 3,
+      "p50": 0.10415382497012615,
+      "p95": 0.12238835419993847,
+      "mean": 0.09115808532806113,
+      "minimum": 0.04490601801080629,
+      "maximum": 0.12441441300325096
+    },
+    "vlm_seconds_per_area": {
+      "n": 3,
+      "p50": 2.1258697810117155,
+      "p95": 2.3473194817022884,
+      "mean": 2.1589258210151456,
+      "minimum": 1.9789826780324802,
+      "maximum": 2.371925004001241
+    },
+    "vlm_seconds_per_flagged_image": {
+      "n": 3,
+      "p50": 2.1258697810117155,
+      "p95": 2.3473194817022884,
+      "mean": 2.1589258210151456,
+      "minimum": 1.9789826780324802,
+      "maximum": 2.371925004001241
+    },
+    "flagged_image_seconds": {
+      "n": 3,
+      "p50": 2.6890672411439787,
+      "p95": 2.928751471064364,
+      "mean": 2.7091275415053437,
+      "minimum": 2.4829323312054234,
+      "maximum": 2.955383052166629
+    },
+    "judge_stage_seconds": 6.75603874301305,
+    "prompt_tokens": {
+      "n": 3,
+      "p50": 4729.0,
+      "p95": 4753.3,
+      "mean": 4692.0,
+      "minimum": 4591.0,
+      "maximum": 4756.0
+    },
+    "completion_tokens": {
+      "n": 3,
+      "p50": 35.0,
+      "p95": 41.3,
+      "mean": 36.333333333333336,
+      "minimum": 32.0,
+      "maximum": 42.0
+    },
+    "output_tokens_per_second": null
+  },
+  "inspector": {
+    "parse_seconds": 7.269644045969471,
+    "fit_seconds": {
+      "pcb1": 698.776051807974
+    },
+    "minutes_by_part": {
+      "pcb1": 11.767428264232391
+    },
+    "minutes_all_parts": 11.767428264232391
+  },
+  "memory": {
+    "source": "xpu-smi",
+    "interval_seconds": 5.0,
+    "anomaly_card": "0000:17:00.0, under ZE_AFFINITY_MASK=0",
+    "judge_card": "0000:ba:00.0",
+    "readings": {
+      "path": "/home/devcloud/batch-run/trial/pcb1.cards.20261107T114141Z.csv",
+      "sha256": "0e11cf7d84f7cee74acb621d5dbab41a37276b846bb2d97c684bcc097a6d31dc"
+    },
+    "by_stage": {
+      "parse": {
+        "anomaly_card_mib": 42,
+        "judge_card_mib": 29784,
+        "samples": 2
+      },
+      "score": {
+        "anomaly_card_mib": 1594,
+        "judge_card_mib": 29784,
+        "samples": 1
+      },
+      "warm-up": {
+        "anomaly_card_mib": 961,
+        "judge_card_mib": 29784,
+        "samples": 1
+      },
+      "judge": {
+        "anomaly_card_mib": 961,
+        "judge_card_mib": 29784,
+        "samples": 1
+      },
+      "server log": {
+        "anomaly_card_mib": 781,
+        "judge_card_mib": 29784,
+        "samples": 2
+      },
+      "report": {
+        "anomaly_card_mib": 781,
+        "judge_card_mib": 29784,
+        "samples": 1
+      }
+    },
+    "whole": {
+      "anomaly_card_mib": 1594,
+      "judge_card_mib": 29784,
+      "samples": 8
+    }
+  },
+  "judge_memory": {
+    "process_peak_mib": null,
+    "card_peak_mib": 29784,
+    "card_before_mib": 29784,
+    "samples": 1,
+    "interval_seconds": 5.0,
+    "source": "xpu-smi",
+    "card": "0000:ba:00.0",
+    "process_note": "the judge's server runs in a container: xpu-smi ps does not list its process, even under sudo, and ss shows no pid, so its own figure is null and its card stands for it"
+  },
+  "counts": {
+    "boards": 6,
+    "accepted": 3,
+    "rejected": 3,
+    "referred": 0,
+    "referred_by_cause": {}
+  },
+  "report": {
+    "boards": 6,
+    "accepted": 3,
+    "rejected": 3,
+    "referred": 0,
+    "not_judged": 0,
+    "cards": 3,
+    "report_bytes": 27102,
+    "report_disk_bytes": 28672,
+    "cards_bytes": 10185,
+    "cards_disk_bytes": 12288,
+    "run_bytes": 3408639,
+    "run_disk_bytes": 3518464
+  },
+  "report_seconds": 0.018054440966807306,
+  "whole_seconds": 35.26481094403425,
+  "leak": {
+    "decisions": 6,
+    "with_corrections_in_prompt": 0
+  },
+  "on_threshold": {
+    "tolerance": 0.001,
+    "parts": [
+      "pcb1"
+    ],
+    "boards": [],
+    "elsewhere": []
+  },
+  "checkpoints_held_to": {
+    "path": "results/stage2/checkpoints.json",
+    "sha256": "af420d92ee128a051f2d779b6f731b81a6e433d5168b142e52ee559cf2779815"
+  },
+  "refused_answers": {
+    "answers": [],
+    "by_kind": {
+      "padded to the token limit": 0,
+      "not JSON": 0,
+      "reason over the character limit": 0,
+      "reason states a figure": 0,
+      "otherwise invalid": 0
+    },
+    "padded": 0
+  },
+  "notes": {
+    "what_it_is": "one part's run of `spec-to-inspector inspect`: the specification's PDF parsed, the part's whole test split scored, every board judged, the reject cards and the report written",
+    "no_accuracy": "this record gives no accuracy figure: the final figure stands and is not re-read from a batch",
+    "times": "`times` is the protocol's figure 7, counted by the bench's `stage_times`",
+    "inspector": "`inspector` is figure 8: parse time measured in this run plus the fit time recorded when the part's model was trained on the machine; training is not repeated",
+    "memory": "`memory` is figure 9 by stage, from readings of both cards at the interval it gives, every reading in the file it names; `run.memory` and `judge_memory` are the same stages laid out as the bench lays them. A stage shorter than the interval may have no reading",
+    "whole_seconds": "`whole_seconds` is this process's own, from the first check to the record; the whole run's wall clock is the wrapper's, which starts before Python does",
+    "units": "*_seconds and seconds are wall-clock seconds; *_mib is MiB as the card's tool reports it; minutes are seconds / 60; *_bytes are bytes, *_disk_bytes as allocated on the disk"
+  },
+  "observations": [
+    {
+      "part": "pcb1",
+      "image_id": "good-0107",
+      "label": "good",
+      "score": 28.12590980529785,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0012244699755683541,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0484",
+      "label": "good",
+      "score": 26.846975326538086,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0005869580199941993,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "good-0690",
+      "label": "good",
+      "score": 29.922090530395508,
+      "flagged": false,
+      "regions_found": 0,
+      "region1_types": null,
+      "citation": "not flagged",
+      "cited_heading": null,
+      "cited_class": null,
+      "sentence": null,
+      "row_id": null,
+      "outcome": "accept",
+      "review_cause": null,
+      "areas": [],
+      "corrections_in_prompt": false,
+      "judge_seconds": 0.0004788240185007453,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-000",
+      "label": "bad",
+      "score": 36.416343688964844,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.1",
+      "cited_class": "melt",
+      "sentence": "A stray solder lump on the board surface",
+      "row_id": "4.1",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 1.9789826780324802,
+          "attempts": 1,
+          "prompt_tokens": 4591,
+          "completion_tokens": 32,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.0238886960432865,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-001",
+      "label": "bad",
+      "score": 48.042320251464844,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "The header pins are bent, with the leftmost pin angled inward and touching the adjacent pin.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.371925004001241,
+          "attempts": 1,
+          "prompt_tokens": 4756,
+          "completion_tokens": 42,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.496339417004492,
+      "digit_reasons": [],
+      "refused": []
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-002",
+      "label": "bad",
+      "score": 49.85504913330078,
+      "flagged": true,
+      "regions_found": 1,
+      "region1_types": [
+        "bent"
+      ],
+      "citation": "cited",
+      "cited_heading": "4.4",
+      "cited_class": "bent",
+      "sentence": "A header pin is bent out of alignment with its neighbors.",
+      "row_id": "4.4",
+      "outcome": "reject",
+      "review_cause": null,
+      "areas": [
+        {
+          "index": 1,
+          "outcome": "reject",
+          "review_cause": null,
+          "asked": true,
+          "seconds": 2.1258697810117155,
+          "attempts": 1,
+          "prompt_tokens": 4729,
+          "completion_tokens": 35,
+          "tokens_per_second": null
+        }
+      ],
+      "corrections_in_prompt": false,
+      "judge_seconds": 2.2300236059818417,
+      "digit_reasons": [],
+      "refused": []
+    }
+  ]
+}

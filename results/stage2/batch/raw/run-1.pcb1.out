@@ -1,0 +1,207 @@
+Loading weights:   0%|          | 0/770 [00:00<?, ?it/s]Loading weights: 100%|██████████| 770/770 [00:00<00:00, 13453.47it/s]
+Parsed specs/pcb-spec.pdf in 7.2 s: 16 clauses
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Scored 200 images in 19.7 s into runs/pcb1/batch
+good-0107: accept: the anomaly score 28.126 is not above the threshold 31.319, so no area of the board was flagged
+good-0484: accept: the anomaly score 26.847 is not above the threshold 31.319, so no area of the board was flagged
+good-0690: accept: the anomaly score 29.922 is not above the threshold 31.319, so no area of the board was flagged
+good-0303: accept: the anomaly score 27.021 is not above the threshold 31.319, so no area of the board was flagged
+good-0237: accept: the anomaly score 27.029 is not above the threshold 31.319, so no area of the board was flagged
+good-0394: accept: the anomaly score 29.712 is not above the threshold 31.319, so no area of the board was flagged
+good-0214: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 7.77 mm exceeds the 2 mm limit of clause 4.2.2 in zone B (the region touches the image border, so its true size may be larger)
+good-0989: accept: the anomaly score 26.248 is not above the threshold 31.319, so no area of the board was flagged
+good-0657: accept: the anomaly score 28.300 is not above the threshold 31.319, so no area of the board was flagged
+good-0377: accept: the anomaly score 27.486 is not above the threshold 31.319, so no area of the board was flagged
+good-0659: accept: the anomaly score 27.146 is not above the threshold 31.319, so no area of the board was flagged
+good-0514: accept: the anomaly score 26.644 is not above the threshold 31.319, so no area of the board was flagged
+good-0617: accept: the anomaly score 28.879 is not above the threshold 31.319, so no area of the board was flagged
+good-0725: accept: the anomaly score 30.658 is not above the threshold 31.319, so no area of the board was flagged
+good-0172: accept: the anomaly score 28.623 is not above the threshold 31.319, so no area of the board was flagged
+good-1000: accept: the anomaly score 28.129 is not above the threshold 31.319, so no area of the board was flagged
+good-0483: accept: the anomaly score 30.436 is not above the threshold 31.319, so no area of the board was flagged
+good-0654: accept: the anomaly score 29.554 is not above the threshold 31.319, so no area of the board was flagged
+good-0400: accept: the anomaly score 26.575 is not above the threshold 31.319, so no area of the board was flagged
+good-0469: accept: the anomaly score 27.594 is not above the threshold 31.319, so no area of the board was flagged
+good-0525: accept: the anomaly score 27.925 is not above the threshold 31.319, so no area of the board was flagged
+good-0170: accept: the anomaly score 27.700 is not above the threshold 31.319, so no area of the board was flagged
+good-0631: accept: the anomaly score 31.102 is not above the threshold 31.319, so no area of the board was flagged
+good-0685: accept: the anomaly score 31.038 is not above the threshold 31.319, so no area of the board was flagged
+good-0320: accept: the anomaly score 29.562 is not above the threshold 31.319, so no area of the board was flagged
+good-0869: accept: the anomaly score 29.240 is not above the threshold 31.319, so no area of the board was flagged
+good-0423: accept: the anomaly score 26.748 is not above the threshold 31.319, so no area of the board was flagged
+good-0417: accept: the anomaly score 26.015 is not above the threshold 31.319, so no area of the board was flagged
+good-0751: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+good-0764: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+good-0971: accept: the anomaly score 26.830 is not above the threshold 31.319, so no area of the board was flagged
+good-0730: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 14.57 mm exceeds the 2 mm limit of clause 4.2.2 in zone B (the region touches the image border, so its true size may be larger)
+good-0306: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 4.76 mm exceeds the 2 mm limit of clause 4.2.2 in zone B
+good-0011: accept: the anomaly score 25.743 is not above the threshold 31.319, so no area of the board was flagged
+good-0215: accept: the anomaly score 29.004 is not above the threshold 31.319, so no area of the board was flagged
+good-0159: accept: the anomaly score 26.252 is not above the threshold 31.319, so no area of the board was flagged
+good-0629: accept: the anomaly score 28.952 is not above the threshold 31.319, so no area of the board was flagged
+good-0694: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+good-0518: needs review: region 1: the flagged area lies outside every zone of part pcb1, where the specification refers a defect for review; an engineer must decide
+good-0940: accept: the anomaly score 25.770 is not above the threshold 31.319, so no area of the board was flagged
+good-0026: accept: the anomaly score 27.471 is not above the threshold 31.319, so no area of the board was flagged
+good-0844: accept: the anomaly score 28.326 is not above the threshold 31.319, so no area of the board was flagged
+good-0957: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 2.66 mm exceeds the 2 mm limit of clause 4.2.2 in zone B
+good-0900: accept: the anomaly score 29.575 is not above the threshold 31.319, so no area of the board was flagged
+good-0402: accept: the anomaly score 28.581 is not above the threshold 31.319, so no area of the board was flagged
+good-0621: accept, clause 4.2.2 Scratch (page 3): every flagged area is within its clause; region 1: longest extent 0.71 mm does not exceed the 2 mm limit of clause 4.2.2 in zone B
+good-0294: accept: the anomaly score 26.251 is not above the threshold 31.319, so no area of the board was flagged
+good-0016: accept: the anomaly score 27.145 is not above the threshold 31.319, so no area of the board was flagged
+good-0046: accept: the anomaly score 25.973 is not above the threshold 31.319, so no area of the board was flagged
+good-0705: needs review: region 1: the flagged area lies outside every zone of part pcb1, where the specification refers a defect for review; an engineer must decide
+good-0208: accept: the anomaly score 28.207 is not above the threshold 31.319, so no area of the board was flagged
+good-0674: needs review: region 1: the judge found no clause of part pcb1 that covers the flagged area; an engineer must decide
+good-0427: accept: the anomaly score 27.607 is not above the threshold 31.319, so no area of the board was flagged
+good-0552: accept: the anomaly score 28.346 is not above the threshold 31.319, so no area of the board was flagged
+good-0804: accept: the anomaly score 28.118 is not above the threshold 31.319, so no area of the board was flagged
+good-0333: reject, clause 4.2.1 Scratch (page 3): region 1: longest extent 3.87 mm exceeds the 1 mm limit of clause 4.2.1 in zone A
+good-0027: accept: the anomaly score 28.006 is not above the threshold 31.319, so no area of the board was flagged
+good-0100: accept: the anomaly score 26.740 is not above the threshold 31.319, so no area of the board was flagged
+good-0800: accept: the anomaly score 28.858 is not above the threshold 31.319, so no area of the board was flagged
+good-0923: needs review: region 1: the flagged area lies outside every zone of part pcb1, where the specification refers a defect for review; an engineer must decide
+good-0755: accept: the anomaly score 30.022 is not above the threshold 31.319, so no area of the board was flagged
+good-0013: accept: the anomaly score 29.385 is not above the threshold 31.319, so no area of the board was flagged
+good-0297: accept: the anomaly score 24.392 is not above the threshold 31.319, so no area of the board was flagged
+good-0768: accept: the anomaly score 28.591 is not above the threshold 31.319, so no area of the board was flagged
+good-0457: accept: the anomaly score 28.148 is not above the threshold 31.319, so no area of the board was flagged
+good-0520: accept: the anomaly score 28.556 is not above the threshold 31.319, so no area of the board was flagged
+good-0952: accept: the anomaly score 25.423 is not above the threshold 31.319, so no area of the board was flagged
+good-0871: accept: the anomaly score 27.364 is not above the threshold 31.319, so no area of the board was flagged
+good-0811: accept: the anomaly score 28.278 is not above the threshold 31.319, so no area of the board was flagged
+good-0174: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+good-0648: accept: the anomaly score 27.342 is not above the threshold 31.319, so no area of the board was flagged
+good-0261: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 2.24 mm exceeds the 2 mm limit of clause 4.2.2 in zone B
+good-0784: accept: the anomaly score 29.931 is not above the threshold 31.319, so no area of the board was flagged
+good-0935: accept: the anomaly score 27.378 is not above the threshold 31.319, so no area of the board was flagged
+good-0286: accept: the anomaly score 27.422 is not above the threshold 31.319, so no area of the board was flagged
+good-0779: accept: the anomaly score 28.756 is not above the threshold 31.319, so no area of the board was flagged
+good-0363: accept: the anomaly score 27.778 is not above the threshold 31.319, so no area of the board was flagged
+good-0619: accept: the anomaly score 27.681 is not above the threshold 31.319, so no area of the board was flagged
+good-0024: accept: the anomaly score 27.635 is not above the threshold 31.319, so no area of the board was flagged
+good-0735: accept: the anomaly score 26.952 is not above the threshold 31.319, so no area of the board was flagged
+good-0688: accept: the anomaly score 28.274 is not above the threshold 31.319, so no area of the board was flagged
+good-0796: accept: the anomaly score 31.262 is not above the threshold 31.319, so no area of the board was flagged
+good-0178: accept: the anomaly score 26.744 is not above the threshold 31.319, so no area of the board was flagged
+good-0797: accept, clause 4.2.2 Scratch (page 3): every flagged area is within its clause; region 1: longest extent 0.53 mm does not exceed the 2 mm limit of clause 4.2.2 in zone B
+good-0920: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 11.25 mm exceeds the 2 mm limit of clause 4.2.2 in zone B (the region touches the image border, so its true size may be larger)
+good-0479: accept: the anomaly score 25.966 is not above the threshold 31.319, so no area of the board was flagged
+good-0684: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+good-0739: accept: the anomaly score 27.695 is not above the threshold 31.319, so no area of the board was flagged
+good-0569: accept: the anomaly score 27.198 is not above the threshold 31.319, so no area of the board was flagged
+good-0196: accept: the anomaly score 27.096 is not above the threshold 31.319, so no area of the board was flagged
+good-0892: accept: the anomaly score 25.466 is not above the threshold 31.319, so no area of the board was flagged
+good-0964: accept: the anomaly score 27.667 is not above the threshold 31.319, so no area of the board was flagged
+good-0187: accept: the anomaly score 24.701 is not above the threshold 31.319, so no area of the board was flagged
+good-0488: accept: the anomaly score 27.769 is not above the threshold 31.319, so no area of the board was flagged
+good-0994: accept: the anomaly score 26.414 is not above the threshold 31.319, so no area of the board was flagged
+good-0545: accept: the anomaly score 28.504 is not above the threshold 31.319, so no area of the board was flagged
+good-0615: accept: the anomaly score 30.235 is not above the threshold 31.319, so no area of the board was flagged
+good-0974: needs review: region 1: the flagged area lies outside every zone of part pcb1, where the specification refers a defect for review; an engineer must decide
+good-0490: accept: the anomaly score 29.238 is not above the threshold 31.319, so no area of the board was flagged
+good-0168: accept: the anomaly score 29.123 is not above the threshold 31.319, so no area of the board was flagged
+bad-000: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-001: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-002: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-003: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-004: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-005: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-006: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-007: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-008: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-009: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-010: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-011: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-012: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-013: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-014: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-015: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-016: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-017: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-018: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-019: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-020: accept: the anomaly score 30.997 is not above the threshold 31.319, so no area of the board was flagged
+bad-021: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-022: accept: the anomaly score 29.472 is not above the threshold 31.319, so no area of the board was flagged
+bad-023: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-024: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-025: accept: the anomaly score 29.418 is not above the threshold 31.319, so no area of the board was flagged
+bad-026: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-027: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-028: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-029: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-030: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-031: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-032: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-033: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-034: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-035: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-036: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-037: accept: the anomaly score 29.457 is not above the threshold 31.319, so no area of the board was flagged
+bad-038: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-039: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-040: reject, clause 4.3 Missing component (page 3): region 1: clause 4.3 rejects 'missing' in any zone, whatever its size
+bad-041: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-042: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-043: reject, clause 4.2.1 Scratch (page 3): region 1: longest extent 50.67 mm exceeds the 1 mm limit of clause 4.2.1 in zone A
+bad-044: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-045: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-046: reject, clause 4.2.1 Scratch (page 3): region 1: longest extent 21.73 mm exceeds the 1 mm limit of clause 4.2.1 in zone A
+bad-047: reject, clause 4.4 Bent header pin (page 3): region 1: clause 4.4 rejects 'bent' in any zone, whatever its size
+bad-048: accept: the anomaly score 29.800 is not above the threshold 31.319, so no area of the board was flagged
+bad-049: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-050: reject, clause 4.3 Missing component (page 3): region 1: clause 4.3 rejects 'missing' in any zone, whatever its size
+bad-051: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-052: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-053: reject, clause 4.2.1 Scratch (page 3): region 1: longest extent 15.65 mm exceeds the 1 mm limit of clause 4.2.1 in zone A
+bad-054: reject, clause 4.2.1 Scratch (page 3): region 1: longest extent 17.27 mm exceeds the 1 mm limit of clause 4.2.1 in zone A
+bad-055: reject, clause 4.2.1 Scratch (page 3): region 1: longest extent 16.78 mm exceeds the 1 mm limit of clause 4.2.1 in zone A
+bad-056: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-057: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-058: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 3.98 mm exceeds the 2 mm limit of clause 4.2.2 in zone B
+bad-059: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-060: accept: the anomaly score 29.412 is not above the threshold 31.319, so no area of the board was flagged
+bad-061: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-062: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-063: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-064: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-065: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-066: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-067: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-068: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-069: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-070: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-071: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-072: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-073: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-074: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-075: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 2.57 mm exceeds the 2 mm limit of clause 4.2.2 in zone B
+bad-076: accept: the anomaly score 28.613 is not above the threshold 31.319, so no area of the board was flagged
+bad-077: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-078: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-079: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-080: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-081: reject, clause 4.3 Missing component (page 3): region 1: clause 4.3 rejects 'missing' in any zone, whatever its size
+bad-082: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-083: reject, clause 4.2.2 Scratch (page 3): region 1: longest extent 6.55 mm exceeds the 2 mm limit of clause 4.2.2 in zone B
+bad-084: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-085: needs review: region 1: the flagged area lies outside every zone of part pcb1, where the specification refers a defect for review; an engineer must decide
+bad-086: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-087: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-088: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-089: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-090: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-091: needs review, clause 4.2.2 Scratch (page 3): region 1: clause 4.2.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-092: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-093: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-094: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-095: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-096: accept: the anomaly score 29.581 is not above the threshold 31.319, so no area of the board was flagged
+bad-097: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-098: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+bad-099: reject, clause 4.1 Stray or bridging solder (page 3): region 1: clause 4.1 rejects 'melt' in any zone, whatever its size
+200 images: 91 accept, 95 reject, 14 needs review. Decisions: runs/pcb1/batch
+Report: runs/pcb1/batch/report.html, 95 reject card(s)
+Figures: results/stage2/batch/pcb1.json

@@ -1,0 +1,208 @@
+Loading weights:   0%|          | 0/770 [00:00<?, ?it/s]Loading weights: 100%|██████████| 770/770 [00:00<00:00, 13789.28it/s]
+Parsed specs/pcb-spec.pdf in 5.9 s: 16 clauses
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Scored 201 images in 19.9 s into runs/pcb4/batch
+good-0107: accept: the anomaly score 24.413 is not above the threshold 30.049, so no area of the board was flagged
+good-0484: accept: the anomaly score 23.288 is not above the threshold 30.049, so no area of the board was flagged
+good-0690: accept: the anomaly score 24.577 is not above the threshold 30.049, so no area of the board was flagged
+good-0303: accept: the anomaly score 25.690 is not above the threshold 30.049, so no area of the board was flagged
+good-0237: accept: the anomaly score 28.538 is not above the threshold 30.049, so no area of the board was flagged
+good-0394: accept: the anomaly score 24.908 is not above the threshold 30.049, so no area of the board was flagged
+good-0214: accept: the anomaly score 27.644 is not above the threshold 30.049, so no area of the board was flagged
+good-0990: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+good-0657: accept: the anomaly score 29.223 is not above the threshold 30.049, so no area of the board was flagged
+good-0377: accept: the anomaly score 25.565 is not above the threshold 30.049, so no area of the board was flagged
+good-0659: accept: the anomaly score 23.752 is not above the threshold 30.049, so no area of the board was flagged
+good-0514: accept: the anomaly score 22.836 is not above the threshold 30.049, so no area of the board was flagged
+good-0617: accept: the anomaly score 23.382 is not above the threshold 30.049, so no area of the board was flagged
+good-0725: accept: the anomaly score 23.031 is not above the threshold 30.049, so no area of the board was flagged
+good-0172: accept: the anomaly score 23.804 is not above the threshold 30.049, so no area of the board was flagged
+good-1001: accept: the anomaly score 26.370 is not above the threshold 30.049, so no area of the board was flagged
+good-0483: accept: the anomaly score 24.792 is not above the threshold 30.049, so no area of the board was flagged
+good-0654: accept: the anomaly score 24.843 is not above the threshold 30.049, so no area of the board was flagged
+good-0400: accept: the anomaly score 23.700 is not above the threshold 30.049, so no area of the board was flagged
+good-0469: accept: the anomaly score 25.279 is not above the threshold 30.049, so no area of the board was flagged
+good-0525: accept: the anomaly score 25.311 is not above the threshold 30.049, so no area of the board was flagged
+good-0170: accept: the anomaly score 23.204 is not above the threshold 30.049, so no area of the board was flagged
+good-0631: accept: the anomaly score 24.105 is not above the threshold 30.049, so no area of the board was flagged
+good-0685: accept: the anomaly score 24.316 is not above the threshold 30.049, so no area of the board was flagged
+good-0320: needs review: region 1: the flagged area lies outside every zone of part pcb4, where the specification refers a defect for review; an engineer must decide
+good-0869: accept: the anomaly score 23.256 is not above the threshold 30.049, so no area of the board was flagged
+good-0423: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 2.17 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+good-0417: accept: the anomaly score 23.752 is not above the threshold 30.049, so no area of the board was flagged
+good-0751: accept: the anomaly score 23.192 is not above the threshold 30.049, so no area of the board was flagged
+good-0764: accept: the anomaly score 23.147 is not above the threshold 30.049, so no area of the board was flagged
+good-0971: accept: the anomaly score 24.264 is not above the threshold 30.049, so no area of the board was flagged
+good-0730: accept: the anomaly score 25.977 is not above the threshold 30.049, so no area of the board was flagged
+good-0306: accept: the anomaly score 24.552 is not above the threshold 30.049, so no area of the board was flagged
+good-0011: needs review: region 1: the flagged area lies outside every zone of part pcb4, where the specification refers a defect for review; an engineer must decide
+good-0215: accept: the anomaly score 26.724 is not above the threshold 30.049, so no area of the board was flagged
+good-0159: accept: the anomaly score 25.256 is not above the threshold 30.049, so no area of the board was flagged
+good-0629: accept: the anomaly score 26.014 is not above the threshold 30.049, so no area of the board was flagged
+good-0694: accept: the anomaly score 25.490 is not above the threshold 30.049, so no area of the board was flagged
+good-0518: accept: the anomaly score 25.463 is not above the threshold 30.049, so no area of the board was flagged
+good-0940: accept: the anomaly score 23.520 is not above the threshold 30.049, so no area of the board was flagged
+good-0026: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 2.75 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+good-0844: accept: the anomaly score 23.871 is not above the threshold 30.049, so no area of the board was flagged
+good-0957: accept: the anomaly score 27.582 is not above the threshold 30.049, so no area of the board was flagged
+good-0900: accept: the anomaly score 26.012 is not above the threshold 30.049, so no area of the board was flagged
+good-0402: accept: the anomaly score 23.143 is not above the threshold 30.049, so no area of the board was flagged
+good-0621: accept: the anomaly score 24.264 is not above the threshold 30.049, so no area of the board was flagged
+good-0294: accept: the anomaly score 27.436 is not above the threshold 30.049, so no area of the board was flagged
+good-0016: accept: the anomaly score 27.928 is not above the threshold 30.049, so no area of the board was flagged
+good-0046: accept: the anomaly score 24.246 is not above the threshold 30.049, so no area of the board was flagged
+good-0705: accept: the anomaly score 24.548 is not above the threshold 30.049, so no area of the board was flagged
+good-0208: accept: the anomaly score 23.595 is not above the threshold 30.049, so no area of the board was flagged
+good-0674: accept: the anomaly score 26.935 is not above the threshold 30.049, so no area of the board was flagged
+good-0427: accept: the anomaly score 24.837 is not above the threshold 30.049, so no area of the board was flagged
+good-0552: accept: the anomaly score 25.576 is not above the threshold 30.049, so no area of the board was flagged
+good-0804: accept: the anomaly score 23.364 is not above the threshold 30.049, so no area of the board was flagged
+good-0333: accept: the anomaly score 25.411 is not above the threshold 30.049, so no area of the board was flagged
+good-0027: accept: the anomaly score 23.151 is not above the threshold 30.049, so no area of the board was flagged
+good-0100: accept: the anomaly score 26.525 is not above the threshold 30.049, so no area of the board was flagged
+good-0800: accept: the anomaly score 27.280 is not above the threshold 30.049, so no area of the board was flagged
+good-0923: accept: the anomaly score 28.006 is not above the threshold 30.049, so no area of the board was flagged
+good-0755: accept: the anomaly score 27.524 is not above the threshold 30.049, so no area of the board was flagged
+good-0013: accept: the anomaly score 28.606 is not above the threshold 30.049, so no area of the board was flagged
+good-0297: accept: the anomaly score 25.321 is not above the threshold 30.049, so no area of the board was flagged
+good-0768: accept: the anomaly score 23.373 is not above the threshold 30.049, so no area of the board was flagged
+good-0457: accept: the anomaly score 24.054 is not above the threshold 30.049, so no area of the board was flagged
+good-0520: accept: the anomaly score 23.808 is not above the threshold 30.049, so no area of the board was flagged
+good-0952: accept: the anomaly score 27.680 is not above the threshold 30.049, so no area of the board was flagged
+good-0871: reject, clause 5.1.3 Foreign material (page 4): region 1: longest extent 9.14 mm exceeds the 2 mm limit of clause 5.1.3 in zone C
+good-0811: accept: the anomaly score 23.457 is not above the threshold 30.049, so no area of the board was flagged
+good-0174: accept: the anomaly score 26.318 is not above the threshold 30.049, so no area of the board was flagged
+good-0648: accept: the anomaly score 23.244 is not above the threshold 30.049, so no area of the board was flagged
+good-0261: accept: the anomaly score 25.637 is not above the threshold 30.049, so no area of the board was flagged
+good-0784: needs review: region 1: the flagged area lies outside every zone of part pcb4, where the specification refers a defect for review; an engineer must decide
+good-0977: accept: the anomaly score 27.403 is not above the threshold 30.049, so no area of the board was flagged
+good-0935: accept: the anomaly score 23.956 is not above the threshold 30.049, so no area of the board was flagged
+good-0286: accept: the anomaly score 24.070 is not above the threshold 30.049, so no area of the board was flagged
+good-0779: accept: the anomaly score 23.201 is not above the threshold 30.049, so no area of the board was flagged
+good-0363: accept: the anomaly score 23.897 is not above the threshold 30.049, so no area of the board was flagged
+good-0619: accept: the anomaly score 24.534 is not above the threshold 30.049, so no area of the board was flagged
+good-0024: accept: the anomaly score 24.915 is not above the threshold 30.049, so no area of the board was flagged
+good-0735: accept: the anomaly score 22.920 is not above the threshold 30.049, so no area of the board was flagged
+good-0688: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 1.86 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+good-0796: accept: the anomaly score 23.709 is not above the threshold 30.049, so no area of the board was flagged
+good-0178: accept: the anomaly score 23.948 is not above the threshold 30.049, so no area of the board was flagged
+good-0797: accept: the anomaly score 25.943 is not above the threshold 30.049, so no area of the board was flagged
+good-0920: accept: the anomaly score 26.840 is not above the threshold 30.049, so no area of the board was flagged
+good-0479: accept: the anomaly score 23.517 is not above the threshold 30.049, so no area of the board was flagged
+good-0684: accept: the anomaly score 22.671 is not above the threshold 30.049, so no area of the board was flagged
+good-0739: accept: the anomaly score 26.234 is not above the threshold 30.049, so no area of the board was flagged
+good-0569: accept: the anomaly score 23.658 is not above the threshold 30.049, so no area of the board was flagged
+good-0196: accept: the anomaly score 26.251 is not above the threshold 30.049, so no area of the board was flagged
+good-0892: accept: the anomaly score 27.845 is not above the threshold 30.049, so no area of the board was flagged
+good-0964: accept: the anomaly score 26.196 is not above the threshold 30.049, so no area of the board was flagged
+good-0187: accept: the anomaly score 26.855 is not above the threshold 30.049, so no area of the board was flagged
+good-0488: accept: the anomaly score 24.946 is not above the threshold 30.049, so no area of the board was flagged
+good-0994: accept: the anomaly score 24.515 is not above the threshold 30.049, so no area of the board was flagged
+good-0545: accept: the anomaly score 26.189 is not above the threshold 30.049, so no area of the board was flagged
+good-0615: reject, clause 5.1.3 Foreign material (page 4): region 1: longest extent 5.26 mm exceeds the 2 mm limit of clause 5.1.3 in zone C
+good-0974: accept: the anomaly score 27.273 is not above the threshold 30.049, so no area of the board was flagged
+good-0490: accept: the anomaly score 24.941 is not above the threshold 30.049, so no area of the board was flagged
+good-0168: accept: the anomaly score 24.180 is not above the threshold 30.049, so no area of the board was flagged
+bad-000: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-001: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-002: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 18.11 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-003: reject, clause 5.5 Damaged component or board (page 5): region 1: clause 5.5 rejects 'damage' in any zone, whatever its size
+bad-004: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 7.13 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-005: needs review, clause 5.1.2 Foreign material (page 4): region 1: clause 5.1.2 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-006: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 9.78 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-007: reject, clause 5.5 Damaged component or board (page 5): region 1: clause 5.5 rejects 'damage' in any zone, whatever its size
+bad-008: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 3.67 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-009: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-010: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 9.06 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-011: reject, clause 5.3 Extra component or object (page 4): region 1: clause 5.3 rejects 'extra' in any zone, whatever its size
+bad-012: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 8.91 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-013: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 7.71 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-014: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 7.08 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-015: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 7.39 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-016: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 5.99 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-017: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-018: reject, clause 5.5 Damaged component or board (page 5): region 1: clause 5.5 rejects 'damage' in any zone, whatever its size
+bad-019: reject, clause 5.5 Damaged component or board (page 5): region 1: clause 5.5 rejects 'damage' in any zone, whatever its size
+bad-020: reject, clause 5.5 Damaged component or board (page 5): region 1: clause 5.5 rejects 'damage' in any zone, whatever its size
+bad-021: reject, clause 5.5 Damaged component or board (page 5): region 1: clause 5.5 rejects 'damage' in any zone, whatever its size
+bad-022: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-023: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 6.25 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-024: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 9.63 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-025: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-026: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-027: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 8.11 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-028: reject, clause 5.5 Damaged component or board (page 5): region 1: clause 5.5 rejects 'damage' in any zone, whatever its size
+bad-029: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 8.17 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-030: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-031: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 9.91 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-032: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 6.95 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-033: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-034: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-035: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 6.82 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-036: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 9.49 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-037: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-038: needs review, clause 5.1.1 Foreign material (page 4): region 1: clause 5.1.1 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-039: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 9.86 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-040: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 13.50 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-041: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 8.25 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-042: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-043: reject, clause 5.3 Extra component or object (page 4): region 1: clause 5.3 rejects 'extra' in any zone, whatever its size
+bad-044: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-045: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 16.65 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-046: accept: the anomaly score 28.444 is not above the threshold 30.049, so no area of the board was flagged
+bad-047: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-048: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.47 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-049: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 17.50 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-050: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 5.06 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-051: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 3.37 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-052: reject, clause 5.3 Extra component or object (page 4): region 1: clause 5.3 rejects 'extra' in any zone, whatever its size
+bad-053: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 16.88 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-054: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-055: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-056: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 6.08 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-057: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 16.78 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-058: needs review, clause 5.1.1 Foreign material (page 4): region 1: clause 5.1.1 sets a size limit, but the flagged area is only the patch under the anomaly map's peak and has no measured size; an engineer must decide
+bad-059: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.64 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-060: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 6.29 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-061: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 2.45 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-062: reject, clause 5.1.2 Foreign material (page 4): region 1: longest extent 16.01 mm exceeds the 1 mm limit of clause 5.1.2 in zone B
+bad-063: needs review: region 1: the flagged area lies outside every zone of part pcb4, where the specification refers a defect for review; an engineer must decide
+bad-064: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-065: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 16.67 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-066: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-067: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.33 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-068: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 17.52 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-069: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 5.04 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-070: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.50 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-071: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.85 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-072: accept: the anomaly score 27.601 is not above the threshold 30.049, so no area of the board was flagged
+bad-073: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 17.09 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-074: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 2.01 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-075: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 10.21 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-076: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-077: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 6.18 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-078: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 7.83 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-079: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-080: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 7.49 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-081: accept: the anomaly score 30.049 is not above the threshold 30.049, so no area of the board was flagged
+bad-082: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 6.12 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-083: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 6.26 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-084: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 5.66 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-085: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.63 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-086: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 5.24 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-087: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 7.90 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-088: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.95 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-089: reject, clause 5.2 Missing component (page 4): region 1: clause 5.2 rejects 'missing' in any zone, whatever its size
+bad-090: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 10.14 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-091: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 5.62 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-092: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 7.50 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-093: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 7.67 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-094: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 3.28 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-095: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 9.70 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-096: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 4.62 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-097: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 5.94 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-098: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 3.64 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+bad-099: reject, clause 5.3 Extra component or object (page 4): region 1: clause 5.3 rejects 'extra' in any zone, whatever its size
+201 images: 95 accept, 99 reject, 7 needs review. Decisions: runs/pcb4/batch
+Report: runs/pcb4/batch/report.html, 99 reject card(s)
+Figures: results/stage2/batch/pcb4.json

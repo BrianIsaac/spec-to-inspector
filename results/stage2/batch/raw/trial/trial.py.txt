@@ -1,0 +1,24 @@
+"""A short trial of `inspect --record` on the machine: the first 3 anomalous and 3 good of a part."""
+import sys
+from pathlib import Path
+
+from spec_to_inspector import cli
+from spec_to_inspector.bench import run as benching
+
+real = benching.laptop_pipeline
+
+
+def limited(settings):
+    pipeline = real(settings)
+    items = pipeline["test_items"]
+    return {**pipeline, "test_items": lambda root, part: benching._limited(items(root, part), 3)}
+
+
+benching.laptop_pipeline = limited
+part = sys.argv[1]
+cli.app(
+    [
+        "inspect", "--category", part, "--spec", "specs/pcb-spec.pdf", "--test-split",
+        "--batch", "trial", "--record", str(Path.home() / f"batch-run/trial/{part}.json"),
+    ]
+)

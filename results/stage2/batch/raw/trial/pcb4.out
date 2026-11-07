@@ -1,0 +1,13 @@
+Loading weights:   0%|          | 0/770 [00:00<?, ?it/s]Loading weights: 100%|██████████| 770/770 [00:00<00:00, 13059.29it/s]
+Parsed specs/pcb-spec.pdf in 6.1 s: 16 clauses
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Scored 6 images in 2.9 s into /home/devcloud/batch-run/trial/runs/pcb4/trial
+good-0107: accept: the anomaly score 24.413 is not above the threshold 30.049, so no area of the board was flagged
+good-0484: accept: the anomaly score 23.288 is not above the threshold 30.049, so no area of the board was flagged
+good-0690: accept: the anomaly score 24.577 is not above the threshold 30.049, so no area of the board was flagged
+bad-000: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-001: reject, clause 5.7 Burn mark (page 5): region 1: clause 5.7 rejects 'burnt' in any zone, whatever its size
+bad-002: reject, clause 5.1.1 Foreign material (page 4): region 1: longest extent 18.11 mm exceeds the 0.5 mm limit of clause 5.1.1 in zone A
+6 images: 3 accept, 3 reject, 0 needs review. Decisions: /home/devcloud/batch-run/trial/runs/pcb4/trial
+Report: /home/devcloud/batch-run/trial/runs/pcb4/trial/report.html, 3 reject card(s)
+Figures: /home/devcloud/batch-run/trial/pcb4.json
