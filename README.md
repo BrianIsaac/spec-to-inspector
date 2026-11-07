@@ -168,6 +168,8 @@ setup:
 | D | `uv run spec-to-inspector parse specs/pcb-spec.pdf --results results/stage1/spec.json` | nothing but the CPU | `results/stage1/spec.json` |
 | E | `uv run python -m spec_to_inspector.corrections.live_check` | scored runs of both parts and the VLM server up; about 18 minutes | `results/stage1/corrections.json` |
 
+Command A is Stage I's on the laptop and is history: it now stops at PCB1 `bad-029`, since the labelled set's region columns are the machine's by the protocol's addition of 7 November; Stage I's columns are in history at `8d1f28a`, with the SHA-256 `0477eb97...` that `results/stage1/bench.json` holds.
+
 ## Quick start
 
 What you need: Linux on x86-64, [uv](https://docs.astral.sh/uv/) and git.
