@@ -575,29 +575,22 @@ def test_a_server_nothing_was_read_of_has_no_row_for_the_quantisation(
 NOT_RECORDED = "| quantisation | not recorded | the record does not hold it |\n"
 
 
-@pytest.mark.parametrize(
-    ("name", "reason_rule"),
-    [("final", False), ("comparison-designators", True)],
-)
-def test_the_pages_not_rendered_again_differ_only_by_the_new_line(
-    name: str, reason_rule: bool
-) -> None:
-    """The final's page and designators' stand as written; this says what a render would change."""
+@pytest.mark.parametrize("name", ["final"])
+def test_the_pages_not_rendered_again_differ_only_by_the_new_line(name: str) -> None:
+    """The final's page stands as written; this says what a render would change."""
     folder = REPOSITORY / "results" / "stage2" / name
     written = render_readme(
         read_record(folder / "bench.json"), paired=figure_beside(folder / "bench.json")
     )
     assert NOT_RECORDED in written
-    expected = written.replace(NOT_RECORDED, "")
-    if reason_rule:
-        assert "SPEC_TO_INSPECTOR_REASON_RULE=designators " in expected
-        expected = expected.replace("SPEC_TO_INSPECTOR_REASON_RULE=designators ", "")
 
-    assert expected == (folder / "README.md").read_text(encoding="utf-8")
+    assert written.replace(NOT_RECORDED, "") == (folder / "README.md").read_text(encoding="utf-8")
 
 
-@pytest.mark.parametrize("name", ["comparison-fp8", "comparison-image-minimum"])
-def test_the_two_pages_rendered_again_are_what_their_records_write(name: str) -> None:
+@pytest.mark.parametrize(
+    "name", ["comparison-designators", "comparison-fp8", "comparison-image-minimum"]
+)
+def test_the_pages_rendered_again_are_what_their_records_write(name: str) -> None:
     """Every word from the tracked record and its kept figure, whose digest still holds."""
     folder = REPOSITORY / "results" / "stage2" / name
     kept = figure_beside(folder / "bench.json")

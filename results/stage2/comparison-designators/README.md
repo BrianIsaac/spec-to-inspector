@@ -59,6 +59,7 @@ folded into it.
 | image_label_revision | `ac12083301cbdbe06135882d401f7877b0b512db` | container label org.opencontainers.image.revision |
 | command | `-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt '{"image": 2}' --mm-processor-kwargs '{"size": {"shortest_edge": 1048576, "longest_edge": 16777216}}' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1` | docker inspect, Args |
 | dtype | `float16` | the server's log, the engine's line, dtype=torch.* |
+| quantisation | not recorded | the record does not hold it |
 
 The judge's card: Intel(R) Arc(TM) Pro B70 Graphics. Its image minimum: 1024 tokens. Up to 3 areas an image, stopping at the first reject.
 
@@ -280,7 +281,7 @@ The judge's server is started by `scripts/serve_vlm_xpu.sh start`, none of its s
 overridden, and this run's command is started on the machine as:
 
 ```
-SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector bench --results results/stage2/comparison-designators/bench.json --readme results/stage2/comparison-designators/README.md
+SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 SPEC_TO_INSPECTOR_REASON_RULE=designators .venv/bin/spec-to-inspector bench --results results/stage2/comparison-designators/bench.json --readme results/stage2/comparison-designators/README.md
 ```
 
 This run was compared with the run of the same command before it (2026-11-07T07:40:12+00:00), image by image:
