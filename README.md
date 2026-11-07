@@ -207,8 +207,7 @@ number comes from the language model" stands on the final setting.
 
 Each comparison's folder also holds its bench page and record, the first run beside the
 second, its server logs, `paired.json` with the sign test, and `two-runs.md` with every
-value that differs. Read `COMPARISON.md` first: two lines of the bench's page are wrong for
-`fp8` and `image-minimum`, and it says which. No figure is affected.
+value that differs. Read `COMPARISON.md` first.
 
 ## Results on the laptop
 

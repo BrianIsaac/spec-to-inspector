@@ -34,13 +34,15 @@ the engine's line in `raw/server-fp8-whole.txt`. vLLM's line gives 10.88 GiB for
 The weights' digests equal those Hugging Face gives for the revision: `e2dea2e85e643ef7045c31a485a426631a1e0a84e463f8b2c7e9c6682a06eafd`
 and `3dc64ec934af27a7007d265014e907aff9e16658d409e5cd4cf79869bf2bd8c1`. Downloaded with `hf download`, 06:35:18 to 06:36:50 UTC.
 
-## The two runs, and what the page cannot say
+## The two runs, and the page
 
 Run 1 is `first-run.json` and `first-run.md`, run 2 `bench.json` and `README.md`. No void rule was met: 0 of 401 decisions with a
 correction, the highest hit rate 0.0% over 48 readings in each, the named checkpoints. They agree on all 339 fields of figures 1
 to 6. `two-runs.md` has every value that differs. pcb4 `bad-045` is padded twice and has no valid answer, so 216 areas compare
 where 217 were asked.
 
-**Two lines of `README.md` are wrong for this comparison, and the page is left as the bench wrote it.** "This run's record holds
-what the protocol asks of a final run": the record has the fields, and this is a comparison. "none of its settings overridden",
-under "Repeating it": it was started by `serve-fp8.sh`, above.
+**`README.md` now says what this run is.** Its two wrong lines were put right on 7 November by the bench's `--render-only` from the
+same record, and no figure on it moved: it says this is the `fp8` comparison and so not final, and under "Repeating it" that `serve-fp8.sh`
+started it, with the one flag against the protocol's. Its `quantisation` row reads "not recorded", since this record was written before
+the field; the engine's line in `raw/server-fp8-whole.txt` reads `quantization=fp8`. `bench.json`'s own `not_final` still reads empty, and
+`first-run.md` keeps both old lines, each as written with its run.

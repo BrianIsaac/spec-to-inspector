@@ -20,7 +20,17 @@ from spec_to_inspector.bench.observe import (
     RefusedAnswers,
 )
 from spec_to_inspector.bench.paired import PairedRecord, PairedTable
-from spec_to_inspector.bench.record import BenchRecord, ColdStart, Repeat, StageMemory
+from spec_to_inspector.bench.record import (
+    PROTOCOL_SERVER_SCRIPT,
+    QUANTISATION_FACT,
+    BenchRecord,
+    ColdStart,
+    Repeat,
+    ServerOverride,
+    StageMemory,
+    server_start,
+    still_not_final,
+)
 from spec_to_inspector.bench.score import Accuracy, Confusion, Dispositions, FalseAlarms
 from spec_to_inspector.bench.wilson import Proportion
 from spec_to_inspector.judge.answer import RefusalKind
@@ -655,11 +665,12 @@ def _final_lines(record: BenchRecord) -> list[str]:
     Returns:
         The lines.
     """
-    if record.not_final:
+    lacking = still_not_final(record)
+    if lacking:
         return [
             "**This run is not final.** Its record lacks what the protocol asks of a final run:",
             "",
-            *(f"- {reason}." for reason in record.not_final),
+            *(f"- {reason}." for reason in lacking),
         ]
     return [
         "This run's record holds what the protocol asks of a final run. Three runs make a figure",
@@ -679,13 +690,82 @@ def _server_table(record: BenchRecord) -> list[str]:
     judge = record.judge
     if not judge.server:
         return ["Nothing could be read of the server."]
-    return _table(
-        ["Fact", "Value", "Read from"],
-        (
-            [key, f"`{value}`", judge.server_sources.get(key, "not said")]
-            for key, value in judge.server.items()
-        ),
+    rows = [
+        [key, f"`{value}`", judge.server_sources.get(key, "not said")]
+        for key, value in judge.server.items()
+    ]
+    if QUANTISATION_FACT not in judge.server:
+        after_dtype = next((n + 1 for n, row in enumerate(rows) if row[0] == "dtype"), len(rows))
+        rows.insert(after_dtype, [QUANTISATION_FACT, "not recorded", "the record does not hold it"])
+    return _table(["Fact", "Value", "Read from"], rows)
+
+
+def _override_words(override: ServerOverride) -> str:
+    """Say how one flag of the server's start differs from the protocol's.
+
+    Args:
+        override: The flag.
+
+    Returns:
+        The words, each value as the command line holds it.
+    """
+    flag, here, protocol = override
+    if here is None:
+        return f"no `{f'{flag} {protocol}'.strip()}`, which the protocol has"
+    written = f"`{f'{flag} {here}'.strip()}`"
+    if protocol is None:
+        return f"{written}, which the protocol does not have"
+    return f"{written} where the protocol has `{f'{flag} {protocol}'.strip()}`"
+
+
+def _server_start_lines(record: BenchRecord) -> list[str]:
+    """Say how the judge's server is started, from the command line the record holds.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The lines, leading into the run's own command.
+    """
+    start = server_start(record)
+    if start is None:
+        return [
+            "The record does not hold the command line of the judge's server, so what it was",
+            "started with cannot be said here. This run's command is started on the machine as:",
+        ]
+    if not start.overrides:
+        return [
+            f"The judge's server is started by `{PROTOCOL_SERVER_SCRIPT} start`, none of its "
+            "settings",
+            "overridden, and this run's command is started on the machine as:",
+        ]
+    differs = "; ".join(_override_words(override) for override in start.overrides)
+    started = (
+        f"The judge's server is started by `{' '.join([*start.variables, start.script])} start`, "
+        "which is not the protocol's start."
+        if start.script is not None
+        else f"The judge's server was not started by `{PROTOCOL_SERVER_SCRIPT}` as it stands, "
+        "which cannot write what its command line holds, and the record does not name what "
+        "started it."
     )
+    return [
+        started,
+        f"Its command line, as the record holds it, has {differs}.",
+        "This run's command is started on the machine as:",
+    ]
+
+
+def _run_variables(record: BenchRecord) -> str:
+    """Write the environment a run's command is started in on the machine.
+
+    Args:
+        record: The run.
+
+    Returns:
+        The variables, the reason's rule among them where the run did not follow the protocol's.
+    """
+    rule = () if record.digit_reasons is None else ("SPEC_TO_INSPECTOR_REASON_RULE=designators",)
+    return " ".join(("SPEC_TO_INSPECTOR_DEVICE=xpu", "ZE_AFFINITY_MASK=0", *rule))
 
 
 def _cold_lines(cold: ColdStart | None) -> list[str]:
@@ -1108,11 +1188,10 @@ def render_stage2_readme(record: BenchRecord, *, paired: PairedRecord | None = N
         ),
         "## Repeating it",
         "",
-        "The judge's server is started by `scripts/serve_vlm_xpu.sh start`, none of its settings",
-        "overridden, and this run's command is started on the machine as:",
+        *_server_start_lines(record),
         "",
         "```",
-        f"SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/{' '.join(record.command)}",
+        f"{_run_variables(record)} .venv/bin/{' '.join(record.command)}",
         "```",
         "",
         *_repeat_lines(record.repeat),

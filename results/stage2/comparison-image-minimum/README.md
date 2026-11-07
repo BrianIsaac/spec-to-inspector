@@ -15,8 +15,9 @@ The figures follow these files, each read at the time of the run:
 Every proportion is a count of its N with the 95% Wilson score interval. Nothing here is
 a held-out figure: see the last section.
 
-This run's record holds what the protocol asks of a final run. Three runs make a figure
-final: see the section on repeating it.
+**This run is not final.** Its record lacks what the protocol asks of a final run:
+
+- the final setting: this is the image-minimum comparison.
 
 ## The figures
 
@@ -58,6 +59,7 @@ folded into it.
 | image_label_revision | `ac12083301cbdbe06135882d401f7877b0b512db` | container label org.opencontainers.image.revision |
 | command | `-c source /opt/intel/oneapi/setvars.sh --force >/dev/null 2>&1; exec vllm serve --model /root/.cache/huggingface/hub/models--Qwen--Qwen3-VL-8B-Instruct/snapshots/0c351dd01ed87e9c1b53cbc748cba10e6187ff3b --served-model-name qwen3-vl-8b-instruct --dtype=float16 --enforce-eager --port 8131 --host 127.0.0.1 --trust-remote-code --disable-sliding-window --gpu-memory-util=0.9 --max-model-len=32768 --max-num-batched-tokens=32768 --block-size 64 --limit-mm-per-prompt '{"image": 2}' --mm-processor-kwargs '{"size": {"shortest_edge": 65536, "longest_edge": 16777216}}' --no-enable-prefix-caching --mm-processor-cache-gb 0 -tp=1` | docker inspect, Args |
 | dtype | `float16` | the server's log, the engine's line, dtype=torch.* |
+| quantisation | not recorded | the record does not hold it |
 
 The judge's card: Intel(R) Arc(TM) Pro B70 Graphics. Its image minimum: 64 tokens. Up to 3 areas an image, stopping at the first reject.
 
@@ -304,8 +306,9 @@ The boards that differ:
 
 ## Repeating it
 
-The judge's server is started by `scripts/serve_vlm_xpu.sh start`, none of its settings
-overridden, and this run's command is started on the machine as:
+The judge's server is started by `IMAGE_MIN_PIXELS=65536 scripts/serve_vlm_xpu.sh start`, which is not the protocol's start.
+Its command line, as the record holds it, has `--mm-processor-kwargs {"size": {"shortest_edge": 65536, "longest_edge": 16777216}}` where the protocol has `--mm-processor-kwargs {"size": {"shortest_edge": 1048576, "longest_edge": 16777216}}`.
+This run's command is started on the machine as:
 
 ```
 SPEC_TO_INSPECTOR_DEVICE=xpu ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector bench --results results/stage2/comparison-image-minimum/bench.json --readme results/stage2/comparison-image-minimum/README.md

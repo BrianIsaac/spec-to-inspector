@@ -94,6 +94,7 @@ Used on the organiser's machine in Stage II (`results/stage2/week1/machine.md`,
 | Component | Version | Used for | Licence | Source |
 | --- | --- | --- | --- | --- |
 | Qwen3-VL-8B-Instruct at FP16 | revision `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`, pinned in `scripts/serve_vlm_xpu.sh` | The judge at full precision | Apache-2.0, read at that revision | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> |
+| Qwen3-VL-8B-Instruct-FP8 | revision `9cdc6310a8cb770ce18efaf4e9935334512aee45`, pinned in `results/stage2/comparison-fp8/serve-fp8.sh` | The judge at 8-bit, Qwen's own build: a comparison declared in `eval/PROTOCOL-stage2.md`, run twice on 7 November 2026 (`results/stage2/comparison-fp8/COMPARISON.md`). It does not replace the final figure | Apache-2.0, read at that revision | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-FP8> |
 | Intel llm-scaler, its vLLM image | `intel/llm-scaler-vllm:0.26.0-b1`, digest in `machine.md` | Serving the judge on card 1; see note 6 | Apache-2.0, the project's `LICENSE` on `main` | <https://github.com/intel/llm-scaler> |
 | vLLM | 0.26.1.dev0, inside that image | Serving the judge | Apache-2.0, the project's `LICENSE` on `main` | <https://github.com/vllm-project/vllm> |
 | OpenVINO | 2026.4.1, in the `xpu` group | Measured beside PyTorch XPU: PatchCore through Anomalib's export, on `GPU.0` in FP32, with `onnx` and `onnxscript`. Nothing in the pipeline runs through it | Apache-2.0 | <https://github.com/openvinotoolkit/openvino> |
@@ -102,7 +103,6 @@ Planned for Stage II and not yet run:
 
 | Component | Planned use | Licence | Source |
 | --- | --- | --- | --- |
-| Qwen3-VL-8B-Instruct-FP8, revision `9cdc6310a8cb770ce18efaf4e9935334512aee45` | The judge at 8-bit, Qwen's own build: a comparison declared in `eval/PROTOCOL-stage2.md` | Apache-2.0, read at that revision | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-FP8> |
 | PaddleOCR-VL-1.6 | Scanned specifications | Apache-2.0 | <https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6> |
 
 ## Software outside the Python environment

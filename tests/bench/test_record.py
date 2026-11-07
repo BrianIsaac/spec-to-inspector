@@ -12,21 +12,38 @@ from spec_to_inspector.bench.labels import read_labels
 from spec_to_inspector.bench.observe import Citation, DigitReason, DigitReasons, Observation
 from spec_to_inspector.bench.record import (
     BOARDS_NOT_SCORED_BY_THE_BENCH,
+    FP8_SERVER_SCRIPT,
+    PROTOCOL_SERVER_SCRIPT,
+    PROTOCOL_SERVER_START,
     SCORE_TOLERANCE,
     BenchRecord,
     FileRef,
+    ServerOverride,
+    ServerStart,
     boards_on_threshold,
     compare,
+    declared_comparisons,
     file_ref,
     missing_for_final,
     protocol_files,
     read_record,
     same_making,
+    server_flags,
+    server_start,
+    still_not_final,
     write_record,
 )
 from spec_to_inspector.bench.run import BenchPlan
 from spec_to_inspector.bench.score import score
 from spec_to_inspector.judge.disposition import Outcome
+from tests.bench.bench_fakes import (
+    FINAL_COMMAND,
+    FINAL_KWARGS,
+    FINAL_SNAPSHOT,
+    FP8_REVISION,
+    FP8_SNAPSHOT,
+    IMAGE_MINIMUM_KWARGS,
+)
 
 
 def test_a_record_round_trips_through_its_file(record: BenchRecord, tmp_path: Path) -> None:
@@ -267,6 +284,7 @@ def test_stage_ones_notes_still_say_what_is_true_on_the_laptop(record: BenchReco
         ({"judge_memory": {"card_peak_mib": None}}, "while the judge answered"),
         ({"runs": {"memory": {"card_peak_mib": None}}}, "while pcb1 was scored"),
         ({"judge": {"server": {}}}, "which server answered: image"),
+        ({"judge": {"server": {}}}, "which server answered: command"),
         ({"judge": {"image_min_tokens": "unknown"}}, "minimum tokens"),
         ({"judge": {"gpu": None}}, "the card's name"),
         ({"judge": {"cold": None}}, "the cold came from the server's start"),
@@ -336,3 +354,275 @@ def test_with_the_runs_two_parts_a_stage_two_record_names_the_rulings_four_board
     assert boards_on_threshold(boards, thresholds).elsewhere == ()
     assert stage2_record.on_threshold is not None
     assert stage2_record.on_threshold.elsewhere == BOARDS_NOT_SCORED_BY_THE_BENCH
+
+
+def _started_as(record: BenchRecord, *, command: str | None = None, **facts: str) -> BenchRecord:
+    """Give a record another server's facts.
+
+    Args:
+        record: The record.
+        command: The container's command line; None to leave it out of the facts.
+        **facts: Other facts to set.
+
+    Returns:
+        The record, as if that server had answered.
+    """
+    server = {**record.judge.server, **facts, "command": command or ""}
+    if command is None:
+        del server["command"]
+    judge = record.judge.model_copy(update={"server": server})
+    return record.model_copy(update={"judge": judge})
+
+
+FP8_COMMAND = FINAL_COMMAND.replace(FINAL_SNAPSHOT, FP8_SNAPSHOT)
+IMAGE_MINIMUM_COMMAND = FINAL_COMMAND.replace(FINAL_KWARGS, IMAGE_MINIMUM_KWARGS)
+FINAL_SETTING = "the final setting: this is the {} comparison"
+READING = DigitReasons(reasons=(), followed_by_a_unit=0)
+
+
+def test_a_record_of_the_final_setting_is_no_comparison(stage2_record: BenchRecord) -> None:
+    """Started as the protocol writes it, with nothing to say against it."""
+    assert declared_comparisons(stage2_record) == []
+    assert missing_for_final(stage2_record) == []
+    assert server_start(stage2_record) == ServerStart(
+        script=PROTOCOL_SERVER_SCRIPT, variables=(), overrides=()
+    )
+
+
+@pytest.mark.parametrize(
+    "facts",
+    [
+        {"command": FP8_COMMAND, "weights_revision": FP8_REVISION},
+        {"command": FP8_COMMAND},
+        {"weights_revision": FP8_REVISION},
+    ],
+    ids=["both", "by-its-command", "by-its-weights-revision"],
+)
+def test_the_fp8_comparison_is_known_from_its_revision_or_its_command(
+    stage2_record: BenchRecord, facts: dict[str, str]
+) -> None:
+    """Either of the two the record holds says so; it is never what a final run's must be."""
+    named = _started_as(stage2_record, **facts)
+
+    assert declared_comparisons(named) == ["fp8"]
+    assert FINAL_SETTING.format("fp8") in missing_for_final(named)
+
+
+def test_the_image_minimum_comparison_is_known_from_its_command(
+    stage2_record: BenchRecord,
+) -> None:
+    """`IMAGE_MIN_PIXELS=65536` reaches the record as the flag it writes."""
+    named = _started_as(stage2_record, command=IMAGE_MINIMUM_COMMAND)
+
+    assert declared_comparisons(named) == ["image-minimum"]
+    assert missing_for_final(named) == [FINAL_SETTING.format("image-minimum")]
+
+
+def test_the_image_minimum_comparison_is_known_from_its_tokens(
+    stage2_record: BenchRecord,
+) -> None:
+    """The tokens are what the record holds when the flag cannot be read."""
+    judge = stage2_record.judge.model_copy(update={"image_min_tokens": "64"})
+    named = stage2_record.model_copy(update={"judge": judge})
+
+    assert declared_comparisons(named) == ["image-minimum"]
+
+
+def test_the_designators_comparison_is_named_as_it_was(stage2_record: BenchRecord) -> None:
+    """The same words the kept record has, so its page does not move."""
+    named = stage2_record.model_copy(update={"digit_reasons": READING})
+
+    assert declared_comparisons(named) == ["designators"]
+    assert missing_for_final(named) == [FINAL_SETTING.format("designators")]
+
+
+def test_a_setting_no_comparison_declares_is_not_final_either(stage2_record: BenchRecord) -> None:
+    """Named by its flag: it is not the protocol's, and it is none of the three."""
+    command = FINAL_COMMAND.replace("--gpu-memory-util=0.9", "--gpu-memory-util=0.8")
+    named = _started_as(stage2_record, command=command)
+
+    assert declared_comparisons(named) == []
+    assert missing_for_final(named) == [
+        "the final setting: its server's `--gpu-memory-util` is not the protocol's"
+    ]
+
+
+def test_a_second_setting_changed_beside_a_comparison_is_named_too(
+    stage2_record: BenchRecord,
+) -> None:
+    """The comparison changes one thing: anything beyond it is said as well."""
+    command = FP8_COMMAND.replace("--gpu-memory-util=0.9", "--gpu-memory-util=0.8")
+
+    assert missing_for_final(_started_as(stage2_record, command=command)) == [
+        FINAL_SETTING.format("fp8"),
+        "the final setting: its server's `--gpu-memory-util` is not the protocol's",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("name", "reasons"),
+    [
+        ("final", []),
+        ("comparison-fp8", [FINAL_SETTING.format("fp8")]),
+        ("comparison-image-minimum", [FINAL_SETTING.format("image-minimum")]),
+        ("comparison-designators", [FINAL_SETTING.format("designators")]),
+    ],
+)
+def test_the_tracked_records_are_what_they_are(name: str, reasons: list[str]) -> None:
+    """The runs of 7 November, as committed: three comparisons and the final."""
+    tracked = read_record(REPOSITORY / "results" / "stage2" / name / "bench.json")
+
+    assert missing_for_final(tracked) == reasons
+
+
+def test_the_written_field_is_kept_and_what_the_code_now_knows_is_added(
+    stage2_record: BenchRecord,
+) -> None:
+    """A kept record's `not_final` is its own; the page reads it with what the record shows now."""
+    kept = _started_as(stage2_record, command=FP8_COMMAND).model_copy(
+        update={"not_final": ["the warm-up having been asked"]}
+    )
+
+    assert still_not_final(kept) == [
+        "the warm-up having been asked",
+        FINAL_SETTING.format("fp8"),
+    ]
+    assert still_not_final(stage2_record) == []
+
+
+def test_the_protocols_start_is_the_one_the_final_ran_and_the_script_writes() -> None:
+    """Three places hold it: the final's record, the script's defaults, and the code that reads."""
+    final = read_record(REPOSITORY / "results" / "stage2" / "final" / "bench.json")
+    script = (REPOSITORY / "scripts" / "serve_vlm_xpu.sh").read_text(encoding="utf-8")
+    fp8_script = (REPOSITORY / FP8_SERVER_SCRIPT).read_text(encoding="utf-8")
+
+    assert server_flags(final.judge.server["command"]) == PROTOCOL_SERVER_START
+    assert FINAL_SNAPSHOT.rpartition("/")[2] in script
+    for default in (
+        'WEIGHTS_REPO="Qwen/Qwen3-VL-8B-Instruct"',
+        "GPU_MEMORY_UTIL:-0.9",
+        "MAX_MODEL_LEN:-32768",
+        "IMAGE_MIN_PIXELS:-1048576",
+        "IMAGE_MAX_PIXELS=16777216",
+        "PORT:-8131",
+    ):
+        assert default in script
+    assert f'WEIGHTS_REVISION="{FP8_REVISION}"' in fp8_script
+    assert 'WEIGHTS_REPO="Qwen/Qwen3-VL-8B-Instruct-FP8"' in fp8_script
+
+
+def test_the_fp8_start_is_its_own_script_with_the_one_flag_against_the_protocols(
+    stage2_record: BenchRecord,
+) -> None:
+    """The script cannot start other weights, so the comparison's copy did."""
+    assert server_start(_started_as(stage2_record, command=FP8_COMMAND)) == ServerStart(
+        script=FP8_SERVER_SCRIPT,
+        variables=(),
+        overrides=(ServerOverride("--model", FP8_SNAPSHOT, FINAL_SNAPSHOT),),
+    )
+
+
+def test_the_image_minimum_start_is_the_script_with_its_variable(
+    stage2_record: BenchRecord,
+) -> None:
+    """The protocol's own words for it, from the flag the variable wrote."""
+    assert server_start(_started_as(stage2_record, command=IMAGE_MINIMUM_COMMAND)) == ServerStart(
+        script=PROTOCOL_SERVER_SCRIPT,
+        variables=("IMAGE_MIN_PIXELS=65536",),
+        overrides=(ServerOverride("--mm-processor-kwargs", IMAGE_MINIMUM_KWARGS, FINAL_KWARGS),),
+    )
+
+
+@pytest.mark.parametrize(
+    ("before", "after", "variables"),
+    [
+        ("--gpu-memory-util=0.9", "--gpu-memory-util=0.8", ("GPU_MEMORY_UTIL=0.8",)),
+        (
+            "--max-model-len=32768 --max-num-batched-tokens=32768",
+            "--max-model-len=16384 --max-num-batched-tokens=16384",
+            ("MAX_MODEL_LEN=16384",),
+        ),
+        ("--port 8131", "--port 8132", ("PORT=8132",)),
+        ("--no-enable-prefix-caching --mm-processor-cache-gb 0 ", "", ("PREFIX_CACHE=on",)),
+    ],
+    ids=["memory", "context", "port", "prefix-cache"],
+)
+def test_each_variable_the_script_takes_is_read_back_from_what_it_wrote(
+    stage2_record: BenchRecord, before: str, after: str, variables: tuple[str, ...]
+) -> None:
+    """One variable however many flags it writes."""
+    start = server_start(_started_as(stage2_record, command=FINAL_COMMAND.replace(before, after)))
+
+    assert start is not None
+    assert start.script == PROTOCOL_SERVER_SCRIPT
+    assert start.variables == variables
+    assert start.overrides
+
+
+@pytest.mark.parametrize(
+    ("before", "after"),
+    [
+        ("--dtype=float16", "--dtype=bfloat16"),
+        ("--enforce-eager", "--enforce-eager --seed 7"),
+        ("--block-size 64 ", ""),
+        ("--model " + FINAL_SNAPSHOT, "--model /elsewhere"),
+        ("--max-num-batched-tokens=32768", "--max-num-batched-tokens=16384"),
+        ("--mm-processor-cache-gb 0 ", ""),
+        ('"longest_edge": 16777216', '"longest_edge": 1024'),
+    ],
+    ids=[
+        "another-value",
+        "a-flag-added",
+        "a-flag-gone",
+        "other-weights",
+        "one-of-the-context-flags",
+        "one-of-the-cache-flags",
+        "the-longest-edge",
+    ],
+)
+def test_a_start_the_script_cannot_write_names_no_script(
+    stage2_record: BenchRecord, before: str, after: str
+) -> None:
+    """The record says what the command line holds, and does not say what wrote it."""
+    start = server_start(_started_as(stage2_record, command=FINAL_COMMAND.replace(before, after)))
+
+    assert start is not None
+    assert start.script is None
+    assert start.variables == ()
+    assert len(start.overrides) == 1
+
+
+@pytest.mark.parametrize(
+    "command",
+    [None, "", "python -m something", "exec vllm serve --limit-mm-per-prompt '{"],
+    ids=["left-out", "empty", "not-vllm", "unbalanced-quote"],
+)
+def test_a_command_line_that_cannot_be_read_says_nothing_of_the_start(
+    stage2_record: BenchRecord, command: str | None
+) -> None:
+    """Neither that it was overridden nor that it was not."""
+    assert server_start(_started_as(stage2_record, command=command)) is None
+
+
+def test_a_record_from_before_the_field_is_still_of_the_same_making(
+    stage2_record: BenchRecord,
+) -> None:
+    """A next run on these records repeats them: one holding no word is no difference."""
+    server = dict(stage2_record.judge.server)
+    del server["quantisation"]
+    earlier = stage2_record.model_copy(
+        update={"judge": stage2_record.judge.model_copy(update={"server": server})}
+    )
+
+    assert same_making(earlier, stage2_record) == []
+    assert same_making(stage2_record, earlier) == []
+    other = {**stage2_record.judge.server, "quantisation": "fp8"}
+    quantised = stage2_record.model_copy(
+        update={"judge": stage2_record.judge.model_copy(update={"server": other})}
+    )
+    assert "the server" in same_making(quantised, stage2_record)[0]
+
+
+def test_the_field_is_said_in_the_notes_it_is_written_under(stage2_record: BenchRecord) -> None:
+    """What `None` and no word at all mean, in the record that holds them."""
+    assert "None" in stage2_record.notes["quantisation"]

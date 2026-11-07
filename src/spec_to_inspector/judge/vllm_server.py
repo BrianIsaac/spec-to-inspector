@@ -4,9 +4,11 @@ vLLM's endpoints say what they can: `GET /version` its version, `GET /v1/models`
 serves, the weights' path and its context, and `GET /metrics` its prefix-cache counters. They do not
 say which image it runs in, or its precision. The container says the first, through `docker
 inspect`. Its labels are Intel's, naming the base image's date and revision and not the tag or the
-digest, so those come from the fields Docker keeps beside the labels. The precision comes from the
-engine's own line in the server's log, which is what it runs at; the command line is only what it
-was asked for.
+digest, so those come from the fields Docker keeps beside the labels. The precision and the
+quantisation come from the engine's own line in the server's log, which is what it runs at; the
+command line is only what it was asked for. FP8 weights need no flag: they carry their quantisation
+in their config, so the engine's line is the one place that says so. Its `None` is kept as the text
+it is, and a fact left out is one that could not be read.
 
 The log is also the void rule's: `Prefix cache hit rate` is printed there every ten seconds while
 the server is busy. With the cache off from the server's start the counters stay at 0 of 0, so the
@@ -38,8 +40,10 @@ _REVISION_LABEL: Final = "org.opencontainers.image.revision"
 _HIT_RATE: Final = re.compile(r"Prefix cache hit rate: ([0-9.]+)%")
 _ENGINE_LINE: Final = re.compile(r"Initializing a V1 LLM engine .*")
 _ENGINE_DTYPE: Final = re.compile(r"\bdtype=torch\.(\w+)")
+_ENGINE_QUANTISATION: Final = re.compile(r"\bquantization=([^,\s]+)")
 _ENGINE_PREFIX_CACHING: Final = re.compile(r"\benable_prefix_caching=(True|False)")
 _FLAG_DTYPE: Final = re.compile(r"--dtype[= ](\w+)")
+_FLAG_QUANTISATION: Final = re.compile(r"(?:^|\s)(?:--quantization|-q)[= ](\S+)")
 _FLAG_PORT: Final = re.compile(r"--port[= ](\d+)")
 _SHORTEST_EDGE: Final = re.compile(r'"shortest_edge":\s*(\d+)')
 _SNAPSHOT: Final = re.compile(r"/snapshots/([0-9a-f]{40})")
@@ -228,22 +232,25 @@ def _image_min_tokens(command: str) -> str:
     return str(int(edge.group(1)) // _PIXELS_PER_TOKEN) if edge else OWN_MINIMUM
 
 
-def _engine_says(log: str) -> tuple[str | None, bool | None]:
+def _engine_says(log: str) -> tuple[str | None, str | None, bool | None]:
     """Read the engine's line in the server's log.
 
     Args:
         log: The log from the server's start.
 
     Returns:
-        The engine's precision and whether its prefix cache is on; None for what is not there.
+        The engine's precision, its quantisation as it words it and whether its prefix cache is on;
+        None for what is not there.
     """
     line = _ENGINE_LINE.search(log)
     if line is None:
-        return None, None
+        return None, None, None
     dtype = _ENGINE_DTYPE.search(line.group(0))
+    quantisation = _ENGINE_QUANTISATION.search(line.group(0))
     caching = _ENGINE_PREFIX_CACHING.search(line.group(0))
     return (
         dtype.group(1) if dtype else None,
+        quantisation.group(1) if quantisation else None,
         caching.group(1) == "True" if caching else None,
     )
 
@@ -307,12 +314,23 @@ def read_server(
     log = _docker(
         docker, ("logs", container), with_stderr=True, timeout_seconds=_LOG_TIMEOUT_SECONDS
     )
-    dtype, caching = _engine_says(log or "")
+    dtype, quantisation, caching = _engine_says(log or "")
     if dtype is not None:
         found["dtype"] = (dtype, "the server's log, the engine's line, dtype=torch.*")
     else:
         asked = _FLAG_DTYPE.search(command)
         found["dtype"] = (asked.group(1) if asked else None, "docker inspect, Args, --dtype")
+    if quantisation is not None:
+        found["quantisation"] = (
+            quantisation,
+            "the server's log, the engine's line, quantization=*",
+        )
+    else:
+        asked = _FLAG_QUANTISATION.search(command)
+        found["quantisation"] = (
+            asked.group(1) if asked else None,
+            "docker inspect, Args, --quantization",
+        )
     for key, (value, source) in found.items():
         if value is not None:
             facts[key] = str(value)
