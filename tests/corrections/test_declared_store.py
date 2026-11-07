@@ -25,6 +25,7 @@ ROOT = Path(__file__).parents[2]
 FINAL = ROOT / "results" / "stage2" / "final" / "bench.json"
 LABELS = ROOT / "eval" / "clause_labels.csv"
 CLAUSES = ROOT / "specs" / "pcb-spec.clauses.json"
+TRACKED_STORE = ROOT / "results" / "stage2" / "comparison-corrections" / "store.sqlite3"
 
 DRAWN = {
     "pcb1": (
@@ -197,6 +198,22 @@ def test_the_manifest_says_what_each_board_became_and_what_it_was_built_from(
     assert manifest["script"]["path"] == "src/spec_to_inspector/corrections/declared_store.py"
     for name, path in (("final", FINAL), ("labels", LABELS), ("clause_table", CLAUSES)):
         assert manifest[name]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def test_the_tracked_store_is_what_the_script_builds_from_the_tracked_files(tmp_path: Path) -> None:
+    """The comparison's file holds the rows a build gives, and its manifest names its bytes."""
+    manifest = json.loads(TRACKED_STORE.with_suffix(".json").read_text(encoding="utf-8"))
+    assert manifest["store"]["sha256"] == hashlib.sha256(TRACKED_STORE.read_bytes()).hexdigest()
+    assert manifest["store"]["path"] == "results/stage2/comparison-corrections/store.sqlite3"
+    kept_script = TRACKED_STORE.with_name("declared_store.py.txt")
+    assert manifest["script"]["sha256"] == hashlib.sha256(kept_script.read_bytes()).hexdigest()
+
+    built, kept = CorrectionStore(_built(tmp_path)), CorrectionStore(TRACKED_STORE)
+    assert kept.count() == built.count() == 14
+    for part, boards in DRAWN.items():
+        assert kept.recall_for_part(part, limit=14) == built.recall_for_part(part, limit=14)
+        for board in boards:
+            assert kept.for_image(part, board) == built.for_image(part, board)
 
 
 def test_a_final_record_with_no_line_for_a_drawn_board_is_refused() -> None:

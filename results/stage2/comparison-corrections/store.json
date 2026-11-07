@@ -1,0 +1,88 @@
+{
+  "seed": 20261107,
+  "boards_per_part": 10,
+  "recall": {
+    "strategy": "part",
+    "limit": 3
+  },
+  "final": {
+    "path": "results/stage2/final/bench.json",
+    "sha256": "ece9864d4ff3f8f93b679c4a14cf15dd2c480fb6c0963f9209b73e2c7f9c4d71"
+  },
+  "labels": {
+    "path": "eval/clause_labels.csv",
+    "sha256": "44866105f3fdad88c12f70a6d41d1d0c7e14df34d9ffbc0f7cb5051c42660337"
+  },
+  "clause_table": {
+    "path": "specs/pcb-spec.clauses.json",
+    "sha256": "510ca4c1735b1e5ad0f525380d1414fd6943fa40a09195006251380b114ad661"
+  },
+  "script": {
+    "path": "src/spec_to_inspector/corrections/declared_store.py",
+    "sha256": "e2c07330963225a847d80eb2964a4b783b3a769636f3daea8e48feceb3dd678c"
+  },
+  "sqlite": "3.46.0",
+  "store": {
+    "path": "results/stage2/comparison-corrections/store.sqlite3",
+    "sha256": "e43072ed4d3cbf2d5257cbb8e6f6c62add126675d4a0b4d7e6b8e8815077ea0c"
+  },
+  "corrections": 14,
+  "drawn": {
+    "pcb1": [
+      "bad-078",
+      "bad-092",
+      "bad-052",
+      "bad-061",
+      "bad-004",
+      "bad-021",
+      "bad-085",
+      "bad-042",
+      "bad-033",
+      "bad-029"
+    ],
+    "pcb4": [
+      "bad-077",
+      "bad-096",
+      "bad-059",
+      "bad-065",
+      "bad-011",
+      "bad-026",
+      "bad-051",
+      "bad-044",
+      "bad-038",
+      "bad-015"
+    ]
+  },
+  "left_out": [
+    {
+      "part": "pcb1",
+      "image_id": "bad-078",
+      "reason": "the final run already answered as the label does"
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-061",
+      "reason": "the label's region columns are empty, so it names no clause"
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-021",
+      "reason": "the final run already answered as the label does"
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-085",
+      "reason": "the label's region columns are empty, so it names no clause"
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-033",
+      "reason": "the label's region columns are empty, so it names no clause"
+    },
+    {
+      "part": "pcb1",
+      "image_id": "bad-029",
+      "reason": "the final run already answered as the label does"
+    }
+  ]
+}
