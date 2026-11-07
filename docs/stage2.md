@@ -9,11 +9,12 @@ read against the machine's own baseline run.
 **This plan was written before the machine was seen, and was corrected to it
 on 7 November 2026.** Every figure marked "on the machine" was measured
 there on 6 November, in week 1 or week 2, or on 7 November in the final run, its
-comparisons and the whole batch. A file named alone is under `results/stage2/week1/`; the others are
+comparisons, the whole batch, the corrections comparison and the two readings beside it, in flight
+and on one card. A file named alone is under `results/stage2/week1/`; the others are
 given with their whole path. Every figure marked "on the laptop" is in
 `results/stage1/`. A figure marked as a plan or an estimate has not been
-measured. Not yet run on the machine: a scanned specification, a picture of a good
-board beside the crop, and a store of corrections. The final figure is
+measured. Not yet run on the machine: a scanned specification and a picture of a good
+board beside the crop. The final figure is
 under "The baseline" below and in `results/stage2/final/FINAL.md`, and no other
 figure on this page is one.
 
@@ -64,6 +65,12 @@ The configuration this leads to:
   ran that way, with the judge's server up on card 1: from run 1's second part
   on, card 1 stayed at 29,455.73 to 29,455.77 MiB over 1,830 readings every 5 s
   (`results/stage2/week2/raw/cards-every-5s.txt`).
+- **One card, measured as a record of its own, no accuracy figure.** With the judge's container on card
+  0 beside PatchCore: 31,978 of 32,656 MiB, leaving 678 MiB, with PatchCore scoring beside a judge that
+  has answered, in short benches of 80 boards, not the 401. The two take turns: the bench scores and
+  then judges, so only their memory is on the card together. The runs reported used a card each, and a
+  whole batch on one card is still to run if a claim is to rest on it
+  (`results/stage2/one-card/ONE-CARD.md`).
 - **The judge's server takes 90% of its card** (`--gpu-memory-util=0.9`). At
   80% FP16 leaves 2.97 GiB of cache and vLLM refuses a 32K context, which
   asks 4.5 GiB; its largest would be 21,568 tokens
@@ -237,12 +244,12 @@ this repository, measured on the machine.
 | 1, 6 to 12 November: bring-up | Read the cards the machine exposes (name, memory, whole card or virtual function). Install the pinned environment. Check PyTorch XPU and OpenVINO. Start the judge's server. | Done on 6 November, `results/stage2/week1/`: the machine's measured shape; the answer schema accepted with one fix |
 | 2, 13 to 19 November: the anomaly model | PatchCore on PyTorch XPU in FP32 and through OpenVINO | Done on 6 November UTC, ahead of its week, `results/stage2/week2/`: training time, images per second and peak memory on the machine, on all four parts, in two runs |
 | 3, 20 to 26 November: the judge at full precision | Qwen3-VL-8B-Instruct at FP16 and at FP8, with the whole specification in context | Done on 7 November, ahead of its week, `results/stage2/final/` and `results/stage2/comparison-fp8/`: answer time and clause-citation accuracy on the 200 labelled boards, under the protocol: FP16 as the final setting, FP8 as a declared comparison. Throughput is not read: vLLM gives no generation rate |
-| 4, 27 November to 4 December: the full run | A whole batch end to end; memory per stage against the plan above; the corrections loop across the batch | The whole batch done on 7 November, ahead of its week, `results/stage2/batch/`: 401 boards from the PDF to the reject cards, twice, in 10 min 33 s and 10 min 34 s; 186 accepted, 194 rejected, 21 referred, 194 reject cards; every board's outcome equal to the final's second run, and no accuracy figure. Specification to inspector: 11.77 and 11.78 minutes for one part, 23.45 for both. Memory per stage: in the table above, at its peak 2,596 MiB on card 0 while the model scores and 29,786 MiB on card 1 while the judge answers. Still to come, before the reservation ends on 2 December 2026 at 11:30: the corrections loop across the batch, under its own addition (`eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md`); if the hours allow, more than one question in flight, which the batch does not answer, since `inspect` asks one at a time; and the final video recorded from a session on the machine. The repository with its measured B70 figures by 4 December |
+| 4, 27 November to 4 December: the full run | A whole batch end to end; memory per stage against the plan above; the corrections loop across the batch | The whole batch done on 7 November, ahead of its week, `results/stage2/batch/`: 401 boards from the PDF to the reject cards, twice, in 10 min 33 s and 10 min 34 s; 186 accepted, 194 rejected, 21 referred, 194 reject cards; every board's outcome equal to the final's second run, and no accuracy figure. Specification to inspector: 11.77 and 11.78 minutes for one part, 23.45 for both. Memory per stage: in the table above, at its peak 2,596 MiB on card 0 while the model scores and 29,786 MiB on card 1 while the judge answers. The corrections loop done on 7 November, under its own addition (`eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md`), `results/stage2/comparison-corrections/`: a store of corrections, three a part standing in every prompt: no figure separates it from the final on the strict figure (46 of 115 against 42, p = 0.65), and on the lenient figure, not the primary test, it reads lower (29 of 65 against 46, p = 0.0076). More than one question in flight measured the same day, as a record of its own, `results/stage2/in-flight/`: 37.0 boards a minute against 26.5, each answer 3.12 s against 2.14 s at the median, one part, two at once, one citation of 111 changed. Still to come, before the reservation ends on 2 December 2026 at 11:30: the final video recorded from a session on the machine. The repository with its measured B70 figures by 4 December |
 
 What the end of the reservation does to week 4: of its eight days, about five
-and a half have the machine. The whole batch and the memory per stage are done, ahead
-of the week, on 7 November. The corrections loop and the recording of the final video
-have to be done before 2 December at 11:30, with everything copied off by then. After
+and a half have the machine. The whole batch, the memory per stage and the corrections loop are
+done, ahead of the week, on 7 November. The recording of the final video
+has to be done before 2 December at 11:30, with everything copied off by then. After
 that the week has no machine: what is left of it can only work from what was copied. The
 weeks are not re-planned here; that is the owner's.
 
@@ -332,10 +339,21 @@ never pooled.
 3. **The corrections loop, measured.** On the laptop a single correction
    moved the next similar board to the corrected clause in 7 pairs of 7, and
    also moved 14 of 19 boards that were rightly judged before. Stage II
-   measures what a store of corrections does to the whole set, in both
-   directions, by a dated addition of its own, written on 7 November before any
-   corrections run (`eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md`); the
-   store stays empty in the baseline.
+   measured what a store of corrections does to the whole set, in both
+   directions, on 7 November, by a dated addition of its own
+   (`eval/PROTOCOL-stage2-addition-corrections-2026-11-07.md`), in two runs that agree on every
+   board (`results/stage2/comparison-corrections/COMPARISON.md`); the store stays empty in the
+   baseline. **A store of corrections, three a part standing in every prompt: no figure separates it
+   from the final on the strict figure (46 of 115 against 42, p = 0.65), and on the lenient figure,
+   not the primary test, it reads lower (29 of 65 against 46, p = 0.0076).** The store holds 14, not
+   the 20 its addition declared, by the addition's dated line; the recall's limit of three gives each
+   part the same three lines on every question; and the twenty boards drawn leave every figure, so the
+   test is on the 115 and not the 135. Each figure is tested on its own at 0.05, and they are never
+   pooled. The lines moved the answers wholesale towards the classes they name, on boards they say
+   nothing about: 70 of the 115 strict boards changed their answer, PCB1's "melt" from 47 to 12 and
+   "missing" from 2 to 35 of 81, PCB4's "dirt" from 22 to 1 of 34. **So the Stage I position stands, now
+   measured on the machine: we do not claim that corrections raise accuracy.** The answer takes 2.16 s
+   against 2.13 s at the median, 137 tokens longer.
 
 *Corrected 7 November 2026. The plan had set these three against the laptop's
 headline, as "the figure Stage II most needs to move", and had called full precision
