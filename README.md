@@ -576,11 +576,11 @@ ZE_AFFINITY_MASK=0 .venv/bin/spec-to-inspector train --category pcb4
 **A new training's model is the same to the bit and its file is not, since the file holds its own
 output directory, so the bench refuses it and names both digests.** Week 2's second training, read
 against the named checkpoints before the whole batch, differs from them in 36 of 668,469,863 bytes
-on PCB1 and 35 on PCB4: of the 274 members of each file's archive only two differ, its pickle, by
-`run-1` against `run-2` in the path the checkpoint callback writes into it, and its serialization
-id. The rest of those bytes are the two members' CRCs. Every tensor is the same, and two trainings
-gave identical memory banks, and scores and maps identical to the bit. Whether a training into the
-very same path repeats to the byte was not tried.
+on PCB1 and 35 on PCB4. Of the 274 members of each file's archive only two differ: its pickle, in
+2 bytes, `run-1` against `run-2` in the path the checkpoint callback writes into it, and its
+serialization id; the rest of those bytes are that id and the two members' CRCs. Every tensor is the
+same, and the two trainings gave identical memory banks, and scores and maps identical to the bit.
+Whether a training into the very same path repeats to the byte was not tried.
 
 On any other digest the bench exits 1 and writes nothing, `inspect --record` refuses too, and the
 protocol calls such a run void. `SPEC_TO_INSPECTOR_CHECKPOINT_RECORD` can point at a record of your
@@ -668,12 +668,21 @@ results/stage2/batch` makes the page and `two-runs.md`, and sets the boards agai
 
 ## Model information
 
-| Model | Role | Version | Size and precision | Licence | Stage I, the laptop | Stage II, the machine |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, has run as a declared comparison: 51 of 135, and no figure separates it from the final run | Apache-2.0 | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context: a median of 2.12 s and a 95th percentile of 2.54 to 2.56 s to answer one area, cold, and 29,471 to 29,784 MiB on the card at its peak (the final's 3 runs) |
-| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: 692.7 to 703.5 s to train a part and 10,345 to 10,785 MiB on the card at its peak (8 trainings); 34.69 to 35.22 images a second at batch 16, the model alone. Anomalib's OpenVINO export was measured beside it and is not the path: "Stage II on the Intel Arc Pro B70" has both |
-| [docling](https://github.com/docling-project/docling)'s layout and table models | The parser: reads the specification PDF | as docling 2.135.0 fetches them: `docling-layout-heron`, `docling-models` v2.3.0 | about 530 MB together | Apache-2.0 and CDLA-Permissive-2.0 (docling itself is MIT) | CPU | CPU |
-| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 | not built | planned, at FP16; not run |
+| Model | Role | Version | Size and precision | Licence |
+| --- | --- | --- | --- | --- |
+| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | The judge: names the defect class and the clause | Stage I: Qwen's own [GGUF build](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF), revision `f982a07`. Stage II: the same repository's weights, revision `0c351dd` | Stage I: 4-bit (Q4_K_M), 5.03 GB, with the F16 vision projector, 1.16 GB. Stage II: FP16, 16.33 GiB on disk, 17.34 GiB as vLLM loads it. Qwen's FP8, 10.59 GB, has run as a declared comparison: 51 of 135, and no figure separates it from the final run | Apache-2.0 |
+| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | The anomaly model: finds what does not look like a good board | [Anomalib](https://github.com/open-edge-platform/anomalib) 2.7.0; timm's `wide_resnet50_2.racm_in1k` weights | 256 px input, full float32; a memory bank of 92,569 patches by 1,536 values, a 668 MB checkpoint per part | Apache-2.0 |
+| [docling](https://github.com/docling-project/docling)'s layout and table models | The parser: reads the specification PDF | as docling 2.135.0 fetches them: `docling-layout-heron`, `docling-models` v2.3.0 | about 530 MB together | Apache-2.0 and CDLA-Permissive-2.0 (docling itself is MIT) |
+| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | Scanned specifications | not used in Stage I | 958.6M parameters | Apache-2.0 |
+
+Where each runs:
+
+| Model | Stage I, the laptop | Stage II, the machine |
+| --- | --- | --- |
+| [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | llama.cpp `llama-server` at tag `v0.6.0`, CUDA, 16K context | Intel's llm-scaler image, tag `0.26.0-b1`, vLLM 0.26.1.dev0, on card 1, 32K context: a median of 2.12 s and a 95th percentile of 2.54 to 2.56 s to answer one area, cold, and 29,471 to 29,784 MiB on the card at its peak (the final's 3 runs) |
+| PatchCore, with a [`wide_resnet50_2`](https://huggingface.co/timm/wide_resnet50_2.racm_in1k) feature extractor | PyTorch 2.14.1 CUDA | PyTorch 2.14.1 XPU in FP32, on card 0: 692.7 to 703.5 s to train a part and 10,345 to 10,785 MiB on the card at its peak (8 trainings); 34.69 to 35.22 images a second at batch 16, the model alone. Anomalib's OpenVINO export was measured beside it and is not the path: "Stage II on the Intel Arc Pro B70" has both |
+| [docling](https://github.com/docling-project/docling)'s layout and table models | CPU | CPU |
+| [PaddleOCR-VL-1.6](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6) | not built | planned, at FP16; not run |
 
 No model is trained or fine-tuned except PatchCore's memory bank, which is
 built from a part's good images in about 12 minutes. `THIRD_PARTY.md` lists
